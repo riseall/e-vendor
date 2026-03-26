@@ -15,7 +15,7 @@
                         <h3>Sign In</h3>
                         <div class="text-muted font-weight-bold">Enter your details to login to your account:</div>
                     </div>
-                    <form class="form" id="kt_login_signin_form" method="POST" action="{{ route('login') }}">
+                    <form class="form" id="kt_login_signin_form">
                         @csrf
                         <div class="form-group mb-5">
                             <input
@@ -27,12 +27,20 @@
                             @enderror
                         </div>
                         <div class="form-group mb-5">
-                            <input
-                                class="form-control h-auto form-control-solid py-4 px-8 @error('password') is-invalid @enderror"
-                                type="password" placeholder="Password" name="password" />
-                            @error('password')
-                                <div class="invalid-feedback text-left">{{ $message }}</div>
-                            @enderror
+                            <div class="input-group">
+                                <input
+                                    class="form-control h-auto form-control-solid py-4 px-8 @error('password') is-invalid @enderror"
+                                    type="password" id="password" placeholder="Password" name="password" />
+                                <div class="input-group-append rounded-right">
+                                    <span id="togglePassword" onclick="togglePassword()"
+                                        class="input-group-text cursor-pointer border-0">
+                                        <i class="far fa-eye" id="eyeIcon"></i>
+                                    </span>
+                                </div>
+                                @error('password')
+                                    <div class="invalid-feedback text-left">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
                         <div class="form-group d-flex flex-wrap justify-content-between align-items-center">
                             <label class="checkbox m-0 text-muted">
@@ -56,7 +64,7 @@
                         <h3>Sign Up</h3>
                         <div class="text-muted font-weight-bold">Enter your details to create your account</div>
                     </div>
-                    <form class="form" id="kt_login_signup_form" method="POST" action="{{ route('register') }}">
+                    <form class="form" id="kt_login_signup_form">
                         @csrf
                         <div data-repeater-item="" class="form-group row align-items-center mb-5">
                             <div class="col-md-6">
@@ -130,8 +138,7 @@
                         <h3>Forgotten Password ?</h3>
                         <div class="text-muted font-weight-bold">Enter your email to reset your password</div>
                     </div>
-                    <form class="form" id="kt_login_forgot_form" method="POST"
-                        action="{{ route('password.email') }}">
+                    <form class="form" id="kt_login_forgot_form">
                         @csrf
                         <div class="form-group mb-10">
                             <input
@@ -154,3 +161,27 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        window.auth = {
+            login: "{{ route('login') }}",
+            register: "{{ route('register') }}",
+            forgot: "{{ route('password.email') }}",
+            dashboard: "{{ route('dashboard') }}"
+        }
+    </script>
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.className = "far fa-eye-slash";
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.className = "far fa-eye";
+            }
+        }
+    </script>
+@endpush
