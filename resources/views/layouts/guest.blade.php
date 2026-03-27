@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>E-Vendor | Login</title>
+    <title>E-Vendor - Login</title>
     <meta name="description" content="Login" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <!--begin::Fonts-->
@@ -18,7 +18,10 @@
     <link href="{{ asset('css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
     <!--end::Global Theme Styles-->
     <!--end::Layout Themes-->
-    <link rel="shortcut icon" href="{{ asset('images/logo/crm-favicon.png') }}" />
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" href="{{ asset('images/evendor-logo.png') }}" sizes="32x32">
+    <link rel="icon" type="image/png" href="{{ asset('images/evendor-logo.png') }}" sizes="192x192">
+    <link rel="apple-touch-icon" href="{{ asset('images/evendor-logo.png') }}">
     {{-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script> --}}
 </head>
 <!--end::Head-->

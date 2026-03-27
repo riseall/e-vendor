@@ -1,93 +1,121 @@
 @extends('layouts.app', ['title' => 'Dashboard'])
 
 @section('content')
-    <div class="col-xl-3 col-lg-6 col-sm-6">
-        <div class="widget-stat card">
-            <div class="card-body p-4">
-                <div class="media ai-icon">
-                    <span class="mr-3">
-                        <!-- <i class="ti-user"></i> -->
-                        <svg id="icon-customers" xmlns="http://www.w3.org/2000/svg" width="30" height="30"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="feather feather-user">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                    </span>
-                    <div class="media-body">
-                        <p class="mb-1">Patient</p>
-                        <h4 class="mb-0">3280</h4>
-                        <span class="badge badge-primary">+3.5%</span>
+    {{-- card welcome --}}
+    <div class="card welcome-card p-6 py-8 shadow-sm">
+        <p class="mb-1">Supplier</p>
+        <h2 class="mb-1">Selamat Datang, <b>{{ Auth::user()->firstname }}
+                {{ Auth::user()->lastname }}!</b></h2>
+        <p class="mb-0"><i class="far fa-calendar-alt mr-2 text-white"></i> {{ date('l') }}, {{ date('d F Y') }}</p>
+    </div>
+
+    {{-- card total --}}
+    <div class="row mt-8">
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 col-6">
+            <div class="card card-custom bgi-no-repeat card-stretch gutter-b">
+                <div class="card-body py-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="card-title font-weight-bolder text-dark-75 font-size-h2 mb-0 d-block">300</span>
+                        <i class="fas fa-users text-dark icon-lg"></i>
                     </div>
+                    <span class="font-weight-bold text-muted font-size-sm">Total User</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 col-6">
+            <div class="card card-custom bgi-no-repeat card-stretch gutter-b">
+                <div class="card-body py-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="card-title font-weight-bolder text-dark-75 font-size-h2 mb-0 d-block">209</span>
+                        <i class="fas fa-building text-primary icon-lg"></i>
+                    </div>
+                    <span class="font-weight-bold text-muted font-size-sm">Total Supplier</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 col-6">
+            <div class="card card-custom bgi-no-repeat card-stretch gutter-b">
+                <div class="card-body py-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="card-title font-weight-bolder text-dark-75 font-size-h2 mb-0 d-block">180</span>
+                        <i class="fas fa-check-circle text-success icon-lg"></i>
+                    </div>
+                    <span class="font-weight-bold text-muted font-size-sm">Approved Supplier</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 col-6">
+            <div class="card card-custom bgi-no-repeat card-stretch gutter-b">
+                <div class="card-body py-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="card-title font-weight-bolder text-dark-75 font-size-h2 mb-0 d-block">20</span>
+                        <i class="fas fa-hourglass-half text-warning icon-lg"></i>
+                    </div>
+                    <span class="font-weight-bold text-muted font-size-sm">Supplier Under Qualification</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 col-6">
+            <div class="card card-custom bgi-no-repeat card-stretch gutter-b">
+                <div class="card-body py-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="card-title font-weight-bolder text-dark-75 font-size-h2 mb-0 d-block">5</span>
+                        <i class="fas fa-ban text-danger icon-lg"></i>
+                    </div>
+                    <span class="font-weight-bold text-muted font-size-sm">Suspended Supplier</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 col-6">
+            <div class="card card-custom bgi-no-repeat card-stretch gutter-b">
+                <div class="card-body py-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="card-title font-weight-bolder text-dark-75 font-size-h2 mb-0 d-block">4</span>
+                        <i class="fas fa-sync-alt text-info icon-lg"></i>
+                    </div>
+                    <span class="font-weight-bold text-muted font-size-sm">Supplier Requalification Due</span>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-xl-3 col-lg-6 col-sm-6">
-        <div class="widget-stat card">
-            <div class="card-body p-4">
-                <div class="media ai-icon">
-                    <span class="mr-3">
-                        <svg id="icon-orders" xmlns="http://www.w3.org/2000/svg" width="30" height="30"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="feather feather-file-text">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
-                    </span>
-                    <div class="media-body">
-                        <p class="mb-1">Bills</p>
-                        <h4 class="mb-0">2570</h4>
-                        <span class="badge badge-warning">+3.5%</span>
+
+    {{-- Chart --}}
+    <div class="row">
+        <div class="col-lg-6">
+            <!--begin::Card-->
+            <div class="card card-custom gutter-b">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3 class="card-label">Donut Chart</h3>
                     </div>
                 </div>
+                <div class="card-body">
+                    <!--begin::Chart-->
+                    <div id="chart_11" class="d-flex justify-content-center"></div>
+                    <!--end::Chart-->
+                </div>
             </div>
+            <!--end::Card-->
         </div>
-    </div>
-    <div class="col-xl-3 col-lg-6 col-sm-6">
-        <div class="widget-stat card">
-            <div class="card-body  p-4">
-                <div class="media ai-icon">
-                    <span class="mr-3">
-                        <svg id="icon-revenue" xmlns="http://www.w3.org/2000/svg" width="30" height="30"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="feather feather-dollar-sign">
-                            <line x1="12" y1="1" x2="12" y2="23"></line>
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                        </svg>
-                    </span>
-                    <div class="media-body">
-                        <p class="mb-1">Revenue</p>
-                        <h4 class="mb-0">364.50K</h4>
-                        <span class="badge badge-danger">-3.5%</span>
+        <div class="col-lg-6">
+            <!--begin::Card-->
+            <div class="card card-custom gutter-b">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3 class="card-label">Pie Chart</h3>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-lg-6 col-sm-6">
-        <div class="widget-stat card">
-            <div class="card-body p-4">
-                <div class="media ai-icon">
-                    <span class="mr-3">
-                        <svg id="icon-database-widget" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="feather feather-database">
-                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
-                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
-                        </svg>
-                    </span>
-                    <div class="media-body">
-                        <p class="mb-1">Patient</p>
-                        <h4 class="mb-0">364.50K</h4>
-                        <span class="badge badge-success">-3.5%</span>
-                    </div>
+                <div class="card-body">
+                    <!--begin::Chart-->
+                    <div id="chart_12" class="d-flex justify-content-center"></div>
+                    <!--end::Chart-->
                 </div>
             </div>
+            <!--end::Card-->
         </div>
     </div>
 @endSection
+
+@push('scripts')
+    <script src="{{ asset('js/charts/apexcharts.js') }}"></script>
+@endpush

@@ -3,7 +3,7 @@
     <div class="brand flex-column-auto" id="kt_brand">
         <!--begin::Logo-->
         <a href="{{ route('dashboard') }}" class="brand-logo">
-            <img alt="Logo" class="max-w-100px" src="{{ asset('images/logoPHwht.png') }}" />
+            <img alt="Logo" class="max-w-125px" src="{{ asset('images/vendorwht-typo.png') }}" />
         </a>
         <!--end::Logo-->
         <!--begin::Toggle-->
