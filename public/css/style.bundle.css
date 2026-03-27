@@ -72035,12 +72035,12 @@ td > .radio.radio-single {
     color: #e5eaee;
 }
 .symbol.symbol-success .symbol-label {
-    background-color: #1bc5bd;
+    background-color: #17385b;
     color: #ffffff;
 }
 .symbol.symbol-light-success .symbol-label {
     background-color: #c9f7f5;
-    color: #1bc5bd;
+    color: #17385b;
 }
 .symbol.symbol-info .symbol-label {
     background-color: #1b112c;
@@ -90831,7 +90831,7 @@ body {
 }
 
 @media (max-width: 991.98px) {
-    .header-menu-wrapper {
+    . {
         z-index: 1001;
         position: fixed;
         top: 0;
@@ -91849,6 +91849,7 @@ body {
 }
 .aside-menu .menu-nav > .menu-item > .menu-link {
     padding: 9px 25px;
+    border-radius: 0.5rem;
 }
 .aside-menu
     .menu-nav
@@ -91880,6 +91881,7 @@ body {
     .menu-link {
     padding: 0 25px;
     padding-left: 55px;
+    border-radius: 0.5rem;
 }
 .aside-menu
     .menu-nav
@@ -91890,6 +91892,7 @@ body {
     > .menu-link {
     padding: 0 25px;
     padding-left: 40px;
+    border-radius: 0.5rem;
 }
 .aside-menu
     .menu-nav
@@ -91922,6 +91925,7 @@ body {
     > .menu-link {
     padding: 0 25px;
     padding-left: 55px;
+    border-radius: 0.5rem;
 }
 .aside-menu
     .menu-nav
@@ -91950,6 +91954,7 @@ body {
     > .menu-link {
     padding: 0 25px;
     padding-left: 70px;
+    border-radius: 0.5rem;
 }
 .aside-menu
     .menu-nav
@@ -93789,5 +93794,24 @@ body {
 @media (max-width: 425px) {
     .offcanvas-mobile {
         width: 90% !important;
+    }
+}
+
+.welcome-card {
+    background: linear-gradient(135deg, #2193b0, #6dd5ed);
+    color: white;
+    border: none;
+}
+
+.custom-corner-logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+@media (max-width: 768px) {
+    .custom-corner-logo img {
+        height: 35px !important;
     }
 }

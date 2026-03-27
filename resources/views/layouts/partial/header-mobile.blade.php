@@ -1,7 +1,7 @@
 <div id="kt_header_mobile" class="header-mobile align-items-center header-mobile-fixed p-3">
     <!--begin::Logo-->
     <a href="{{ route('dashboard') }}">
-        <img alt="Logo" src="{{ asset('images/logo/crm-typoWht.png') }}" width="75" />
+        <img alt="Logo" class="max-w-75px" src="{{ asset('images/logoPHwht.png') }}" />
     </a>
     <!--end::Logo-->
     <!--begin::Toolbar-->

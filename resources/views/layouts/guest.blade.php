@@ -28,6 +28,9 @@
     class="header-fixed header-mobile-fixed subheader-enabled subheader-fixed aside-enabled aside-fixed aside-minimize-hoverable page-loading">
     <!--begin::Main-->
     <div class="d-flex flex-column flex-root">
+        <div class="custom-corner-logo">
+            <img src="{{ asset('images/logoPH.png') }}" alt="Logo" style="height: 50px;">
+        </div>
         <!--begin::Login-->
         @yield('content')
         <!--end::Login-->

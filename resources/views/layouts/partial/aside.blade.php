@@ -3,7 +3,7 @@
     <div class="brand flex-column-auto" id="kt_brand">
         <!--begin::Logo-->
         <a href="{{ route('dashboard') }}" class="brand-logo">
-            <img alt="Logo" class="max-w-125px" src="{{ asset('images/logo/crm-typoWht.png') }}" />
+            <img alt="Logo" class="max-w-100px" src="{{ asset('images/logoPHwht.png') }}" />
         </a>
         <!--end::Logo-->
         <!--begin::Toggle-->
@@ -33,7 +33,7 @@
     <!--begin::Aside Menu-->
     <div class="aside-menu-wrapper flex-column-fluid" id="kt_aside_menu_wrapper">
         <!--begin::Menu Container-->
-        <div id="kt_aside_menu" class="aside-menu my-4" data-menu-vertical="1" data-menu-scroll="1"
+        <div id="kt_aside_menu" class="aside-menu my-4 mx-3" data-menu-vertical="1" data-menu-scroll="1"
             data-menu-dropdown-timeout="500">
             <!--begin::Menu Nav-->
             <ul class="menu-nav">
