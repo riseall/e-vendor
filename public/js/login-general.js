@@ -154,12 +154,7 @@ const KTLogin = (function () {
 
         const validation = FormValidation.formValidation(formDOM, {
             fields: {
-                firstname: {
-                    validators: {
-                        notEmpty: { message: "First name is required" },
-                    },
-                },
-                lastname: {
+                name: {
                     validators: {
                         notEmpty: { message: "Last name is required" },
                     },

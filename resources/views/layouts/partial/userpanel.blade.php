@@ -14,14 +14,13 @@
             <div class="symbol symbol-100 mr-5">
                 <span class="symbol symbol-75 symbol-success">
                     <span
-                        class="symbol-label font-size-h1 font-weight-bold">{{ strtoupper(substr(Auth::user()->firstname, 0, 1)) }}{{ strtoupper(substr(Auth::user()->lastname, 0, 1)) }}</span>
+                        class="symbol-label font-size-h1 font-weight-bold">{{ collect(explode(' ', Auth::user()->name))->take(2)->map(fn($word) => strtoupper($word[0]))->implode('') }}</span>
                 </span>
                 <i class="symbol-badge bg-success"></i>
             </div>
             <div class="d-flex flex-column">
                 <a href="#"
-                    class="font-weight-bold font-size-h5 text-dark-75 text-hover-primary">{{ Auth::user()->firstname }}
-                    {{ Auth::user()->lastname }}</a>
+                    class="font-weight-bold font-size-h5 text-dark-75 text-hover-primary">{{ Auth::user()->name }}</a>
                 <div class="text-dark-50 font-weight-bold mt-1">{{ session('spk_jabatan') }}</div>
                 <div class="navi mt-2">
                     <a href="#" class="navi-item">
