@@ -20,9 +20,8 @@ class CreateNewUser implements CreatesNewUsers
     public function create(array $input): User
     {
         Validator::make($input, [
-            'firstname' => ['required', 'string', 'max:255'],
-            'lastname' => ['required', 'string', 'max:255'],
-            'username' => ['required', 'string', 'max:255', Rule::unique(User::class, 'username')],
+            'name' => ['required', 'string', 'max:100'],
+            'username' => ['required', 'string', 'max:100', Rule::unique(User::class, 'username')],
             'email' => [
                 'required',
                 'string',
@@ -35,12 +34,15 @@ class CreateNewUser implements CreatesNewUsers
             'agree' => ['accepted'],
         ])->validate();
 
-        return User::create([
-            'firstname' => $input['firstname'],
-            'lastname' => $input['lastname'],
+        $user = User::create([
+            'name' => $input['name'],
             'username' => $input['username'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
+
+        $user->assignRole('Supplier');
+
+        return $user;
     }
 }

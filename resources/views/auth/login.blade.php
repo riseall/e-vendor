@@ -66,41 +66,33 @@
                     </div>
                     <form class="form" id="kt_login_signup_form">
                         @csrf
-                        <div data-repeater-item="" class="form-group row align-items-center mb-5">
+
+                        <div class="form-group mb-5">
+                            <input
+                                class="form-control h-auto form-control-solid py-4 px-8 @error('name') is-invalid @enderror"
+                                type="text" placeholder="Fullname" name="name" value="{{ old('name') }}" />
+                            @error('name')
+                                <div class="invalid-feedback text-left">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group row align-items-center mb-5">
                             <div class="col-md-6">
                                 <input
-                                    class="form-control h-auto form-control-solid py-4 px-8 @error('firstname') is-invalid @enderror"
-                                    type="text" placeholder="Firstname" name="firstname"
-                                    value="{{ old('firstname') }}" />
-                                @error('firstname')
+                                    class="form-control h-auto form-control-solid py-4 px-8 @error('username') is-invalid @enderror"
+                                    type="text" placeholder="Username" name="username" value="{{ old('username') }}" />
+                                @error('username')
                                     <div class="invalid-feedback text-left">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-6 mt-5 mt-md-0">
                                 <input
-                                    class="form-control h-auto form-control-solid py-4 px-8 @error('lastname') is-invalid @enderror"
-                                    type="text" placeholder="Lastname" name="lastname" value="{{ old('lastname') }}" />
-                                @error('lastname')
+                                    class="form-control h-auto form-control-solid py-4 px-8 @error('email') is-invalid @enderror"
+                                    type="text" placeholder="Email" name="email" autocomplete="off"
+                                    value="{{ old('email') }}" />
+                                @error('email')
                                     <div class="invalid-feedback text-left">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
-                        <div class="form-group mb-5">
-                            <input
-                                class="form-control h-auto form-control-solid py-4 px-8 @error('username') is-invalid @enderror"
-                                type="text" placeholder="Username" name="username" value="{{ old('username') }}" />
-                            @error('username')
-                                <div class="invalid-feedback text-left">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group mb-5">
-                            <input
-                                class="form-control h-auto form-control-solid py-4 px-8 @error('email') is-invalid @enderror"
-                                type="text" placeholder="Email" name="email" autocomplete="off"
-                                value="{{ old('email') }}" />
-                            @error('email')
-                                <div class="invalid-feedback text-left">{{ $message }}</div>
-                            @enderror
                         </div>
                         <div class="form-group mb-5">
                             <input
