@@ -13,11 +13,10 @@
                     id="kt_quick_user_toggle">
                     {{-- <span class="text-muted font-weight-bold font-size-base d-none d-md-inline mr-1">Hi,</span> --}}
                     <span
-                        class="text-dark-50 font-weight-bolder font-size-base d-none d-md-inline mr-3">{{ Auth::user()->firstname }}
-                        {{ Auth::user()->lastname }}</span>
+                        class="text-dark-50 font-weight-bolder font-size-base d-none d-md-inline mr-3">{{ Auth::user()->name }}</span>
                     <span class="symbol symbol-35 symbol-success">
                         <span
-                            class="symbol-label font-size-h5 font-weight-bold">{{ strtoupper(substr(Auth::user()->firstname, 0, 1)) }}{{ strtoupper(substr(Auth::user()->lastname, 0, 1)) }}</span>
+                            class="symbol-label font-size-h5 font-weight-bold">{{ collect(explode(' ', Auth::user()->name))->take(2)->map(fn($word) => strtoupper($word[0]))->implode('') }}</span>
                     </span>
                 </div>
             </div>
