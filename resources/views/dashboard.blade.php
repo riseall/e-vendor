@@ -4,7 +4,7 @@
     {{-- card welcome --}}
     <div class="card welcome-card p-6 py-8 shadow-sm">
         <p class="mb-1">{{ Auth::user()->roles->pluck('name')->implode(', ') }}</p>
-        <h2 class="mb-1">Selamat Datang, <b>{{ Auth::user()->name }}!</b></h2>
+        <h2 class="mb-1">{{ __('welcome') }}, <b>{{ Auth::user()->name }}!</b></h2>
         <p class="mb-0"><i class="far fa-calendar-alt mr-2 text-white"></i> {{ date('l') }}, {{ date('d F Y') }}</p>
     </div>
 

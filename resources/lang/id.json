@@ -1,0 +1,9 @@
+{
+    "dashboard": "Beranda",
+    "users": "Pengguna",
+    "suppliers": "Pemasok",
+    "products": "Produk",
+    "transactions": "Transaksi",
+    "logout": "Keluar",
+    "welcome": "Selamat Datang"
+}

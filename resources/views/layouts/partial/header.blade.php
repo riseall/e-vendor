@@ -7,6 +7,53 @@
         <!--end::Header Menu Wrapper-->
         <!--begin::Topbar-->
         <div class="topbar">
+            <!--begin::Languages-->
+            <div class="dropdown">
+                <!--begin::Toggle-->
+                <div class="topbar-item" data-toggle="dropdown" data-offset="10px,0px">
+                    <div class="btn btn-icon btn-clean btn-dropdown btn-lg mr-1">
+                        @if (App::getLocale() == 'id')
+                            <img class="h-20px w-20px rounded-sm" src="{{ asset('icon/004-indonesia.svg') }}"
+                                alt="Indonesia" />
+                        @else
+                            <img class="h-20px w-20px rounded-sm" src="{{ asset('icon/012-uk.svg') }}" alt="English" />
+                        @endif
+                    </div>
+                </div>
+                <!--end::Toggle-->
+                <!--begin::Dropdown-->
+                <div class="dropdown">
+                    <div class="dropdown-menu p-0 m-0 dropdown-menu-anim-up dropdown-menu-sm dropdown-menu-right">
+                        <ul class="navi navi-hover py-4">
+
+                            <li class="navi-item {{ App::getLocale() == 'id' ? 'active' : '' }}">
+                                <a rel="alternate" hreflang="id"
+                                    href="{{ LaravelLocalization::getLocalizedURL('id', null, [], true) }}"
+                                    class="navi-link">
+                                    <span class="symbol symbol-20 mr-3">
+                                        <img src="{{ asset('icon/004-indonesia.svg') }}" alt="Indonesia" />
+                                    </span>
+                                    <span class="navi-text">Bahasa Indonesia</span>
+                                </a>
+                            </li>
+
+                            <li class="navi-item {{ App::getLocale() == 'en' ? 'active' : '' }}">
+                                <a rel="alternate" hreflang="en"
+                                    href="{{ LaravelLocalization::getLocalizedURL('en', null, [], true) }}"
+                                    class="navi-link">
+                                    <span class="symbol symbol-20 mr-3">
+                                        <img src="{{ asset('icon/012-uk.svg') }}" alt="English" />
+                                    </span>
+                                    <span class="navi-text">English</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+                <!--end::Dropdown-->
+            </div>
+            <!--end::Languages-->
             <!--begin::User-->
             <div class="topbar-item">
                 <div class="btn btn-icon w-auto btn-clean d-flex align-items-center btn-lg px-2"
