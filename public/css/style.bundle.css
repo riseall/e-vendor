@@ -4654,7 +4654,7 @@ input[type="button"].btn-block {
     text-align: center;
     white-space: nowrap;
     background-color: #f3f6f9;
-    border: 1px solid #e5eaee;
+    border: 1px solid #d7d7d7;
     border-radius: 0.42rem;
 }
 .input-group-text input[type="radio"],
@@ -66347,7 +66347,7 @@ code {
 
 .form-control.form-control-solid {
     background-color: #f3f6f9;
-    border-color: #f3f6f9;
+    border-color: #d7d7d7;
     color: #464e5f;
     -webkit-transition:
         color 0.15s ease,
@@ -91848,7 +91848,7 @@ body {
     margin: 0;
 }
 .aside-menu .menu-nav > .menu-item > .menu-link {
-    padding: 9px 25px;
+    padding: 9px 15px;
     border-radius: 0.5rem;
 }
 .aside-menu

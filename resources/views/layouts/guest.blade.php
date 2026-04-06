@@ -22,7 +22,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/evendor-logo.png') }}" sizes="32x32">
     <link rel="icon" type="image/png" href="{{ asset('images/evendor-logo.png') }}" sizes="192x192">
     <link rel="apple-touch-icon" href="{{ asset('images/evendor-logo.png') }}">
-    {{-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script> --}}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <!--end::Head-->
 <!--begin::Body-->

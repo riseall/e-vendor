@@ -30,10 +30,11 @@
                             <div class="input-group">
                                 <input
                                     class="form-control h-auto form-control-solid py-4 px-8 @error('password') is-invalid @enderror"
-                                    type="password" id="password" placeholder="Password" name="password" />
+                                    type="password" id="password" placeholder="Password" name="password"
+                                    style="border-right: none;" />
                                 <div class="input-group-append rounded-right">
                                     <span id="togglePassword" onclick="togglePassword()"
-                                        class="input-group-text cursor-pointer border-0">
+                                        class="input-group-text cursor-pointer">
                                         <i class="far fa-eye" id="eyeIcon"></i>
                                     </span>
                                 </div>
@@ -50,6 +51,13 @@
                             <a href="javascript:;" id="kt_login_forgot" class="text-muted text-hover-primary">Forget
                                 Password ?</a>
                         </div>
+                        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div>
+
+                        @error('cf-turnstile-response')
+                            <span class="text-danger" style="color: red; font-size: 0.875rem;">
+                                {{ $message }}
+                            </span>
+                        @enderror
                         <button id="kt_login_signin_submit"
                             class="btn btn-primary font-weight-bold px-9 py-4 my-3 mx-4">Sign In</button>
                     </form>
@@ -117,6 +125,15 @@
                             @enderror
                             <div class="form-text text-muted text-center"></div>
                         </div>
+
+                        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div>
+
+                        @error('cf-turnstile-response')
+                            <span class="text-danger" style="color: red; font-size: 0.875rem;">
+                                {{ $message }}
+                            </span>
+                        @enderror
+
                         <div class="form-group d-flex flex-wrap flex-center mt-10">
                             <button id="kt_login_signup_submit"
                                 class="btn btn-primary font-weight-bold px-9 py-4 my-3 mx-2">Sign Up</button>
@@ -141,6 +158,15 @@
                                 <div class="invalid-feedback text-left">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div>
+
+                        @error('cf-turnstile-response')
+                            <span class="text-danger" style="color: red; font-size: 0.875rem;">
+                                {{ $message }}
+                            </span>
+                        @enderror
+
                         <div class="form-group d-flex flex-wrap flex-center mt-10">
                             <button id="kt_login_forgot_submit"
                                 class="btn btn-primary font-weight-bold px-9 py-4 my-3 mx-2">Request</button>
