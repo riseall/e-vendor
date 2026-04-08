@@ -24613,6 +24613,10 @@ button.bg-dark-75:focus {
     font-weight: 600 !important;
 }
 
+.font-weight-very-bold {
+    font-weight: 700 !important;
+}
+
 .font-italic {
     font-style: italic !important;
 }
@@ -44883,6 +44887,10 @@ a.text-hover-dark-75:hover .svg-icon svg:hover g [fill],
     color: #464e5f !important;
 }
 
+.font-size-xxl {
+    font-size: 2.5rem;
+}
+
 .font-size-base {
     font-size: 1rem;
 }
@@ -46161,7 +46169,7 @@ i {
 }
 
 .display-4 {
-    font-size: 2.5rem !important;
+    font-size: calc(1.475rem + 2.7vw) !important;
 }
 @media (max-width: 1200px) {
     .display-4 {
