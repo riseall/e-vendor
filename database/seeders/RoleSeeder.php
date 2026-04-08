@@ -20,22 +20,22 @@ class RoleSeeder extends Seeder
             'Admin IT',
             'Verifikator',
             'Procurement',
-            'QA',
+            'Quality Assurance',
             'Apoteker',
             'Specialist',
-            'Supplier '
+            'Supplier'
         ];
 
         foreach ($roles as $role) {
             Role::create(['name' => $role]);
         }
 
-        $adminIT = User::create([
-            'name' => 'Admin IT',
-            'username' => '03130',
-            'email' => 'rizal.nugroho@phapros.co.id',
-            'password' => bcrypt('12345678'),
-        ]);
-        $adminIT->assignRole('Admin IT');
+        // $adminIT = User::create([
+        //     'name' => 'RIZAL NUGROHO',
+        //     'username' => '03130',
+        //     'email' => 'rizal.nugroho@phapros.co.id',
+        //     'password' => bcrypt('12345678'),
+        // ]);
+        // $adminIT->assignRole('Admin IT');
     }
 }
