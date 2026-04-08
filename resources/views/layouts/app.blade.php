@@ -24,6 +24,8 @@
     <link rel="icon" type="image/png" href="{{ asset('images/evendor-logo.png') }}" sizes="32x32">
     <link rel="icon" type="image/png" href="{{ asset('images/evendor-logo.png') }}" sizes="192x192">
     <link rel="apple-touch-icon" href="{{ asset('images/evendor-logo.png') }}">
+
+    @stack('style')
 </head>
 <!--end::Head-->
 <!--begin::Body-->
@@ -83,9 +85,6 @@
     <!--begin::Scrolltop-->
     @include('layouts.partial.scroll')
     <!--end::Scrolltop-->
-    <script>
-        var HOST_URL = "https://keenthemes.com/metronic/tools/preview";
-    </script>
     <!--begin::Global Config(global config for global JS scripts)-->
     <script>
         var KTAppSettings = {

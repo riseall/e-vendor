@@ -15,8 +15,11 @@
                         @if (App::getLocale() == 'id')
                             <img class="h-20px w-20px rounded-sm" src="{{ asset('icon/004-indonesia.svg') }}"
                                 alt="Indonesia" />
-                        @else
+                        @elseif (App::getLocale() == 'en')
                             <img class="h-20px w-20px rounded-sm" src="{{ asset('icon/012-uk.svg') }}" alt="English" />
+                        @elseif (App::getLocale() == 'zh')
+                            <img class="h-20px w-20px rounded-sm" src="{{ asset('icon/015-china.svg') }}"
+                                alt="中国人" />
                         @endif
                     </div>
                 </div>
@@ -33,7 +36,7 @@
                                     <span class="symbol symbol-20 mr-3">
                                         <img src="{{ asset('icon/004-indonesia.svg') }}" alt="Indonesia" />
                                     </span>
-                                    <span class="navi-text">Bahasa Indonesia</span>
+                                    <span class="navi-text">Bahasa</span>
                                 </a>
                             </li>
 
@@ -45,6 +48,17 @@
                                         <img src="{{ asset('icon/012-uk.svg') }}" alt="English" />
                                     </span>
                                     <span class="navi-text">English</span>
+                                </a>
+                            </li>
+
+                            <li class="navi-item {{ App::getLocale() == 'zh' ? 'active' : '' }}">
+                                <a rel="alternate" hreflang="zh"
+                                    href="{{ LaravelLocalization::getLocalizedURL('zh', null, [], true) }}"
+                                    class="navi-link">
+                                    <span class="symbol symbol-20 mr-3">
+                                        <img src="{{ asset('icon/015-china.svg') }}" alt="中国人" />
+                                    </span>
+                                    <span class="navi-text">中国人</span>
                                 </a>
                             </li>
 

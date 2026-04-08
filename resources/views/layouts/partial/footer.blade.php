@@ -3,9 +3,10 @@
     <div class="container-fluid d-flex flex-column flex-md-row align-items-center justify-content-between">
         <!--begin::Copyright-->
         <div class="text-dark order-2 order-md-1">
-            <span class="text-muted font-weight-bold mr-2">2026©</span>
-            <a href="#" class="text-dark-75 text-hover-primary">PT. Phapros,
-                Tbk. - All rights reserved.</a>
+            <script>
+                document.write(new Date().getFullYear())
+            </script> <span class="text-muted font-weight-bold mr-2">PT. Phapros,
+                Tbk. - All rights reserved.</span>
         </div>
         <!--end::Copyright-->
         <!--begin::Nav-->
