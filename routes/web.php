@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -22,16 +23,20 @@ Route::group(
     ],
     function () {
 
+        require base_path('vendor/laravel/fortify/routes/routes.php');
+
         Route::get('/', function () {
             return view('welcome');
-        });
+        })->name('welcome');
 
         Route::middleware('auth')->group(function () {
-            Route::get('/dashboard', function () {
-                return view('dashboard');
-            })->name('dashboard');
-        });
+            // Dashboard
+            Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        Route::resource('user', UserController::class);
+            // Users
+            Route::resource('user', UserController::class)->only('index', 'store', 'update', 'destroy');
+            Route::get('/user/data', [UserController::class, 'getUser'])->name('user.data');
+            Route::get('/user/search', [UserController::class, 'searchInternalUser'])->name('user.search');
+        });
     }
 );
