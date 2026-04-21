@@ -30,12 +30,12 @@ class RoleSeeder extends Seeder
             Role::create(['name' => $role]);
         }
 
-        // $adminIT = User::create([
-        //     'name' => 'RIZAL NUGROHO',
-        //     'username' => '03130',
-        //     'email' => 'rizal.nugroho@phapros.co.id',
-        //     'password' => bcrypt('12345678'),
-        // ]);
-        // $adminIT->assignRole('Admin IT');
+        $adminIT = User::create([
+            'name' => 'RIZAL NUGROHO',
+            'username' => '03130',
+            'email' => 'rizal.nugroho@phapros.co.id',
+            'password' => bcrypt('12345678'),
+        ]);
+        $adminIT->assignRole('Admin IT');
     }
 }
