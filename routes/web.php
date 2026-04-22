@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RegistrasiController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -29,9 +30,42 @@ Route::group(
             return view('welcome');
         })->name('welcome');
 
+        // Tutorial
+        Route::get('/tutorial', function () {
+            return view('user.tutorial');
+        })->name('tutorial');
+
+        // Contact
+        Route::get('/contact', function () {
+            return view('user.contact');
+        })->name('contact');
+
         Route::middleware('auth')->group(function () {
             // Dashboard
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+            // Registrasi
+            Route::prefix('registration')->name('registrasi.')->group(function () {
+
+                // Halaman form wizard
+                Route::get('/', [RegistrasiController::class, 'index'])
+                    ->name('index');
+
+                // Simpan draft (AJAX - dipanggil tiap klik "Simpan Draft")
+                Route::post('/save-draft', [RegistrasiController::class, 'saveDraft'])
+                    ->name('save-draft');
+
+                // Simpan form umum (step 2 - dengan dynamic validation)
+                Route::post('/save-umum', [RegistrasiController::class, 'saveUmum'])
+                    ->name('save-umum');
+
+                // Submit permohonan final (step 5)
+                Route::post('/submit', [RegistrasiController::class, 'submit'])
+                    ->name('submit');
+            });
+
+            // Product Search
+            Route::get('/search-products', [RegistrasiController::class, 'searchProducts'])->name('search-products');
 
             // Users
             Route::resource('user', UserController::class)->only('index', 'store', 'update', 'destroy');

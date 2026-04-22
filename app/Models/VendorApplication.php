@@ -23,6 +23,7 @@ class VendorApplication extends Model
     // Status constants
     const STATUS_DRAFT     = 'draft';
     const STATUS_SUBMITTED = 'submitted';
+    const STATUS_NEED_REVISION = 'need_revision';
     const STATUS_VERIFIED  = 'verified';
     const STATUS_APPROVED  = 'approved';
     const STATUS_REJECTED  = 'rejected';
