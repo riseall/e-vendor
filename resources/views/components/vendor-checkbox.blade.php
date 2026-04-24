@@ -1,14 +1,6 @@
-@props([
-    'name',
-    'label' => '',
-    'options' => [],
-    'selected' => [],
-    'readonly' => false,
-    'required' => false,
-    'checkboxClass' => '',
-])
+@props(['name', 'label' => '', 'options' => [], 'selected' => [], 'readonly' => false, 'required' => false])
 
-<div class="form-group mb-4">
+<div class="form-group mb-2">
     @if ($label)
         <label class="question-label">
             {!! $label !!}
@@ -21,8 +13,9 @@
     <div class="checkbox-inline flex-wrap mb-2">
         @foreach ($options as $opt)
             <label class="checkbox checkbox-primary mr-5 mb-3 {{ $readonly ? 'checkbox-disabled' : '' }}">
-                <input type="checkbox" name="{{ $name }}[]" value="{{ $opt['value'] }}" class="{{ $checkboxClass }}"
-                    {{ in_array($opt['value'], $selected) ? 'checked' : '' }} {{ $readonly ? 'disabled' : '' }}>
+                <input type="checkbox" name="{{ $name }}[]" value="{{ $opt['value'] }}"
+                    {{ $attributes->merge(['class' => '']) }} {{ in_array($opt['value'], $selected) ? 'checked' : '' }}
+                    {{ $readonly ? 'disabled' : '' }}>
                 <span></span> {{ $opt['label'] }}
             </label>
         @endforeach

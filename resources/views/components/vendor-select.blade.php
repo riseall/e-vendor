@@ -10,7 +10,7 @@
     'isSimple' => false,
 ])
 
-<div class="form-group {{ $wrapperClass }}" {{ $attributes->whereStartsWith('data-') }}>
+<div class="form-group {{ $wrapperClass }}">
     @if ($label)
         <label class="question-label d-block mb-2">
             {!! $label !!}
@@ -21,7 +21,7 @@
     @endif
 
     <select name="{{ $name }}" id="{{ $name }}_select"
-        class="form-control {{ $isSimple ? 'custom-select' : 'selectpicker' }} {{ $readonly ? 'form-control-solid' : '' }}"
+        {{ $attributes->merge(['class' => 'form-control ' . ($isSimple ? 'custom-select' : 'selectpicker ') . ($readonly ? 'form-control-solid' : '')]) }}
         {{ $readonly ? 'disabled' : '' }} data-size="7" data-live-search="true" title="{{ $placeholder }}" width="100%">
 
         @if ($isSimple)

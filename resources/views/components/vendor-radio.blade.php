@@ -8,19 +8,23 @@
     'radioClass' => '',
 ])
 
-<div class="form-group mb-4">
-    <label class="question-label">
-        {{ $label }}
-        @if ($required && !$readonly)
-            <span class="text-danger">*</span>
-        @endif
-    </label>
+<div class="form-group mb-2">
+    @if ($label)
+        <label class="question-label">
+            {!! $label !!}
+            @if ($required && !$readonly)
+                <span class="text-danger">*</span>
+            @endif
+        </label>
+    @endif
 
     <div class="radio-inline flex-wrap mb-2">
         @foreach ($options as $opt)
             <label class="radio radio-primary mr-5 mb-3 {{ $readonly ? 'radio-disabled' : '' }}">
-                <input type="radio" name="{{ $name }}" value="{{ $opt['value'] }}" class="{{ $radioClass }}"
-                    {{ $selected === $opt['value'] ? 'checked' : '' }} {{ $readonly ? 'disabled' : '' }}>
+                <input type="radio" name="{{ $name }}" value="{{ $opt['value'] }}"
+                    class="{{ $radioClass }} {{ $attributes->get('class') }}"
+                    {{ $attributes->whereStartsWith('data-') }} {{ $selected === $opt['value'] ? 'checked' : '' }}
+                    {{ $readonly ? 'disabled' : '' }}>
                 <span></span> {{ $opt['label'] }}
             </label>
         @endforeach
