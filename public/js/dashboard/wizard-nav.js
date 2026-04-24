@@ -41,15 +41,6 @@ var fixedStepsBefore = [
     },
 ];
 
-// Step review selalu paling akhir
-var fixedStepsAfter = [
-    {
-        id: "review",
-        icon: "flaticon2-check-mark",
-        title: "Review",
-    },
-];
-
 // Dynamic steps — muncul sesuai kategori yang dipilih
 var categorySteps = {
     1: {
@@ -117,7 +108,7 @@ function buildActiveSteps() {
         var id = parseInt($(this).val());
         if (categorySteps[id]) dynamicSteps.push(categorySteps[id]);
     });
-    activeSteps = fixedStepsBefore.concat(dynamicSteps).concat(fixedStepsAfter);
+    activeSteps = fixedStepsBefore.concat(dynamicSteps);
 }
 
 // ============================================
@@ -131,7 +122,13 @@ function renderNav() {
         var dynClass = step.dynamic ? " dynamic" : "";
         var stateClass = isActive ? " active" : isDone ? " done" : "";
 
-        html += '<div class="wz-nav-item' + dynClass + stateClass + '">';
+        html +=
+            '<div class="wz-nav-item' +
+            dynClass +
+            stateClass +
+            '" data-index="' +
+            i +
+            '" style="cursor: pointer;">';
         html += '  <div class="wz-nav-step">';
         html +=
             '    <div class="wz-nav-icon"><i class="' +
@@ -164,8 +161,6 @@ function renderContent() {
     $("#btnPrev").toggle(currentIndex > 0);
     $("#btnNext").toggle(currentIndex < activeSteps.length - 1);
     $("#btnSubmit").toggle(currentIndex === activeSteps.length - 1);
-
-    if (stepId === "review") renderReview();
 }
 
 // ============================================
@@ -178,6 +173,32 @@ function init() {
 }
 
 init();
+
+// ============================================
+// CLICK NAVIGATION
+// ============================================
+$("#wzNav").on("click", ".wz-nav-item", function () {
+    var targetIndex = $(this).data("index");
+
+    // Jika klik ke step yang sama, abaikan
+    if (targetIndex === currentIndex) return;
+
+    // Jika step-1 belum selesai (kategori belum dipilih), hanya izinkan navigasi di fixed steps
+    if (currentIndex === 0 && targetIndex > 0) {
+        // Cek apakah kategori sudah dipilih
+        if ($(".category-checkbox:checked").length === 0) {
+            alert("Silakan pilih kategori terlebih dahulu.");
+            return;
+        }
+        // Rebuild activeSteps karena kategori sudah dipilih
+        buildActiveSteps();
+    }
+
+    // Set currentIndex ke target
+    currentIndex = targetIndex;
+    renderNav();
+    renderContent();
+});
 
 // ============================================
 // NAVIGASI
@@ -207,17 +228,3 @@ $("#btnPrev").on("click", function () {
         renderContent();
     }
 });
-
-// ============================================
-// RENDER REVIEW
-// ============================================
-function renderReview() {
-    var catHtml = "";
-    $(".category-checkbox:checked").each(function () {
-        catHtml +=
-            '<span class="label label-light-primary label-inline font-weight-bold mr-2 mb-2">' +
-            categoryLabels[$(this).val()] +
-            "</span>";
-    });
-    $("#reviewCategories").html(catHtml || '<span class="text-muted">-</span>');
-}
