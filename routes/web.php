@@ -59,6 +59,10 @@ Route::group(
                 Route::post('/save-umum', [RegistrasiController::class, 'saveUmum'])
                     ->name('save-umum');
 
+                // Simpan form spesifik (step 3 - dengan dynamic validation)
+                Route::post('/save-specific', [RegistrasiController::class, 'saveSpecificStep'])
+                    ->name('save-specific');
+
                 // Submit permohonan final (step 5)
                 Route::post('/submit', [RegistrasiController::class, 'submit'])
                     ->name('submit');
