@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreFormUmumRequest;
+use App\Http\Requests\StoreVendorSpecificRequest;
 use App\Models\VendorApplication;
 use App\Models\VendorApplicationCategory;
 use App\Services\SupplierItemService;
 use App\Services\VendorRegistrationService;
+use App\Services\VendorSpecificService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +23,20 @@ class RegistrasiController extends Controller
         // Cek apakah ada draft yang belum selesai
         $application = VendorApplication::where('user_id', $user->id)
             ->where('status', VendorApplication::STATUS_DRAFT)
-            ->with(['general', 'products', 'categories', 'documents'])
+            ->with([
+                'general',
+                'products',
+                'categories',
+                'documents',
+                'specBaku',
+                'specVaria',
+                'specTrans',
+                'specKontraktor',
+                'specPengujian',
+                'specFacility',
+                'specPelatihan',
+                'specAgency'
+            ])
             ->latest()
             ->first();
 
@@ -36,10 +51,12 @@ class RegistrasiController extends Controller
         if ($application) {
             $draft['categories'] = $application->getCategoryIds();
             $draft['general'] = $application->general;
-
             $draft['products'] = $application->products->mapWithKeys(function ($item) {
                 return [$item->erp_product_id => $item->toArray()];
             })->toArray();
+
+            $specificData = $this->getSpecificDataArray($application);
+            $draft = array_merge($draft, $specificData);
 
             $uploadedDocs = $application->documents->keyBy('field_name')->map(function ($doc) {
                 return [
@@ -61,6 +78,36 @@ class RegistrasiController extends Controller
             'isReadOnly',
             'uploadedDocs'
         ));
+    }
+
+    private function getSpecificDataArray($application)
+    {
+        $data = [];
+        $categoryIds = $application->getCategoryIds();
+
+        // Map tabel ke relasi
+        $map = [
+            1 => 'specBaku',
+            2 => 'specVaria',
+            3 => 'specTrans',
+            4 => 'specKontraktor',
+            5 => 'specPengujian',
+            6 => 'specFacility',
+            7 => 'specPelatihan',
+            8 => 'specAgency',
+        ];
+
+        foreach ($categoryIds as $catId) {
+            if (isset($map[$catId])) {
+                $relation = $map[$catId];
+                if ($application->$relation) {
+                    // Merge data agar bisa dipanggil $draft['q1_is_manufacturer']
+                    $data = array_merge($data, $application->$relation->toArray());
+                }
+            }
+        }
+
+        return $data;
     }
 
     public function saveDraft(Request $request)
@@ -133,6 +180,29 @@ class RegistrasiController extends Controller
                 'status'  => 'error',
                 'message' => 'Gagal memproses data.',
                 'debug'   => $e->getMessage() // Hapus 'debug' saat production
+            ], 500);
+        }
+    }
+
+    public function saveSpecificStep(StoreVendorSpecificRequest $request, VendorSpecificService $specificService)
+    {
+        try {
+            $result = $specificService->saveSpecificData(
+                $request->all(),
+                $request->application_id,
+                $request->action
+            );
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => $request->action === 'submit' ? 'Data Spesifik berhasil disubmit!' : 'Draft Spesifik berhasil disimpan.',
+                'application_id' => $result['application_id']
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Gagal memproses data spesifik.',
+                'debug'   => $e->getMessage()
             ], 500);
         }
     }

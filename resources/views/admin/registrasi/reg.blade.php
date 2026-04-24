@@ -99,61 +99,56 @@
                                     {{-- Step 9: Persyaratan Khusus --}}
                                     {{-- Bahan Baku, Bahan Kemas, Produk Jadi & Alkes --}}
                                     <div class="pb-5" data-step-id="cat-1">
+                                        @include('admin.registrasi.category.1-baku')
                                     </div>
                                     {{-- End --}}
 
                                     {{-- Varia Teknik dan Umum, Reagen, Barang Investasi --}}
                                     <div class="pb-5" data-step-id="cat-2">
+                                        @include('admin.registrasi.category.2-varia')
                                     </div>
                                     {{-- End --}}
 
                                     {{-- Jasa Transporter, Forwarder & PPJK --}}
                                     <div class="pb-5" data-step-id="cat-3">
+                                        @include('admin.registrasi.category.3-trans')
                                     </div>
                                     {{-- End --}}
 
                                     {{-- Jasa Kontraktor, Perbaikan & Pemeliharaan --}}
                                     <div class="pb-5" data-step-id="cat-4">
+                                        @include('admin.registrasi.category.4-kontraktor')
                                     </div>
                                     {{-- End --}}
 
                                     {{-- Jasa Pengujian Laboratorium, Kalibrasi, Radiasi & Sertifikasi --}}
                                     <div class="pb-5" data-step-id="cat-5">
+                                        @include('admin.registrasi.category.5-pengujian')
                                     </div>
                                     {{-- End --}}
 
                                     {{-- Jasa Facility Service, Sewa, Security, Katering & MCU --}}
                                     <div class="pb-5" data-step-id="cat-6">
+                                        @include('admin.registrasi.category.6-facility')
                                     </div>
                                     {{-- End --}}
 
                                     {{-- Jasa Pelatihan,Konsultan, Notaris & Alih Daya Tenaga Kerja --}}
                                     <div class="pb-5" data-step-id="cat-7">
+                                        @include('admin.registrasi.category.7-pelatihan')
                                     </div>
                                     {{-- End --}}
 
                                     {{-- Jasa Agency Advertising --}}
                                     <div class="pb-5" data-step-id="cat-8">
+                                        @include('admin.registrasi.category.8-agency')
                                     </div>
                                     {{-- End --}}
 
                                     {{-- Review --}}
-                                    <div class="pb-5" data-step-id="review">
-                                        <h4 class="font-weight-bold text-dark mb-8">Review & Kirim Permohonan</h4>
-                                        <p class="text-muted mb-5">Periksa kembali data Anda sebelum mengirim.</p>
-                                        <div class="border-bottom mb-5 pb-3">
-                                            <p class="font-weight-bold text-primary mb-3">Kategori Terpilih</p>
-                                            <div id="reviewCategories"></div>
-                                        </div>
-                                        <div class="alert alert-custom alert-light-info fade show">
-                                            <div class="alert-icon"><i class="flaticon2-bell text-info"></i></div>
-                                            <div class="alert-text">
-                                                Dengan menekan <strong>Kirim Permohonan</strong>, Anda menyatakan
-                                                seluruh data dan dokumen yang diberikan adalah
-                                                <strong>benar dan dapat dipertanggungjawabkan</strong>.
-                                            </div>
-                                        </div>
-                                    </div>
+                                    {{-- <div class="pb-5" data-step-id="review">
+                                        @include('admin.registrasi.review')
+                                    </div> --}}
                                     {{-- End Review --}}
 
                                     {{-- Wizard Actions --}}
@@ -223,31 +218,37 @@
 
 @push('scripts')
     <script src="{{ asset('js/dashboard/wizard-nav.js') }}"></script>
+    <script src="{{ asset('js/dashboard/vendor-form.js') }}"></script>
     <script>
         $(document).ready(function() {
 
             function sendForm(actionType, btnElement) {
-                // 1. Deteksi Step Aktif berdasarkan elemen yang sedang VISIBLE
-                // Mencari div yang memiliki atribut data-step-id dan sedang tampil
+                // 1. Deteksi Step Aktif
                 var currentStepId = $('div[data-step-id]:visible').attr('data-step-id');
-
                 var targetUrl = "";
 
-                // 2. Tentukan URL berdasarkan Step ID yang terdeteksi
+                // 2. Mapping URL secara dinamis
                 if (currentStepId === 'step-1') {
+                    // Khusus Step 1: Inisiasi Draft & Kategori
                     targetUrl = "{{ route('registrasi.save-draft') }}";
-                } else if (currentStepId === 'step-2') {
+                } else if (currentStepId && currentStepId.startsWith('step-')) {
+                    // Mencakup Step-2 sampai Step-8 (Sesuai rute umum Bos)
                     targetUrl = "{{ route('registrasi.save-umum') }}";
-                } else {
-                    // Default atau untuk step selanjutnya
-                    targetUrl = "{{ route('registrasi.save-umum') }}";
+                } else if (currentStepId && currentStepId.startsWith('cat-')) {
+                    // Mencakup cat-1 sampai cat-8 (Rute Spesifik yang baru kita buat)
+                    targetUrl = "{{ route('registrasi.save-specific') }}";
                 }
 
-                // 3. Siapkan FormData
-                var formData = new FormData($('#kt_form')[0]);
-                formData.append('action', actionType);
+                // Validasi jika step tidak terdeteksi (safety catch)
+                if (!targetUrl) {
+                    Swal.fire('Error', 'Sistem tidak mengenali posisi form saat ini.', 'error');
+                    return;
+                }
 
-                // Ambil application_id dari hidden input jika ada
+                // 3. Siapkan FormData (Support File Upload)
+                var formData = new FormData($('#kt_form')[0]);
+                formData.append('action', actionType); // 'draft' atau 'submit'
+
                 var appId = $('#application_id').val();
                 if (appId) {
                     formData.append('application_id', appId);
@@ -255,15 +256,16 @@
 
                 // 4. Animasi Loading
                 var originalBtnHtml = btnElement.html();
-                btnElement.attr('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+                btnElement.attr('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm"></span> Loading...');
 
                 // 5. Eksekusi AJAX
                 $.ajax({
                     url: targetUrl,
                     method: 'POST',
                     data: formData,
-                    processData: false,
-                    contentType: false,
+                    processData: false, // Penting untuk FormData
+                    contentType: false, // Penting untuk FormData
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
@@ -277,20 +279,33 @@
                             title: 'Berhasil',
                             text: res.message,
                         }).then(() => {
+                            // Logic pindah step atau redirect
                             if (actionType === 'submit') {
-                                // Jika kamu punya fungsi manual untuk pindah tab/step visual:
-                                // moveToNextStep(); 
+                                if (res.redirect) {
+                                    window.location.href = res.redirect;
+                                } else {
+                                    // Jika submit hanya untuk validasi per step, panggil fungsi next wizard Bos
+                                    // contoh: wizard.goNext();
+                                }
                             }
                         });
                     },
                     error: function(xhr) {
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
-                            let msg = Object.values(errors).map(e => e[0]).join("<br>");
+                            // Format error jadi list peluru supaya rapi di Swal
+                            let msg = "<ul>";
+                            $.each(errors, function(key, value) {
+                                msg += "<li class='text-left'>" + value[0] + "</li>";
+                                // Tambahkan class is-invalid ke input yang bermasalah
+                                $('[name="' + key + '"]').addClass('is-invalid');
+                            });
+                            msg += "</ul>";
+
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Validasi Gagal',
-                                html: msg
+                                html: msg // Menggunakan HTML untuk list error
                             });
                         } else {
                             Swal.fire({
@@ -307,11 +322,12 @@
             }
 
             // Bind ke tombol
+            // Gunakan class atau ID, pastikan tombol di Blade Bos sesuai
             $('#btnSaveDraft').on('click', function() {
                 sendForm('draft', $(this));
             });
 
-            $('#btnSubmitUmum').on('click', function() {
+            $('#btnSubmitUmum, #btnSubmitSpecific').on('click', function() {
                 sendForm('submit', $(this));
             });
         });
