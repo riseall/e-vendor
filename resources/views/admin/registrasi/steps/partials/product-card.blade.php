@@ -38,47 +38,48 @@
 
             {{-- Surat Keagenan --}}
             <div class="col-md-4">
-                <div class="form-group mb-4">
-                    <label class="mb-2">Surat Keagenan
-                        @if (!$isReadOnly)
+                <div class="form-group mb-2">
+                    <label class="mb-2">Surat Keagenan @if (!$isReadOnly)
                             <span class="text-danger">*</span>
                         @endif
                     </label>
 
-                    @php
-                        $filePath = $data['file_surat_path'] ?? null;
-                    @endphp
+                    @php $filePath = $data['file_surat_path'] ?? null; @endphp
+
+                    @if ($filePath)
+                        <input type="hidden" name="products[{{ $id }}][existing_file_surat]"
+                            value="{{ $filePath }}">
+                    @endif
 
                     @if ($isReadOnly)
-                        <div class="mt-1">
+                        <div class="mt-2">
                             @if ($filePath)
-                                <a href="{{ asset('storage/' . $filePath) }}" target="_blank"
-                                    class="btn btn-sm btn-light-primary">
-                                    <i class="flaticon2-download"></i> Lihat Dokumen
-                                </a>
+                                <button type="button" class="btn btn-icon btn-xs btn-success btn-preview-doc"
+                                    data-url="{{ asset('storage/' . $filePath) }}" data-title="Preview Surat Keagenan">
+                                    <i class="flaticon-eye icon-sm"></i>
+                                </button>
                             @else
-                                <span class="text-muted">Tidak ada dokumen</span>
+                                <span class="text-muted italic">Tidak ada dokumen</span>
                             @endif
                         </div>
                     @else
                         <div class="custom-file">
-                            <input type="file" class="custom-file-input custom-file-input-sm product-file-input"
+                            <input type="file" class="custom-file-input product-file-input"
                                 name="products[{{ $id }}][file_surat]" id="file_{{ $id }}"
-                                accept=".pdf,.jpg,.jpeg,.png">
-                            <label class="custom-file-label text-truncate font-size-sm" for="file_{{ $id }}">
-                                {{ $filePath ? 'Ganti file...' : 'Browse...' }}
+                                accept=".pdf,.jpg,.jpeg,.png" {{ $filePath ? '' : 'required' }}>
+
+                            <label class="custom-file-label text-truncate" for="file_{{ $id }}">
+                                {{ $filePath ? 'Ganti file...' : 'Pilih File' }}
                             </label>
                         </div>
 
                         @if ($filePath)
-                            <div class="mt-3">
-                                <div
-                                    class="d-flex align-items-center bg-light-success rounded p-2 border border-dashed border-success">
+                            <div class="mt-2">
+                                <div class="d-flex align-items-center px-2 py-1 bg-light-success rounded">
                                     <div class="d-flex flex-column flex-grow-1 mr-2 overflow-hidden">
-                                        <span class="text-dark-75 font-weight-bold font-size-xs text-truncate">
+                                        <span class="text-success font-weight-bolder font-size-xs text-truncate">
                                             Dokumen Terlampir
                                         </span>
-                                        <span class="text-muted font-size-xxs">Tersimpan di sistem</span>
                                     </div>
 
                                     <button type="button" class="btn btn-icon btn-xs btn-success btn-preview-doc"

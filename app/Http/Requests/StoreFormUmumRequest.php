@@ -127,6 +127,7 @@ class StoreFormUmumRequest extends FormRequest
                     'products.*.halal_number' => 'required_if:products.*.has_halal,yes|nullable|string|max:50',
                     'products.*.file_surat' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
                     'products.*.file_surat_path' => 'nullable|string|max:255',
+                    'products.*.existing_file_surat' => 'nullable|string|max:255',
                 ];
             } else {
                 // Loose validation for draft
@@ -144,6 +145,7 @@ class StoreFormUmumRequest extends FormRequest
                     'products.*.halal_number' => 'nullable|string|max:50',
                     'products.*.file_surat' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
                     'products.*.file_surat_path' => 'nullable|string|max:255',
+                    'products.*.existing_file_surat' => 'nullable|string|max:255',
                 ];
             }
         }

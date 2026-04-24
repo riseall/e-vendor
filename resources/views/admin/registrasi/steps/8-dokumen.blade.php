@@ -25,7 +25,7 @@
 
 <div class="modern-doc-list">
     @foreach (collect($dokumenList)->groupBy('type') as $type => $items)
-        <h5 class="text-dark font-weight-bold mb-4 mt-6">{{ $type }} Documents</h5>
+        <h5 class="text-primary font-weight-bold mb-4 mt-6">{{ $type }} Documents</h5>
         <div class="list-container mb-4">
             @foreach ($items as $dok)
                 @php

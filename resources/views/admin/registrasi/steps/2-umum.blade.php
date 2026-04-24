@@ -8,7 +8,7 @@
 </div>
 
 <div class="question-wrapper">
-    <label class="question-label">Informasi Perusahaan </label>
+    <label class="question-label">Informasi Perusahaan</label>
     <div class="row">
         <div class="col-md-6">
             <x-vendor-input name="nama_perusahaan" label="Nama Perusahaan" placeholder="PT / CV / UD ..."
@@ -49,8 +49,8 @@
 </div>
 
 {{-- Contact Person --}}
-<div class="question-wrapper">
-    <label class="question-label">Contact Person (PIC) <span class="text-danger">*</span></label>
+<div class="question-wrapper mt-8">
+    <label class="question-label">Contact Person (PIC)</label>
 
     <x-vendor-input name="pic_nama" label="Nama" placeholder="Nama lengkap penanggung jawab" :value="$draft['general']->pic_nama ?? ''"
         :readonly="$isReadOnly" required />
@@ -61,32 +61,23 @@
                 :value="$draft['general']->pic_email ?? ''" :readonly="$isReadOnly" required />
         </div>
         <div class="col-md-6">
-            <x-vendor-input name="pic_telepon" label="Nomor" placeholder="08xxxxxxxxxx" :value="$draft['general']->pic_telepon ?? ''"
+            <x-vendor-input name="pic_telepon" label="Nomor Handphone" placeholder="08xxxxxxxxxx" :value="$draft['general']->pic_telepon ?? ''"
                 :readonly="$isReadOnly" required />
         </div>
     </div>
 </div>
 
-<div class="question-wrapper">
+{{-- Perusahaan Lain (Repeater) --}}
+<div class="question-wrapper mt-8">
     <label class="question-label">Perusahaan Lain Milik Pimpinan (Jika Ada)</label>
-    <div class="radio-inline mb-4">
-        <label class="radio radio-primary">
-            <input type="radio" class="other_company" name="has_other_company" value="yes"
-                {{ ($draft['general']->has_other_company ?? '') === 'yes' ? 'checked' : '' }}>
-            <span></span> Ya, Punya
-        </label>
-        <label class="radio radio-primary">
-            <input type="radio" class="other_company" name="has_other_company" value="no"
-                {{ ($draft['general']->has_other_company ?? 'no') === 'no' ? 'checked' : '' }}>
-            <span></span> Tidak Punya
-        </label>
-    </div>
 
-    <div id="otherCompanyTable"
-        style="{{ ($draft['general']->has_other_company ?? 'no') === 'yes' ? '' : 'display:none' }}">
+    <x-vendor-radio name="has_other_company" :options="[['value' => 'yes', 'label' => 'Ya, Punya'], ['value' => 'no', 'label' => 'Tidak Punya']]" :selected="$draft['general']->has_other_company ?? 'no'" class="toggle-input"
+        data-target="#otherCompanyTable" :readonly="$isReadOnly" />
+
+    <div id="otherCompanyTable" class="{{ ($draft['general']->has_other_company ?? 'no') === 'yes' ? '' : 'd-none' }}">
         <div class="table-responsive">
             <table class="table">
-                <thead>
+                <thead class="thead-light">
                     <tr>
                         <th>Nama Perusahaan</th>
                         <th>Alamat</th>
@@ -112,7 +103,8 @@
 
                             @if (!$isReadOnly)
                                 <td class="text-center pr-0 pb-3">
-                                    <button type="button" class="btn btn-icon btn-light-danger btn-sm btn-hapus-row"
+                                    <button type="button"
+                                        class="btn btn-icon btn-light-danger btn-sm btn-remove-repeater"
                                         title="Hapus Baris" {{ $i == 0 ? 'disabled' : '' }}>
                                         <i class="flaticon2-trash"></i>
                                     </button>
@@ -124,8 +116,9 @@
             </table>
 
             @if (!$isReadOnly)
-                <button type="button" id="btnAddOtherCompany"
-                    class="btn btn-light-primary btn-sm font-weight-bold mt-2">
+                {{-- Tombol tambah memanggil global JS --}}
+                <button type="button" class="btn btn-light-primary btn-sm font-weight-bold mt-2 btn-add-repeater"
+                    data-target-tbody="#otherCompanyRows" data-template="#template-other-company">
                     <i class="flaticon2-plus icon-xs mr-1"></i> Tambah Perusahaan
                 </button>
 
@@ -140,7 +133,7 @@
                                 class="form-control form-control-sm" placeholder="Alamat...">
                         </td>
                         <td class="text-center pr-0 pb-3">
-                            <button type="button" class="btn btn-icon btn-light-danger btn-sm btn-hapus-row"
+                            <button type="button" class="btn btn-icon btn-light-danger btn-sm btn-remove-repeater"
                                 title="Hapus Baris">
                                 <i class="flaticon2-trash"></i>
                             </button>
@@ -151,34 +144,3 @@
         </div>
     </div>
 </div>
-
-@push('scripts')
-    <script>
-        $('.other_company').on('change', function() {
-            if ($(this).val() === 'yes') {
-                $('#otherCompanyTable').slideDown('fast');
-            } else {
-                $('#otherCompanyTable').slideUp('fast');
-                $('#otherCompanyRows input').val('');
-            }
-        });
-
-        // Kita hitung jumlah baris yang ada saat load
-        var otherRowCount = $('#otherCompanyRows tr').length;
-
-        $('#btnAddOtherCompany').on('click', function() {
-            var templateHtml = $('#template-other-company').html();
-
-            var finalHtml = templateHtml.replace(/__INDEX__/g, otherRowCount);
-
-            $('#otherCompanyRows').append(finalHtml);
-
-            otherRowCount++;
-        });
-
-        // Gunakan Event Delegation untuk tombol hapus
-        $('#otherCompanyRows').on('click', '.btn-hapus-row', function() {
-            $(this).closest('tr').remove();
-        });
-    </script>
-@endpush

@@ -3,28 +3,46 @@
 <div class="row">
     <div class="col-md-4">
         <div class="question-wrapper">
-            <x-vendor-radio name="status_perusahaan" label="Status Perusahaan" :options="[['value' => 'perorangan', 'label' => 'Perorangan'], ['value' => 'badan', 'label' => 'Badan']]" :selected="$draft['general']->status_perusahaan ?? ''"
+            {{-- Status Perusahaan --}}
+            <label class="question-label">Status Perusahaan @if (!$isReadOnly)
+                    <span class="text-danger">*</span>
+                @endif
+            </label>
+            <x-vendor-radio name="status_perusahaan" label="" :options="[['value' => 'perorangan', 'label' => 'Perorangan'], ['value' => 'badan', 'label' => 'Badan']]" :selected="$draft['general']->status_perusahaan ?? ''"
                 :readonly="$isReadOnly" />
         </div>
     </div>
     <div class="col-md-4">
         <div class="question-wrapper">
-            <x-vendor-radio name="status_pajak" label="Status Pajak" :options="[['value' => 'pkp', 'label' => 'PKP'], ['value' => 'non_pkp', 'label' => 'Non PKP']]" :selected="$draft['general']->status_pajak ?? ''"
-                :readonly="$isReadOnly" />
+            {{-- Status Pajak --}}
+            <label class="question-label">Status Pajak @if (!$isReadOnly)
+                    <span class="text-danger">*</span>
+                @endif
+            </label>
+            <x-vendor-radio name="status_pajak" label="" :options="[['value' => 'pkp', 'label' => 'PKP'], ['value' => 'non_pkp', 'label' => 'Non PKP']]" :selected="$draft['general']->status_pajak ?? ''" :readonly="$isReadOnly" />
         </div>
     </div>
     <div class="col-md-4">
         <div class="question-wrapper">
-            <x-vendor-radio name="jenis_modal" label="Jenis Penanaman Modal" :options="[['value' => 'pmdn', 'label' => 'PMDN'], ['value' => 'pma', 'label' => 'PMA']]" :selected="$draft['general']->jenis_modal ?? ''"
-                :readonly="$isReadOnly" />
+            {{-- Jenis Penanaman Modal --}}
+            <label class="question-label">Jenis Penanaman Modal @if (!$isReadOnly)
+                    <span class="text-danger">*</span>
+                @endif
+            </label>
+            <x-vendor-radio name="jenis_modal" label="" :options="[['value' => 'pmdn', 'label' => 'PMDN'], ['value' => 'pma', 'label' => 'PMA']]" :selected="$draft['general']->jenis_modal ?? ''" :readonly="$isReadOnly" />
         </div>
     </div>
 </div>
 
-<div class="row">
+<div class="row mt-4">
     <div class="col-md-6">
         <div class="question-wrapper">
-            <x-vendor-select name="skala_perusahaan" label="Skala Perusahaan (NIB)" :options="[
+            {{-- Skala Perusahaan menggunakan Select Component --}}
+            <label class="question-label">Skala Perusahaan (Berdasarkan NIB) @if (!$isReadOnly)
+                    <span class="text-danger">*</span>
+                @endif
+            </label>
+            <x-vendor-select name="skala_perusahaan" label="" :options="[
                 'mikro' => 'Usaha Mikro',
                 'kecil' => 'Usaha Kecil',
                 'menengah' => 'Usaha Menengah',
@@ -36,8 +54,13 @@
     </div>
     <div class="col-md-6">
         <div class="question-wrapper">
-            <x-vendor-input name="kbli" label="KBLI yang Dimiliki" required placeholder="Contoh: 12345, 67890"
-                :value="$draft['general']->kbli ?? ''" :readonly="$isReadOnly" />
+            {{-- KBLI --}}
+            <label class="question-label">KBLI yang Dimiliki @if (!$isReadOnly)
+                    <span class="text-danger">*</span>
+                @endif
+            </label>
+            <x-vendor-input name="kbli" label="" required placeholder="Contoh: 12345, 67890" :value="$draft['general']->kbli ?? ''"
+                :readonly="$isReadOnly" />
         </div>
     </div>
 </div>

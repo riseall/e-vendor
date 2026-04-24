@@ -60,14 +60,19 @@ class VendorRegistrationService
                 ]
             );
 
+            // Handle file surat: new upload or preserve existing
             if (request()->hasFile("products.{$index}.file_surat")) {
+                // New file uploaded
                 $file = request()->file("products.{$index}.file_surat");
                 $name = $file->getClientOriginalName();
-                $fileName = 'prod_' . $name . '_' . now()->timestamp;
+                $fileName = 'prod_' . $name . '_' . today()->format('Ymd');
                 $path = $this->storeFile($file, 'vendor_products', $fileName);
-
                 $product->update(['file_surat_path' => $path]);
+            } elseif (!empty($pData['existing_file_surat'])) {
+                // No new file, but existing file path provided - preserve it
+                $product->update(['file_surat_path' => $pData['existing_file_surat']]);
             }
+            // If neither new nor existing, file_surat_path remains unchanged
         }
     }
 
@@ -76,7 +81,7 @@ class VendorRegistrationService
         foreach ($fields as $field) {
             if (request()->hasFile($field)) {
                 $file = request()->file($field);
-                $path = $this->storeFile($file, 'vendor_documents', $field . '_');
+                $path = $this->storeFile($file, 'vendor_docs/general', $field . '_');
 
                 VendorApplicationDocument::updateOrCreate(
                     ['application_id' => $appId, 'field_name' => $field],

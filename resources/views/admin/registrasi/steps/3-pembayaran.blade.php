@@ -11,8 +11,13 @@
         ];
     @endphp
 
-    <x-vendor-radio name="payment_term" label="Kesanggupan Termin Pembayaran" :options="$termOptions" :selected="$draft['general']->payment_term ?? ''"
-        :readonly="$isReadOnly" radioClass="payment-term-radio" required />
+    <label class="question-label">Kesanggupan Termin Pembayaran @if (!$isReadOnly)
+            <span class="text-danger">*</span>
+        @endif
+    </label>
+
+    <x-vendor-radio name="payment_term" :options="$termOptions" :selected="$draft['general']->payment_term ?? ''" :readonly="$isReadOnly"
+        radioClass="payment-term-radio" required />
 
     {{-- Input text muncul jika pilih 'Lainnya' --}}
     <div id="paymentTermOther" style="{{ ($draft['general']->payment_term ?? '') === 'other' ? '' : 'display:none' }}">

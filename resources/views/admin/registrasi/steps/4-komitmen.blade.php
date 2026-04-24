@@ -13,8 +13,12 @@
         $selectedIso = $draft['general']->iso_certificates ?? [];
     @endphp
 
-    <x-vendor-checkbox name="iso_certificates" label="Sertifikat ISO yang Dimiliki" :options="$isoOptions" :selected="$selectedIso"
-        :readonly="$isReadOnly">
+    <label class="question-label">Sertifikat ISO yang Dimiliki @if (!$isReadOnly)
+            <span class="text-danger">*</span>
+        @endif
+    </label>
+
+    <x-vendor-checkbox name="iso_certificates" :options="$isoOptions" :selected="$selectedIso" :readonly="$isReadOnly">
         <div class="d-flex align-items-center mt-3">
             <label class="checkbox checkbox-primary mr-3 mb-0 {{ $isReadOnly ? 'checkbox-disabled' : '' }}">
                 <input type="checkbox" name="iso_certificates[]" value="other" id="isoOtherCb"
@@ -36,8 +40,13 @@
     {{-- 2. Komitmen Kualitas, Lingkungan & K3 --}}
     <div class="col-md-6">
         <div class="question-wrapper">
-            <x-vendor-radio name="komitmen_kualitas" label="Komitmen Kualitas, Lingkungan & K3 (Selain ISO)"
-                :options="[['value' => 'yes', 'label' => 'Ya, Punya'], ['value' => 'no', 'label' => 'Tidak']]" :selected="$draft['general']->komitmen_kualitas ?? 'no'" :readonly="$isReadOnly" radioClass="komitmen-radio" />
+            <label class="question-label">Komitmen Kualitas, Lingkungan & K3 (Selain ISO) @if (!$isReadOnly)
+                    <span class="text-danger">*</span>
+                @endif
+            </label>
+
+            <x-vendor-radio name="komitmen_kualitas" :options="[['value' => 'yes', 'label' => 'Ya, Punya'], ['value' => 'no', 'label' => 'Tidak']]" :selected="$draft['general']->komitmen_kualitas ?? 'no'" :readonly="$isReadOnly"
+                radioClass="komitmen-radio" />
 
             <div id="komitmenKualitasDetail"
                 style="{{ ($draft['general']->komitmen_kualitas ?? '') === 'yes' ? '' : 'display:none' }}">
@@ -50,7 +59,12 @@
     {{-- 3. Sertifikasi Halal --}}
     <div class="col-md-6">
         <div class="question-wrapper">
-            <x-vendor-radio name="sertifikat_halal" label="Sertifikasi Halal BPJPH" :options="[['value' => 'yes', 'label' => 'Ya'], ['value' => 'no', 'label' => 'Tidak']]" :selected="$draft['general']->sertifikat_halal ?? 'no'"
+            <label class="question-label">Sertifikasi Halal BPJPH @if (!$isReadOnly)
+                    <span class="text-danger">*</span>
+                @endif
+            </label>
+
+            <x-vendor-radio name="sertifikat_halal" label="" :options="[['value' => 'yes', 'label' => 'Ya'], ['value' => 'no', 'label' => 'Tidak']]" :selected="$draft['general']->sertifikat_halal ?? 'no'"
                 :readonly="$isReadOnly" />
         </div>
     </div>
