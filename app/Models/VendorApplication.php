@@ -82,4 +82,41 @@ class VendorApplication extends Model
     {
         return $this->documents->firstWhere('field_name', $fieldName);
     }
+
+
+    // Relasi dengan specific table
+    // Di dalam class VendorApplication
+
+    public function specBaku()
+    {
+        return $this->hasOne(VendorAppSpecBaku::class, 'application_id');
+    }
+    public function specVaria()
+    {
+        return $this->hasOne(VendorAppSpecVaria::class, 'application_id');
+    }
+    public function specTrans()
+    {
+        return $this->hasOne(VendorAppSpecTrans::class, 'application_id');
+    }
+    public function specKontraktor()
+    {
+        return $this->hasOne(VendorAppSpecKontraktor::class, 'application_id');
+    }
+    public function specPengujian()
+    {
+        return $this->hasOne(VendorAppSpecPengujian::class, 'application_id');
+    }
+    public function specFacility()
+    {
+        return $this->hasOne(VendorAppSpecFacility::class, 'application_id');
+    }
+    public function specPelatihan()
+    {
+        return $this->hasOne(VendorAppSpecPelatihan::class, 'application_id');
+    }
+    public function specAgency()
+    {
+        return $this->hasOne(VendorAppSpecAgency::class, 'application_id');
+    }
 }
