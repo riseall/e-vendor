@@ -103,12 +103,28 @@ var currentIndex = 0;
 // BUILD ACTIVE STEPS
 // ============================================
 function buildActiveSteps() {
+    var currentStepId = activeSteps[currentIndex]
+        ? activeSteps[currentIndex].id
+        : null;
+    var hasProductCategory = $(".category-checkbox:checked[value='1']").length > 0;
     var dynamicSteps = [];
     $(".category-checkbox:checked").each(function () {
         var id = parseInt($(this).val());
         if (categorySteps[id]) dynamicSteps.push(categorySteps[id]);
     });
-    activeSteps = fixedStepsBefore.concat(dynamicSteps);
+
+    var fixedSteps = fixedStepsBefore.filter(function (step) {
+        return step.id !== "step-7" || hasProductCategory;
+    });
+
+    activeSteps = fixedSteps.concat(dynamicSteps);
+
+    if (currentStepId) {
+        var nextIndex = activeSteps.findIndex(function (step) {
+            return step.id === currentStepId;
+        });
+        currentIndex = nextIndex >= 0 ? nextIndex : Math.min(currentIndex, activeSteps.length - 1);
+    }
 }
 
 // ============================================
@@ -156,6 +172,9 @@ function renderContent() {
     $("[data-step-id]").hide();
     var stepId = activeSteps[currentIndex].id;
     $('[data-step-id="' + stepId + '"]').show();
+    if (stepId === "step-7" && typeof window.refreshProductTable === "function") {
+        window.refreshProductTable();
+    }
 
     $("#current_step").val(currentIndex + 1);
     $("#btnPrev").toggle(currentIndex > 0);
@@ -187,7 +206,12 @@ $("#wzNav").on("click", ".wz-nav-item", function () {
     if (currentIndex === 0 && targetIndex > 0) {
         // Cek apakah kategori sudah dipilih
         if ($(".category-checkbox:checked").length === 0) {
-            alert("Silakan pilih kategori terlebih dahulu.");
+            Swal.fire({
+                title: "Pilih Kategori",
+                text: "Silakan pilih kategori terlebih dahulu.",
+                icon: "warning",
+                confirmButtonText: "OK",
+            });
             return;
         }
         // Rebuild activeSteps karena kategori sudah dipilih
@@ -205,9 +229,14 @@ $("#wzNav").on("click", ".wz-nav-item", function () {
 // ============================================
 $("#btnNext").on("click", function () {
     // Validasi step kategori
-    if (activeSteps[currentIndex].id === "kategori") {
+    if (activeSteps[currentIndex].id === "step-1") {
         if ($(".category-checkbox:checked").length === 0) {
-            $("#errKategori").removeClass("d-none");
+            Swal.fire({
+                title: "Pilih Kategori",
+                text: "Silakan pilih kategori terlebih dahulu.",
+                icon: "warning",
+                confirmButtonText: "OK",
+            });
             return;
         }
         $("#errKategori").addClass("d-none");
