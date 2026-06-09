@@ -56,7 +56,7 @@
                     "base": {
                         "white": "#ffffff",
                         "primary": "#3699FF",
-                        "secondary": "#E5EAEE",
+                        "secondary": "#0097a7",
                         "success": "#1BC5BD",
                         "info": "#8950FC",
                         "warning": "#FFA800",
@@ -90,7 +90,7 @@
                 "gray": {
                     "gray-100": "#F3F6F9",
                     "gray-200": "#ECF0F3",
-                    "gray-300": "#E5EAEE",
+                    "gray-300": "#0097a7",
                     "gray-400": "#D6D6E0",
                     "gray-500": "#B5B5C3",
                     "gray-600": "#80808F",

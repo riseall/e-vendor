@@ -3,7 +3,14 @@
         <!--begin::Info-->
         <div class="d-flex align-items-center flex-wrap mr-2">
             <!--begin::Page Title-->
-            <h5 class="text-dark font-weight-bold mt-2 mb-2 mr-5">Dashboard</h5>
+            <div class="mb-3"
+                style="font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: #B5B5C3; text-transform: uppercase;">
+                {{ __('dashboard') }}
+                @hasSection('breadcrumb')
+                    <span class="mx-1" style="color:#E4E6EF">·</span>
+                    <span style="color:#7E8299">@yield('breadcrumb')</span>
+                @endif
+            </div>
             <!--end::Page Title-->
         </div>
         <!--end::Info-->

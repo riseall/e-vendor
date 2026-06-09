@@ -6,6 +6,7 @@
     <title>E-Vendor - {{ $title }}</title>
     <meta name="description" content="Updates and statistics" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <!--begin::Fonts-->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" />
     <!--end::Fonts-->
@@ -62,7 +63,33 @@
                     <!--begin::Entry-->
                     <div class="d-flex flex-column-fluid">
                         <!--begin::Container-->
+                        {{-- Page Header (muncul otomatis jika @section('page_title') diisi) --}}
                         <div class="container">
+                            @hasSection('page_title')
+                                <div class="page-header-wrapper mb-8">
+
+                                    {{-- Breadcrumb --}}
+                                    <div class="mb-3 text-primary"
+                                        style="font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">
+                                        @hasSection('breadcrumb')
+                                            <span class="mx-1"><i class="flaticon2-shield text-primary"></i></span>
+                                            <span class="">@yield('step')</span>
+                                        @endif
+                                    </div>
+
+                                    {{-- Title & Desc --}}
+                                    <h3 class="font-weight-bolder text-dark mb-1" style="font-size: 1.5rem">
+                                        @yield('page_title')
+                                    </h3>
+                                    @hasSection('page_desc')
+                                        <p class="text-muted mb-0" style="font-size: 13px; max-width: 600px;">
+                                            @yield('page_desc')
+                                        </p>
+                                    @endif
+
+                                </div>
+                            @endif
+
                             @yield('content')
                         </div>
                         <!--end::Container-->
@@ -100,7 +127,7 @@
                     "base": {
                         "white": "#ffffff",
                         "primary": "#3699FF",
-                        "secondary": "#E5EAEE",
+                        "secondary": "#0097a7",
                         "success": "#1BC5BD",
                         "info": "#8950FC",
                         "warning": "#FFA800",
@@ -134,7 +161,7 @@
                 "gray": {
                     "gray-100": "#F3F6F9",
                     "gray-200": "#ECF0F3",
-                    "gray-300": "#E5EAEE",
+                    "gray-300": "#0097a7",
                     "gray-400": "#D6D6E0",
                     "gray-500": "#B5B5C3",
                     "gray-600": "#80808F",
