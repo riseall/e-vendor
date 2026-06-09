@@ -58,31 +58,100 @@
                         <span class="menu-text">{{ __('dashboard') }}</span>
                     </a>
                 </li>
-                <li class="menu-section">
-                    <h4 class="menu-text">Master</h4>
-                    <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
-                </li>
+
+                @php
+                    $latestVendorApplication = \App\Models\VendorApplication::where('user_id', Auth::id())
+                        ->where('status', '!=', \App\Models\VendorApplication::STATUS_DRAFT)
+                        ->latest('submitted_at')
+                        ->latest()
+                        ->first();
+                    $status = $application->status ?? ($latestVendorApplication->status ?? 'new');
+                @endphp
                 <li class="menu-item" aria-haspopup="true">
-                    <a href="{{ route('user.index') }}" class="menu-link">
+                    <a href="{{ route('registrasi.index') }}" class="menu-link">
                         <span class="svg-icon menu-icon">
-                            <!--begin::Svg Icon | path:assets/media/svg/icons/Home/Library.svg-->
-                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px">
                                 <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                    <polygon points="0 0 24 0 24 24 0 24" />
-                                    <path
-                                        d="M12,11 C9.790861,11 8,9.209139 8,7 C8,4.790861 9.790861,3 12,3 C14.209139,3 16,4.790861 16,7 C16,9.209139 14.209139,11 12,11 Z"
-                                        fill="#000000" fill-rule="nonzero" opacity="0.3" />
-                                    <path
-                                        d="M3.00065168,20.1992055 C3.38825852,15.4265159 7.26191235,13 11.9833413,13 C16.7712164,13 20.7048837,15.2931929 20.9979143,20.2 C21.0095879,20.3954741 20.9979143,21 20.2466999,21 C16.541124,21 11.0347247,21 3.72750223,21 C3.47671215,21 2.97953825,20.45918 3.00065168,20.1992055 Z"
-                                        fill="#000000" fill-rule="nonzero" />
+                                    <path fill="currentColor"
+                                        d="M 20 3 C 21.105 3 22 3.895 22 5 L 22 19 C 22 20.105 21.105 21 20 21 L 4 21 C 2.895 21 2 20.105 2 19 L 2 5 C 2 3.895 2.895 3 4 3 L 20 3 Z"
+                                        opacity=".3" class="duo-icons-secondary-layer" />
+                                    <path fill="currentColor"
+                                        d="M 17 7 L 14 7 C 13.23 7 12.749 7.833 13.134 8.5 C 13.313 8.809 13.643 9 14 9 L 17 9 C 17.77 9 18.251 8.167 17.866 7.5 C 17.687 7.191 17.357 7 17 7 Z"
+                                        style="visibility: hidden;" class="duo-icons-primary-layer" />
+                                    <path fill="currentColor" d="M 10 9 L 10 11 L 8 11 L 8 9 L 10 9 Z"
+                                        class="duo-icons-primary-layer" />
+                                    <path fill="currentColor"
+                                        d="M 17 11 L 14 11 C 13.23 11.001 12.75 11.835 13.136 12.501 C 13.293 12.773 13.57 12.956 13.883 12.993 L 14 13 L 17 13 C 17.77 12.999 18.25 12.165 17.864 11.499 C 17.707 11.227 17.43 11.044 17.117 11.007 L 17 11 Z"
+                                        class="duo-icons-primary-layer" />
+                                    <path fill="currentColor"
+                                        d="M 10 7 L 8 7 C 6.953 7 6.083 7.806 6.005 8.85 L 6 9 L 6 11 C 6 12.047 6.806 12.917 7.85 12.995 L 8 13 L 10 13 C 11.047 13 11.917 12.194 11.995 11.15 L 12 11 L 12 9 C 12 7.953 11.194 7.083 10.15 7.005 L 10 7 Z"
+                                        class="duo-icons-primary-layer" />
+                                    <path fill="currentColor"
+                                        d="M 17 15 L 7 15 C 6.23 15 5.749 15.833 6.134 16.5 C 6.313 16.809 6.643 17 7 17 L 17 17 C 17.77 17 18.251 16.167 17.866 15.5 C 17.687 15.191 17.357 15 17 15 Z"
+                                        class="duo-icons-primary-layer" />
                                 </g>
                             </svg>
-                            <!--end::Svg Icon-->
                         </span>
-                        <span class="menu-text">{{ __('users') }}</span>
+                        <span
+                            class="menu-text">{{ in_array($status, ['approved', 'verified']) ? 'Profil' : 'Registrasi' }}</span>
                     </a>
                 </li>
+
+                @if ($latestVendorApplication)
+                    <li class="menu-item" aria-haspopup="true">
+                        <a href="{{ route('registrasi.tracking', $latestVendorApplication->application_number) }}"
+                            class="menu-link">
+                            <span class="svg-icon menu-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px"
+                                    height="24px">
+                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                        <rect x="0" y="0" width="24" height="24" />
+                                        <path fill="currentColor" opacity=".3"
+                                            d="M5 4h14c1.105 0 2 .895 2 2v11c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V6c0-1.105.895-2 2-2z" />
+                                        <path fill="currentColor"
+                                            d="M7 8h7c.552 0 1 .448 1 1s-.448 1-1 1H7c-.552 0-1-.448-1-1s.448-1 1-1zm0 4h5c.552 0 1 .448 1 1s-.448 1-1 1H7c-.552 0-1-.448-1-1s.448-1 1-1zm11.707-1.707c.391.391.391 1.024 0 1.414l-3 3c-.391.391-1.024.391-1.414 0l-1-1c-.391-.391-.391-1.024 0-1.414s1.024-.391 1.414 0l.293.293 2.293-2.293c.391-.391 1.024-.391 1.414 0z" />
+                                    </g>
+                                </svg>
+                            </span>
+                            <span class="menu-text">Tracking Permohonan</span>
+                        </a>
+                    </li>
+                @endif
+
+                @hasanyrole(['Super Admin', 'Admin IT'])
+                    <li class="menu-section">
+                        <h4 class="menu-text">Master</h4>
+                        <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
+                    </li>
+                    <li class="menu-item" aria-haspopup="true">
+                        <a href="{{ route('user.index') }}" class="menu-link">
+                            <span class="svg-icon menu-icon">
+                                <!--begin::Svg Icon | path:assets/media/svg/icons/Home/Library.svg-->
+                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                        <polygon points="0 0 24 0 24 24 0 24" />
+                                        <path
+                                            d="M12,11 C9.790861,11 8,9.209139 8,7 C8,4.790861 9.790861,3 12,3 C14.209139,3 16,4.790861 16,7 C16,9.209139 14.209139,11 12,11 Z"
+                                            fill="#000000" fill-rule="nonzero" opacity="0.3" />
+                                        <path
+                                            d="M3.00065168,20.1992055 C3.38825852,15.4265159 7.26191235,13 11.9833413,13 C16.7712164,13 20.7048837,15.2931929 20.9979143,20.2 C21.0095879,20.3954741 20.9979143,21 20.2466999,21 C16.541124,21 11.0347247,21 3.72750223,21 C3.47671215,21 2.97953825,20.45918 3.00065168,20.1992055 Z"
+                                            fill="#000000" fill-rule="nonzero" />
+                                    </g>
+                                </svg>
+                                <!--end::Svg Icon-->
+                            </span>
+                            <span class="menu-text">{{ __('users') }}</span>
+                        </a>
+                    </li>
+                @endhasanyrole
+
+                <li class="menu-section">
+                    <h4 class="menu-text">Procurement</h4>
+                    <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
+                </li>
+
+
                 {{-- <li class="menu-item menu-item-submenu" aria-haspopup="true" data-menu-toggle="hover">
                     <a href="javascript:;" class="menu-link menu-toggle">
                         <span class="svg-icon menu-icon">
