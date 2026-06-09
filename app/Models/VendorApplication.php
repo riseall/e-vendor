@@ -11,13 +11,16 @@ class VendorApplication extends Model
 
     protected $fillable = [
         'user_id',
+        'application_number',
         'status',
         'current_step',
         'submitted_at',
+        'verified_at',
     ];
 
     protected $casts = [
         'submitted_at' => 'datetime',
+        'verified_at' => 'datetime',
     ];
 
     // Status constants

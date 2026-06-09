@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\VendorApplicationDocument;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreFormUmumRequest extends FormRequest
@@ -125,7 +126,7 @@ class StoreFormUmumRequest extends FormRequest
                     'products.*.sni_number' => 'required_if:products.*.has_sni,yes|nullable|string|max:50',
                     'products.*.has_halal' => 'required|in:yes,no',
                     'products.*.halal_number' => 'required_if:products.*.has_halal,yes|nullable|string|max:50',
-                    'products.*.file_surat' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                    'products.*.file_surat' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
                     'products.*.file_surat_path' => 'nullable|string|max:255',
                     'products.*.existing_file_surat' => 'nullable|string|max:255',
                 ];
@@ -170,8 +171,11 @@ class StoreFormUmumRequest extends FormRequest
 
         foreach ($documentFields as $field) {
             if (!$isDraft) {
-                // Strict: required for submit
-                $rules[$field] = 'required|' . $fileValidation;
+                $hasExistingDocument = VendorApplicationDocument::where('application_id', $this->input('application_id'))
+                    ->where('field_name', $field)
+                    ->exists();
+
+                $rules[$field] = ($hasExistingDocument ? 'nullable|' : 'required|') . $fileValidation;
             } else {
                 // Loose: nullable for draft
                 $rules[$field] = 'nullable|' . $fileValidation;

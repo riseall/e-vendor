@@ -63,11 +63,12 @@
 
             {{-- Hidden checkbox --}}
             <input type="checkbox" name="categories[]" id="cat_{{ $cat['id'] }}" value="{{ $cat['id'] }}"
-                class="category-checkbox d-none" {{ in_array($cat['id'], $selectedCategories) ? 'checked' : '' }}>
+                class="category-checkbox d-none" {{ in_array($cat['id'], $selectedCategories) ? 'checked' : '' }}
+                {{ $isReadOnly ? 'disabled' : '' }}>
 
             {{-- Card --}}
-            <div class="cat-card {{ in_array($cat['id'], $selectedCategories) ? 'selected' : '' }}"
-                onclick="toggleCat({{ $cat['id'] }})">
+            <div class="cat-card {{ in_array($cat['id'], $selectedCategories) ? 'selected' : '' }} {{ $isReadOnly ? 'readonly' : '' }}"
+                @if (!$isReadOnly) onclick="toggleCat({{ $cat['id'] }})" @endif>
 
                 {{-- Checkmark badge --}}
                 <div class="cat-check">
@@ -124,6 +125,10 @@
         // TOGGLE CATEGORY CARD
         $(document).ready(function() {
             window.toggleCat = function(id) {
+                @if ($isReadOnly)
+                    return;
+                @endif
+
                 var cb = $('#cat_' + id);
                 var card = cb.closest('.col-xl-3, .col-lg-4, .col-md-6').find('.cat-card');
                 cb.prop('checked', !cb.prop('checked'));

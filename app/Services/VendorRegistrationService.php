@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\{VendorApplication, VendorApplicationGeneral, VendorApplicationProduct, VendorApplicationDocument};
 use Illuminate\Support\Facades\{DB, Storage};
+use Illuminate\Validation\ValidationException;
 
 class VendorRegistrationService
 {
@@ -12,11 +13,15 @@ class VendorRegistrationService
         return DB::transaction(function () use ($data, $vendorApplicationId, $action) {
             $application = VendorApplication::findOrFail($vendorApplicationId);
 
-            // Update status & step
-            $status = ($action === 'submit') ? VendorApplication::STATUS_SUBMITTED : VendorApplication::STATUS_DRAFT;
+            if ($application->status !== VendorApplication::STATUS_DRAFT) {
+                throw ValidationException::withMessages([
+                    'application_id' => 'Permohonan yang sudah dikirim tidak dapat diubah.',
+                ]);
+            }
+
             $application->update([
-                'status' => $status,
-                'current_step' => 2 // Sesuaikan dengan urutan wizard Anda
+                'status' => VendorApplication::STATUS_DRAFT,
+                'current_step' => max((int) $application->current_step, 8)
             ]);
 
             // Save General Info

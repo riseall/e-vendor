@@ -13,6 +13,7 @@ use App\Models\VendorAppSpecPelatihan;
 use App\Models\VendorAppSpecAgency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class VendorSpecificService
 {
@@ -21,10 +22,15 @@ class VendorSpecificService
         return DB::transaction(function () use ($data, $applicationId, $action) {
             $application = VendorApplication::findOrFail($applicationId);
 
-            $status = ($action === 'submit') ? VendorApplication::STATUS_SUBMITTED : VendorApplication::STATUS_DRAFT;
+            if ($application->status !== VendorApplication::STATUS_DRAFT) {
+                throw ValidationException::withMessages([
+                    'application_id' => 'Permohonan yang sudah dikirim tidak dapat diubah.',
+                ]);
+            }
+
             $application->update([
-                'status' => $status,
-                'current_step' => ($action === 'submit') ? 4 : 3
+                'status' => VendorApplication::STATUS_DRAFT,
+                'current_step' => max((int) $application->current_step, 9)
             ]);
 
             $categories = $application->getCategoryIds();

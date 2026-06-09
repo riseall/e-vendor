@@ -66,6 +66,12 @@ Route::group(
                 // Submit permohonan final (step 5)
                 Route::post('/submit', [RegistrasiController::class, 'submit'])
                     ->name('submit');
+
+                Route::get('/success/{application}', [RegistrasiController::class, 'success'])
+                    ->name('success');
+
+                Route::get('/tracking/{applicationNumber?}', [RegistrasiController::class, 'tracking'])
+                    ->name('tracking');
             });
 
             // Product Search

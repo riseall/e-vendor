@@ -13,16 +13,29 @@
 
 @section('content')
 
-    @if (isset($hasDraft) && $hasDraft)
+    @if (($applicationStatus ?? null) === 'submitted')
+        <div class="alert alert-custom alert-light-primary fade show mb-5" role="alert">
+            <div class="alert-icon"><i class="flaticon2-check-mark text-primary icon-md"></i></div>
+            <div class="alert-text">
+                <span class="font-weight-bold text-dark-75">Permohonan Anda sudah dikirim.</span>
+                Form ini tampil dalam mode read-only sambil menunggu verifikasi.
+            </div>
+            <div class="alert-close">
+                <button type="button" class="close" data-dismiss="alert">
+                    <span><i class="ki ki-close text-dark-75"></i></span>
+                </button>
+            </div>
+        </div>
+    @elseif (isset($hasDraft) && $hasDraft)
         <div class="alert alert-custom alert-light-warning fade show mb-5" role="alert">
             <div class="alert-icon"><i class="fas fa-exclamation-triangle text-warning icon-md"></i></div>
             <div class="alert-text">
-                <span class="font-weight-bold">Anda memiliki permohonan yang belum selesai.</span>
+                <span class="font-weight-bold text-dark-75">Anda memiliki permohonan yang belum selesai.</span>
                 {{-- Data tersimpan hingga step <strong>{{ $draftStep ?? 1 }} --}}</strong>
             </div>
             <div class="alert-close">
                 <button type="button" class="close" data-dismiss="alert">
-                    <span><i class="ki ki-close"></i></span>
+                    <span><i class="ki ki-close text-dark-75"></i></span>
                 </button>
             </div>
         </div>
@@ -161,20 +174,24 @@
                                             </button>
                                         </div>
                                         <div>
-                                            <button type="button" id="btnSaveDraft"
-                                                class="btn btn-light-primary font-weight-bold text-uppercase px-9 py-4 mr-3">
-                                                <i class="flaticon2-fax mr-1"></i> Simpan Draft
-                                            </button>
+                                            @if (!$isReadOnly)
+                                                <button type="button" id="btnSaveDraft"
+                                                    class="btn btn-light-primary font-weight-bold text-uppercase px-9 py-4 mr-3">
+                                                    <i class="flaticon2-fax mr-1"></i> Simpan Draft
+                                                </button>
+                                            @endif
                                             <button type="button" id="btnNext"
                                                 class="btn btn-primary font-weight-bold text-uppercase px-9 py-4">
                                                 Lanjutkan
                                                 <i class="fas fa-arrow-up icon-md" style="transform: rotate(45deg);"></i>
                                             </button>
-                                            <button type="submit" id="btnSubmit"
-                                                class="btn btn-primary font-weight-bold text-uppercase px-9 py-4"
-                                                style="display:none">
-                                                <i class="flaticon2-check-mark mr-1"></i> Submit
-                                            </button>
+                                            @if (!$isReadOnly)
+                                                <button type="submit" id="btnSubmit"
+                                                    class="btn btn-primary font-weight-bold text-uppercase px-9 py-4"
+                                                    style="display:none">
+                                                    <i class="flaticon2-check-mark mr-1"></i> Submit
+                                                </button>
+                                            @endif
                                         </div>
                                     </div>
                                     {{-- End Wizard Actions --}}
@@ -222,7 +239,121 @@
     <script>
         $(document).ready(function() {
 
-            function sendForm(actionType, btnElement) {
+            function showValidationErrors(errors) {
+                let msg = "<ul>";
+                $.each(errors, function(key, value) {
+                    msg += "<li class='text-left'>" + value[0] + "</li>";
+                    $('[name="' + key + '"]').addClass('is-invalid');
+                });
+                msg += "</ul>";
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validasi Gagal',
+                    html: msg
+                });
+            }
+
+            function syncCategoryDraftBeforeContinue(actionType, btnElement) {
+                var selectedCategories = $('.category-checkbox:checked');
+
+                if (selectedCategories.length === 0) {
+                    Swal.fire('Pilih Kategori', 'Silakan pilih minimal satu kategori terlebih dahulu.', 'warning');
+                    return;
+                }
+
+                var originalBtnHtml = btnElement.html();
+                var formData = new FormData();
+                formData.append('_token', $('input[name="_token"]').val());
+                selectedCategories.each(function() {
+                    formData.append('categories[]', $(this).val());
+                });
+
+                btnElement.attr('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm"></span> Menyiapkan draft...');
+
+                $.ajax({
+                    url: "{{ route('registrasi.save-draft') }}",
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(res) {
+                        if (res.application_id) {
+                            $('#application_id').val(res.application_id);
+                            btnElement.attr('disabled', false).html(originalBtnHtml);
+                            sendForm(actionType, btnElement, true);
+                        }
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            showValidationErrors(xhr.responseJSON.errors);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: xhr.responseJSON?.message || 'Gagal membuat draft kategori.'
+                            });
+                        }
+                    },
+                    complete: function() {
+                        if (!$('#application_id').val()) {
+                            btnElement.attr('disabled', false).html(originalBtnHtml);
+                        }
+                    }
+                });
+            }
+
+            function finalizeSubmit(applicationId, btnElement) {
+                if (!applicationId) {
+                    Swal.fire('Error', 'Nomor draft permohonan tidak ditemukan.', 'error');
+                    return;
+                }
+
+                var originalBtnHtml = btnElement.html();
+                btnElement.attr('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm"></span> Mengirim permohonan...');
+
+                $.ajax({
+                    url: "{{ route('registrasi.submit') }}",
+                    method: 'POST',
+                    data: {
+                        _token: $('input[name="_token"]').val(),
+                        application_id: applicationId
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(res) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Permohonan Terkirim',
+                            text: res.message,
+                        }).then(() => {
+                            window.location.href = res.redirect;
+                        });
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            showValidationErrors(xhr.responseJSON.errors);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: xhr.responseJSON?.message || 'Gagal mengirim permohonan.'
+                            });
+                        }
+                    },
+                    complete: function() {
+                        btnElement.attr('disabled', false).html(originalBtnHtml);
+                    }
+                });
+            }
+
+            function sendForm(actionType, btnElement, skipCategorySync = false) {
                 // 1. Deteksi Step Aktif
                 var currentStepId = $('div[data-step-id]:visible').attr('data-step-id');
                 var targetUrl = "";
@@ -245,11 +376,23 @@
                     return;
                 }
 
+                var appId = $('#application_id').val();
+                if (currentStepId !== 'step-1' && !skipCategorySync) {
+                    syncCategoryDraftBeforeContinue(actionType, btnElement);
+                    return;
+                }
+
+                if (typeof window.prepareProductRowsForSubmit === 'function') {
+                    window.prepareProductRowsForSubmit();
+                }
+
                 // 3. Siapkan FormData (Support File Upload)
                 var formData = new FormData($('#kt_form')[0]);
+                if (typeof window.restoreProductRowsAfterSubmit === 'function') {
+                    window.restoreProductRowsAfterSubmit();
+                }
                 formData.append('action', actionType); // 'draft' atau 'submit'
 
-                var appId = $('#application_id').val();
                 if (appId) {
                     formData.append('application_id', appId);
                 }
@@ -274,39 +417,20 @@
                             $('#application_id').val(res.application_id);
                         }
 
+                        if (actionType === 'submit') {
+                            finalizeSubmit(res.application_id || $('#application_id').val(), btnElement);
+                            return;
+                        }
+
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil',
                             text: res.message,
-                        }).then(() => {
-                            // Logic pindah step atau redirect
-                            if (actionType === 'submit') {
-                                if (res.redirect) {
-                                    window.location.href = res.redirect;
-                                } else {
-                                    // Jika submit hanya untuk validasi per step, panggil fungsi next wizard Bos
-                                    // contoh: wizard.goNext();
-                                }
-                            }
                         });
                     },
                     error: function(xhr) {
                         if (xhr.status === 422) {
-                            let errors = xhr.responseJSON.errors;
-                            // Format error jadi list peluru supaya rapi di Swal
-                            let msg = "<ul>";
-                            $.each(errors, function(key, value) {
-                                msg += "<li class='text-left'>" + value[0] + "</li>";
-                                // Tambahkan class is-invalid ke input yang bermasalah
-                                $('[name="' + key + '"]').addClass('is-invalid');
-                            });
-                            msg += "</ul>";
-
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Validasi Gagal',
-                                html: msg // Menggunakan HTML untuk list error
-                            });
+                            showValidationErrors(xhr.responseJSON.errors);
                         } else {
                             Swal.fire({
                                 icon: 'error',
@@ -327,7 +451,8 @@
                 sendForm('draft', $(this));
             });
 
-            $('#btnSubmitUmum, #btnSubmitSpecific').on('click', function() {
+            $('#btnSubmit').on('click', function(e) {
+                e.preventDefault();
                 sendForm('submit', $(this));
             });
         });
