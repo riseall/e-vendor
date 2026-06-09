@@ -14,11 +14,11 @@
                         menguntungkan.</p>
 
                     <ul class="list-unstyled social-icon foot-social-icon mb-0 mt-4">
-                        <li class="list-inline-item mb-0"><a href="https://www.facebook.com/Phapros" target="_blank"
+                        <li class="list-inline-item mb-0"><a href="https://www.facebook.com/ptphapros" target="_blank"
                                 class="btn btn-icon btn-facebook">
                                 <i class="fab fa-facebook-f"></i>
                             </a></li>
-                        <li class="list-inline-item mb-0"><a href="https://www.instagram.com/ptphaprostbk"
+                        <li class="list-inline-item mb-0"><a href="https://www.instagram.com/phapros.id/"
                                 target="_blank" class="btn btn-icon btn-instagram">
                                 <i class="fab fa-instagram"></i></a></li>
                         <li class="list-inline-item mb-0"><a href="https://www.linkedin.com/company/pt-phapros-tbk/"
