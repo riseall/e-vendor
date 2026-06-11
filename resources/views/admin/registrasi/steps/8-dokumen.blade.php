@@ -31,9 +31,10 @@
                 @php
                     $isUploaded = isset($uploadedDocs[$dok['name']]);
                     $docData = $uploadedDocs[$dok['name']] ?? null;
+                    $revisionNote = $revisionNotes[$dok['name']] ?? null;
                 @endphp
 
-                <div class="doc-item {{ $isUploaded ? 'status-uploaded' : 'status-pending' }}"
+                <div class="doc-item {{ $revisionNote ? 'status-pending' : ($isUploaded ? 'status-uploaded' : 'status-pending') }}"
                     id="item-{{ $dok['name'] }}">
                     <div class="doc-info">
                         <div class="doc-icon-wrapper">
@@ -48,6 +49,11 @@
                                     </span>
                                 @else
                                     <span class="text-muted file-name-text">Belum ada file terpilih</span>
+                                @endif
+                                @if ($revisionNote)
+                                    <div class="text-danger font-weight-bold mt-1">
+                                        <i class="fas fa-exclamation-circle mr-1"></i> Revisi: {{ $revisionNote }}
+                                    </div>
                                 @endif
                             </div>
                         </div>

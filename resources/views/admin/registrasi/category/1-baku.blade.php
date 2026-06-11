@@ -199,6 +199,7 @@
                         </tbody>
                     </table>
                 </div>
+                <x-revision-note name="q7_equipments" :notes="$revisionNotes ?? []" />
             </div>
         </div>
     </div>

@@ -64,6 +64,7 @@
                     keanggotaan)</label>
                 <input type="text" name="k5_association" class="form-control" placeholder="Nama Asosiasi & Status..."
                     value="{{ $draft['k5_association'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}>
+                <x-revision-note name="k5_association" :notes="$revisionNotes ?? []" />
             </div>
         </div>
     </div>
@@ -135,6 +136,7 @@
                         </tbody>
                     </table>
                 </div>
+                <x-revision-note name="k6_equipments" :notes="$revisionNotes ?? []" />
             </div>
         </div>
     </div>

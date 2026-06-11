@@ -26,6 +26,34 @@
                 </button>
             </div>
         </div>
+    @elseif (($applicationStatus ?? null) === 'need_revision')
+        <div class="alert alert-custom alert-light-warning fade show mb-5" role="alert">
+            <div class="alert-icon"><i class="flaticon-warning text-warning icon-md"></i></div>
+            <div class="alert-text">
+                <span class="font-weight-bold text-dark-75">Permohonan perlu revisi.</span>
+                Silakan perbaiki data sesuai catatan pengadaan lalu submit ulang.
+                @if (!empty($draft['admin_note'] ?? null))
+                    <div class="mt-2 text-dark-75">
+                        <span class="font-weight-bold">Catatan:</span> {{ $draft['admin_note'] }}
+                    </div>
+                @endif
+                @if (!empty($draft['revision_notes'] ?? null))
+                    <div class="mt-2 text-dark-75">
+                        @foreach ($draft['revision_notes'] as $revision)
+                            <div>
+                                <span class="font-weight-bold">{{ $revision['label'] ?? ($revision['field'] ?? 'Umum') }}:</span>
+                                {{ $revision['note'] ?? '-' }}
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+            <div class="alert-close">
+                <button type="button" class="close" data-dismiss="alert">
+                    <span><i class="ki ki-close text-dark-75"></i></span>
+                </button>
+            </div>
+        </div>
     @elseif (isset($hasDraft) && $hasDraft)
         <div class="alert alert-custom alert-light-warning fade show mb-5" role="alert">
             <div class="alert-icon"><i class="fas fa-exclamation-triangle text-warning icon-md"></i></div>
@@ -262,7 +290,7 @@
                     return;
                 }
 
-                var originalBtnHtml = btnElement.html();
+                var originalBtnHtml = btnElement.data('original-html') || btnElement.html();
                 var formData = new FormData();
                 formData.append('_token', $('input[name="_token"]').val());
                 selectedCategories.each(function() {
@@ -313,7 +341,7 @@
                     return;
                 }
 
-                var originalBtnHtml = btnElement.html();
+                var originalBtnHtml = btnElement.data('original-html') || btnElement.html();
                 btnElement.attr('disabled', true).html(
                     '<span class="spinner-border spinner-border-sm"></span> Mengirim permohonan...');
 
@@ -350,6 +378,48 @@
                     complete: function() {
                         btnElement.attr('disabled', false).html(originalBtnHtml);
                     }
+                });
+            }
+
+            function saveBeforeFinalSubmit(formData, btnElement) {
+                $.ajax({
+                    url: "{{ route('registrasi.save-umum') }}",
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                }).then(function(res) {
+                    if (res.application_id) {
+                        $('#application_id').val(res.application_id);
+                        formData.set('application_id', res.application_id);
+                    }
+
+                    return $.ajax({
+                        url: "{{ route('registrasi.save-specific') }}",
+                        method: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+                }).then(function(res) {
+                    finalizeSubmit(res.application_id || $('#application_id').val(), btnElement);
+                }).fail(function(xhr) {
+                    if (xhr.status === 422) {
+                        showValidationErrors(xhr.responseJSON.errors);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: xhr.responseJSON?.message || 'Gagal menyimpan revisi sebelum submit.'
+                        });
+                    }
+                    btnElement.attr('disabled', false).html(btnElement.data('original-html'));
                 });
             }
 
@@ -399,8 +469,14 @@
 
                 // 4. Animasi Loading
                 var originalBtnHtml = btnElement.html();
+                btnElement.data('original-html', originalBtnHtml);
                 btnElement.attr('disabled', true).html(
                     '<span class="spinner-border spinner-border-sm"></span> Loading...');
+
+                if (actionType === 'submit') {
+                    saveBeforeFinalSubmit(formData, btnElement);
+                    return;
+                }
 
                 // 5. Eksekusi AJAX
                 $.ajax({
@@ -415,11 +491,6 @@
                     success: function(res) {
                         if (res.application_id) {
                             $('#application_id').val(res.application_id);
-                        }
-
-                        if (actionType === 'submit') {
-                            finalizeSubmit(res.application_id || $('#application_id').val(), btnElement);
-                            return;
                         }
 
                         Swal.fire({

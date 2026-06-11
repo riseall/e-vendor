@@ -1,6 +1,7 @@
 <tr class="product-row" id="product-row-{{ $id }}" data-product-id="{{ $id }}">
     <td class="align-top min-w-220px">
         <div class="font-weight-bolder text-dark product-name">{{ $name }}</div>
+        <x-revision-note name="products.{{ $id }}" :notes="$revisionNotes ?? []" />
         <input type="hidden" name="products[{{ $id }}][erp_product_id]" value="{{ $id }}">
         <input type="hidden" name="products[{{ $id }}][product_name]" value="{{ $name }}">
     </td>

@@ -74,6 +74,7 @@
                                 <input type="text" name="t6_3pl_darat" class="form-control" placeholder="..."
                                     value="{{ $draft['t6_3pl_darat'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}>
                             </div>
+                            <x-revision-note name="t6_3pl_darat" :notes="$revisionNotes ?? []" />
                         </div>
                         <div class="col-md-4">
                             <div class="input-group input-group-sm">
@@ -81,6 +82,7 @@
                                 <input type="text" name="t6_3pl_laut" class="form-control" placeholder="..."
                                     value="{{ $draft['t6_3pl_laut'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}>
                             </div>
+                            <x-revision-note name="t6_3pl_laut" :notes="$revisionNotes ?? []" />
                         </div>
                         <div class="col-md-4">
                             <div class="input-group input-group-sm">
@@ -88,6 +90,7 @@
                                 <input type="text" name="t6_3pl_udara" class="form-control" placeholder="..."
                                     value="{{ $draft['t6_3pl_udara'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}>
                             </div>
+                            <x-revision-note name="t6_3pl_udara" :notes="$revisionNotes ?? []" />
                         </div>
                     </div>
                 </div>
@@ -147,6 +150,7 @@
                 <label class="question-label">Layanan lain yang dimiliki (misal: packing cargo, warehouse, dll)</label>
                 <textarea name="t10_other_services" class="form-control" rows="3" placeholder="Sebutkan layanan lainnya..."
                     {{ $isReadOnly ? 'readonly' : '' }}>{{ $draft['t10_other_services'] ?? '' }}</textarea>
+                <x-revision-note name="t10_other_services" :notes="$revisionNotes ?? []" />
             </div>
         </div>
     </div>

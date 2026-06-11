@@ -22,14 +22,17 @@ class VendorSpecificService
         return DB::transaction(function () use ($data, $applicationId, $action) {
             $application = VendorApplication::findOrFail($applicationId);
 
-            if ($application->status !== VendorApplication::STATUS_DRAFT) {
+            if (!in_array($application->status, [
+                VendorApplication::STATUS_DRAFT,
+                VendorApplication::STATUS_NEED_REVISION,
+            ])) {
                 throw ValidationException::withMessages([
                     'application_id' => 'Permohonan yang sudah dikirim tidak dapat diubah.',
                 ]);
             }
 
             $application->update([
-                'status' => VendorApplication::STATUS_DRAFT,
+                'status' => $application->status,
                 'current_step' => max((int) $application->current_step, 9)
             ]);
 

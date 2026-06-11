@@ -13,14 +13,17 @@ class VendorRegistrationService
         return DB::transaction(function () use ($data, $vendorApplicationId, $action) {
             $application = VendorApplication::findOrFail($vendorApplicationId);
 
-            if ($application->status !== VendorApplication::STATUS_DRAFT) {
+            if (!in_array($application->status, [
+                VendorApplication::STATUS_DRAFT,
+                VendorApplication::STATUS_NEED_REVISION,
+            ])) {
                 throw ValidationException::withMessages([
                     'application_id' => 'Permohonan yang sudah dikirim tidak dapat diubah.',
                 ]);
             }
 
             $application->update([
-                'status' => VendorApplication::STATUS_DRAFT,
+                'status' => $application->status,
                 'current_step' => max((int) $application->current_step, 8)
             ]);
 
@@ -45,14 +48,23 @@ class VendorRegistrationService
 
     private function processProducts(array $products, int $appId): void
     {
-        $incomingIds = collect($products)->pluck('id')->filter()->toArray();
-        VendorApplicationProduct::where('application_id', $appId)->whereNotIn('id', $incomingIds)->delete();
+        $incomingErpIds = collect($products)
+            ->pluck('erp_product_id')
+            ->filter()
+            ->values()
+            ->all();
+
+        VendorApplicationProduct::where('application_id', $appId)
+            ->whereNotIn('erp_product_id', $incomingErpIds)
+            ->delete();
 
         foreach ($products as $index => $pData) {
             $product = VendorApplicationProduct::updateOrCreate(
-                ['application_id' => $appId, 'id' => $pData['id'] ?? null],
                 [
+                    'application_id' => $appId,
                     'erp_product_id' => $pData['erp_product_id'],
+                ],
+                [
                     'product_name'   => $pData['product_name'],
                     'manufaktur'     => $pData['manufaktur'],
                     'rantai_pasok'   => $pData['rantai_pasok'],

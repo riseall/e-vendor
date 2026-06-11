@@ -8,6 +8,7 @@
                 <label class="question-label">Keanggotaan asosiasi (Sebutkan nama asosiasi dan status)</label>
                 <input type="text" name="f1_association" class="form-control" placeholder="Nama Asosiasi & Status..."
                     value="{{ $draft['f1_association'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}>
+                <x-revision-note name="f1_association" :notes="$revisionNotes ?? []" />
             </div>
         </div>
 
@@ -80,6 +81,7 @@
                         </tbody>
                     </table>
                 </div>
+                <x-revision-note name="f4_certs" :notes="$revisionNotes ?? []" />
             </div>
         </div>
     </div>

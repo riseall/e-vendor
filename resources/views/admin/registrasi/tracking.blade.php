@@ -115,6 +115,16 @@
                     <div class="alert-text">
                         <div class="font-weight-bolder mb-1">Catatan Revisi</div>
                         {{ $application->admin_note }}
+                        @if (!empty($application->revision_notes))
+                            <div class="mt-3">
+                                @foreach ($application->revision_notes as $revision)
+                                    <div class="mb-1">
+                                        <span class="font-weight-bold">{{ $revision['field'] ?? 'Umum' }}:</span>
+                                        {{ $revision['note'] ?? '-' }}
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 </div>
             @endif

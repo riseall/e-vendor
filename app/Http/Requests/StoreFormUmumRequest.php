@@ -47,7 +47,7 @@ class StoreFormUmumRequest extends FormRequest
                 'other_companies'    => 'required_if:has_other_company,yes|array|min:1',
 
                 'payment_term'       => 'required|string|max:20',
-                'payment_term_other' => 'required_if:payment_term,Other|string|max:20',
+                'payment_term_other' => 'required_if:payment_term,other|nullable|string|max:20',
                 'pemegang_rekening'  => 'required|string|max:255',
                 'nomor_rekening'     => 'required|string|max:50',
                 'nama_bank'          => 'required|string|max:255',

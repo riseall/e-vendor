@@ -28,6 +28,7 @@
                             <input type="text" name="l1_kalibrasi_scope" class="form-control form-control-sm"
                                 placeholder="Contoh: Suhu, Tekanan, Massa..."
                                 value="{{ $draft['l1_kalibrasi_scope'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}>
+                            <x-revision-note name="l1_kalibrasi_scope" :notes="$revisionNotes ?? []" />
                         </div>
                     </div>
                 </x-vendor-checkbox>
@@ -71,6 +72,7 @@
                                     <input type="text" name="l2_{{ $key }}_no"
                                         class="form-control form-control-sm" value="{{ $draft["l2_{$key}_no"] ?? '' }}"
                                         {{ $isReadOnly ? 'readonly' : '' }}>
+                                    <x-revision-note name="l2_{{ $key }}_no" :notes="$revisionNotes ?? []" />
                                 </div>
                                 <div class="col-md-3">
                                     <label class="font-size-xs text-muted">Masa Berlaku:</label>
@@ -78,6 +80,7 @@
                                         class="form-control form-control-sm"
                                         value="{{ $draft["l2_{$key}_date"] ?? '' }}"
                                         {{ $isReadOnly ? 'readonly' : '' }}>
+                                    <x-revision-note name="l2_{{ $key }}_date" :notes="$revisionNotes ?? []" />
                                 </div>
                                 <div class="col-md-5">
                                     <label class="font-size-xs text-muted">Lampiran File:</label>
@@ -111,6 +114,7 @@
                                                 class="flaticon-eye"></i>
                                             Lihat File</button>
                                     @endif
+                                    <x-revision-note name="l2_{{ $key }}_file" :notes="$revisionNotes ?? []" />
                                 </div>
                             </div>
                         </div>

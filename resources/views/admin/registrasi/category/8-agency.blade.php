@@ -12,6 +12,7 @@
                         <input type="text" name="h1_association" class="form-control"
                             placeholder="Nama Asosiasi & Status..." value="{{ $draft['h1_association'] ?? '' }}"
                             {{ $isReadOnly ? 'readonly' : '' }}>
+                        <x-revision-note name="h1_association" :notes="$revisionNotes ?? []" />
                     </div>
                     <div class="col-md-5">
                         <div class="form-group">
@@ -32,6 +33,7 @@
                 <input type="text" name="h2_specialization" class="form-control"
                     placeholder="Contoh: Digital Ads, Creative Design, Media Placement, dll"
                     value="{{ $draft['h2_specialization'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}>
+                <x-revision-note name="h2_specialization" :notes="$revisionNotes ?? []" />
             </div>
         </div>
     </div>
@@ -46,6 +48,7 @@
                 <textarea name="h3_project_experience" class="form-control" rows="5"
                     placeholder="1. PT. ABC - Campaign Ramadhan 2025&#10;2. PT. XYZ - Social Media Management"
                     {{ $isReadOnly ? 'readonly' : '' }}>{{ $draft['h3_project_experience'] ?? '' }}</textarea>
+                <x-revision-note name="h3_project_experience" :notes="$revisionNotes ?? []" />
             </div>
         </div>
     </div>

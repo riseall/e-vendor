@@ -9,6 +9,7 @@
                     keanggotaan)</label>
                 <input type="text" name="g1_association" class="form-control" placeholder="Nama Asosiasi & Status..."
                     value="{{ $draft['g1_association'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}>
+                <x-revision-note name="g1_association" :notes="$revisionNotes ?? []" />
             </div>
         </div>
     </div>
@@ -89,6 +90,7 @@
                         </tbody>
                     </table>
                 </div>
+                <x-revision-note name="g3_permits" :notes="$revisionNotes ?? []" />
             </div>
         </div>
     </div>
