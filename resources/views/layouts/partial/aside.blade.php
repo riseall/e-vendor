@@ -146,10 +146,28 @@
                     </li>
                 @endhasanyrole
 
-                <li class="menu-section">
-                    <h4 class="menu-text">Procurement</h4>
-                    <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
-                </li>
+                @hasanyrole(['Super Admin', 'Admin IT', 'Procurement', 'Verifikator'])
+                    <li class="menu-section">
+                        <h4 class="menu-text">Procurement</h4>
+                        <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
+                    </li>
+                    <li class="menu-item" aria-haspopup="true">
+                        <a href="{{ route('pengadaan.permohonan.index') }}" class="menu-link">
+                            <span class="svg-icon menu-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px">
+                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                        <rect x="0" y="0" width="24" height="24" />
+                                        <path fill="currentColor" opacity=".3"
+                                            d="M5 4h14c1.105 0 2 .895 2 2v12c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V6c0-1.105.895-2 2-2z" />
+                                        <path fill="currentColor"
+                                            d="M7 8h10c.552 0 1 .448 1 1s-.448 1-1 1H7c-.552 0-1-.448-1-1s.448-1 1-1zm0 4h6c.552 0 1 .448 1 1s-.448 1-1 1H7c-.552 0-1-.448-1-1s.448-1 1-1zm0 4h8c.552 0 1 .448 1 1s-.448 1-1 1H7c-.552 0-1-.448-1-1s.448-1 1-1z" />
+                                    </g>
+                                </svg>
+                            </span>
+                            <span class="menu-text">Verifikasi Vendor</span>
+                        </a>
+                    </li>
+                @endhasanyrole
 
 
                 {{-- <li class="menu-item menu-item-submenu" aria-haspopup="true" data-menu-toggle="hover">

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProcurementVerificationController;
 use App\Http\Controllers\RegistrasiController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -76,6 +77,21 @@ Route::group(
 
             // Product Search
             Route::get('/search-products', [RegistrasiController::class, 'searchProducts'])->name('search-products');
+
+            Route::prefix('pengadaan')->name('pengadaan.')->group(function () {
+                Route::get('/permohonan', [ProcurementVerificationController::class, 'index'])
+                    ->name('permohonan.index');
+                Route::get('/permohonan/{application}', [ProcurementVerificationController::class, 'show'])
+                    ->name('permohonan.show');
+                Route::post('/permohonan/{application}/verify', [ProcurementVerificationController::class, 'verify'])
+                    ->name('permohonan.verify');
+                Route::post('/permohonan/{application}/revisi', [ProcurementVerificationController::class, 'requestRevision'])
+                    ->name('permohonan.revisi');
+                Route::post('/permohonan/{application}/items/{item}/approve', [ProcurementVerificationController::class, 'approveItem'])
+                    ->name('permohonan.items.approve');
+                Route::post('/permohonan/{application}/items/{item}/reject', [ProcurementVerificationController::class, 'rejectItem'])
+                    ->name('permohonan.items.reject');
+            });
 
             // Users
             Route::resource('user', UserController::class)->only('index', 'store', 'update', 'destroy');

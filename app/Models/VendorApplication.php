@@ -15,12 +15,21 @@ class VendorApplication extends Model
         'status',
         'current_step',
         'submitted_at',
+        'revision_submitted_at',
+        'revision_count',
         'verified_at',
+        'verified_by',
+        'revision_notes',
+        'auto_verified',
     ];
 
     protected $casts = [
         'submitted_at' => 'datetime',
+        'revision_submitted_at' => 'datetime',
+        'revision_count' => 'integer',
         'verified_at' => 'datetime',
+        'revision_notes' => 'array',
+        'auto_verified' => 'boolean',
     ];
 
     // Status constants
@@ -49,6 +58,11 @@ class VendorApplication extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function verifier()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
     public function categories()
     {
         return $this->hasMany(VendorApplicationCategory::class, 'application_id');
@@ -67,6 +81,11 @@ class VendorApplication extends Model
     public function documents()
     {
         return $this->hasMany(VendorApplicationDocument::class, 'application_id');
+    }
+
+    public function verificationItems()
+    {
+        return $this->hasMany(VendorApplicationVerificationItem::class, 'application_id');
     }
 
 
