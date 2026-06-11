@@ -13,7 +13,7 @@
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
                     <tr>
                         <td align="center" style="padding-bottom:22px;">
-                            <img src="{{ asset('images/logoPH.png') }}" alt="Phapros" width="190"
+                            <img src="https://app.phapros.co.id/peha_id/gbricon/logo1.png" alt="Phapros" width="190"
                                 style="display:block; border:0; outline:none; text-decoration:none; max-width:190px;">
                         </td>
                     </tr>
