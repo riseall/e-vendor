@@ -78,19 +78,19 @@ Route::group(
             // Product Search
             Route::get('/search-products', [RegistrasiController::class, 'searchProducts'])->name('search-products');
 
-            Route::prefix('pengadaan')->name('pengadaan.')->group(function () {
-                Route::get('/permohonan', [ProcurementVerificationController::class, 'index'])
-                    ->name('permohonan.index');
-                Route::get('/permohonan/{application}', [ProcurementVerificationController::class, 'show'])
-                    ->name('permohonan.show');
-                Route::post('/permohonan/{application}/verify', [ProcurementVerificationController::class, 'verify'])
-                    ->name('permohonan.verify');
-                Route::post('/permohonan/{application}/revisi', [ProcurementVerificationController::class, 'requestRevision'])
-                    ->name('permohonan.revisi');
-                Route::post('/permohonan/{application}/items/{item}/approve', [ProcurementVerificationController::class, 'approveItem'])
-                    ->name('permohonan.items.approve');
-                Route::post('/permohonan/{application}/items/{item}/reject', [ProcurementVerificationController::class, 'rejectItem'])
-                    ->name('permohonan.items.reject');
+            Route::prefix('verification')->name('verifikasi.')->group(function () {
+                Route::get('/', [ProcurementVerificationController::class, 'index'])
+                    ->name('index');
+                Route::get('/{application}', [ProcurementVerificationController::class, 'show'])
+                    ->name('show');
+                Route::post('/{application}/verify', [ProcurementVerificationController::class, 'verify'])
+                    ->name('verify');
+                Route::post('/{application}/revisi', [ProcurementVerificationController::class, 'requestRevision'])
+                    ->name('revisi');
+                Route::post('/{application}/items/{item}/approve', [ProcurementVerificationController::class, 'approveItem'])
+                    ->name('items.approve');
+                Route::post('/{application}/items/{item}/reject', [ProcurementVerificationController::class, 'rejectItem'])
+                    ->name('items.reject');
             });
 
             // Users

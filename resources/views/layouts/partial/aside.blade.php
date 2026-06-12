@@ -152,7 +152,7 @@
                         <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
                     </li>
                     <li class="menu-item" aria-haspopup="true">
-                        <a href="{{ route('pengadaan.permohonan.index') }}" class="menu-link">
+                        <a href="{{ route('verifikasi.index') }}" class="menu-link">
                             <span class="svg-icon menu-icon">
                                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px">
                                     <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
