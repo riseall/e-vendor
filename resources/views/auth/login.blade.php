@@ -1,18 +1,28 @@
 @extends('layouts.guest', ['title' => 'Login'])
 
 @section('content')
+    <style>
+        #kt_login_signup_form .input-group .fv-plugins-message-container {
+            flex-basis: 100%;
+            order: 3;
+        }
+
+        #kt_login_signup_form .input-group .input-group-append {
+            order: 2;
+        }
+    </style>
     <div class="login login-2 login-signin-on d-flex flex-row-fluid" id="kt_login">
         <div class="d-flex flex-center flex-row-fluid bgi-size-cover bgi-position-top bgi-no-repeat"
             style="background-image: url('{{ asset('images/bg-3.jpg') }}');">
             <div class="login-form text-center p-7 position-relative overflow-hidden">
                 <div class="d-flex flex-center mb-15">
-                    <a href="#">
-                        <img src="{{ asset('images/vendor.png') }}" class="max-h-150px" alt="" />
+                    <a href="javascript:void(0);">
+                        <img src="{{ asset('images/evendor.png') }}" class="max-h-150px" alt="" />
                     </a>
                 </div>
                 <div class="login-signin">
                     <div class="mb-20">
-                        <h3>Sign In</h3>
+                        <h3>{{ __('login') }}</h3>
                         <div class="text-muted font-weight-bold">Enter your details to login to your account:</div>
                     </div>
                     <form class="form" id="kt_login_signin_form">
@@ -33,7 +43,7 @@
                                     type="password" id="password" placeholder="Password" name="password"
                                     style="border-right: none;" />
                                 <div class="input-group-append rounded-right">
-                                    <span id="togglePassword" onclick="togglePassword()"
+                                    <span id="togglePassword" onclick="togglePassword('password', 'eyeIcon')"
                                         class="input-group-text cursor-pointer">
                                         <i class="far fa-eye" id="eyeIcon"></i>
                                     </span>
@@ -58,13 +68,18 @@
                                 {{ $message }}
                             </span>
                         @enderror
-                        <button id="kt_login_signin_submit"
-                            class="btn btn-primary font-weight-bold px-9 py-4 my-3 mx-4">Sign In</button>
+
+                        <div class="form-group d-flex flex-wrap flex-center">
+                            <button id="kt_login_signin_submit"
+                                class="btn btn-primary font-weight-bold px-9 py-4 my-3 mx-2">{{ __('login') }}</button>
+                            <a href="{{ route('welcome') }}"
+                                class="btn btn-info font-weight-bold px-9 py-4 my-3 mx-2">{{ __('home') }}</a>
+                        </div>
                     </form>
                     <div class="mt-10">
                         <span class="opacity-70 mr-4">Don't have an account yet?</span>
                         <a href="javascript:;" id="kt_login_signup"
-                            class="text-muted text-hover-primary font-weight-bold">Sign Up!</a>
+                            class="text-muted text-hover-primary font-weight-bold">{{ __('register') }}!</a>
                     </div>
                 </div>
                 <div class="login-signup">
@@ -103,21 +118,43 @@
                             </div>
                         </div>
                         <div class="form-group mb-5">
-                            <input
-                                class="form-control h-auto form-control-solid py-4 px-8 @error('password') is-invalid @enderror"
-                                type="password" placeholder="Password" name="password" />
+                            <div class="input-group">
+                                <input
+                                    class="form-control h-auto form-control-solid py-4 px-8 @error('password') is-invalid @enderror"
+                                    type="password" id="passwordReg" placeholder="Password" name="password"
+                                    style="border-right: none;" />
+                                <div class="input-group-append rounded-right">
+                                    <span id="togglePassword" onclick="togglePassword('passwordReg', 'eyeIconReg')"
+                                        class="input-group-text cursor-pointer">
+                                        <i class="far fa-eye" id="eyeIconReg"></i>
+                                    </span>
+                                </div>
+                            </div>
                             @error('password')
-                                <div class="invalid-feedback text-left">{{ $message }}</div>
+                                <div class="invalid-feedback d-block text-left">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="form-group mb-5">
-                            <input class="form-control h-auto form-control-solid py-4 px-8" type="password"
-                                placeholder="Password Confirmation" name="password_confirmation" />
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input
+                                    class="form-control h-auto form-control-solid py-4 px-8 @error('password_confirmation') is-invalid @enderror"
+                                    type="password" id="password_confirmation" placeholder="Password Confirmation"
+                                    name="password_confirmation" style="border-right: none;" />
+                                <div class="input-group-append rounded-right">
+                                    <span onclick="togglePassword('password_confirmation', 'eyeIconConfirm')"
+                                        class="input-group-text cursor-pointer">
+                                        <i class="far fa-eye" id="eyeIconConfirm"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            @error('password_confirmation')
+                                <div class="invalid-feedback d-block text-left">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group mb-5 text-left">
                             <label class="checkbox m-0 @error('agree') text-danger @enderror">
                                 <input type="checkbox" name="agree" />I Agree the
-                                <a href="#" class="font-weight-bold ml-1">terms and conditions</a>.
+                                <a href="javascript:void(0);" class="font-weight-bold ml-1">terms and conditions</a>.
                                 <span></span>
                             </label>
                             @error('agree')
@@ -190,14 +227,14 @@
         }
     </script>
     <script>
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const eyeIcon = document.getElementById('eyeIcon');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(iconId);
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
                 eyeIcon.className = "far fa-eye-slash";
             } else {
-                passwordInput.type = 'password';
+                passwordInput.type = "password";
                 eyeIcon.className = "far fa-eye";
             }
         }

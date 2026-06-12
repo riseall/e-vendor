@@ -2,6 +2,7 @@
 
 const KTLogin = (function () {
     let _login;
+    let initialized = false;
 
     // --- Helper UI Functions ---
 
@@ -23,6 +24,7 @@ const KTLogin = (function () {
     const clearErrors = (formEl) => {
         formEl.find(".is-invalid").removeClass("is-invalid");
         formEl.find(".invalid-feedback.ajax-error").remove();
+        formEl.find(".fv-plugins-message-container").remove();
     };
 
     const displayErrors = (formEl, errors) => {
@@ -30,9 +32,14 @@ const KTLogin = (function () {
             const input = formEl.find(`[name="${field}"]`);
             if (input.length) {
                 input.addClass("is-invalid");
-                input.after(
-                    `<div class="invalid-feedback text-left ajax-error">${messages[0]}</div>`,
-                );
+                const feedback = `<div class="invalid-feedback d-block text-left ajax-error">${messages[0]}</div>`;
+                const inputGroup = input.closest(".input-group");
+
+                if (inputGroup.length) {
+                    inputGroup.after(feedback);
+                } else {
+                    input.after(feedback);
+                }
             }
         });
     };
@@ -191,6 +198,11 @@ const KTLogin = (function () {
                 password: {
                     validators: {
                         notEmpty: { message: "The password is required" },
+                        stringLength: {
+                            min: 8,
+                            message:
+                                "The password must be at least 8 characters.",
+                        },
                     },
                 },
                 password_confirmation: {
@@ -315,10 +327,19 @@ const KTLogin = (function () {
     // --- Public Functions ---
     return {
         init: function () {
+            if (initialized) {
+                return;
+            }
+
+            initialized = true;
             _login = $("#kt_login");
             handleSignInForm();
             handleSignUpForm();
             handleForgotForm();
+
+            if (window.location.hash === "#signup") {
+                showForm("signup");
+            }
         },
     };
 })();

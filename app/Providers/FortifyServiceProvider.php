@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -57,6 +58,7 @@ class FortifyServiceProvider extends ServiceProvider
             return view('auth.reset-password', ['request' => $request]);
         });
 
+
         Fortify::authenticateUsing(function (Request $request) {
             $turnstileResponse = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
                 'secret' => config('services.turnstile.secret'),
@@ -65,7 +67,9 @@ class FortifyServiceProvider extends ServiceProvider
             ]);
 
             if ($turnstileResponse->failed()) {
-                return false;
+                throw ValidationException::withMessages([
+                    'username' => [__('auth.captcha_failed')],
+                ]);
             }
 
             $inputUsername = $request->username;
@@ -77,33 +81,56 @@ class FortifyServiceProvider extends ServiceProvider
                 ->first();
 
             if ($spkUser && Hash::check($inputPassword, $spkUser->password_hash)) {
-
                 $localUser = User::firstOrCreate(
                     ['username' => $spkUser->nik],
-                    ['name' => $spkUser->nama, 'email' => $spkUser->email]
+                    [
+                        'name' => $spkUser->nama,
+                        'email' => $spkUser->email ?? $spkUser->nik . '@perusahaan.id',
+                        'password' => Hash::make($inputPassword),
+                        'is_active' => 1,
+                    ]
                 );
 
-                $kode_direktorat = $spkUser->kode_direktorat ?? '';
+                $localUser->refresh();
 
-                if ($kode_direktorat === 'DR00003' && $localUser->roles()->count() === 0) {
-                    // $localUser->assignRole('mkt');
-                    return $localUser;
-                } elseif ($localUser->roles()->count() === 0) {
-                    return false;
+                if ($localUser->is_active == 0) {
+                    throw ValidationException::withMessages([
+                        'username' => [__('auth.account_disabled')],
+                    ]);
                 }
 
-                session([
-                    'spk_jabatan' => $spkUser->ref_nama_jabatan,
-                ]);
+                $kode_divisi = trim($spkUser->kode_divisi ?? '');
+                $kode_departemen = trim($spkUser->kode_departemen ?? '');
 
+                if ($localUser->roles()->count() === 0) {
+                    if ($kode_divisi === 'DV00014') {
+                        $localUser->assignRole('Procurement');
+                    } elseif ($kode_departemen === 'DP00048') {
+                        $localUser->assignRole('Quality Assurance');
+                    } elseif ($kode_departemen === 'DP00009') {
+                        $localUser->assignRole('Admin IT');
+                    } else {
+                        throw ValidationException::withMessages(['username' => [__('auth.no_role_access')]]);
+                    }
+                }
+
+                session(['spk_jabatan' => $spkUser->ref_nama_jabatan]);
                 return $localUser;
             }
 
+            // Login eksternal (Supplier)
             $externalUser = User::where('username', $inputUsername)
                 ->orWhere('email', $inputUsername)
                 ->first();
 
             if ($externalUser && Hash::check($inputPassword, $externalUser->password)) {
+
+                if ($externalUser->is_active == 0) {
+                    throw ValidationException::withMessages([
+                        'username' => [__('auth.account_disabled')],
+                    ]);
+                }
+
                 session()->forget(['spk_jabatan']);
 
                 return $externalUser;

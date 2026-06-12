@@ -15,5 +15,8 @@ return [
 
     'failed' => 'Identitas tersebut tidak cocok dengan data kami.',
     'throttle' => 'Terlalu banyak upaya masuk. Silahkan coba lagi dalam :seconds detik.',
-
+    'password' => 'Kata sandi yang diberikan salah.',
+    'captcha_failed' => 'Verifikasi keamanan gagal. Silakan coba lagi.',
+    'account_disabled' => 'Akun Anda dinonaktifkan. Silakan hubungi administrator.',
+    'no_role_access' => 'Akun Anda tidak memiliki hak akses untuk masuk ke aplikasi.',
 ];
