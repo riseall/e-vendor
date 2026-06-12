@@ -1,9 +1,20 @@
 {
+    "contact": "Contact Us",
     "dashboard": "Dashboard",
-    "users": "Users",
-    "suppliers": "Suppliers",
-    "products": "Products",
-    "transactions": "Transactions",
+    "home": "Home",
+    "login": "Login",
     "logout": "Logout",
-    "welcome": "Welcome"
+    "register": "Register",
+    "tutorial": "Tutorial",
+    "users": "Users",
+    "welcome": "Welcome",
+
+    "_comment": "Form",
+    "company_name": "Company Name",
+    "company_address": "Company Address",
+    "company_phone": "Company Phone Number",
+    "company_email": "Company Email",
+    "company_website": "Official website",
+    "company_contact_person": "Company Contact Person",
+    "company_contact_person_position": "Company Contact Person Position"
 }

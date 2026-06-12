@@ -1,9 +1,20 @@
 {
+    "contact": "Hubungi Kami",
     "dashboard": "Beranda",
-    "users": "Pengguna",
-    "suppliers": "Pemasok",
-    "products": "Produk",
-    "transactions": "Transaksi",
+    "home": "Beranda",
+    "login": "Masuk",
     "logout": "Keluar",
-    "welcome": "Selamat Datang"
+    "register": "Daftar",
+    "tutorial": "Tutorial",
+    "users": "Pengguna",
+    "welcome": "Selamat Datang",
+
+    "_comment": "Komentar",
+    "company_name": "Nama Perusahaan",
+    "company_address": "Alamat Perusahaan",
+    "company_phone": "Nomor Telepon Perusahaan",
+    "company_email": "Email Perusahaan",
+    "company_website": "Situs Resmi Perusahaan",
+    "company_contact_person": "Company Contact Person",
+    "company_contact_person_position": "Company Contact Person Position"
 }
