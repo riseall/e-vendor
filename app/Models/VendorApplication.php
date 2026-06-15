@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VendorApplication extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -87,6 +88,16 @@ class VendorApplication extends Model
     public function verificationItems()
     {
         return $this->hasMany(VendorApplicationVerificationItem::class, 'application_id');
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(VendorApplicationActivityLog::class, 'application_id');
+    }
+
+    public function fileVersions()
+    {
+        return $this->hasMany(VendorApplicationFile::class, 'application_id');
     }
 
 
