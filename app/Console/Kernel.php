@@ -16,6 +16,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('vendor-applications:auto-verify')->dailyAt('08:00');
+        $schedule->command('vendor-applications:remind-verification')->dailyAt('08:00');
+        $schedule->command('vendor-applications:clean-drafts')->weeklyOn(1, '00:00');
     }
 
     /**
