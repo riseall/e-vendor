@@ -24,24 +24,41 @@ const KTLogin = (function () {
     const clearErrors = (formEl) => {
         formEl.find(".is-invalid").removeClass("is-invalid");
         formEl.find(".invalid-feedback.ajax-error").remove();
-        formEl.find(".fv-plugins-message-container").remove();
     };
 
     const displayErrors = (formEl, errors) => {
         $.each(errors, function (field, messages) {
             const input = formEl.find(`[name="${field}"]`);
+            const feedback = $("<div>", {
+                class: "invalid-feedback d-block text-left ajax-error",
+                text: messages[0],
+            });
+
+            if (field === "cf-turnstile-response") {
+                formEl.find(".cf-turnstile").first().after(feedback);
+                return;
+            }
+
             if (input.length) {
                 input.addClass("is-invalid");
-                const feedback = `<div class="invalid-feedback d-block text-left ajax-error">${messages[0]}</div>`;
                 const inputGroup = input.closest(".input-group");
 
-                if (inputGroup.length) {
+                if (input.is(':checkbox')) {
+                    input.closest(".form-group").append(feedback);
+                } else if (inputGroup.length) {
                     inputGroup.after(feedback);
                 } else {
                     input.after(feedback);
                 }
+            } else {
+                formEl.prepend(feedback);
             }
         });
+
+        const firstInvalid = formEl.find(".is-invalid").first();
+        if (firstInvalid.length) {
+            firstInvalid.trigger("focus");
+        }
     };
 
     const showLoading = (btn) => {
@@ -153,10 +170,6 @@ const KTLogin = (function () {
                                 response.redirect || window.auth.dashboard;
                         },
                     );
-                } else {
-                    showAlert(
-                        "Sorry, looks like there are some errors detected, please try again.",
-                    );
                 }
             });
         });
@@ -250,10 +263,6 @@ const KTLogin = (function () {
                             },
                         );
                     });
-                } else {
-                    showAlert(
-                        "Sorry, looks like there are some errors detected, please try again.",
-                    );
                 }
             });
         });
@@ -309,10 +318,6 @@ const KTLogin = (function () {
                                 formEl[0].reset();
                             });
                         },
-                    );
-                } else {
-                    showAlert(
-                        "Sorry, looks like there are some errors detected, please try again.",
                     );
                 }
             });

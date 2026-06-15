@@ -2,13 +2,29 @@
 
 @section('content')
     <style>
-        #kt_login_signup_form .input-group .fv-plugins-message-container {
+        #kt_login .fv-plugins-message-container {
+            width: 100%;
+            margin-top: 0.5rem;
+            text-align: left;
+        }
+
+        #kt_login .fv-plugins-message-container .fv-help-block {
+            display: block;
+            color: #f64e60;
+            font-size: 0.875rem;
+        }
+
+        #kt_login .input-group .fv-plugins-message-container {
             flex-basis: 100%;
             order: 3;
         }
 
-        #kt_login_signup_form .input-group .input-group-append {
+        #kt_login .input-group .input-group-append {
             order: 2;
+        }
+
+        #kt_login .invalid-feedback.d-block {
+            margin-top: 0.5rem;
         }
     </style>
     <div class="login login-2 login-signin-on d-flex flex-row-fluid" id="kt_login">
