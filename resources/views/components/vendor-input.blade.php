@@ -9,7 +9,9 @@
     'labelClass' => 'font-size-sm font-weight-bold text-muted',
 ])
 
-<div class="form-group mb-2">
+@php $hasRevision = isset($revisionNotes) && isset($revisionNotes[$name]); @endphp
+
+<div class="form-group mb-2 {{ $hasRevision ? 'has-revision' : '' }}" data-field-name="{{ $name }}">
     @if ($label)
         <label class="{{ $labelClass }} d-block">
             {!! $label !!}
@@ -60,8 +62,9 @@
         @endif
     </div>
 
-    @if (isset($revisionNotes) && isset($revisionNotes[$name]))
-        <div class="text-danger mt-1 font-size-xs font-weight-bold">
+    @if ($hasRevision)
+        <div class="revision-note-message text-danger mt-1 font-size-xs font-weight-bold"
+            data-revision-field="{{ $name }}">
             <i class="fas fa-exclamation-circle text-danger mr-1" style="font-size: 10px;"></i>
             Revisi: {{ $revisionNotes[$name] }}
         </div>

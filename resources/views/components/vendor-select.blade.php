@@ -10,7 +10,10 @@
     'isSimple' => false,
 ])
 
-<div class="form-group {{ $wrapperClass }}">
+@php $hasRevision = isset($revisionNotes) && isset($revisionNotes[$name]); @endphp
+
+<div class="form-group {{ $wrapperClass }} {{ $hasRevision ? 'has-revision' : '' }}"
+    data-field-name="{{ $name }}">
     @if ($label)
         <label class="question-label d-block mb-2">
             {!! $label !!}
@@ -35,8 +38,9 @@
         @endforeach
     </select>
 
-    @if (isset($revisionNotes) && isset($revisionNotes[$name]))
-        <div class="text-danger mt-1 font-size-sm font-weight-bold">
+    @if ($hasRevision)
+        <div class="revision-note-message text-danger mt-1 font-size-sm font-weight-bold"
+            data-revision-field="{{ $name }}">
             <i class="fas fa-exclamation-circle text-danger mr-1"></i> Revisi: {{ $revisionNotes[$name] }}
         </div>
     @endif

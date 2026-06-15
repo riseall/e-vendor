@@ -8,7 +8,9 @@
     'radioClass' => '',
 ])
 
-<div class="form-group mb-2">
+@php $hasRevision = isset($revisionNotes) && isset($revisionNotes[$name]); @endphp
+
+<div class="form-group mb-2 {{ $hasRevision ? 'has-revision' : '' }}" data-field-name="{{ $name }}">
     @if ($label)
         <label class="question-label">
             {!! $label !!}
@@ -30,8 +32,9 @@
         @endforeach
     </div>
 
-    @if (isset($revisionNotes[$name]))
-        <div class="text-danger mt-2 font-size-sm font-weight-bold">
+    @if ($hasRevision)
+        <div class="revision-note-message text-danger mt-2 font-size-sm font-weight-bold"
+            data-revision-field="{{ $name }}">
             <i class="fas fa-exclamation-circle text-danger mr-1"></i> Revisi: {{ $revisionNotes[$name] }}
         </div>
     @endif
