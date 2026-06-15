@@ -9,6 +9,8 @@ use App\Models\VendorApplication;
 use App\Models\VendorApplicationCategory;
 use App\Services\SupplierItemService;
 use App\Services\VendorApplicationNotificationService;
+use App\Services\VendorApplicationWorkflowService;
+use App\Services\VendorFileService;
 use App\Services\VendorRegistrationService;
 use App\Services\VendorRegistrationViewService;
 use App\Services\VendorSpecificService;
@@ -33,7 +35,10 @@ class RegistrasiController extends Controller
         );
     }
 
-    public function saveDraft(Request $request)
+    public function saveDraft(
+        Request $request,
+        VendorApplicationWorkflowService $workflowService
+    )
     {
         $request->validate([
             'categories' => 'required|array|min:1',
@@ -72,6 +77,11 @@ class RegistrasiController extends Controller
                     'status' => VendorApplication::STATUS_DRAFT,
                     'current_step' => 1,
                 ]);
+                $workflowService->record(
+                    $application,
+                    'application_created',
+                    $user
+                );
             }
 
             // Sync Kategori
@@ -162,7 +172,8 @@ class RegistrasiController extends Controller
 
     public function submit(
         Request $request,
-        VendorApplicationNotificationService $notificationService
+        VendorApplicationNotificationService $notificationService,
+        VendorApplicationWorkflowService $workflowService
     )
     {
         $request->validate([
@@ -216,21 +227,37 @@ class RegistrasiController extends Controller
 
         $this->validateFinalSubmission($application);
         $isRevisionSubmit = $application->status === VendorApplication::STATUS_NEED_REVISION;
+        $revisionNotesSnapshot = $application->revision_notes;
 
-        DB::transaction(function () use ($application, $isRevisionSubmit) {
+        DB::transaction(function () use (
+            $application,
+            $isRevisionSubmit,
+            $revisionNotesSnapshot,
+            $workflowService
+        ) {
             $submittedAt = now();
 
-            $application->update([
+            $workflowService->transition(
+                $application,
+                VendorApplication::STATUS_SUBMITTED,
+                $isRevisionSubmit ? 'revision_submitted' : 'application_submitted',
+                [
                 'application_number' => $application->application_number ?: $this->generateApplicationNumber($application, $submittedAt),
-                'status' => VendorApplication::STATUS_SUBMITTED,
-                'submitted_at' => $application->submitted_at ?: $submittedAt,
+                'submitted_at' => $submittedAt,
                 'revision_submitted_at' => $isRevisionSubmit ? $submittedAt : $application->revision_submitted_at,
                 'revision_count' => $isRevisionSubmit ? ((int) $application->revision_count + 1) : $application->revision_count,
                 'verified_at' => null,
+                'verified_by' => null,
                 'admin_note' => null,
                 'revision_notes' => null,
                 'auto_verified' => false,
-            ]);
+                ],
+                Auth::user(),
+                [
+                    'revision_count' => $isRevisionSubmit ? ((int) $application->revision_count + 1) : 0,
+                    'resolved_revision_notes' => $isRevisionSubmit ? $revisionNotesSnapshot : null,
+                ]
+            );
 
             if ($isRevisionSubmit) {
                 $application->verificationItems()
@@ -294,6 +321,22 @@ class RegistrasiController extends Controller
             'applicationNumber' => $this->applicationNumber($application),
             'statusSteps' => $this->trackingStatusSteps($application),
         ]);
+    }
+
+    public function showFile(
+        VendorApplication $application,
+        Request $request,
+        VendorFileService $fileService
+    ) {
+        $user = Auth::user();
+        $canAccess = $application->user_id === optional($user)->id
+            || ($user && $user->hasAnyRole(['Super Admin', 'Admin IT', 'Procurement', 'Verifikator', 'Quality Assurance']));
+
+        abort_unless($canAccess, 403);
+
+        $request->validate(['file' => 'required|string']);
+
+        return $fileService->response($application, $request->input('file'));
     }
 
     private function validateFinalSubmission(VendorApplication $application): void

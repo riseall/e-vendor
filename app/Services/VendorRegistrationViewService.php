@@ -7,6 +7,13 @@ use App\Models\User;
 
 class VendorRegistrationViewService
 {
+    private VendorFileService $fileService;
+
+    public function __construct(VendorFileService $fileService)
+    {
+        $this->fileService = $fileService;
+    }
+
     private const RELATIONS = [
         'general',
         'products',
@@ -167,10 +174,10 @@ class VendorRegistrationViewService
 
         return $application->documents
             ->keyBy('field_name')
-            ->map(function ($document) {
+            ->map(function ($document) use ($application) {
                 return [
                     'original_name' => $document->original_name,
-                    'url' => asset('storage/' . $document->file_path),
+                    'url' => $this->fileService->url($application, $document->file_path),
                 ];
             })
             ->toArray();

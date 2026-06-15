@@ -3,11 +3,19 @@
 namespace App\Services;
 
 use App\Models\{VendorApplication, VendorApplicationGeneral, VendorApplicationProduct, VendorApplicationDocument};
-use Illuminate\Support\Facades\{DB, Storage};
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class VendorRegistrationService
 {
+    private VendorFileService $fileService;
+
+    public function __construct(VendorFileService $fileService)
+    {
+        $this->fileService = $fileService;
+    }
+
     public function saveFormUmum(array $data, int $vendorApplicationId, string $action): array
     {
         return DB::transaction(function () use ($data, $vendorApplicationId, $action) {
@@ -35,28 +43,41 @@ class VendorRegistrationService
 
             // Process Products 
             if (!empty($data['products'])) {
-                $this->processProducts($data['products'], $vendorApplicationId);
+                $this->processProducts($data['products'], $application);
             }
 
             // Process Documents
             $documentFields = ['dok_nib', 'dok_npwp', 'dok_company_profile', 'dok_struktur_org', 'dok_sertifikat_halal', 'dok_akte_pendirian', 'dok_akte_direksi', 'dok_sppkp', 'dok_ktp_pj', 'dok_pernyataan_keaslian', 'dok_pakta_integritas', 'dok_bebas_perkara'];
-            $this->processDocuments($data, $documentFields, $vendorApplicationId);
+            $this->processDocuments($data, $documentFields, $application);
 
             return ['success' => true, 'application_id' => $vendorApplicationId];
         });
     }
 
-    private function processProducts(array $products, int $appId): void
+    private function processProducts(array $products, VendorApplication $application): void
     {
+        $appId = $application->id;
         $incomingErpIds = collect($products)
             ->pluck('erp_product_id')
             ->filter()
             ->values()
             ->all();
 
-        VendorApplicationProduct::where('application_id', $appId)
+        $removedProducts = VendorApplicationProduct::where('application_id', $appId)
             ->whereNotIn('erp_product_id', $incomingErpIds)
-            ->delete();
+            ->get();
+
+        foreach ($removedProducts as $removedProduct) {
+            foreach (['file_surat', 'tkdn_file', 'sni_file', 'halal_file'] as $field) {
+                $this->fileService->deactivate(
+                    $application,
+                    'product',
+                    $field,
+                    $removedProduct->id
+                );
+            }
+            $removedProduct->delete();
+        }
 
         foreach ($products as $index => $pData) {
             $product = VendorApplicationProduct::updateOrCreate(
@@ -79,6 +100,7 @@ class VendorRegistrationService
 
             $this->processProductFile(
                 $product,
+                $application,
                 $index,
                 $pData,
                 'file_surat',
@@ -88,6 +110,7 @@ class VendorRegistrationService
             );
             $this->processProductFile(
                 $product,
+                $application,
                 $index,
                 $pData,
                 'tkdn_file',
@@ -97,6 +120,7 @@ class VendorRegistrationService
             );
             $this->processProductFile(
                 $product,
+                $application,
                 $index,
                 $pData,
                 'sni_file',
@@ -106,6 +130,7 @@ class VendorRegistrationService
             );
             $this->processProductFile(
                 $product,
+                $application,
                 $index,
                 $pData,
                 'halal_file',
@@ -118,6 +143,7 @@ class VendorRegistrationService
 
     private function processProductFile(
         VendorApplicationProduct $product,
+        VendorApplication $application,
         $index,
         array $data,
         string $input,
@@ -128,23 +154,25 @@ class VendorRegistrationService
         $currentPath = $product->{$column};
 
         if (!$enabled) {
-            if ($currentPath) {
-                Storage::disk('public')->delete($currentPath);
-            }
-
+            $this->fileService->deactivate(
+                $application,
+                'product',
+                $input,
+                $product->id
+            );
             $product->update([$column => null]);
             return;
         }
 
         if (request()->hasFile("products.{$index}.{$input}")) {
-            if ($currentPath) {
-                Storage::disk('public')->delete($currentPath);
-            }
-
-            $path = $this->storeFile(
+            $path = $this->fileService->store(
+                $application,
                 request()->file("products.{$index}.{$input}"),
                 $input === 'file_surat' ? 'vendor_products' : 'vendor_products/certificates',
-                $input . '_'
+                'product',
+                $input,
+                $product->id,
+                Auth::user()
             );
             $product->update([$column => $path]);
             return;
@@ -155,15 +183,23 @@ class VendorRegistrationService
         }
     }
 
-    private function processDocuments(array $data, array $fields, int $appId): void
+    private function processDocuments(array $data, array $fields, VendorApplication $application): void
     {
         foreach ($fields as $field) {
             if (request()->hasFile($field)) {
                 $file = request()->file($field);
-                $path = $this->storeFile($file, 'vendor_docs/general', $field . '_');
+                $path = $this->fileService->store(
+                    $application,
+                    $file,
+                    'vendor_docs/general',
+                    'general_document',
+                    $field,
+                    null,
+                    Auth::user()
+                );
 
                 VendorApplicationDocument::updateOrCreate(
-                    ['application_id' => $appId, 'field_name' => $field],
+                    ['application_id' => $application->id, 'field_name' => $field],
                     [
                         'original_name' => $file->getClientOriginalName(),
                         'file_path'     => $path,
@@ -173,11 +209,5 @@ class VendorRegistrationService
                 );
             }
         }
-    }
-
-    private function storeFile($file, $dir, $prefix): string
-    {
-        $name = $prefix . uniqid() . '.' . $file->getClientOriginalExtension();
-        return Storage::disk('public')->putFileAs($dir, $file, $name);
     }
 }

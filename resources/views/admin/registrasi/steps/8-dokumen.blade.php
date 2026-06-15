@@ -22,7 +22,7 @@
 
 <div class="form-section-title mb-4">Lampiran Dokumen</div>
 <p class="text-muted mb-8">
-    Seluruh dokumen bersifat opsional. Jika diunggah, gunakan format PDF/Gambar dengan ukuran maksimal 2MB.
+    Seluruh dokumen bersifat opsional. Jika diunggah, gunakan format PDF/Gambar dengan ukuran maksimal 5 MB.
 </p>
 
 <div class="modern-doc-list">
@@ -95,12 +95,12 @@
             const btnText = container.find('.btn-upload span');
 
             if (file) {
-                // Validasi ukuran 2MB
-                if (file.size > 2 * 1024 * 1024) {
+                // Validasi ukuran 5 MB
+                if (file.size > 5 * 1024 * 1024) {
                     Swal.fire({
                         icon: 'error',
                         title: 'File Terlalu Besar',
-                        text: 'Maksimal 2MB!'
+                        text: 'Maksimal 5 MB!'
                     });
                     fileInput.val('');
                     return;

@@ -44,13 +44,15 @@
                 <div class="mt-2 w-100 d-flex justify-content-between p-2 bg-light-success rounded">
                     <span class="text-success font-size-xs font-weight-bold mr-3 align-self-center">File
                         Tersimpan</span>
-                    <button type="button" data-url="{{ asset('storage/' . $value) }}"
+                    <button type="button"
+                        data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $value) }}"
                         class="btn btn-xs btn-success btn-icon btn-preview-doc" title="Lihat Dokumen">
                         <i class="flaticon-eye"></i>
                     </button>
                 </div>
             @elseif($value && $readonly)
-                <button type="button" data-url="{{ asset('storage/' . $value) }}"
+                <button type="button"
+                    data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $value) }}"
                     class="btn btn-sm btn-light-primary mt-2 btn-preview-doc w-100">
                     <i class="flaticon-eye mr-2"></i> Lihat Dokumen
                 </button>

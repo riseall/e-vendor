@@ -104,12 +104,14 @@
                                         <div class="d-flex justify-content-between p-1 bg-light-success rounded">
                                             <span class="text-success font-size-xs font-weight-bold mr-2 ml-2">File
                                                 Tersimpan</span>
-                                            <button type="button" data-url="{{ asset('storage/' . $certFile) }}"
+                                            <button type="button"
+                                                data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $certFile) }}"
                                                 class="btn btn-xs btn-success btn-icon btn-preview-doc"><i
                                                     class="flaticon-eye"></i></button>
                                         </div>
                                     @elseif($certFile && $isReadOnly)
-                                        <button type="button" data-url="{{ asset('storage/' . $certFile) }}"
+                                        <button type="button"
+                                            data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $certFile) }}"
                                             class="btn btn-xs btn-light-primary mt-1 btn-preview-doc"><i
                                                 class="flaticon-eye"></i>
                                             Lihat File</button>

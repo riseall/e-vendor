@@ -1,7 +1,8 @@
 @if ($isReadOnly)
     @if ($filePath)
         <button type="button" class="btn btn-xs btn-light-success btn-preview-doc d-inline-flex align-items-center"
-            style="gap:4px; border-radius:5px; font-size:0.78rem;" data-url="{{ asset('storage/' . $filePath) }}"
+            style="gap:4px; border-radius:5px; font-size:0.78rem;"
+            data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $filePath) }}"
             data-title="{{ $previewTitle }}">
             <i class="flaticon-eye icon-sm"></i> Lihat
         </button>
@@ -19,7 +20,8 @@
             style="font-size:0.75rem; white-space:nowrap;">Terlampir</span>
         <button type="button" class="btn btn-icon btn-xs btn-success btn-preview-doc"
             style="width:22px; height:22px; border-radius:4px; padding:0;"
-            data-url="{{ asset('storage/' . $filePath) }}" data-title="{{ $previewTitle }}" title="Preview">
+            data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $filePath) }}"
+            data-title="{{ $previewTitle }}" title="Preview">
             <i class="flaticon-eye" style="font-size:0.7rem;"></i>
         </button>
     </div>

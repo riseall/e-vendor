@@ -6,6 +6,7 @@ use App\Models\VendorApplication;
 use App\Models\VendorApplicationVerificationItem;
 use App\Services\ProcurementVerificationService;
 use App\Services\VendorApplicationNotificationService;
+use App\Services\VendorFileService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -82,7 +83,10 @@ class ProcurementVerificationController extends Controller
         ]);
     }
 
-    public function show(VendorApplication $application): View
+    public function show(
+        VendorApplication $application,
+        VendorFileService $fileService
+    ): View
     {
         $this->authorizeProcurementAccess();
 
@@ -109,6 +113,12 @@ class ProcurementVerificationController extends Controller
             'progressPct' => $summary['progress_pct'],
             'verificationItemRows' => $this->verificationService->verificationItemRows($application),
             'specificCategoryHeaders' => $this->verificationService->specificCategoryHeaders($application),
+            'fileHistory' => $fileService->history($application),
+            'activityHistory' => $application->activityLogs()
+                ->with('user')
+                ->latest()
+                ->limit(50)
+                ->get(),
         ]);
     }
 
