@@ -75,7 +75,8 @@
                 @endforeach
             </div>
 
-            <form id="kt_form" method="POST" enctype="multipart/form-data">
+            <form id="kt_form" method="POST" enctype="multipart/form-data"
+                data-max-file-kb="{{ \App\Services\VendorUploadPolicy::MAX_FILE_KB }}">
                 @csrf
                 <input type="hidden" name="application_id" id="application_id" value="{{ $applicationId }}">
 

@@ -1,4 +1,80 @@
 $(document).ready(function () {
+    function getMaxFileSize($input) {
+        const inputLimit = Number($input.data("max-file-kb"));
+        const formLimit = Number($input.closest("form").data("max-file-kb"));
+        const maxFileKb = inputLimit || formLimit;
+
+        return maxFileKb > 0 ? maxFileKb * 1024 : null;
+    }
+
+    function formatFileSize(bytes) {
+        return bytes >= 1024 * 1024
+            ? (bytes / (1024 * 1024)).toFixed(0) + " MB"
+            : Math.ceil(bytes / 1024) + " KB";
+    }
+
+    function getFileFeedbackContainer($input) {
+        const $customFile = $input.closest(".custom-file");
+
+        if ($customFile.length) {
+            return $customFile;
+        }
+
+        const $uploadButton = $input.closest(".btn-upload");
+
+        return $uploadButton.length ? $uploadButton.parent() : $input.parent();
+    }
+
+    function clearFileSizeError($input) {
+        $input.removeClass("is-invalid");
+        $input.closest(".custom-file").find(".custom-file-label").removeClass("border-danger");
+        getFileFeedbackContainer($input)
+            .find(".file-size-feedback")
+            .remove();
+    }
+
+    function showFileSizeError($input, maxBytes) {
+        const message =
+            "Ukuran file maksimal " + formatFileSize(maxBytes) + ".";
+        const $container = getFileFeedbackContainer($input);
+
+        clearFileSizeError($input);
+        $input.addClass("is-invalid");
+        $input
+            .closest(".custom-file")
+            .find(".custom-file-label")
+            .addClass("border-danger")
+            .text("Pilih file...");
+        $container.append(
+            $("<div>", {
+                class: "invalid-feedback d-block file-size-feedback",
+                text: message,
+            }),
+        );
+
+        Swal.fire({
+            icon: "error",
+            title: "File Terlalu Besar",
+            text: message,
+        });
+    }
+
+    $(document).on("change.vendorFileSize", 'input[type="file"]', function (event) {
+        const $input = $(this);
+        const file = this.files && this.files[0];
+        const maxBytes = getMaxFileSize($input);
+
+        clearFileSizeError($input);
+
+        if (!file || !maxBytes || file.size <= maxBytes) {
+            return;
+        }
+
+        event.stopImmediatePropagation();
+        $input.val("");
+        showFileSizeError($input, maxBytes);
+    });
+
     //1. GLOBAL TOGGLE INPUT (Tampil/Sembunyi Form)
     function handleToggle($el, isInitialLoad = false) {
         const targetId = $el.data("target");

@@ -95,17 +95,6 @@
             const btnText = container.find('.btn-upload span');
 
             if (file) {
-                // Validasi ukuran 5 MB
-                if (file.size > 5 * 1024 * 1024) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'File Terlalu Besar',
-                        text: 'Maksimal 5 MB!'
-                    });
-                    fileInput.val('');
-                    return;
-                }
-
                 // Update UI ke mode "Siap Upload"
                 container.removeClass('status-uploaded status-pending').addClass('status-ready');
                 fileNameDisplay.html(

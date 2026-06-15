@@ -89,7 +89,8 @@
                             <div class="col-xl-12">
 
                                 <form class="form" id="kt_form" action="{{ route('registrasi.save-draft') }}"
-                                    method="POST" enctype="multipart/form-data">
+                                    method="POST" enctype="multipart/form-data"
+                                    data-max-file-kb="{{ \App\Services\VendorUploadPolicy::MAX_FILE_KB }}">
                                     @csrf
                                     <input type="hidden" name="application_id" id="application_id"
                                         value="{{ $applicationId ?? '' }}">
