@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\VendorApplication;
+use App\Services\VendorApplicationNotificationService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -11,6 +12,15 @@ class AutoVerifyVendorApplications extends Command
     protected $signature = 'vendor-applications:auto-verify';
 
     protected $description = 'Automatically verify submitted vendor applications after 10 business days.';
+
+    private VendorApplicationNotificationService $notificationService;
+
+    public function __construct(VendorApplicationNotificationService $notificationService)
+    {
+        parent::__construct();
+
+        $this->notificationService = $notificationService;
+    }
 
     public function handle(): int
     {
@@ -25,6 +35,8 @@ class AutoVerifyVendorApplications extends Command
                 continue;
             }
 
+            $previousStatus = $application->status;
+
             $application->update([
                 'status' => VendorApplication::STATUS_VERIFIED,
                 'verified_at' => now(),
@@ -33,6 +45,7 @@ class AutoVerifyVendorApplications extends Command
                 'admin_note' => 'Permohonan otomatis terverifikasi setelah melewati 10 hari kerja.',
                 'revision_notes' => null,
             ]);
+            $this->notificationService->statusChanged($application, $previousStatus);
 
             $verifiedCount++;
         }

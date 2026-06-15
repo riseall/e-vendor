@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\VendorApplication;
 use App\Models\VendorApplicationVerificationItem;
 use App\Services\ProcurementVerificationService;
+use App\Services\VendorApplicationNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -39,10 +40,14 @@ class ProcurementVerificationController extends Controller
     private const VERIFICATION_ROLES = ['Super Admin', 'Admin IT', 'Procurement', 'Verifikator'];
 
     private ProcurementVerificationService $verificationService;
+    private VendorApplicationNotificationService $notificationService;
 
-    public function __construct(ProcurementVerificationService $verificationService)
-    {
+    public function __construct(
+        ProcurementVerificationService $verificationService,
+        VendorApplicationNotificationService $notificationService
+    ) {
         $this->verificationService = $verificationService;
+        $this->notificationService = $notificationService;
     }
 
     public function index(Request $request): View
@@ -110,10 +115,13 @@ class ProcurementVerificationController extends Controller
     public function verify(Request $request, VendorApplication $application)
     {
         $this->authorizeProcurementAccess();
+        $previousStatus = $application->status;
+
         $this->verificationService->verifyApplication(
             $application,
             $request->input('admin_note')
         );
+        $this->notificationService->statusChanged($application, $previousStatus);
 
         return redirect()
             ->route('verifikasi.show', $application)
@@ -123,6 +131,7 @@ class ProcurementVerificationController extends Controller
     public function requestRevision(Request $request, VendorApplication $application)
     {
         $this->authorizeProcurementAccess();
+        $previousStatus = $application->status;
 
         $data = $request->validate([
             'admin_note' => 'required|string|max:2000',
@@ -142,6 +151,7 @@ class ProcurementVerificationController extends Controller
             $data['admin_note'],
             $revisionNotes
         );
+        $this->notificationService->statusChanged($application, $previousStatus);
 
         return redirect()
             ->route('verifikasi.show', $application)
@@ -154,7 +164,10 @@ class ProcurementVerificationController extends Controller
         VendorApplicationVerificationItem $item
     ) {
         $this->authorizeProcurementAccess();
+        $previousStatus = $application->status;
+
         $this->verificationService->approveVerificationItem($application, $item);
+        $this->notificationService->statusChanged($application, $previousStatus);
 
         return $this->itemActionResponse(
             $request,
@@ -169,6 +182,7 @@ class ProcurementVerificationController extends Controller
         VendorApplicationVerificationItem $item
     ) {
         $this->authorizeProcurementAccess();
+        $previousStatus = $application->status;
 
         $data = $request->validate([
             'note' => 'required|string|max:1000',
@@ -179,6 +193,7 @@ class ProcurementVerificationController extends Controller
         ]);
 
         $this->verificationService->rejectVerificationItem($application, $item, $data);
+        $this->notificationService->statusChanged($application, $previousStatus);
 
         return $this->itemActionResponse(
             $request,

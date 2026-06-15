@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class VendorApplicationSubmittedToVendor extends Mailable implements ShouldQueue
+class VendorApplicationAutoVerified extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -23,7 +23,7 @@ class VendorApplicationSubmittedToVendor extends Mailable implements ShouldQueue
 
     public function build()
     {
-        return $this->subject('Konfirmasi Permohonan Vendor: ' . $this->applicationNumber)
-            ->view('emails.vendor-application-submitted-vendor');
+        return $this->subject('Permohonan Vendor Otomatis Terverifikasi: ' . $this->applicationNumber)
+            ->view('emails.vendor-application-auto-verified');
     }
 }

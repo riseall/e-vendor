@@ -96,6 +96,11 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    'procurement_recipients' => array_values(array_filter(array_map(
+        'trim',
+        preg_split('/[,;]+/', (string) env('PROCUREMENT_NOTIFICATION_EMAILS', ''))
+    ))),
+
     /*
     |--------------------------------------------------------------------------
     | Markdown Mail Settings

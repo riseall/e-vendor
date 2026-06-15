@@ -58,6 +58,10 @@
                                         {{ optional($application->submitted_at)->format('d/m/Y H:i') ?? '-' }}
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td style="padding:4px 10px; color:#6b7280;">Estimasi</td>
+                                    <td style="padding:4px 10px; font-weight:700;">Maksimal 10 hari kerja</td>
+                                </tr>
                             </table>
                         </td>
                     </tr>
