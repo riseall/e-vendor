@@ -69,27 +69,89 @@ class VendorRegistrationService
                     'manufaktur'     => $pData['manufaktur'],
                     'rantai_pasok'   => $pData['rantai_pasok'],
                     'has_tkdn'       => $pData['has_tkdn'],
-                    'tkdn_value'     => $pData['has_tkdn'] === 'yes' ? $pData['tkdn_value'] : null,
+                    'tkdn_value'     => null,
                     'has_sni'        => $pData['has_sni'],
-                    'sni_number'     => $pData['has_sni'] === 'yes' ? $pData['sni_number'] : null,
+                    'sni_number'     => null,
                     'has_halal'      => $pData['has_halal'] ?? 'no',
-                    'halal_number'   => ($pData['has_halal'] ?? 'no') === 'yes' ? ($pData['halal_number'] ?? null) : null,
+                    'halal_number'   => null,
                 ]
             );
 
-            // Handle file surat: new upload or preserve existing
-            if (request()->hasFile("products.{$index}.file_surat")) {
-                // New file uploaded
-                $file = request()->file("products.{$index}.file_surat");
-                $name = $file->getClientOriginalName();
-                $fileName = 'prod_' . $name . '_' . today()->format('Ymd');
-                $path = $this->storeFile($file, 'vendor_products', $fileName);
-                $product->update(['file_surat_path' => $path]);
-            } elseif (!empty($pData['existing_file_surat'])) {
-                // No new file, but existing file path provided - preserve it
-                $product->update(['file_surat_path' => $pData['existing_file_surat']]);
+            $this->processProductFile(
+                $product,
+                $index,
+                $pData,
+                'file_surat',
+                'file_surat_path',
+                'existing_file_surat',
+                true
+            );
+            $this->processProductFile(
+                $product,
+                $index,
+                $pData,
+                'tkdn_file',
+                'tkdn_file_path',
+                'existing_tkdn_file',
+                $pData['has_tkdn'] === 'yes'
+            );
+            $this->processProductFile(
+                $product,
+                $index,
+                $pData,
+                'sni_file',
+                'sni_file_path',
+                'existing_sni_file',
+                $pData['has_sni'] === 'yes'
+            );
+            $this->processProductFile(
+                $product,
+                $index,
+                $pData,
+                'halal_file',
+                'halal_file_path',
+                'existing_halal_file',
+                ($pData['has_halal'] ?? 'no') === 'yes'
+            );
+        }
+    }
+
+    private function processProductFile(
+        VendorApplicationProduct $product,
+        $index,
+        array $data,
+        string $input,
+        string $column,
+        string $existingInput,
+        bool $enabled
+    ): void {
+        $currentPath = $product->{$column};
+
+        if (!$enabled) {
+            if ($currentPath) {
+                Storage::disk('public')->delete($currentPath);
             }
-            // If neither new nor existing, file_surat_path remains unchanged
+
+            $product->update([$column => null]);
+            return;
+        }
+
+        if (request()->hasFile("products.{$index}.{$input}")) {
+            if ($currentPath) {
+                Storage::disk('public')->delete($currentPath);
+            }
+
+            $path = $this->storeFile(
+                request()->file("products.{$index}.{$input}"),
+                $input === 'file_surat' ? 'vendor_products' : 'vendor_products/certificates',
+                $input . '_'
+            );
+            $product->update([$column => $path]);
+            return;
+        }
+
+        if (!empty($data[$existingInput])) {
+            $product->update([$column => $data[$existingInput]]);
         }
     }
 

@@ -7,118 +7,30 @@ use App\Http\Requests\StoreFormUmumRequest;
 use App\Http\Requests\StoreVendorSpecificRequest;
 use App\Models\VendorApplication;
 use App\Models\VendorApplicationCategory;
-use App\Models\User;
-use App\Mail\VendorApplicationSubmittedToProcurement;
-use App\Mail\VendorApplicationSubmittedToVendor;
 use App\Services\SupplierItemService;
+use App\Services\VendorApplicationNotificationService;
 use App\Services\VendorRegistrationService;
+use App\Services\VendorRegistrationViewService;
 use App\Services\VendorSpecificService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class RegistrasiController extends Controller
 {
-    public function index()
+    public function index(VendorRegistrationViewService $viewService)
     {
-        $user = Auth::user();
+        $viewData = $viewService->viewData(
+            $viewService->currentApplication(Auth::user())
+        );
 
-        // Cek apakah ada draft/submitted terbaru untuk user ini.
-        $application = VendorApplication::where('user_id', $user->id)
-            ->whereIn('status', [
-                VendorApplication::STATUS_DRAFT,
-                VendorApplication::STATUS_SUBMITTED,
-            ])
-            ->with([
-                'general',
-                'products',
-                'categories',
-                'documents',
-                'specBaku',
-                'specVaria',
-                'specTrans',
-                'specKontraktor',
-                'specPengujian',
-                'specFacility',
-                'specPelatihan',
-                'specAgency'
-            ])
-            ->latest()
-            ->first();
+        view()->share('revisionNotes', $viewData['revisionNotes']);
 
-        $hasDraft    = $application ? true : false;
-        $draftStep   = $application ? $application->current_step : 1;
-        $applicationId = $application ? $application->id : null;
-        $applicationStatus = $application ? $application->status : null;
-
-        $isReadOnly = false;
-        $draft = [];
-        $uploadedDocs = [];
-
-        if ($application) {
-            $draft['categories'] = $application->getCategoryIds();
-            $draft['general'] = $application->general;
-            $draft['products'] = $application->products->mapWithKeys(function ($item) {
-                return [$item->erp_product_id => $item->toArray()];
-            })->toArray();
-
-            $specificData = $this->getSpecificDataArray($application);
-            $draft = array_merge($draft, $specificData);
-
-            $uploadedDocs = $application->documents->keyBy('field_name')->map(function ($doc) {
-                return [
-                    'original_name' => $doc->original_name,
-                    'url' => asset('storage/' . $doc->file_path),
-                ];
-            })->toArray();
-
-            if ($application->status == VendorApplication::STATUS_SUBMITTED) {
-                $isReadOnly = true;
-            }
-        }
-
-        return view('admin.registrasi.reg', compact(
-            'hasDraft',
-            'draftStep',
-            'applicationId',
-            'applicationStatus',
-            'draft',
-            'isReadOnly',
-            'uploadedDocs'
-        ));
-    }
-
-    private function getSpecificDataArray($application)
-    {
-        $data = [];
-        $categoryIds = $application->getCategoryIds();
-
-        // Map tabel ke relasi
-        $map = [
-            1 => 'specBaku',
-            2 => 'specVaria',
-            3 => 'specTrans',
-            4 => 'specKontraktor',
-            5 => 'specPengujian',
-            6 => 'specFacility',
-            7 => 'specPelatihan',
-            8 => 'specAgency',
-        ];
-
-        foreach ($categoryIds as $catId) {
-            if (isset($map[$catId])) {
-                $relation = $map[$catId];
-                if ($application->$relation) {
-                    // Merge data agar bisa dipanggil $draft['q1_is_manufacturer']
-                    $data = array_merge($data, $application->$relation->toArray());
-                }
-            }
-        }
-
-        return $data;
+        return view(
+            $viewData['isProfileMode'] ? 'admin.registrasi.profile' : 'admin.registrasi.reg',
+            $viewData
+        );
     }
 
     public function saveDraft(Request $request)
@@ -141,17 +53,26 @@ class RegistrasiController extends Controller
                 ]);
             }
 
-            // Gunakan updateOrCreate agar tidak duplikat data saat klik draft berkali-kali
-            $application = VendorApplication::updateOrCreate(
-                [
-                    'user_id' => $user->id,
-                    'status'  => VendorApplication::STATUS_DRAFT
-                ],
-                [
+            $application = VendorApplication::where('user_id', $user->id)
+                ->whereIn('status', [
+                    VendorApplication::STATUS_DRAFT,
+                    VendorApplication::STATUS_NEED_REVISION,
+                ])
+                ->latest()
+                ->first();
+
+            if ($application) {
+                $application->update([
                     'current_step' => 1,
-                    'updated_at'   => now()
-                ]
-            );
+                    'updated_at' => now(),
+                ]);
+            } else {
+                $application = VendorApplication::create([
+                    'user_id' => $user->id,
+                    'status' => VendorApplication::STATUS_DRAFT,
+                    'current_step' => 1,
+                ]);
+            }
 
             // Sync Kategori
             VendorApplicationCategory::where('application_id', $application->id)->delete();
@@ -213,6 +134,10 @@ class RegistrasiController extends Controller
     public function saveSpecificStep(StoreVendorSpecificRequest $request, VendorSpecificService $specificService)
     {
         try {
+            VendorApplication::where('id', $request->application_id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
+
             $result = $specificService->saveSpecificData(
                 $request->all(),
                 $request->application_id,
@@ -235,7 +160,10 @@ class RegistrasiController extends Controller
         }
     }
 
-    public function submit(Request $request)
+    public function submit(
+        Request $request,
+        VendorApplicationNotificationService $notificationService
+    )
     {
         $request->validate([
             'application_id' => 'required|integer|exists:vendor_applications,id',
@@ -277,22 +205,42 @@ class RegistrasiController extends Controller
             ]);
         }
 
-        if ($application->status !== VendorApplication::STATUS_DRAFT) {
+        if (!in_array($application->status, [
+            VendorApplication::STATUS_DRAFT,
+            VendorApplication::STATUS_NEED_REVISION,
+        ])) {
             throw ValidationException::withMessages([
                 'application_id' => 'Permohonan ini tidak dapat dikirim dari status saat ini.',
             ]);
         }
 
         $this->validateFinalSubmission($application);
+        $isRevisionSubmit = $application->status === VendorApplication::STATUS_NEED_REVISION;
 
-        DB::transaction(function () use ($application) {
+        DB::transaction(function () use ($application, $isRevisionSubmit) {
             $submittedAt = now();
 
             $application->update([
                 'application_number' => $application->application_number ?: $this->generateApplicationNumber($application, $submittedAt),
                 'status' => VendorApplication::STATUS_SUBMITTED,
-                'submitted_at' => $submittedAt,
+                'submitted_at' => $application->submitted_at ?: $submittedAt,
+                'revision_submitted_at' => $isRevisionSubmit ? $submittedAt : $application->revision_submitted_at,
+                'revision_count' => $isRevisionSubmit ? ((int) $application->revision_count + 1) : $application->revision_count,
+                'verified_at' => null,
+                'admin_note' => null,
+                'revision_notes' => null,
+                'auto_verified' => false,
             ]);
+
+            if ($isRevisionSubmit) {
+                $application->verificationItems()
+                    ->where('status', 'rejected')
+                    ->update([
+                        'status' => 'pending',
+                        'verified_by' => null,
+                        'verified_at' => null,
+                    ]);
+            }
         });
 
         $application->refresh()->load([
@@ -302,11 +250,13 @@ class RegistrasiController extends Controller
             'products',
         ]);
 
-        $this->sendSubmissionEmails($application);
+        $notificationService->submitted($application, $isRevisionSubmit);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Permohonan berhasil dikirim.',
+            'message' => $isRevisionSubmit
+                ? 'Revisi permohonan berhasil dikirim.'
+                : 'Permohonan berhasil dikirim.',
             'application_id' => $application->id,
             'application_number' => $this->applicationNumber($application),
             'redirect' => route('registrasi.tracking', $this->applicationNumber($application)),
@@ -414,6 +364,19 @@ class RegistrasiController extends Controller
                 'has_halal' => 'Status halal produk #' . ($index + 1),
                 'file_surat_path' => 'Dokumen surat produk #' . ($index + 1),
             ], 'products.' . $index . '.');
+
+            foreach (
+                [
+                    'tkdn' => 'Dokumen sertifikat TKDN',
+                    'sni' => 'Dokumen sertifikat SNI',
+                    'halal' => 'Dokumen sertifikat halal',
+                ] as $certificate => $label
+            ) {
+                if ($product->{'has_' . $certificate} === 'yes' && empty($product->{$certificate . '_file_path'})) {
+                    $errors['products.' . $index . '.' . $certificate . '_file'] =
+                        $label . ' produk #' . ($index + 1) . ' wajib diunggah.';
+                }
+            }
         }
 
         $this->validateSpecificRequirements($application, $categoryIds, $errors);
@@ -518,49 +481,7 @@ class RegistrasiController extends Controller
 
     private function requiredDocumentFields(): array
     {
-        return [
-            // 'dok_nib' => 'Dokumen NIB',
-            // 'dok_npwp' => 'Dokumen NPWP',
-            // 'dok_company_profile' => 'Dokumen profil perusahaan',
-            // 'dok_struktur_org' => 'Dokumen struktur organisasi',
-            // 'dok_sertifikat_halal' => 'Dokumen sertifikat halal',
-            // 'dok_akte_pendirian' => 'Dokumen akte pendirian',
-            // 'dok_akte_direksi' => 'Dokumen akte direksi',
-            // 'dok_sppkp' => 'Dokumen SPPKP',
-            // 'dok_ktp_pj' => 'Dokumen KTP pejabat',
-            // 'dok_pernyataan_keaslian' => 'Dokumen pernyataan keaslian',
-            // 'dok_pakta_integritas' => 'Dokumen pakta integritas',
-            // 'dok_bebas_perkara' => 'Dokumen bebas perkara',
-        ];
-    }
-
-    private function sendSubmissionEmails(VendorApplication $application): void
-    {
-        try {
-            $procurementEmails = User::whereHas('roles', function ($query) {
-                $query->whereIn('name', ['Procurement', 'Verifikator']);
-            })
-                ->where('is_active', true)
-                ->pluck('email')
-                ->filter()
-                ->unique()
-                ->values();
-
-            if ($procurementEmails->isNotEmpty()) {
-                Mail::to($procurementEmails->all())
-                    ->send(new VendorApplicationSubmittedToProcurement($application, $this->applicationNumber($application)));
-            }
-
-            if ($application->user && $application->user->email) {
-                Mail::to($application->user->email)
-                    ->send(new VendorApplicationSubmittedToVendor($application, $this->applicationNumber($application)));
-            }
-        } catch (\Throwable $e) {
-            Log::warning('Vendor application submitted, but email notification failed.', [
-                'application_id' => $application->id,
-                'error' => $e->getMessage(),
-            ]);
-        }
+        return [];
     }
 
     private function applicationNumber(VendorApplication $application): string

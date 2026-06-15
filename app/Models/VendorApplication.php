@@ -19,6 +19,7 @@ class VendorApplication extends Model
         'revision_count',
         'verified_at',
         'verified_by',
+        'admin_note',
         'revision_notes',
         'auto_verified',
     ];

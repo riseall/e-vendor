@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\VendorApplicationDocument;
+use App\Models\VendorApplicationProduct;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreFormUmumRequest extends FormRequest
@@ -55,7 +55,7 @@ class StoreFormUmumRequest extends FormRequest
                 'swift_code'         => 'required|string|max:11',
 
                 'iso_certificates'   => 'required|array|min:1',
-                'iso_other'          => 'required_if:iso_certificates,other|string|max:255',
+                'iso_other'          => 'nullable|string|max:255',
                 'komitmen_kualitas' => 'required|in:yes,no',
                 'komitmen_kualitas_detail' => 'required_if:komitmen_kualitas,yes|string|max:255',
                 'sertifikat_halal'   => 'required|in:yes,no',
@@ -121,11 +121,14 @@ class StoreFormUmumRequest extends FormRequest
                     'products.*.manufaktur' => 'required|string|max:255',
                     'products.*.rantai_pasok' => 'required|string|max:500',
                     'products.*.has_tkdn' => 'required|in:yes,no',
-                    'products.*.tkdn_value' => 'required_if:products.*.has_tkdn,yes|nullable|numeric|min:0|max:100',
+                    'products.*.tkdn_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                    'products.*.existing_tkdn_file' => 'nullable|string|max:255',
                     'products.*.has_sni' => 'required|in:yes,no',
-                    'products.*.sni_number' => 'required_if:products.*.has_sni,yes|nullable|string|max:50',
+                    'products.*.sni_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                    'products.*.existing_sni_file' => 'nullable|string|max:255',
                     'products.*.has_halal' => 'required|in:yes,no',
-                    'products.*.halal_number' => 'required_if:products.*.has_halal,yes|nullable|string|max:50',
+                    'products.*.halal_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                    'products.*.existing_halal_file' => 'nullable|string|max:255',
                     'products.*.file_surat' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
                     'products.*.file_surat_path' => 'nullable|string|max:255',
                     'products.*.existing_file_surat' => 'nullable|string|max:255',
@@ -139,11 +142,14 @@ class StoreFormUmumRequest extends FormRequest
                     'products.*.manufaktur' => 'nullable|string|max:255',
                     'products.*.rantai_pasok' => 'nullable|string|max:500',
                     'products.*.has_tkdn' => 'nullable|in:yes,no',
-                    'products.*.tkdn_value' => 'nullable|numeric|min:0|max:100',
+                    'products.*.tkdn_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                    'products.*.existing_tkdn_file' => 'nullable|string|max:255',
                     'products.*.has_sni' => 'nullable|in:yes,no',
-                    'products.*.sni_number' => 'nullable|string|max:50',
+                    'products.*.sni_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                    'products.*.existing_sni_file' => 'nullable|string|max:255',
                     'products.*.has_halal' => 'nullable|in:yes,no',
-                    'products.*.halal_number' => 'nullable|string|max:50',
+                    'products.*.halal_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                    'products.*.existing_halal_file' => 'nullable|string|max:255',
                     'products.*.file_surat' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
                     'products.*.file_surat_path' => 'nullable|string|max:255',
                     'products.*.existing_file_surat' => 'nullable|string|max:255',
@@ -170,19 +176,67 @@ class StoreFormUmumRequest extends FormRequest
         $fileValidation = 'file|mimes:pdf,jpg,jpeg,png|max:2048';
 
         foreach ($documentFields as $field) {
-            if (!$isDraft) {
-                $hasExistingDocument = VendorApplicationDocument::where('application_id', $this->input('application_id'))
-                    ->where('field_name', $field)
-                    ->exists();
-
-                $rules[$field] = ($hasExistingDocument ? 'nullable|' : 'required|') . $fileValidation;
-            } else {
-                // Loose: nullable for draft
-                $rules[$field] = 'nullable|' . $fileValidation;
-            }
+            $rules[$field] = 'nullable|' . $fileValidation;
         }
 
         return $rules;
+    }
+
+    public function withValidator($validator): void
+    {
+        if ($this->input('action') === 'draft') {
+            return;
+        }
+
+        $validator->after(function ($validator) {
+            if (
+                in_array('other', (array) $this->input('iso_certificates', []), true)
+                && blank($this->input('iso_other'))
+            ) {
+                $validator->errors()->add(
+                    'iso_other',
+                    'Sertifikat ISO lainnya wajib diisi.'
+                );
+            }
+
+            foreach ((array) $this->input('products', []) as $index => $product) {
+                foreach ([
+                    'tkdn' => 'Dokumen sertifikat TKDN',
+                    'sni' => 'Dokumen sertifikat SNI',
+                    'halal' => 'Dokumen sertifikat halal',
+                ] as $certificate => $label) {
+                    if (($product['has_' . $certificate] ?? 'no') !== 'yes') {
+                        continue;
+                    }
+
+                    $hasUpload = $this->hasFile("products.{$index}.{$certificate}_file");
+                    $hasExisting = !empty($product["existing_{$certificate}_file"]);
+
+                    if (!$hasExisting && !empty($product['erp_product_id'])) {
+                        $pathColumn = $certificate . '_file_path';
+                        $hasExisting = VendorApplicationProduct::query()
+                            ->where('application_id', $this->input('application_id'))
+                            ->where('erp_product_id', $product['erp_product_id'])
+                            ->whereNotNull($pathColumn)
+                            ->exists();
+                    }
+
+                    if (!$hasUpload && !$hasExisting) {
+                        $validator->errors()->add(
+                            "products.{$index}.{$certificate}_file",
+                            $label . ' wajib diunggah.'
+                        );
+                    }
+                }
+            }
+        });
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if (!in_array('other', (array) $this->input('iso_certificates', []), true)) {
+            $this->merge(['iso_other' => null]);
+        }
     }
 
     /**
@@ -210,61 +264,54 @@ class StoreFormUmumRequest extends FormRequest
             'products.*.manufaktur.required' => 'Manufaktur produk wajib diisi.',
             'products.*.rantai_pasok.required' => 'Rantai pasok produk wajib diisi.',
             'products.*.has_tkdn.required' => 'Status TKDN harus dipilih.',
-            'products.*.tkdn_value.required_if' => 'Nilai TKDN wajib diisi jika memiliki TKDN.',
-            'products.*.tkdn_value.numeric' => 'Nilai TKDN harus berupa angka.',
+            'products.*.tkdn_file.file' => 'Dokumen TKDN harus berupa file.',
+            'products.*.tkdn_file.mimes' => 'Dokumen TKDN harus berformat PDF, JPG, JPEG, atau PNG.',
+            'products.*.tkdn_file.max' => 'Ukuran dokumen TKDN maksimal 2 MB.',
             'products.*.has_sni.required' => 'Status SNI harus dipilih.',
-            'products.*.sni_number.required_if' => 'Nomor SNI wajib diisi jika memiliki SNI.',
+            'products.*.sni_file.file' => 'Dokumen SNI harus berupa file.',
+            'products.*.sni_file.mimes' => 'Dokumen SNI harus berformat PDF, JPG, JPEG, atau PNG.',
+            'products.*.sni_file.max' => 'Ukuran dokumen SNI maksimal 2 MB.',
             'products.*.has_halal.required' => 'Status halal harus dipilih.',
-            'products.*.halal_number.required_if' => 'Nomor halal wajib diisi jika memiliki sertifikat halal.',
+            'products.*.halal_file.file' => 'Dokumen halal harus berupa file.',
+            'products.*.halal_file.mimes' => 'Dokumen halal harus berformat PDF, JPG, JPEG, atau PNG.',
+            'products.*.halal_file.max' => 'Ukuran dokumen halal maksimal 2 MB.',
             'products.*.file_surat.required' => 'Dokumen surat produk wajib diunggah.',
             'products.*.file_surat.file' => 'Dokumen surat harus berupa file.',
             'products.*.file_surat.mimes' => 'Dokumen surat harus berformat PDF, JPG, JPEG, atau PNG.',
             'products.*.file_surat.max' => 'Ukuran dokumen surat maksimal 2 MB.',
-            'dok_nib.required' => 'Dokumen NIB wajib diunggah.',
             'dok_nib.file' => 'Dokumen NIB harus berupa file.',
             'dok_nib.mimes' => 'Dokumen NIB harus berformat PDF, JPG, JPEG, atau PNG.',
             'dok_nib.max' => 'Ukuran dokumen NIB maksimal 2 MB.',
-            'dok_npwp.required' => 'Dokumen NPWP wajib diunggah.',
             'dok_npwp.file' => 'Dokumen NPWP harus berupa file.',
             'dok_npwp.mimes' => 'Dokumen NPWP harus berformat PDF, JPG, JPEG, atau PNG.',
             'dok_npwp.max' => 'Ukuran dokumen NPWP maksimal 2 MB.',
-            'dok_company_profile.required' => 'Dokumen profil perusahaan wajib diunggah.',
             'dok_company_profile.file' => 'Dokumen profil perusahaan harus berupa file.',
             'dok_company_profile.mimes' => 'Dokumen profil perusahaan harus berformat PDF, JPG, JPEG, atau PNG.',
             'dok_company_profile.max' => 'Ukuran dokumen profil perusahaan maksimal 2 MB.',
-            'dok_struktur_org.required' => 'Dokumen struktur organisasi wajib diunggah.',
             'dok_struktur_org.file' => 'Dokumen struktur organisasi harus berupa file.',
             'dok_struktur_org.mimes' => 'Dokumen struktur organisasi harus berformat PDF, JPG, JPEG, atau PNG.',
             'dok_struktur_org.max' => 'Ukuran dokumen struktur organisasi maksimal 2 MB.',
-            'dok_sertifikat_halal.required' => 'Dokumen sertifikat halal wajib diunggah.',
             'dok_sertifikat_halal.file' => 'Dokumen sertifikat halal harus berupa file.',
             'dok_sertifikat_halal.mimes' => 'Dokumen sertifikat halal harus berformat PDF, JPG, JPEG, atau PNG.',
             'dok_sertifikat_halal.max' => 'Ukuran dokumen sertifikat halal maksimal 2 MB.',
-            'dok_akte_pendirian.required' => 'Dokumen akte pendirian wajib diunggah.',
             'dok_akte_pendirian.file' => 'Dokumen akte pendirian harus berupa file.',
             'dok_akte_pendirian.mimes' => 'Dokumen akte pendirian harus berformat PDF, JPG, JPEG, atau PNG.',
             'dok_akte_pendirian.max' => 'Ukuran dokumen akte pendirian maksimal 2 MB.',
-            'dok_akte_direksi.required' => 'Dokumen akte direksi wajib diunggah.',
             'dok_akte_direksi.file' => 'Dokumen akte direksi harus berupa file.',
             'dok_akte_direksi.mimes' => 'Dokumen akte direksi harus berformat PDF, JPG, JPEG, atau PNG.',
             'dok_akte_direksi.max' => 'Ukuran dokumen akte direksi maksimal 2 MB.',
-            'dok_sppkp.required' => 'Dokumen SPPKP wajib diunggah.',
             'dok_sppkp.file' => 'Dokumen SPPKP harus berupa file.',
             'dok_sppkp.mimes' => 'Dokumen SPPKP harus berformat PDF, JPG, JPEG, atau PNG.',
             'dok_sppkp.max' => 'Ukuran dokumen SPPKP maksimal 2 MB.',
-            'dok_ktp_pj.required' => 'Dokumen KTP Pejabat wajib diunggah.',
             'dok_ktp_pj.file' => 'Dokumen KTP Pejabat harus berupa file.',
             'dok_ktp_pj.mimes' => 'Dokumen KTP Pejabat harus berformat PDF, JPG, JPEG, atau PNG.',
             'dok_ktp_pj.max' => 'Ukuran dokumen KTP Pejabat maksimal 2 MB.',
-            'dok_pernyataan_keaslian.required' => 'Dokumen pernyataan keaslian wajib diunggah.',
             'dok_pernyataan_keaslian.file' => 'Dokumen pernyataan keaslian harus berupa file.',
             'dok_pernyataan_keaslian.mimes' => 'Dokumen pernyataan keaslian harus berformat PDF, JPG, JPEG, atau PNG.',
             'dok_pernyataan_keaslian.max' => 'Ukuran dokumen pernyataan keaslian maksimal 2 MB.',
-            'dok_pakta_integritas.required' => 'Dokumen pakta integritas wajib diunggah.',
             'dok_pakta_integritas.file' => 'Dokumen pakta integritas harus berupa file.',
             'dok_pakta_integritas.mimes' => 'Dokumen pakta integritas harus berformat PDF, JPG, JPEG, atau PNG.',
             'dok_pakta_integritas.max' => 'Ukuran dokumen pakta integritas maksimal 2 MB.',
-            'dok_bebas_perkara.required' => 'Dokumen bebas perkara wajib diunggah.',
             'dok_bebas_perkara.file' => 'Dokumen bebas perkara harus berupa file.',
             'dok_bebas_perkara.mimes' => 'Dokumen bebas perkara harus berformat PDF, JPG, JPEG, atau PNG.',
             'dok_bebas_perkara.max' => 'Ukuran dokumen bebas perkara maksimal 2 MB.',
