@@ -30,7 +30,7 @@
                             style="font-size:15px; line-height:22px; color:#4b5563; padding-bottom:20px;">
                             Permohonan <strong>{{ $applicationNumber }}</strong> milik
                             <strong>{{ optional($application->general)->nama_perusahaan ?? '-' }}</strong>
-                            otomatis berstatus verified karena telah melewati batas 10 hari kerja.
+                            otomatis berstatus verified karena telah melewati batas 10 hari kalender.
                         </td>
                     </tr>
                     <tr>

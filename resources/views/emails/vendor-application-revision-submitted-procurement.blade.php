@@ -60,6 +60,12 @@
                                         {{ optional($application->revision_submitted_at)->format('d/m/Y H:i') ?? '-' }}
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td style="padding:4px 10px; color:#6b7280;">Deadline baru</td>
+                                    <td style="padding:4px 10px; font-weight:700;">
+                                        {{ optional($deadline)->format('d/m/Y H:i') ?? '-' }}
+                                    </td>
+                                </tr>
                             </table>
                         </td>
                     </tr>
