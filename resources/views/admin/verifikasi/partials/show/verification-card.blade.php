@@ -278,9 +278,45 @@
                                                                             -
                                                                         @endif
                                                                     </td>
-                                                                    <td>{{ $product['tkdn'] ?? '-' }}</td>
-                                                                    <td>{{ $product['sni'] ?? '-' }}</td>
-                                                                    <td>{{ $product['halal'] ?? '-' }}</td>
+                                                                    <td>
+                                                                        @if (!empty($product['tkdn']))
+                                                                            <button type="button"
+                                                                                class="btn btn-xs btn-light-primary btn-preview-doc"
+                                                                                data-url="{{ $product['tkdn'] }}"
+                                                                                data-title="Sertifikat TKDN - {{ $product['product'] ?? 'Produk' }}">
+                                                                                <i class="flaticon2-document icon-xs"></i>
+                                                                                Lihat
+                                                                            </button>
+                                                                        @else
+                                                                            {{ !empty($product['has_tkdn']) ? '-' : 'Tidak' }}
+                                                                        @endif
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (!empty($product['sni']))
+                                                                            <button type="button"
+                                                                                class="btn btn-xs btn-light-primary btn-preview-doc"
+                                                                                data-url="{{ $product['sni'] }}"
+                                                                                data-title="Sertifikat SNI - {{ $product['product'] ?? 'Produk' }}">
+                                                                                <i class="flaticon2-document icon-xs"></i>
+                                                                                Lihat
+                                                                            </button>
+                                                                        @else
+                                                                            {{ !empty($product['has_sni']) ? '-' : 'Tidak' }}
+                                                                        @endif
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (!empty($product['halal']))
+                                                                            <button type="button"
+                                                                                class="btn btn-xs btn-light-primary btn-preview-doc"
+                                                                                data-url="{{ $product['halal'] }}"
+                                                                                data-title="Sertifikat Halal - {{ $product['product'] ?? 'Produk' }}">
+                                                                                <i class="flaticon2-document icon-xs"></i>
+                                                                                Lihat
+                                                                            </button>
+                                                                        @else
+                                                                            {{ !empty($product['has_halal']) ? '-' : 'Tidak' }}
+                                                                        @endif
+                                                                    </td>
                                                                 </tr>
                                                             @empty
                                                                 <tr>

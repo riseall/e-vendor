@@ -716,9 +716,12 @@ class ProcurementVerificationService
                 'manufaktur' => $product->manufaktur ?: '-',
                 'rantai_pasok' => $product->rantai_pasok ?: '-',
                 'surat' => $this->storageUrl($product->file_surat_path),
-                'tkdn' => $product->has_tkdn === 'yes' ? ($product->tkdn_value ?: '-') : 'Tidak',
-                'sni' => $product->has_sni === 'yes' ? ($product->sni_number ?: '-') : 'Tidak',
-                'halal' => $product->has_halal === 'yes' ? ($product->halal_number ?: '-') : 'Tidak',
+                'has_tkdn' => $product->has_tkdn === 'yes',
+                'tkdn' => $this->storageUrl($product->tkdn_file_path),
+                'has_sni' => $product->has_sni === 'yes',
+                'sni' => $this->storageUrl($product->sni_file_path),
+                'has_halal' => $product->has_halal === 'yes',
+                'halal' => $this->storageUrl($product->halal_file_path),
             ];
         })->values()->all();
 
