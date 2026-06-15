@@ -21,7 +21,9 @@
 @endphp
 
 <div class="form-section-title mb-4">Lampiran Dokumen</div>
-<p class="text-muted mb-8">Pastikan dokumen dalam format PDF/Gambar dan tidak melebihi 2MB.</p>
+<p class="text-muted mb-8">
+    Seluruh dokumen bersifat opsional. Jika diunggah, gunakan format PDF/Gambar dengan ukuran maksimal 2MB.
+</p>
 
 <div class="modern-doc-list">
     @foreach (collect($dokumenList)->groupBy('type') as $type => $items)
@@ -34,8 +36,8 @@
                     $revisionNote = $revisionNotes[$dok['name']] ?? null;
                 @endphp
 
-                <div class="doc-item {{ $revisionNote ? 'status-pending' : ($isUploaded ? 'status-uploaded' : 'status-pending') }}"
-                    id="item-{{ $dok['name'] }}">
+                <div class="doc-item {{ $revisionNote ? 'status-pending has-revision' : ($isUploaded ? 'status-uploaded' : 'status-pending') }}"
+                    id="item-{{ $dok['name'] }}" data-field-name="{{ $dok['name'] }}">
                     <div class="doc-info">
                         <div class="doc-icon-wrapper">
                             <i class="flaticon2-file icon-lg"></i>
@@ -51,7 +53,8 @@
                                     <span class="text-muted file-name-text">Belum ada file terpilih</span>
                                 @endif
                                 @if ($revisionNote)
-                                    <div class="text-danger font-weight-bold mt-1">
+                                    <div class="revision-note-message text-danger font-weight-bold mt-1"
+                                        data-revision-field="{{ $dok['name'] }}">
                                         <i class="fas fa-exclamation-circle mr-1"></i> Revisi: {{ $revisionNote }}
                                     </div>
                                 @endif
@@ -68,11 +71,13 @@
                             </button>
                         @endif
 
-                        <label class="btn btn-light-primary btn-sm font-weight-bold mb-0 btn-upload">
-                            <span>{{ $isUploaded ? 'Ganti' : 'Upload' }}</span>
-                            <input type="file" name="{{ $dok['name'] }}" class="file-upload-validate d-none"
-                                accept=".pdf,.jpg,.jpeg,.png" {{ $isReadOnly ? 'disabled' : '' }}>
-                        </label>
+                        @if (!$isReadOnly)
+                            <label class="btn btn-light-primary btn-sm font-weight-bold mb-0 btn-upload">
+                                <span>{{ $isUploaded ? 'Ganti' : 'Upload' }}</span>
+                                <input type="file" name="{{ $dok['name'] }}" class="file-upload-validate d-none"
+                                    accept=".pdf,.jpg,.jpeg,.png">
+                            </label>
+                        @endif
                     </div>
                 </div>
             @endforeach

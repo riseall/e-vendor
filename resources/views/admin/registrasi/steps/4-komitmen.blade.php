@@ -30,7 +30,9 @@
             <div id="isoOtherContainer" style="flex: 1; {{ in_array('other', $selectedIso) ? '' : 'display: none;' }}">
                 <input type="text" name="iso_other" id="isoOtherInput" class="form-control form-control-sm"
                     placeholder="Pisahkan dengan koma (contoh: ISO 27001, ISO 50001)"
-                    value="{{ $draft['general']->iso_other ?? '' }}" {{ $isReadOnly ? 'readonly disabled' : '' }}>
+                    value="{{ $draft['general']->iso_other ?? '' }}"
+                    {{ !in_array('other', $selectedIso) || $isReadOnly ? 'disabled' : '' }}
+                    {{ $isReadOnly ? 'readonly' : '' }}>
             </div>
         </div>
     </x-vendor-checkbox>
@@ -75,10 +77,10 @@
         $('#isoOtherCb').on('change', function() {
             if ($(this).is(':checked')) {
                 $('#isoOtherContainer').show();
-                $('#isoOtherInput').focus();
+                $('#isoOtherInput').prop('disabled', false).focus();
             } else {
                 $('#isoOtherContainer').hide();
-                $('#isoOtherInput').val('');
+                $('#isoOtherInput').val('').prop('disabled', true);
             }
         });
 

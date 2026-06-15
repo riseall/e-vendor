@@ -187,12 +187,19 @@
                 $('#selectedProductsTable').on('change', '.product-cert-toggle', function() {
                     const target = $(this).data('target');
                     const $target = $(target);
+                    const $fileInput = $target.find('input[type="file"]');
+                    const hasExistingFile = Boolean(
+                        $(this).closest('td').find('input[type="hidden"][name*="existing_"]').val()
+                    );
 
                     if ($(this).val() === 'yes') {
+                        $fileInput.prop('required', !hasExistingFile);
                         $target.removeClass('d-none').slideDown(150);
                     } else {
+                        $fileInput.prop('required', false);
                         $target.slideUp(150, function() {
-                            $(this).find('input').val('');
+                            $fileInput.val('');
+                            $fileInput.siblings('.custom-file-label').text('Pilih File');
                         });
                     }
                 });
