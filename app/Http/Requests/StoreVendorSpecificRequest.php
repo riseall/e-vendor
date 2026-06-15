@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\VendorApplication;
+use App\Services\VendorUploadPolicy;
 
 class StoreVendorSpecificRequest extends FormRequest
 {
@@ -23,20 +24,20 @@ class StoreVendorSpecificRequest extends FormRequest
             'application_id' => 'required|integer|exists:vendor_applications,id',
 
             // Aturan tipe file (kalau diisi, harus valid file-nya)
-            'q2_auth_letter'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'v1_auth_letter'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'v2_license_file'     => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'v6_kir_file'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            't1_safety_file'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            't8_expert_cert'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'k1_cert_file'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'l2_kan_file'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'l2_cukb_file'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'l2_iso17025_file'    => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'l2_glp_file'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'l2_bapeten_file'     => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'f6_file'             => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'h1_association_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'q2_auth_letter'      => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'v1_auth_letter'      => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'v2_license_file'     => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'v6_kir_file'         => 'nullable|' . VendorUploadPolicy::fileRule(),
+            't1_safety_file'      => 'nullable|' . VendorUploadPolicy::fileRule(),
+            't8_expert_cert'      => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'k1_cert_file'        => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'l2_kan_file'         => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'l2_cukb_file'        => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'l2_iso17025_file'    => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'l2_glp_file'         => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'l2_bapeten_file'     => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'f6_file'             => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'h1_association_file' => 'nullable|' . VendorUploadPolicy::fileRule(),
 
             // Aturan array
             'q7_equipments'     => 'nullable|array',
@@ -139,7 +140,14 @@ class StoreVendorSpecificRequest extends FormRequest
             'required_if'      => 'Field ini wajib diisi berdasarkan pilihan Anda sebelumnya.',
             'required_without' => 'File dokumen wajib diunggah.',
             'mimes'            => 'Format file harus berupa PDF, JPG, JPEG, atau PNG.',
-            'max'              => 'Ukuran file maksimal adalah 2MB.',
+            'max'              => 'Ukuran file maksimal adalah 5 MB.',
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            VendorUploadPolicy::validateTotalSize($this, $validator);
+        });
     }
 }

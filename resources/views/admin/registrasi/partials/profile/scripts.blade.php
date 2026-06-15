@@ -189,18 +189,5 @@
             });
         });
 
-        $(document).on('click', '.btn-preview-doc', function() {
-            const url = $(this).data('url');
-            if (!url) {
-                return;
-            }
-
-            $('#documentPreviewFrame').attr('src', url);
-            $('#documentPreviewModal').modal('show');
-        });
-
-        $('#documentPreviewModal').on('hidden.bs.modal', function() {
-            $('#documentPreviewFrame').attr('src', '');
-        });
     });
 </script>

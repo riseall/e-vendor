@@ -118,40 +118,6 @@
             });
         });
 
-        $(document).on('click', '.btn-preview-doc', function(e) {
-            e.preventDefault();
-
-            var url = $(this).data('url');
-            var title = $(this).data('title') || 'Preview Dokumen';
-            var container = $('#previewContainer');
-            var extension = String(url || '').split('.').pop().toLowerCase();
-
-            $('#modalPreviewDocLabel').text(title);
-            $('#btnDownloadDoc').attr('href', url || '#');
-            container.html('<div class="spinner spinner-primary spinner-lg"></div>');
-            $('#modalPreviewDoc').modal('show');
-
-            setTimeout(function() {
-                if (!url) {
-                    container.html('<div class="text-muted">Dokumen tidak tersedia.</div>');
-                } else if (extension === 'pdf') {
-                    container.html('<iframe src="' + url +
-                        '" frameborder="0" class="w-100 h-100"></iframe>');
-                } else if (['jpg', 'jpeg', 'png'].indexOf(extension) !== -1) {
-                    container.html('<img src="' + url +
-                        '" class="img-fluid shadow-sm rounded" style="max-height:95%; object-fit:contain;">'
-                    );
-                } else {
-                    container.html(
-                        '<div class="text-center px-5">' +
-                        '<i class="flaticon-file-2 display-1 text-muted"></i>' +
-                        '<p class="mt-4 mb-0">Format file tidak mendukung preview langsung.<br>Silakan gunakan tombol Download.</p>' +
-                        '</div>'
-                    );
-                }
-            }, 250);
-        });
-
         // Inject action + label ke modal reject
         $('#modalRejectItem').on('show.bs.modal', function(event) {
             var btn = $(event.relatedTarget);

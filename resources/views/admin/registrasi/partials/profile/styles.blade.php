@@ -191,10 +191,6 @@
         box-shadow: 0 8px 24px rgba(24, 28, 50, 0.12);
     }
 
-    #documentPreviewFrame {
-        min-height: 72vh;
-    }
-
     @media (max-width: 991.98px) {
         .vendor-profile-layout {
             grid-template-columns: 1fr;

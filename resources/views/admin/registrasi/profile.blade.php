@@ -128,19 +128,7 @@
         </main>
     </div>
 
-    <div class="modal fade" id="documentPreviewModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Preview Dokumen</h5>
-                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-                </div>
-                <div class="modal-body p-0">
-                    <iframe id="documentPreviewFrame" title="Preview dokumen" class="w-100 border-0"></iframe>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-document-preview />
 @endsection
 
 @push('scripts')

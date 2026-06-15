@@ -380,7 +380,7 @@
             background: linear-gradient(90deg, var(--vp-blue), #0ea5e9);
         }
 
-        /* ── HK Chip ────────────────────────────────── */
+        /* Deadline chip */
         .vp-hk {
             display: inline-block;
             border-radius: 5px;

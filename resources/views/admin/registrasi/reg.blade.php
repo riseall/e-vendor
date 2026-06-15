@@ -236,28 +236,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalPreviewDoc" tabindex="-1" role="dialog" aria-labelledby="modalPreviewDocLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalPreviewDocLabel">Preview Document</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <i aria-hidden="true" class="ki ki-close"></i>
-                    </button>
-                </div>
-                <div class="modal-body p-0 bg-light" style="height: 80vh;">
-                    <div id="previewContainer" class="h-100 d-flex align-items-center justify-content-center">
-                        <div class="spinner spinner-primary spinner-lg"></div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light-danger font-weight-bold"
-                        data-dismiss="modal">Tutup</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-document-preview />
 @endsection
 
 
@@ -529,46 +508,4 @@
         });
     </script>
 
-    <script>
-        $(document).ready(function() {
-            $(document).on('click', '.btn-preview-doc', function(e) {
-                e.preventDefault();
-
-                let url = $(this).data('url');
-                let title = $(this).data('title');
-                let container = $('#previewContainer');
-                let extension = url.split('.').pop().toLowerCase();
-
-                // Update Judul & Link Download
-                $('#modalPreviewDocLabel').text(title);
-                $('#btnDownloadDoc').attr('href', url);
-
-                // Reset Container
-                container.html('<div class="spinner spinner-primary spinner-lg"></div>');
-
-                // Tampilkan Modal
-                $('#modalPreviewDoc').modal('show');
-
-                // Logic Preview berdasarkan tipe file
-                setTimeout(function() {
-                    if (extension === 'pdf') {
-                        container.html(
-                            `<iframe src="${url}" frameborder="0" class="w-100 h-100"></iframe>`
-                        );
-                    } else if (['jpg', 'jpeg', 'png'].includes(extension)) {
-                        container.html(
-                            `<img src="${url}" class="img-fluid shadow-sm rounded" style="max-height: 95%; object-fit: contain;">`
-                        );
-                    } else {
-                        container.html(`
-                        <div class="text-center">
-                            <i class="flaticon-file-2 display-1 text-muted"></i>
-                            <p class="mt-4">Format file tidak mendukung preview langsung.<br>Silakan klik tombol download di bawah.</p>
-                        </div>
-                    `);
-                    }
-                }, 500);
-            });
-        });
-    </script>
 @endpush

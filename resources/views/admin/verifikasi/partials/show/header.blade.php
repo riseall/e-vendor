@@ -52,7 +52,7 @@
                     @endif
 
                     <div class="stat-box">
-                        <div class="stat-label">Deadline 10 HK</div>
+                        <div class="stat-label">Deadline 10 Hari Kalender</div>
                         <div class="stat-value">{{ optional($deadline)->format('d/m/Y') ?? '-' }}</div>
                         @if ($statusMeta['deadline_text'])
                             <span class="verif-pill {{ $statusMeta['deadline_class'] }}">

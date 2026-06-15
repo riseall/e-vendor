@@ -1,34 +1,3 @@
-    <div class="modal fade" id="modalPreviewDoc" tabindex="-1" role="dialog" aria-labelledby="modalPreviewDocLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-            <div class="modal-content"
-                style="border:none;border-radius:var(--radius-lg);box-shadow:0 20px 60px rgba(15,23,42,.15);overflow:hidden;">
-                <div class="modal-header"
-                    style="border-bottom:1px solid var(--border-light);background:var(--surface-1);padding:1rem 1.5rem;">
-                    <h5 class="modal-title font-weight-bolder" id="modalPreviewDocLabel"
-                        style="color:var(--text-primary);font-size:.95rem;">Preview Dokumen</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <i aria-hidden="true" class="ki ki-close"></i>
-                    </button>
-                </div>
-                <div class="modal-body p-0" style="height:80vh;background:#f8fafc;">
-                    <div id="previewContainer" class="h-100 d-flex align-items-center justify-content-center">
-                        <div class="spinner spinner-primary spinner-lg"></div>
-                    </div>
-                </div>
-                <div class="modal-footer" style="border-top:1px solid var(--border-light);background:var(--surface-1);">
-                    <a href="#" target="_blank" class="btn-approve" id="btnDownloadDoc"
-                        style="text-decoration:none;">
-                        <i class="flaticon-download icon-xs"></i> Download
-                    </a>
-                    <button type="button" class="btn-undo" data-dismiss="modal">
-                        Tutup
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="modal fade" id="modalRejectItem" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width:460px;" role="document">
             <form method="POST" action="#" class="modal-content" id="formRejectItem"
