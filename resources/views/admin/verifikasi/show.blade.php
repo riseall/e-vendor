@@ -16,6 +16,10 @@
 
     @include('admin.verifikasi.partials.show.verification-card')
 
+    @include('admin.verifikasi.partials.show.history')
+
+    <x-document-preview />
+
     @include('admin.verifikasi.partials.show.modals')
 
 @endsection

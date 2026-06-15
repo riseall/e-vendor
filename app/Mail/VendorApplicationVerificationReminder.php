@@ -3,34 +3,37 @@
 namespace App\Mail;
 
 use App\Models\VendorApplication;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Carbon\Carbon;
 
-class VendorApplicationRevisionSubmittedToProcurement extends Mailable implements ShouldQueue
+class VendorApplicationVerificationReminder extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     public VendorApplication $application;
     public string $applicationNumber;
-    public ?Carbon $deadline;
+    public Carbon $deadline;
+    public int $daysRemaining;
 
     public function __construct(
         VendorApplication $application,
         string $applicationNumber,
-        ?Carbon $deadline = null
-    )
-    {
+        Carbon $deadline,
+        int $daysRemaining
+    ) {
         $this->application = $application;
         $this->applicationNumber = $applicationNumber;
         $this->deadline = $deadline;
+        $this->daysRemaining = $daysRemaining;
     }
 
     public function build()
     {
-        return $this->subject('Revisi Vendor Telah Dikirim: ' . $this->applicationNumber)
-            ->view('emails.vendor-application-revision-submitted-procurement');
+        return $this->subject(
+            'Reminder H-' . $this->daysRemaining . ' Verifikasi Vendor: ' . $this->applicationNumber
+        )->view('emails.vendor-application-verification-reminder');
     }
 }

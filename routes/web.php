@@ -73,6 +73,9 @@ Route::group(
 
                 Route::get('/tracking/{applicationNumber?}', [RegistrasiController::class, 'tracking'])
                     ->name('tracking');
+
+                Route::get('/files/{application}', [RegistrasiController::class, 'showFile'])
+                    ->name('files.show');
             });
 
             // Product Search

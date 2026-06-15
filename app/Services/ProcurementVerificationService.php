@@ -18,6 +18,20 @@ class ProcurementVerificationService
         VendorApplication::STATUS_VERIFIED,
     ];
 
+    private VendorApplicationDeadlineService $deadlineService;
+    private VendorApplicationWorkflowService $workflowService;
+    private VendorFileService $fileService;
+
+    public function __construct(
+        VendorApplicationDeadlineService $deadlineService,
+        VendorApplicationWorkflowService $workflowService,
+        VendorFileService $fileService
+    ) {
+        $this->deadlineService = $deadlineService;
+        $this->workflowService = $workflowService;
+        $this->fileService = $fileService;
+    }
+
     public function verifyApplication(VendorApplication $application, ?string $adminNote): void
     {
         if ($application->status !== VendorApplication::STATUS_SUBMITTED) {
@@ -38,14 +52,19 @@ class ProcurementVerificationService
             ]);
         }
 
-        $application->update([
-            'status' => VendorApplication::STATUS_VERIFIED,
+        $this->workflowService->transition(
+            $application,
+            VendorApplication::STATUS_VERIFIED,
+            'application_verified',
+            [
             'verified_at' => now(),
             'verified_by' => Auth::id(),
             'admin_note' => $adminNote,
             'revision_notes' => null,
             'auto_verified' => false,
-        ]);
+            ],
+            Auth::user()
+        );
     }
 
     public function requestApplicationRevision(
@@ -53,23 +72,26 @@ class ProcurementVerificationService
         string $adminNote,
         array $revisionNotes
     ): void {
-        if (!in_array($application->status, [
-            VendorApplication::STATUS_SUBMITTED,
-            VendorApplication::STATUS_VERIFIED,
-        ])) {
+        if ($application->status !== VendorApplication::STATUS_SUBMITTED) {
             throw ValidationException::withMessages([
                 'application_id' => 'Permohonan ini tidak dapat diminta revisi dari status saat ini.',
             ]);
         }
 
-        $application->update([
-            'status' => VendorApplication::STATUS_NEED_REVISION,
+        $this->workflowService->transition(
+            $application,
+            VendorApplication::STATUS_NEED_REVISION,
+            'revision_requested',
+            [
             'verified_at' => null,
             'verified_by' => Auth::id(),
             'admin_note' => $adminNote,
             'revision_notes' => $revisionNotes,
             'auto_verified' => false,
-        ]);
+            ],
+            Auth::user(),
+            ['revision_notes' => $revisionNotes]
+        );
     }
 
     public function approveVerificationItem(
@@ -189,7 +211,7 @@ class ProcurementVerificationService
             && !empty($application->revision_submitted_at);
 
         $status = $this->indexStatusMeta($application, $isVerificationInProgress, $isRevisionResubmitted);
-        $deadline = $application->submitted_at ? $this->addBusinessDays($application->submitted_at, 10) : null;
+        $deadline = $this->deadlineService->deadline($application);
         $deadlineMeta = $this->deadlineMeta($application, $deadline);
 
         $picName = data_get($application->general, 'pic_nama') ?: data_get($application->user, 'name');
@@ -271,55 +293,25 @@ class ProcurementVerificationService
             return ['class' => '', 'text' => null];
         }
 
-        $hkLeft = $this->remainingBusinessDaysFromDate($deadline);
+        $daysLeft = $this->deadlineService->remainingDays($application);
 
         if ($application->status !== VendorApplication::STATUS_SUBMITTED) {
             return ['class' => 'vp-hk--done', 'text' => 'Selesai'];
         }
 
-        if ($hkLeft < 0) {
-            return ['class' => 'vp-hk--overdue', 'text' => abs($hkLeft) . ' HK terlambat'];
-        }
-
-        if ($hkLeft <= 3) {
-            return ['class' => 'vp-hk--warn', 'text' => $hkLeft . ' HK tersisa'];
-        }
-
-        return ['class' => 'vp-hk--ok', 'text' => $hkLeft . ' HK tersisa'];
-    }
-
-    private function addBusinessDays(Carbon $startDate, int $days): Carbon
-    {
-        $date = $startDate->copy();
-        $count = 0;
-
-        while ($count < $days) {
-            $date->addDay();
-
-            if (!$date->isWeekend()) {
-                $count++;
+        if ($daysLeft <= 1) {
+            if ($daysLeft < 0) {
+                return ['class' => 'vp-hk--overdue', 'text' => abs($daysLeft) . ' hari terlambat'];
             }
+
+            return ['class' => 'vp-hk--overdue', 'text' => $daysLeft . ' hari tersisa'];
         }
 
-        return $date;
-    }
-
-    private function remainingBusinessDaysFromDate(Carbon $deadline): int
-    {
-        $now = Carbon::today();
-        $days = 0;
-        $step = $deadline->gt($now) ? 1 : -1;
-        $date = $now->copy();
-
-        while (!$date->isSameDay($deadline)) {
-            $date->addDays($step);
-
-            if (!$date->isWeekend()) {
-                $days += $step;
-            }
+        if ($daysLeft <= 3) {
+            return ['class' => 'vp-hk--warn', 'text' => $daysLeft . ' hari tersisa'];
         }
 
-        return $days;
+        return ['class' => 'vp-hk--ok', 'text' => $daysLeft . ' hari tersisa'];
     }
 
     private function applicationStatusMeta(string $status): array
@@ -368,11 +360,11 @@ class ProcurementVerificationService
             return $meta;
         }
 
-        $remainingDays = $this->remainingBusinessDaysFromDate($deadline);
+        $remainingDays = $this->deadlineService->remainingDays($application);
         $meta['deadline_text'] = $remainingDays < 0
-            ? abs($remainingDays) . ' HK terlambat'
-            : $remainingDays . ' HK tersisa';
-        $meta['deadline_class'] = $remainingDays < 0
+            ? abs($remainingDays) . ' hari terlambat'
+            : $remainingDays . ' hari tersisa';
+        $meta['deadline_class'] = $remainingDays <= 1
             ? 'rejected'
             : ($remainingDays <= 3 ? 'warning' : 'pending');
 
@@ -433,7 +425,6 @@ class ProcurementVerificationService
         if (!in_array($application->status, [
             VendorApplication::STATUS_SUBMITTED,
             VendorApplication::STATUS_NEED_REVISION,
-            VendorApplication::STATUS_VERIFIED,
         ])) {
             throw ValidationException::withMessages([
                 'application_id' => 'Permohonan ini tidak dapat diverifikasi dari status saat ini.',
@@ -704,7 +695,7 @@ class ProcurementVerificationService
 
     private function productRows(VendorApplication $application): array
     {
-        $products = $application->products->map(function ($product) {
+        $products = $application->products->map(function ($product) use ($application) {
             $erp = $product->erp_product_id ?: $product->id;
             $productName = $product->product_name ?: 'Produk';
 
@@ -715,13 +706,13 @@ class ProcurementVerificationService
                 'erp' => $product->erp_product_id ?: '-',
                 'manufaktur' => $product->manufaktur ?: '-',
                 'rantai_pasok' => $product->rantai_pasok ?: '-',
-                'surat' => $this->storageUrl($product->file_surat_path),
+                'surat' => $this->fileService->url($application, $product->file_surat_path),
                 'has_tkdn' => $product->has_tkdn === 'yes',
-                'tkdn' => $this->storageUrl($product->tkdn_file_path),
+                'tkdn' => $this->fileService->url($application, $product->tkdn_file_path),
                 'has_sni' => $product->has_sni === 'yes',
-                'sni' => $this->storageUrl($product->sni_file_path),
+                'sni' => $this->fileService->url($application, $product->sni_file_path),
                 'has_halal' => $product->has_halal === 'yes',
-                'halal' => $this->storageUrl($product->halal_file_path),
+                'halal' => $this->fileService->url($application, $product->halal_file_path),
             ];
         })->values()->all();
 
@@ -743,7 +734,7 @@ class ProcurementVerificationService
                 ['field' => 'q1_is_manufacturer', 'label' => 'Pemasok sebagai produsen', 'value' => $this->yesNo($spec->q1_is_manufacturer)],
                 ['field' => 'q1_manufacturer_name', 'label' => 'Nama perusahaan produsen', 'value' => $spec->q1_manufacturer_name],
                 ['field' => 'q2_is_sole_agent', 'label' => 'Agen tunggal', 'value' => $this->yesNo($spec->q2_is_sole_agent)],
-                $this->fileRow('q2_auth_letter', 'Surat penunjukan agen', $spec->q2_auth_letter),
+                $this->fileRow($application, 'q2_auth_letter', 'Surat penunjukan agen', $spec->q2_auth_letter),
                 ['type' => 'section_title', 'label' => 'Gudang & Transportasi'],
                 ['field' => 'q3_transportation', 'label' => 'Angkutan pengiriman', 'value' => $spec->q3_transportation],
                 ['field' => 'q3_3pl_name', 'label' => 'Nama perusahaan 3PL', 'value' => $spec->q3_3pl_name],
@@ -768,15 +759,15 @@ class ProcurementVerificationService
             $rows['specific_varia'] = [
                 ['type' => 'section_title', 'label' => 'Agen/Izin Khusus'],
                 ['field' => 'v1_is_sole_agent', 'label' => 'Agen tunggal', 'value' => $this->yesNo($spec->v1_is_sole_agent)],
-                $this->fileRow('v1_auth_letter', 'Surat penunjukan agen', $spec->v1_auth_letter),
+                $this->fileRow($application, 'v1_auth_letter', 'Surat penunjukan agen', $spec->v1_auth_letter),
                 ['field' => 'v2_has_special_license', 'label' => 'Memiliki izin khusus', 'value' => $this->yesNo($spec->v2_has_special_license)],
-                $this->fileRow('v2_license_file', 'File izin khusus', $spec->v2_license_file),
+                $this->fileRow($application, 'v2_license_file', 'File izin khusus', $spec->v2_license_file),
                 ['field' => 'v3_iso_b3', 'label' => 'ISO/Izin B3', 'value' => $this->yesNo($spec->v3_iso_b3)],
                 ['type' => 'section_title', 'label' => 'Pengiriman & KIR'],
                 ['field' => 'v4_driver_training', 'label' => 'Training driver', 'value' => $this->yesNo($spec->v4_driver_training)],
                 ['field' => 'v5_valid_license', 'label' => 'Izin valid saat pengiriman', 'value' => $this->yesNo($spec->v5_valid_license)],
                 ['field' => 'v6_kir', 'label' => 'Surat KIR', 'value' => $this->yesNo($spec->v6_kir)],
-                $this->fileRow('v6_kir_file', 'File KIR', $spec->v6_kir_file),
+                $this->fileRow($application, 'v6_kir_file', 'File KIR', $spec->v6_kir_file),
             ];
         }
 
@@ -785,7 +776,7 @@ class ProcurementVerificationService
             $rows['specific_trans'] = [
                 ['type' => 'section_title', 'label' => 'Safety & Armada'],
                 ['field' => 't1_k3_commitment', 'label' => 'Komitmen K3', 'value' => $this->yesNo($spec->t1_k3_commitment)],
-                $this->fileRow('t1_safety_file', 'File safety', $spec->t1_safety_file),
+                $this->fileRow($application, 't1_safety_file', 'File safety', $spec->t1_safety_file),
                 ['field' => 't4_is_insured', 'label' => 'Diasuransikan', 'value' => $this->yesNo($spec->t4_is_insured)],
                 ['field' => 't4_insurance_pct', 'label' => 'Persentase asuransi', 'value' => $spec->t4_insurance_pct],
                 ['field' => 't2_truck_type', 'label' => 'Tipe truk', 'value' => $spec->t2_truck_type],
@@ -797,7 +788,7 @@ class ProcurementVerificationService
                 ['field' => 't6_3pl_udara', 'label' => '3PL Udara', 'value' => $spec->t6_3pl_udara],
                 ['field' => 't7_association', 'label' => 'Asosiasi', 'value' => $spec->t7_association],
                 ['field' => 't8_customs_expert', 'label' => 'Ahli kepabeanan', 'value' => $spec->t8_customs_expert],
-                $this->fileRow('t8_expert_cert', 'Sertifikat ahli', $spec->t8_expert_cert),
+                $this->fileRow($application, 't8_expert_cert', 'Sertifikat ahli', $spec->t8_expert_cert),
                 ['field' => 't9_has_intl_affiliate', 'label' => 'Afiliasi internasional', 'value' => $this->yesNo($spec->t9_has_intl_affiliate)],
                 ['field' => 't9_countries', 'label' => 'Negara afiliasi', 'value' => $spec->t9_countries],
                 ['field' => 't10_other_services', 'label' => 'Layanan lainnya', 'value' => $spec->t10_other_services],
@@ -809,7 +800,7 @@ class ProcurementVerificationService
             $rows['specific_kontraktor'] = [
                 ['type' => 'section_title', 'label' => 'SDM, K3, BPJS'],
                 ['field' => 'k1_pro_staff', 'label' => 'Tenaga profesional', 'value' => $this->yesNo($spec->k1_pro_staff)],
-                $this->fileRow('k1_cert_file', 'File sertifikasi tenaga ahli', $spec->k1_cert_file),
+                $this->fileRow($application, 'k1_cert_file', 'File sertifikasi tenaga ahli', $spec->k1_cert_file),
                 ['field' => 'k2_safety_commitment', 'label' => 'Komitmen safety', 'value' => $this->yesNo($spec->k2_safety_commitment)],
                 ['field' => 'k3_bpjs', 'label' => 'BPJS', 'value' => $this->yesNo($spec->k3_bpjs)],
                 ['field' => 'k4_apd', 'label' => 'APD', 'value' => $this->yesNo($spec->k4_apd)],
@@ -828,15 +819,15 @@ class ProcurementVerificationService
                 ['type' => 'section_title', 'label' => 'Sertifikat Laboratorium'],
                 ['field' => 'l2_selected_certs', 'label' => 'Sertifikat dipilih', 'value' => implode(', ', $spec->l2_selected_certs ?: [])],
                 ['field' => 'l2_kan_no', 'label' => 'KAN', 'value' => trim(($spec->l2_kan_no ?: '-') . ' / ' . ($spec->l2_kan_date ?: '-'))],
-                $this->fileRow('l2_kan_file', 'File KAN', $spec->l2_kan_file),
+                $this->fileRow($application, 'l2_kan_file', 'File KAN', $spec->l2_kan_file),
                 ['field' => 'l2_cukb_no', 'label' => 'CUKB', 'value' => trim(($spec->l2_cukb_no ?: '-') . ' / ' . ($spec->l2_cukb_date ?: '-'))],
-                $this->fileRow('l2_cukb_file', 'File CUKB', $spec->l2_cukb_file),
+                $this->fileRow($application, 'l2_cukb_file', 'File CUKB', $spec->l2_cukb_file),
                 ['field' => 'l2_iso17025_no', 'label' => 'ISO 17025', 'value' => trim(($spec->l2_iso17025_no ?: '-') . ' / ' . ($spec->l2_iso17025_date ?: '-'))],
-                $this->fileRow('l2_iso17025_file', 'File ISO 17025', $spec->l2_iso17025_file),
+                $this->fileRow($application, 'l2_iso17025_file', 'File ISO 17025', $spec->l2_iso17025_file),
                 ['field' => 'l2_glp_no', 'label' => 'GLP', 'value' => trim(($spec->l2_glp_no ?: '-') . ' / ' . ($spec->l2_glp_date ?: '-'))],
-                $this->fileRow('l2_glp_file', 'File GLP', $spec->l2_glp_file),
+                $this->fileRow($application, 'l2_glp_file', 'File GLP', $spec->l2_glp_file),
                 ['field' => 'l2_bapeten_no', 'label' => 'BAPETEN', 'value' => trim(($spec->l2_bapeten_no ?: '-') . ' / ' . ($spec->l2_bapeten_date ?: '-'))],
-                $this->fileRow('l2_bapeten_file', 'File BAPETEN', $spec->l2_bapeten_file),
+                $this->fileRow($application, 'l2_bapeten_file', 'File BAPETEN', $spec->l2_bapeten_file),
                 ['type' => 'section_title', 'label' => 'Principal/Agen'],
                 ['field' => 'l3_is_agent', 'label' => 'Agen', 'value' => $this->yesNo($spec->l3_is_agent)],
                 ['field' => 'l3_principal_name', 'label' => 'Nama Perusahaan Principal', 'value' => $spec->l3_principal_name],
@@ -854,7 +845,7 @@ class ProcurementVerificationService
                 ['field' => 'f4_certs', 'label' => 'Sertifikasi', 'value' => $this->formatList($spec->f4_certs ?: [], ['type' => 'Tipe', 'name' => 'Nama', 'date' => 'Masa Berlaku'])],
                 ['field' => 'f5_hygiene_guarantee', 'label' => 'Jaminan hygiene', 'value' => $this->yesNo($spec->f5_hygiene_guarantee)],
                 ['field' => 'f6_sanitation_cert', 'label' => 'Sertifikat sanitasi', 'value' => $this->yesNo($spec->f6_sanitation_cert)],
-                $this->fileRow('f6_file', 'File sanitasi', $spec->f6_file),
+                $this->fileRow($application, 'f6_file', 'File sanitasi', $spec->f6_file),
                 ['field' => 'f7_kitchen_facility', 'label' => 'Fasilitas dapur', 'value' => $spec->f7_kitchen_facility],
                 ['field' => 'f8_transport_facility', 'label' => 'Fasilitas transportasi', 'value' => $spec->f8_transport_facility],
             ];
@@ -879,7 +870,7 @@ class ProcurementVerificationService
             $rows['specific_agency'] = [
                 ['type' => 'section_title', 'label' => 'Asosiasi'],
                 ['field' => 'h1_association', 'label' => 'Asosiasi', 'value' => $spec->h1_association],
-                $this->fileRow('h1_association_file', 'Bukti asosiasi', $spec->h1_association_file),
+                $this->fileRow($application, 'h1_association_file', 'Bukti asosiasi', $spec->h1_association_file),
                 ['type' => 'section_title', 'label' => 'Spesialisasi & Pengalaman'],
                 ['field' => 'h2_specialization', 'label' => 'Spesialisasi', 'value' => $spec->h2_specialization],
                 ['field' => 'h3_project_experience', 'label' => 'Pengalaman proyek', 'value' => $spec->h3_project_experience],
@@ -922,23 +913,23 @@ class ProcurementVerificationService
             'field' => $field,
             'label' => $label,
             'value' => optional($document)->original_name,
-            'url' => $document ? asset('storage/' . $document->file_path) : null,
+            'url' => $document ? $this->fileService->url($application, $document->file_path) : null,
         ];
     }
 
-    private function fileRow(string $field, string $label, ?string $path): array
+    private function fileRow(
+        VendorApplication $application,
+        string $field,
+        string $label,
+        ?string $path
+    ): array
     {
         return [
             'field' => $field,
             'label' => $label,
             'value' => $this->fileName($path),
-            'url' => $this->storageUrl($path),
+            'url' => $this->fileService->url($application, $path),
         ];
-    }
-
-    private function storageUrl(?string $path): ?string
-    {
-        return $path ? asset('storage/' . $path) : null;
     }
 
     private function fileName(?string $path): ?string
@@ -1043,54 +1034,93 @@ class ProcurementVerificationService
             ->all();
 
         if ($allItemsApproved) {
-            $application->update([
-                'status' => VendorApplication::STATUS_VERIFIED,
+            $this->workflowService->transition(
+                $application,
+                VendorApplication::STATUS_VERIFIED,
+                'application_verified',
+                [
                 'verified_at' => now(),
                 'verified_by' => Auth::id(),
                 'admin_note' => 'Seluruh data permohonan sudah disetujui oleh pengadaan.',
                 'revision_notes' => null,
                 'auto_verified' => false,
-            ]);
+                ],
+                Auth::user()
+            );
 
             return;
         }
 
         if ($hasPendingItems) {
-            $application->update([
-                'status' => VendorApplication::STATUS_SUBMITTED,
+            $this->updateStatusOrAttributes(
+                $application,
+                VendorApplication::STATUS_SUBMITTED,
+                'verification_resumed',
+                [
                 'verified_at' => null,
                 'verified_by' => null,
                 'admin_note' => null,
                 'revision_notes' => null,
                 'auto_verified' => false,
-            ]);
+                ]
+            );
 
             return;
         }
 
         if (!empty($revisionNotes)) {
-            $application->update([
-                'status' => VendorApplication::STATUS_NEED_REVISION,
+            $this->workflowService->transition(
+                $application,
+                VendorApplication::STATUS_NEED_REVISION,
+                'revision_requested',
+                [
                 'verified_at' => null,
                 'verified_by' => Auth::id(),
                 'admin_note' => 'Terdapat data yang tidak disetujui oleh pengadaan.',
                 'revision_notes' => $revisionNotes,
                 'auto_verified' => false,
-            ]);
+                ],
+                Auth::user(),
+                ['revision_notes' => $revisionNotes]
+            );
 
             return;
         }
 
         if ($application->status === VendorApplication::STATUS_NEED_REVISION) {
-            $application->update([
-                'status' => VendorApplication::STATUS_SUBMITTED,
+            $this->updateStatusOrAttributes(
+                $application,
+                VendorApplication::STATUS_SUBMITTED,
+                'verification_resumed',
+                [
                 'verified_at' => null,
                 'verified_by' => null,
                 'admin_note' => null,
                 'revision_notes' => null,
                 'auto_verified' => false,
-            ]);
+                ]
+            );
         }
+    }
+
+    private function updateStatusOrAttributes(
+        VendorApplication $application,
+        string $status,
+        string $action,
+        array $attributes
+    ): void {
+        if ($application->status === $status) {
+            $application->update($attributes);
+            return;
+        }
+
+        $this->workflowService->transition(
+            $application,
+            $status,
+            $action,
+            $attributes,
+            Auth::user()
+        );
     }
 
     public function normalizeRevisionNotes(array $fields, array $notes): array
@@ -1120,6 +1150,6 @@ class ProcurementVerificationService
             return null;
         }
 
-        return $this->addBusinessDays($application->submitted_at, 10);
+        return $this->deadlineService->deadline($application);
     }
 }

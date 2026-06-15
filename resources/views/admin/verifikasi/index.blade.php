@@ -106,7 +106,7 @@
                         <th>Perusahaan</th>
                         <th>Status</th>
                         <th>Tgl Submit</th>
-                        <th>Deadline 10 HK</th>
+                        <th>Deadline 10 Hari</th>
                         <th class="text-right no-sort">Aksi</th>
                     </tr>
                 </thead>

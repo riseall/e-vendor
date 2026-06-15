@@ -8,6 +8,8 @@ use App\Mail\VendorApplicationRevisionSubmittedToProcurement;
 use App\Mail\VendorApplicationSubmittedToProcurement;
 use App\Mail\VendorApplicationSubmittedToVendor;
 use App\Mail\VendorApplicationVerified;
+use App\Mail\VendorApplicationVerificationReminder;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\VendorApplication;
 use Illuminate\Mail\Mailable;
@@ -25,11 +27,11 @@ class VendorApplicationNotificationService
         $number = $this->applicationNumber($application);
         $deadline = app(ProcurementVerificationService::class)->verificationDeadline($application);
         $procurementMail = $isRevisionSubmit
-            ? new VendorApplicationRevisionSubmittedToProcurement($application, $number)
+            ? new VendorApplicationRevisionSubmittedToProcurement($application, $number, $deadline)
             : new VendorApplicationSubmittedToProcurement($application, $number, $deadline);
 
         $this->queue(
-            $this->procurementEmails(),
+            $this->submissionReviewerEmails(),
             $procurementMail,
             $application,
             $isRevisionSubmit ? 'revision_submitted_procurement' : 'submitted_procurement'
@@ -41,6 +43,41 @@ class VendorApplicationNotificationService
             $application,
             'submitted_vendor'
         );
+    }
+
+    public function verificationReminder(
+        VendorApplication $application,
+        Carbon $deadline,
+        int $daysRemaining
+    ): void {
+        $application->loadMissing(['user', 'general']);
+
+        $this->queue(
+            $this->procurementEmails(),
+            new VendorApplicationVerificationReminder(
+                $application,
+                $this->applicationNumber($application),
+                $deadline,
+                $daysRemaining
+            ),
+            $application,
+            'verification_reminder_h' . $daysRemaining
+        );
+    }
+
+    private function submissionReviewerEmails(): array
+    {
+        return collect($this->roleEmails([
+            'Procurement',
+            'Verifikator',
+            'Quality Assurance',
+        ]))
+            ->merge(config('mail.procurement_recipients', []))
+            ->merge(config('mail.qa_recipients', []))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 
     public function statusChanged(
@@ -90,19 +127,22 @@ class VendorApplicationNotificationService
 
     private function procurementEmails(): array
     {
-        $roleEmails = User::whereHas('roles', function ($query) {
-            $query->whereIn('name', ['Procurement', 'Verifikator']);
-        })
-            ->where('is_active', true)
-            ->pluck('email')
-            ->filter()
-            ->all();
-
-        return collect($roleEmails)
+        return collect($this->roleEmails(['Procurement', 'Verifikator']))
             ->merge(config('mail.procurement_recipients', []))
             ->filter()
             ->unique()
             ->values()
+            ->all();
+    }
+
+    private function roleEmails(array $roles): array
+    {
+        return User::whereHas('roles', function ($query) use ($roles) {
+            $query->whereIn('name', $roles);
+        })
+            ->where('is_active', true)
+            ->pluck('email')
+            ->filter()
             ->all();
     }
 
