@@ -305,13 +305,13 @@ class RegistrasiController extends Controller
     public function tracking(?string $applicationNumber = null)
     {
         $query = VendorApplication::where('user_id', Auth::id())
-            ->with(['user', 'general', 'categories']);
+            ->where('status', '!=', VendorApplication::STATUS_DRAFT)
+            ->with(['user', 'general', 'categories', 'activityLogs']);
 
         if ($applicationNumber) {
             $application = $query->where('application_number', $applicationNumber)->firstOrFail();
         } else {
-            $application = $query->where('status', '!=', VendorApplication::STATUS_DRAFT)
-                ->latest('submitted_at')
+            $application = $query->latest('submitted_at')
                 ->latest()
                 ->firstOrFail();
         }
@@ -320,6 +320,10 @@ class RegistrasiController extends Controller
             'application' => $application,
             'applicationNumber' => $this->applicationNumber($application),
             'statusSteps' => $this->trackingStatusSteps($application),
+            'categoryLabels' => $application->categories
+                ->map->category_label
+                ->filter()
+                ->values(),
         ]);
     }
 
@@ -369,7 +373,6 @@ class RegistrasiController extends Controller
                 'swift_code' => 'Swift code',
                 'iso_certificates' => 'Sertifikat ISO',
                 'komitmen_kualitas' => 'Komitmen kualitas',
-                'sertifikat_halal' => 'Sertifikat halal',
                 'lead_time' => 'Jangka waktu pengiriman',
                 'customer_list' => 'Daftar pelanggan',
                 'status_perusahaan' => 'Status perusahaan',
@@ -546,20 +549,42 @@ class RegistrasiController extends Controller
     private function trackingStatusSteps(VendorApplication $application): array
     {
         $status = $application->status;
+        $revisionSubmitted = !empty($application->revision_submitted_at);
+        $revisionRequestedAt = optional(
+            $application->activityLogs
+                ->where('action', 'revision_requested')
+                ->sortByDesc('created_at')
+                ->first()
+        )->created_at;
+        $resultDescription = 'Hasil akhir akan tampil setelah proses verifikasi selesai.';
+
+        switch ($status) {
+            case VendorApplication::STATUS_VERIFIED:
+                $resultDescription = 'Permohonan telah selesai diverifikasi.';
+                break;
+            case VendorApplication::STATUS_APPROVED:
+                $resultDescription = 'Permohonan telah disetujui.';
+                break;
+            case VendorApplication::STATUS_REJECTED:
+                $resultDescription = 'Permohonan tidak disetujui.';
+                break;
+        }
 
         return [
             [
                 'key' => VendorApplication::STATUS_SUBMITTED,
-                'title' => 'Permohonan Dikirim',
-                'description' => 'Data vendor sudah dikirim ke sistem E-Vendor.',
-                'date' => $application->submitted_at,
+                'title' => $revisionSubmitted ? 'Revisi Dikirim' : 'Permohonan Dikirim',
+                'description' => $revisionSubmitted
+                    ? 'Perbaikan data sudah dikirim kembali ke tim pengadaan.'
+                    : 'Data vendor sudah dikirim ke sistem E-Vendor.',
+                'date' => $application->revision_submitted_at ?: $application->submitted_at,
                 'state' => in_array($status, [
                     VendorApplication::STATUS_SUBMITTED,
                     VendorApplication::STATUS_NEED_REVISION,
                     VendorApplication::STATUS_VERIFIED,
                     VendorApplication::STATUS_APPROVED,
                     VendorApplication::STATUS_REJECTED,
-                ]) ? 'done' : 'pending',
+                ], true) ? 'done' : 'pending',
             ],
             [
                 'key' => 'review',
@@ -567,21 +592,32 @@ class RegistrasiController extends Controller
                 'description' => $status === VendorApplication::STATUS_NEED_REVISION
                     ? 'Tim pengadaan meminta revisi data permohonan.'
                     : 'Tim pengadaan memeriksa kelengkapan data dan dokumen.',
-                'date' => $application->verified_at,
+                'date' => $status === VendorApplication::STATUS_NEED_REVISION
+                    ? $revisionRequestedAt
+                    : $application->verified_at,
                 'state' => in_array($status, [
                     VendorApplication::STATUS_VERIFIED,
                     VendorApplication::STATUS_APPROVED,
                     VendorApplication::STATUS_REJECTED,
-                ]) ? 'done' : ($status === VendorApplication::STATUS_NEED_REVISION ? 'warning' : 'active'),
+                ], true)
+                    ? 'done'
+                    : ($status === VendorApplication::STATUS_NEED_REVISION
+                        ? 'warning'
+                        : ($status === VendorApplication::STATUS_SUBMITTED ? 'active' : 'pending')),
             ],
             [
                 'key' => VendorApplication::STATUS_APPROVED,
                 'title' => 'Hasil Permohonan',
-                'description' => $status === VendorApplication::STATUS_REJECTED
-                    ? 'Permohonan tidak disetujui.'
-                    : 'Hasil akhir akan tampil setelah proses verifikasi selesai.',
-                'date' => null,
-                'state' => $status === VendorApplication::STATUS_APPROVED
+                'description' => $resultDescription,
+                'date' => in_array($status, [
+                    VendorApplication::STATUS_VERIFIED,
+                    VendorApplication::STATUS_APPROVED,
+                    VendorApplication::STATUS_REJECTED,
+                ], true) ? ($application->verified_at ?: $application->updated_at) : null,
+                'state' => in_array($status, [
+                    VendorApplication::STATUS_VERIFIED,
+                    VendorApplication::STATUS_APPROVED,
+                ], true)
                     ? 'done'
                     : ($status === VendorApplication::STATUS_REJECTED ? 'danger' : 'pending'),
             ],
