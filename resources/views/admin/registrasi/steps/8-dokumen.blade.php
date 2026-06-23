@@ -8,9 +8,13 @@
         // Khusus Lokal
         ['name' => 'dok_akte_pendirian', 'label' => 'Akte Pendirian', 'type' => 'Local Vendor Only'],
         ['name' => 'dok_akte_direksi', 'label' => 'Akte Pengangkatan Direksi', 'type' => 'Local Vendor Only'],
-        ['name' => 'dok_sppkp', 'label' => 'Surat Pengukuhan PKP', 'type' => 'Local Vendor Only'],
-        ['name' => 'dok_ktp_pj', 'label' => 'KTP Penanggung Jawab', 'type' => 'Local Vendor Only'],
-        ['name' => 'dok_pernyataan_keaslian', 'label' => 'Surat Keaslian Dokumen', 'type' => 'Local Vendor Only'],
+        ['name' => 'dok_sppkp', 'label' => 'Surat Pengukuhan PKP (SPPKP)', 'type' => 'Local Vendor Only'],
+        ['name' => 'dok_ktp_pj', 'label' => 'KTP Penanggung Jawab Perusahaan ', 'type' => 'Local Vendor Only'],
+        [
+            'name' => 'dok_pernyataan_keaslian',
+            'label' => 'Surat Pernyataan Keaslian Dokumen',
+            'type' => 'Local Vendor Only',
+        ],
         ['name' => 'dok_pakta_integritas', 'label' => 'Pakta Integritas', 'type' => 'Local Vendor Only'],
         [
             'name' => 'dok_bebas_perkara',
