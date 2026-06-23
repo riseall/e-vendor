@@ -59,7 +59,6 @@ class StoreFormUmumRequest extends FormRequest
                 'iso_other'          => 'nullable|string|max:255',
                 'komitmen_kualitas' => 'required|in:yes,no',
                 'komitmen_kualitas_detail' => 'required_if:komitmen_kualitas,yes|string|max:255',
-                'sertifikat_halal'   => 'required|in:yes,no',
 
                 'lead_time'          => 'required|string|max:100',
                 'customer_list'      => 'required|string|max:255',
@@ -98,7 +97,6 @@ class StoreFormUmumRequest extends FormRequest
                 'iso_other'          => 'nullable|string|max:255',
                 'komitmen_kualitas' => 'nullable|in:yes,no',
                 'komitmen_kualitas_detail' => 'nullable|string|max:255',
-                'sertifikat_halal'   => 'nullable|in:yes,no',
 
                 'lead_time'          => 'nullable|string|max:100',
                 'customer_list'      => 'nullable|string|max:255',

@@ -673,7 +673,6 @@ class ProcurementVerificationService
                 ['label' => 'Sertifikat ISO', 'value' => $this->formatIsoCertificates($general)],
                 ['label' => 'Komitmen Kualitas, Lingkungan & K3', 'value' => $this->yesNo(data_get($general, 'komitmen_kualitas'))],
                 ['label' => 'Detail Komitmen', 'value' => data_get($general, 'komitmen_kualitas_detail')],
-                ['label' => 'Sertifikasi Halal BPJPH', 'value' => $this->yesNo(data_get($general, 'sertifikat_halal'))],
                 $this->documentRow($application, 'dok_sertifikat_halal', 'Dokumen Sertifikat Halal'),
             ],
             'tax_finance' => [

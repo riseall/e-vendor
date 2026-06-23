@@ -40,7 +40,7 @@
 
 <div class="row">
     {{-- 2. Komitmen Kualitas, Lingkungan & K3 --}}
-    <div class="col-md-6">
+    <div class="col-md-12">
         <div class="question-wrapper">
             <label class="question-label">Komitmen Kualitas, Lingkungan & K3 (Selain ISO) @if (!$isReadOnly)
                     <span class="text-danger">*</span>
@@ -55,19 +55,6 @@
                 <x-vendor-input name="komitmen_kualitas_detail" class="form-control form-control-sm"
                     label="Sebutkan dokumen..." :value="$draft['general']->komitmen_kualitas_detail ?? ''" :readonly="$isReadOnly" />
             </div>
-        </div>
-    </div>
-
-    {{-- 3. Sertifikasi Halal --}}
-    <div class="col-md-6">
-        <div class="question-wrapper">
-            <label class="question-label">Sertifikasi Halal BPJPH @if (!$isReadOnly)
-                    <span class="text-danger">*</span>
-                @endif
-            </label>
-
-            <x-vendor-radio name="sertifikat_halal" label="" :options="[['value' => 'yes', 'label' => 'Ya'], ['value' => 'no', 'label' => 'Tidak']]" :selected="$draft['general']->sertifikat_halal ?? 'no'"
-                :readonly="$isReadOnly" />
         </div>
     </div>
 </div>
