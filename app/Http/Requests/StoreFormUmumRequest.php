@@ -201,11 +201,13 @@ class StoreFormUmumRequest extends FormRequest
             }
 
             foreach ((array) $this->input('products', []) as $index => $product) {
-                foreach ([
-                    'tkdn' => 'Dokumen sertifikat TKDN',
-                    'sni' => 'Dokumen sertifikat SNI',
-                    'halal' => 'Dokumen sertifikat halal',
-                ] as $certificate => $label) {
+                foreach (
+                    [
+                        'tkdn' => 'Dokumen sertifikat TKDN',
+                        'sni' => 'Dokumen sertifikat SNI',
+                        'halal' => 'Dokumen sertifikat halal',
+                    ] as $certificate => $label
+                ) {
                     if (($product['has_' . $certificate] ?? 'no') !== 'yes') {
                         continue;
                     }
@@ -228,6 +230,24 @@ class StoreFormUmumRequest extends FormRequest
                             $label . ' wajib diunggah.'
                         );
                     }
+                }
+
+                $hasSuratUpload = $this->hasFile("products.{$index}.file_surat");
+                $hasSuratExisting = !empty($product['existing_file_surat']);
+
+                if (!$hasSuratExisting && !empty($product['erp_product_id'])) {
+                    $hasSuratExisting = VendorApplicationProduct::query()
+                        ->where('application_id', $this->input('application_id'))
+                        ->where('erp_product_id', $product['erp_product_id'])
+                        ->whereNotNull('file_surat_path')
+                        ->exists();
+                }
+
+                if (!$hasSuratUpload && !$hasSuratExisting) {
+                    $validator->errors()->add(
+                        "products.{$index}.file_surat",
+                        'Dokumen surat produk wajib diunggah.'
+                    );
                 }
             }
         });
