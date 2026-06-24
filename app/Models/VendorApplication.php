@@ -23,6 +23,11 @@ class VendorApplication extends Model
         'admin_note',
         'revision_notes',
         'auto_verified',
+        'risk_level',
+        'risk_rpn',
+        'approved_by',
+        'approved_at',
+        'valid_until',
     ];
 
     protected $casts = [
@@ -32,6 +37,9 @@ class VendorApplication extends Model
         'verified_at' => 'datetime',
         'revision_notes' => 'array',
         'auto_verified' => 'boolean',
+        'risk_rpn' => 'integer',
+        'approved_at' => 'datetime',
+        'valid_until' => 'date',
     ];
 
     // Status constants
@@ -39,6 +47,9 @@ class VendorApplication extends Model
     const STATUS_SUBMITTED = 'submitted';
     const STATUS_NEED_REVISION = 'need_revision';
     const STATUS_VERIFIED  = 'verified';
+    const STATUS_RISK_ASSESSED = 'risk_assessed';
+    const STATUS_AUDIT_REQUIRED = 'audit_required';
+    const STATUS_ON_HOLD = 'on_hold';
     const STATUS_APPROVED  = 'approved';
     const STATUS_REJECTED  = 'rejected';
 
@@ -93,6 +104,11 @@ class VendorApplication extends Model
     public function activityLogs()
     {
         return $this->hasMany(VendorApplicationActivityLog::class, 'application_id');
+    }
+
+    public function qualification()
+    {
+        return $this->hasOne(VendorQualification::class, 'vendor_application_id')->latestOfMany();
     }
 
     public function fileVersions()

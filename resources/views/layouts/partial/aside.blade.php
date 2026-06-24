@@ -97,7 +97,7 @@
                     </a>
                 </li>
 
-                @if ($latestVendorApplication)
+                {{-- @if ($latestVendorApplication)
                     <li class="menu-item" aria-haspopup="true">
                         <a href="{{ route('registrasi.tracking', $latestVendorApplication->application_number) }}"
                             class="menu-link">
@@ -116,7 +116,7 @@
                             <span class="menu-text">Tracking Permohonan</span>
                         </a>
                     </li>
-                @endif
+                @endif --}}
 
                 @hasanyrole(['Super Admin', 'Admin IT'])
                     <li class="menu-section">
@@ -154,7 +154,8 @@
                     <li class="menu-item" aria-haspopup="true">
                         <a href="{{ route('verifikasi.index') }}" class="menu-link">
                             <span class="svg-icon menu-icon">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px"
+                                    height="24px">
                                     <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                         <rect x="0" y="0" width="24" height="24" />
                                         <path fill="currentColor" opacity=".3"
@@ -165,6 +166,30 @@
                                 </svg>
                             </span>
                             <span class="menu-text">Verifikasi Vendor</span>
+                        </a>
+                    </li>
+                @endhasanyrole
+
+                @hasanyrole(['Super Admin', 'Admin IT', 'Quality Assurance', 'Apoteker', 'Specialist'])
+                    <li class="menu-section">
+                        <h4 class="menu-text">Quality Assurance</h4>
+                        <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
+                    </li>
+                    <li class="menu-item" aria-haspopup="true">
+                        <a href="{{ route('qa.risk-assessment.index') }}" class="menu-link">
+                            <span class="svg-icon menu-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px"
+                                    height="24px">
+                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                        <rect x="0" y="0" width="24" height="24" />
+                                        <path fill="currentColor" opacity=".3"
+                                            d="M4 4h16c1.105 0 2 .895 2 2v12c0 1.105-.895 2-2 2H4c-1.105 0-2-.895-2-2V6c0-1.105.895-2 2-2z" />
+                                        <path fill="currentColor"
+                                            d="M7 15h2v2H7v-2zm4-4h2v6h-2v-6zm4-4h2v10h-2V7z" />
+                                    </g>
+                                </svg>
+                            </span>
+                            <span class="menu-text">Risk Assessment</span>
                         </a>
                     </li>
                 @endhasanyrole

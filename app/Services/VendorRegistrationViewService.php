@@ -60,6 +60,11 @@ class VendorRegistrationViewService
                 VendorApplication::STATUS_SUBMITTED,
                 VendorApplication::STATUS_NEED_REVISION,
                 VendorApplication::STATUS_VERIFIED,
+                VendorApplication::STATUS_RISK_ASSESSED,
+                VendorApplication::STATUS_AUDIT_REQUIRED,
+                VendorApplication::STATUS_ON_HOLD,
+                VendorApplication::STATUS_APPROVED,
+                VendorApplication::STATUS_REJECTED,
             ])
             ->with(self::RELATIONS)
             ->latest()
@@ -82,6 +87,11 @@ class VendorRegistrationViewService
             'isReadOnly' => in_array($status, [
                 VendorApplication::STATUS_SUBMITTED,
                 VendorApplication::STATUS_VERIFIED,
+                VendorApplication::STATUS_RISK_ASSESSED,
+                VendorApplication::STATUS_AUDIT_REQUIRED,
+                VendorApplication::STATUS_ON_HOLD,
+                VendorApplication::STATUS_APPROVED,
+                VendorApplication::STATUS_REJECTED,
             ], true),
             'isRevisionMode' => $status === VendorApplication::STATUS_NEED_REVISION,
             'draft' => $this->draftData($application),
@@ -126,7 +136,37 @@ class VendorRegistrationViewService
                 return [
                 'label' => 'Terverifikasi',
                 'class' => 'success',
-                'description' => 'Data registrasi sudah selesai diverifikasi.',
+                'description' => 'Data registrasi sudah selesai diverifikasi dan menunggu risk assessment QA.',
+                ];
+            case VendorApplication::STATUS_RISK_ASSESSED:
+                return [
+                'label' => 'Risk Assessed',
+                'class' => 'info',
+                'description' => 'QA sudah menyelesaikan risk assessment vendor.',
+                ];
+            case VendorApplication::STATUS_AUDIT_REQUIRED:
+                return [
+                'label' => 'Perlu Audit',
+                'class' => 'warning',
+                'description' => 'Vendor perlu mengikuti proses audit QA sebelum direkomendasikan.',
+                ];
+            case VendorApplication::STATUS_ON_HOLD:
+                return [
+                'label' => 'On Hold',
+                'class' => 'warning',
+                'description' => 'Permohonan menunggu tindak lanjut CAPA atau klarifikasi QA.',
+                ];
+            case VendorApplication::STATUS_APPROVED:
+                return [
+                'label' => 'Terekomendasi',
+                'class' => 'success',
+                'description' => 'Vendor telah disetujui dan masuk proses Supplier Item Maintenance.',
+                ];
+            case VendorApplication::STATUS_REJECTED:
+                return [
+                'label' => 'Ditolak',
+                'class' => 'danger',
+                'description' => 'Permohonan vendor tidak disetujui.',
                 ];
             default:
                 return [
