@@ -560,10 +560,19 @@ class RegistrasiController extends Controller
 
         switch ($status) {
             case VendorApplication::STATUS_VERIFIED:
-                $resultDescription = 'Permohonan telah selesai diverifikasi.';
+                $resultDescription = 'Permohonan telah selesai diverifikasi dan menunggu risk assessment QA.';
+                break;
+            case VendorApplication::STATUS_RISK_ASSESSED:
+                $resultDescription = 'Risk assessment QA telah selesai.';
+                break;
+            case VendorApplication::STATUS_AUDIT_REQUIRED:
+                $resultDescription = 'Risk assessment selesai. Vendor perlu mengikuti proses audit QA.';
+                break;
+            case VendorApplication::STATUS_ON_HOLD:
+                $resultDescription = 'Permohonan sedang menunggu tindak lanjut QA.';
                 break;
             case VendorApplication::STATUS_APPROVED:
-                $resultDescription = 'Permohonan telah disetujui.';
+                $resultDescription = 'Permohonan telah disetujui dan vendor terekomendasi.';
                 break;
             case VendorApplication::STATUS_REJECTED:
                 $resultDescription = 'Permohonan tidak disetujui.';
@@ -582,6 +591,9 @@ class RegistrasiController extends Controller
                     VendorApplication::STATUS_SUBMITTED,
                     VendorApplication::STATUS_NEED_REVISION,
                     VendorApplication::STATUS_VERIFIED,
+                    VendorApplication::STATUS_RISK_ASSESSED,
+                    VendorApplication::STATUS_AUDIT_REQUIRED,
+                    VendorApplication::STATUS_ON_HOLD,
                     VendorApplication::STATUS_APPROVED,
                     VendorApplication::STATUS_REJECTED,
                 ], true) ? 'done' : 'pending',
@@ -597,6 +609,9 @@ class RegistrasiController extends Controller
                     : $application->verified_at,
                 'state' => in_array($status, [
                     VendorApplication::STATUS_VERIFIED,
+                    VendorApplication::STATUS_RISK_ASSESSED,
+                    VendorApplication::STATUS_AUDIT_REQUIRED,
+                    VendorApplication::STATUS_ON_HOLD,
                     VendorApplication::STATUS_APPROVED,
                     VendorApplication::STATUS_REJECTED,
                 ], true)
@@ -611,15 +626,24 @@ class RegistrasiController extends Controller
                 'description' => $resultDescription,
                 'date' => in_array($status, [
                     VendorApplication::STATUS_VERIFIED,
+                    VendorApplication::STATUS_RISK_ASSESSED,
+                    VendorApplication::STATUS_AUDIT_REQUIRED,
+                    VendorApplication::STATUS_ON_HOLD,
                     VendorApplication::STATUS_APPROVED,
                     VendorApplication::STATUS_REJECTED,
                 ], true) ? ($application->verified_at ?: $application->updated_at) : null,
                 'state' => in_array($status, [
-                    VendorApplication::STATUS_VERIFIED,
                     VendorApplication::STATUS_APPROVED,
                 ], true)
                     ? 'done'
-                    : ($status === VendorApplication::STATUS_REJECTED ? 'danger' : 'pending'),
+                    : ($status === VendorApplication::STATUS_REJECTED
+                        ? 'danger'
+                        : (in_array($status, [
+                            VendorApplication::STATUS_VERIFIED,
+                            VendorApplication::STATUS_RISK_ASSESSED,
+                            VendorApplication::STATUS_AUDIT_REQUIRED,
+                            VendorApplication::STATUS_ON_HOLD,
+                        ], true) ? 'active' : 'pending')),
             ],
         ];
     }

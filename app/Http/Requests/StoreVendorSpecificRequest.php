@@ -25,6 +25,7 @@ class StoreVendorSpecificRequest extends FormRequest
 
             // Aturan tipe file (kalau diisi, harus valid file-nya)
             'q2_auth_letter'      => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'q5_document'         => 'nullable|' . VendorUploadPolicy::fileRule(),
             'v1_auth_letter'      => 'nullable|' . VendorUploadPolicy::fileRule(),
             'v2_license_file'     => 'nullable|' . VendorUploadPolicy::fileRule(),
             'v6_kir_file'         => 'nullable|' . VendorUploadPolicy::fileRule(),
@@ -38,6 +39,8 @@ class StoreVendorSpecificRequest extends FormRequest
             'l2_bapeten_file'     => 'nullable|' . VendorUploadPolicy::fileRule(),
             'f6_file'             => 'nullable|' . VendorUploadPolicy::fileRule(),
             'h1_association_file' => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'q5_issue_date'       => 'nullable|date',
+            'q5_valid_until'      => 'nullable|date|after_or_equal:q5_issue_date',
 
             // Aturan array
             'q7_equipments'     => 'nullable|array',
@@ -64,6 +67,9 @@ class StoreVendorSpecificRequest extends FormRequest
                         'q3_transportation'    => 'required|in:owned,3pl',
                         'q3_3pl_name'          => 'required_if:q3_transportation,3pl',
                         'q4_has_warehouse'     => 'required|in:yes,no',
+                        'q5_document'          => 'required_without:existing_q5_document',
+                        'q5_issue_date'        => 'required|date',
+                        'q5_valid_until'       => 'required|date|after_or_equal:q5_issue_date',
                     ];
                 }
 

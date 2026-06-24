@@ -57,11 +57,11 @@ class ProcurementVerificationService
             VendorApplication::STATUS_VERIFIED,
             'application_verified',
             [
-            'verified_at' => now(),
-            'verified_by' => Auth::id(),
-            'admin_note' => $adminNote,
-            'revision_notes' => null,
-            'auto_verified' => false,
+                'verified_at' => now(),
+                'verified_by' => Auth::id(),
+                'admin_note' => $adminNote,
+                'revision_notes' => null,
+                'auto_verified' => false,
             ],
             Auth::user()
         );
@@ -83,11 +83,11 @@ class ProcurementVerificationService
             VendorApplication::STATUS_NEED_REVISION,
             'revision_requested',
             [
-            'verified_at' => null,
-            'verified_by' => Auth::id(),
-            'admin_note' => $adminNote,
-            'revision_notes' => $revisionNotes,
-            'auto_verified' => false,
+                'verified_at' => null,
+                'verified_by' => Auth::id(),
+                'admin_note' => $adminNote,
+                'revision_notes' => $revisionNotes,
+                'auto_verified' => false,
             ],
             Auth::user(),
             ['revision_notes' => $revisionNotes]
@@ -741,8 +741,9 @@ class ProcurementVerificationService
                 ['field' => 'q4_warehouse_address', 'label' => 'Alamat gudang', 'value' => $spec->q4_warehouse_address],
                 ['field' => 'q4_warehouse_condition', 'label' => 'Kondisi gudang', 'value' => $spec->q4_warehouse_condition],
                 ['type' => 'section_title', 'label' => 'Sertifikat CDOB/SIPA'],
-                ['field' => 'q5_num', 'label' => 'No. Sertifikat CDOB', 'value' => $spec->q5_num],
-                ['field' => 'q5_date', 'label' => 'Masa Berlaku CDOB', 'value' => $spec->q5_date],
+                $this->fileRow($application, 'q5_document', 'Dokumen Sertifikat CDOB', $spec->q5_document),
+                ['field' => 'q5_issue_date', 'label' => 'Tanggal Terbit Sertifikat CDOB', 'value' => $spec->q5_issue_date],
+                ['field' => 'q5_valid_until', 'label' => 'Berlaku Sampai Sertifikat CDOB', 'value' => $spec->q5_valid_until],
                 ['field' => 'q6_name', 'label' => 'Nama APJ', 'value' => $spec->q6_name],
                 ['field' => 'q6_num', 'label' => 'No. SIPA', 'value' => $spec->q6_num],
                 ['field' => 'q6_date', 'label' => 'Masa Berlaku SIPA', 'value' => $spec->q6_date],
@@ -921,8 +922,7 @@ class ProcurementVerificationService
         string $field,
         string $label,
         ?string $path
-    ): array
-    {
+    ): array {
         return [
             'field' => $field,
             'label' => $label,
@@ -1038,11 +1038,11 @@ class ProcurementVerificationService
                 VendorApplication::STATUS_VERIFIED,
                 'application_verified',
                 [
-                'verified_at' => now(),
-                'verified_by' => Auth::id(),
-                'admin_note' => 'Seluruh data permohonan sudah disetujui oleh pengadaan.',
-                'revision_notes' => null,
-                'auto_verified' => false,
+                    'verified_at' => now(),
+                    'verified_by' => Auth::id(),
+                    'admin_note' => 'Seluruh data permohonan sudah disetujui oleh pengadaan.',
+                    'revision_notes' => null,
+                    'auto_verified' => false,
                 ],
                 Auth::user()
             );
@@ -1056,11 +1056,11 @@ class ProcurementVerificationService
                 VendorApplication::STATUS_SUBMITTED,
                 'verification_resumed',
                 [
-                'verified_at' => null,
-                'verified_by' => null,
-                'admin_note' => null,
-                'revision_notes' => null,
-                'auto_verified' => false,
+                    'verified_at' => null,
+                    'verified_by' => null,
+                    'admin_note' => null,
+                    'revision_notes' => null,
+                    'auto_verified' => false,
                 ]
             );
 
@@ -1073,11 +1073,11 @@ class ProcurementVerificationService
                 VendorApplication::STATUS_NEED_REVISION,
                 'revision_requested',
                 [
-                'verified_at' => null,
-                'verified_by' => Auth::id(),
-                'admin_note' => 'Terdapat data yang tidak disetujui oleh pengadaan.',
-                'revision_notes' => $revisionNotes,
-                'auto_verified' => false,
+                    'verified_at' => null,
+                    'verified_by' => Auth::id(),
+                    'admin_note' => 'Terdapat data yang tidak disetujui oleh pengadaan.',
+                    'revision_notes' => $revisionNotes,
+                    'auto_verified' => false,
                 ],
                 Auth::user(),
                 ['revision_notes' => $revisionNotes]
@@ -1092,11 +1092,11 @@ class ProcurementVerificationService
                 VendorApplication::STATUS_SUBMITTED,
                 'verification_resumed',
                 [
-                'verified_at' => null,
-                'verified_by' => null,
-                'admin_note' => null,
-                'revision_notes' => null,
-                'auto_verified' => false,
+                    'verified_at' => null,
+                    'verified_by' => null,
+                    'admin_note' => null,
+                    'revision_notes' => null,
+                    'auto_verified' => false,
                 ]
             );
         }

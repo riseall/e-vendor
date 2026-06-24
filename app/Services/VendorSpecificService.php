@@ -47,9 +47,28 @@ class VendorSpecificService
 
             // 1. Bahan Baku
             if (in_array(1, $categories)) {
-                $bakuData = collect($data)->only(['q1_is_manufacturer', 'q1_manufacturer_name', 'q2_is_sole_agent', 'q3_transportation', 'q3_3pl_name', 'q4_has_warehouse', 'q4_warehouse_address', 'q4_warehouse_condition', 'q5_num', 'q5_date', 'q6_name', 'q6_num', 'q6_date', 'q8_is_import', 'q8_country_name'])->toArray();
+                $bakuData = collect($data)->only([
+                    'q1_is_manufacturer',
+                    'q1_manufacturer_name',
+                    'q2_is_sole_agent',
+                    'q3_transportation',
+                    'q3_3pl_name',
+                    'q4_has_warehouse',
+                    'q4_warehouse_address',
+                    'q4_warehouse_condition',
+                    'q5_num',
+                    'q5_date',
+                    'q5_issue_date',
+                    'q5_valid_until',
+                    'q6_name',
+                    'q6_num',
+                    'q6_date',
+                    'q8_is_import',
+                    'q8_country_name',
+                ])->toArray();
                 $bakuData['q7_equipments'] = $data['q7_equipments'] ?? [];
                 $bakuData['q2_auth_letter'] = $this->handleSpecificFile($application, 'q2_auth_letter', $data);
+                $bakuData['q5_document'] = $this->handleSpecificFile($application, 'q5_document', $data);
 
                 VendorAppSpecBaku::updateOrCreate(['application_id' => $applicationId], $bakuData);
             }
@@ -131,8 +150,7 @@ class VendorSpecificService
         VendorApplication $application,
         string $field,
         array $data
-    ): ?string
-    {
+    ): ?string {
         if (request()->hasFile($field)) {
             return $this->fileService->store(
                 $application,

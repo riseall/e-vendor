@@ -14,12 +14,20 @@
             'name' => 'dok_pernyataan_keaslian',
             'label' => 'Surat Pernyataan Keaslian Dokumen',
             'type' => 'Local Vendor Only',
+            'template' => 'Surat pernyataan Keaslian Dokumen.docx',
         ],
-        ['name' => 'dok_pakta_integritas', 'label' => 'Pakta Integritas', 'type' => 'Local Vendor Only'],
+        [
+            'name' => 'dok_pakta_integritas',
+            'label' => 'Pakta Integritas',
+            'type' => 'Local Vendor Only',
+            'template' => 'Pakta Integritas.docx',
+        ],
         [
             'name' => 'dok_bebas_perkara',
             'label' => 'Surat Pernyataan Tidak Dalam Pengawasan Pengadilan dan atau Tidak Masuk Dalam Daftar Hitam',
             'type' => 'Local Vendor Only',
+            'template' =>
+                'Surat Pernyataan Tidak Dalam Pengawasan Pengadilan dan atau Tidak Masuk Dalam Daftar Hitam.docx',
         ],
     ];
 @endphp
@@ -67,6 +75,14 @@
                     </div>
 
                     <div class="doc-actions">
+                        @if (!empty($dok['template']))
+                            <a href="{{ Storage::url('doc_template/' . $dok['template']) }}" target="_blank"
+                                class="btn btn-light-warning btn-icon btn-sm mr-2 btn-download-template"
+                                title="Download Template {{ $dok['label'] }}">
+                                <i class="flaticon2-download icon-md"></i>
+                            </a>
+                        @endif
+
                         @if ($isUploaded)
                             <button type="button" data-url="{{ $docData['url'] }}"
                                 class="btn btn-light-success btn-icon btn-sm mr-2 btn-preview-doc"

@@ -97,12 +97,16 @@
             <div class="question-wrapper">
                 <label class="question-label">Sertifikat CDOB</label>
                 <div class="form-row">
-                    <div class="col-7">
-                        <x-vendor-input name="q5_num" label="No. Sertifikat" placeholder="No. Sertifikat"
-                            :value="$draft['q5_num'] ?? ''" :readonly="$isReadOnly" />
+                    <div class="col-md-4">
+                        <x-vendor-input type="file" name="q5_document" label="Dokumen Sertifikat CDOB"
+                            :value="$draft['q5_document'] ?? null" :readonly="$isReadOnly" placeholder="Pilih file sertifikat CDOB..." />
                     </div>
-                    <div class="col-5">
-                        <x-vendor-input name="q5_date" label="Masa Berlaku" type="date" :value="$draft['q5_date'] ?? ''"
+                    <div class="col-md-4">
+                        <x-vendor-input name="q5_issue_date" label="Tanggal Terbit" type="date" :value="$draft['q5_issue_date'] ?? ''"
+                            :readonly="$isReadOnly" />
+                    </div>
+                    <div class="col-md-4">
+                        <x-vendor-input name="q5_valid_until" label="Berlaku Sampai" type="date" :value="$draft['q5_valid_until'] ?? ''"
                             :readonly="$isReadOnly" />
                     </div>
                 </div>
