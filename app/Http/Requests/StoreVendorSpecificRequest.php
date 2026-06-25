@@ -47,6 +47,11 @@ class StoreVendorSpecificRequest extends FormRequest
             'pbf_num'             => 'nullable|string|max:255',
             'pbf_issue_date'      => 'nullable|date',
 
+            // SIPA APJ
+            'q6_document'         => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'q6_issue_date'       => 'nullable|date',
+            'q6_valid_until'      => 'nullable|date|after_or_equal:q6_issue_date',
+
             // Aturan array
             'q7_equipments'     => 'nullable|array',
             'k6_equipments'     => 'nullable|array',

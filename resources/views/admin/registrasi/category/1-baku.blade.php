@@ -144,17 +144,25 @@
             <div class="question-wrapper">
                 <label class="question-label">SIPA APJ</label>
                 <div class="form-row">
-                    <div class="col-4">
+                    <div class="col-md-6">
+                        <x-vendor-input type="file" name="q6_document" label="Dokumen SIPA APJ" :value="$draft['q6_document'] ?? null"
+                            :readonly="$isReadOnly" placeholder="Pilih file SIPA APJ..." />
+                    </div>
+                    <div class="col-md-6">
                         <x-vendor-input name="q6_name" label="Nama" placeholder="Nama" :value="$draft['q6_name'] ?? ''"
                             :readonly="$isReadOnly" />
                     </div>
-                    <div class="col-4">
+                    <div class="col-md-4">
                         <x-vendor-input name="q6_num" label="No. SIPA" placeholder="No. SIPA" :value="$draft['q6_num'] ?? ''"
                             :readonly="$isReadOnly" />
                     </div>
-                    <div class="col-4">
-                        <x-vendor-input name="q6_date" label="Masa Berlaku" type="date" :value="$draft['q6_date'] ?? ''"
+                    <div class="col-md-4">
+                        <x-vendor-input name="q6_issue_date" label="Tanggal Terbit" type="date" :value="$draft['q6_issue_date'] ?? ''"
                             :readonly="$isReadOnly" />
+                    </div>
+                    <div class="col-md-4">
+                        <x-vendor-input name="q6_valid_until" label="Berlaku Sampai" type="date"
+                            :value="$draft['q6_valid_until'] ?? ''" :readonly="$isReadOnly" />
                     </div>
                 </div>
             </div>

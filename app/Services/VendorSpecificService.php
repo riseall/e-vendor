@@ -62,13 +62,18 @@ class VendorSpecificService
                     'q5_valid_until',
                     'q6_name',
                     'q6_num',
-                    'q6_date',
+                    'q6_issue_date',
+                    'q6_valid_until',
+                    'pbf_num',
+                    'pbf_issue_date',
                     'q8_is_import',
                     'q8_country_name',
                 ])->toArray();
                 $bakuData['q7_equipments'] = $data['q7_equipments'] ?? [];
                 $bakuData['q2_auth_letter'] = $this->handleSpecificFile($application, 'q2_auth_letter', $data);
                 $bakuData['q5_document'] = $this->handleSpecificFile($application, 'q5_document', $data);
+                $bakuData['pbf_document'] = $this->handleSpecificFile($application, 'pbf_document', $data);
+                $bakuData['q6_document'] = $this->handleSpecificFile($application, 'q6_document', $data);
 
                 VendorAppSpecBaku::updateOrCreate(['application_id' => $applicationId], $bakuData);
             }
