@@ -42,6 +42,11 @@ class StoreVendorSpecificRequest extends FormRequest
             'q5_issue_date'       => 'nullable|date',
             'q5_valid_until'      => 'nullable|date|after_or_equal:q5_issue_date',
 
+            // PBF (Surat Izin PBF)
+            'pbf_document'        => 'nullable|' . VendorUploadPolicy::fileRule(),
+            'pbf_num'             => 'nullable|string|max:255',
+            'pbf_issue_date'      => 'nullable|date',
+
             // Aturan array
             'q7_equipments'     => 'nullable|array',
             'k6_equipments'     => 'nullable|array',

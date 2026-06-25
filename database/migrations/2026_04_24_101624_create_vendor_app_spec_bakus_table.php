@@ -34,7 +34,9 @@ return new class extends Migration
             // Khusus Pemasok Lokal: SIPA APJ
             $table->string('q6_name')->nullable();
             $table->string('q6_num')->nullable();
-            $table->date('q6_date')->nullable();
+            $table->string('q6_document')->nullable();
+            $table->date('q6_issue_date')->nullable();
+            $table->date('q6_valid_until')->nullable();
 
             // Khusus Pemasok Bahan Kemas: Peralatan (JSON Repeater)
             $table->json('q7_equipments')->nullable();

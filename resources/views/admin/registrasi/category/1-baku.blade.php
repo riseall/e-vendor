@@ -116,6 +116,29 @@
 
     <h6 class="font-weight-bolder mb-4 text-primary">KHUSUS UNTUK PEMASOK BAHAN BAKU LOKAL</h6>
 
+    {{-- Surat Izin PBF --}}
+    <div class="row">
+        <div class="col-12">
+            <div class="question-wrapper">
+                <label class="question-label">Surat Izin PBF</label>
+                <div class="form-row">
+                    <div class="col-md-4">
+                        <x-vendor-input type="file" name="pbf_document" label="Dokumen Surat Izin PBF"
+                            :value="$draft['pbf_document'] ?? null" :readonly="$isReadOnly" placeholder="Pilih file Surat Izin PBF..." />
+                    </div>
+                    <div class="col-md-4">
+                        <x-vendor-input name="pbf_num" label="No. Izin" :value="$draft['pbf_num'] ?? ''" :readonly="$isReadOnly"
+                            placeholder="No. Izin PBF..." />
+                    </div>
+                    <div class="col-md-4">
+                        <x-vendor-input name="pbf_issue_date" label="Tanggal Terbit" type="date" :value="$draft['pbf_issue_date'] ?? ''"
+                            :readonly="$isReadOnly" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-12">
             <div class="question-wrapper">
