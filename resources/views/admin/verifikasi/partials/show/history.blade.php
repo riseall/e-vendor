@@ -76,10 +76,8 @@
                                     <td>{{ optional($file['uploaded_at'])->format('d/m/Y H:i') }}</td>
                                     <td>{{ $file['uploaded_by'] ?: '-' }}</td>
                                     <td>
-                                        <button type="button" class="btn btn-xs btn-light-primary btn-preview-doc"
-                                            data-url="{{ $file['url'] }}" data-title="{{ $file['name'] }}">
-                                            Lihat
-                                        </button>
+                                        <x-preview-doc-button url="{{ $file['url'] }}" title="{{ $file['name'] }}"
+                                            compact />
                                     </td>
                                 </tr>
                             @empty

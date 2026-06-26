@@ -170,6 +170,7 @@
         }
 
         @keyframes verif-loader-dot {
+
             0%,
             80%,
             100% {
@@ -547,6 +548,85 @@
             align-items: center;
             flex-wrap: wrap;
             gap: .35rem;
+        }
+
+        .verification-documents {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: .65rem;
+            width: 100%;
+        }
+
+        .verification-document-entry,
+        .preview-doc-entry {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .75rem;
+            min-width: 0;
+            width: 100%;
+            padding: .65rem .9rem;
+            background: var(--surface-1);
+            border: 1px solid #e2e8f0;
+            border-radius: .65rem;
+            box-shadow: inset 0 0 0 1px rgba(15, 23, 42, .02);
+        }
+
+        .verification-document-info,
+        .preview-doc-info {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .verification-document-icon,
+        .preview-doc-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: rgba(99, 102, 241, .08);
+            color: var(--brand-primary);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .verification-document-label,
+        .preview-doc-label {
+            display: inline-flex;
+            align-items: center;
+            color: var(--text-primary);
+            font-size: .82rem;
+            font-weight: 600;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .verification-document-entry .btn-preview-doc,
+        .preview-doc-entry .btn-preview-doc,
+        .preview-doc-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            background: var(--brand-primary-light);
+            border-radius: 50%;
+            color: var(--brand-primary);
+            border: 1px solid #c7d2fe;
+        }
+
+        .verification-document-entry .btn-preview-doc:hover,
+        .preview-doc-action:hover {
+            background: var(--brand-primary);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, .25);
         }
 
         /* ── Subsection / Category Headers ───────────────────────── */
