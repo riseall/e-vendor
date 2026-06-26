@@ -178,6 +178,10 @@ class StoreFormUmumRequest extends FormRequest
             $rules[$field] = 'nullable|' . $fileValidation;
         }
 
+        // ISO certificates (multiple files, one per selected ISO)
+        $rules['iso_files']   = 'nullable|array';
+        $rules['iso_files.*'] = 'nullable|' . $fileValidation;
+
         return $rules;
     }
 

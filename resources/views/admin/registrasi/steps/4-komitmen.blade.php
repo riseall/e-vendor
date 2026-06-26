@@ -36,6 +36,53 @@
             </div>
         </div>
     </x-vendor-checkbox>
+
+    {{-- Upload Dokumen Sertifikat ISO (multi-file) --}}
+    <div class="mt-4">
+        <label class="question-label">
+            Dokumen Sertifikat ISO
+            @if (!$isReadOnly)
+                <span class="text-muted font-weight-normal">(boleh lebih dari satu file)</span>
+            @endif
+        </label>
+
+        @php $uploadedIso = $uploadedIsoCertificates ?? []; @endphp
+
+        @if (!$isReadOnly)
+            <input type="file" name="iso_files[]" id="isoFilesInput" multiple accept=".pdf,.jpg,.jpeg,.png"
+                class="form-control form-control-sm">
+
+            <small class="text-muted">Format: PDF/JPG/PNG. Maks 5 MB per file.</small>
+
+            {{-- Hidden inputs untuk path file yang masih disimpan --}}
+            <div id="isoExistingPaths">
+                @foreach ($uploadedIso as $isoDoc)
+                    <input type="hidden" name="existing_iso_files[]" value="{{ $isoDoc['file_path'] }}">
+                @endforeach
+            </div>
+        @endif
+
+        {{-- Daftar file yang sudah ter-upload --}}
+        @if (!empty($uploadedIso))
+            <ul class="list-group list-group-sm mt-3" id="isoUploadedList">
+                @foreach ($uploadedIso as $isoDoc)
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-2"
+                        data-path="{{ $isoDoc['file_path'] }}">
+                        <a href="{{ $isoDoc['url'] }}" target="_blank" class="text-primary btn-preview-doc"
+                            data-url="{{ $isoDoc['url'] }}" data-title="{{ $isoDoc['original_name'] }}">
+                            <i class="flaticon2-file mr-2"></i>{{ $isoDoc['original_name'] }}
+                        </a>
+                        @if (!$isReadOnly)
+                            <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove"
+                                title="Hapus">
+                                <i class="flaticon2-trash"></i>
+                            </button>
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+        @endif
+    </div>
 </div>
 
 <div class="row">
@@ -59,6 +106,9 @@
     </div>
 </div>
 
+{{-- Komponen modal preview (idempotent via @once) --}}
+<x-document-preview />
+
 @push('scripts')
     <script>
         $('#isoOtherCb').on('change', function() {
@@ -79,6 +129,14 @@
                 $('#komitmenKualitasDetail').slideUp();
                 $('#komitmenKualitasDetail input').val('');
             }
+        });
+
+        // Hapus sertifikat ISO existing dari daftar "kept"
+        $(document).on('click', '.btn-iso-remove', function() {
+            const li = $(this).closest('li[data-path]');
+            const path = li.data('path');
+            li.remove();
+            $('#isoExistingPaths input[value="' + path + '"]').remove();
         });
     </script>
 @endpush

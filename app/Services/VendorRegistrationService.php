@@ -50,6 +50,9 @@ class VendorRegistrationService
             $documentFields = ['dok_nib', 'dok_npwp', 'dok_company_profile', 'dok_struktur_org', 'dok_sertifikat_halal', 'dok_akte_pendirian', 'dok_akte_direksi', 'dok_sppkp', 'dok_ktp_pj', 'dok_pernyataan_keaslian', 'dok_pakta_integritas', 'dok_bebas_perkara'];
             $this->processDocuments($data, $documentFields, $application);
 
+            // Process ISO certificates (multi-file)
+            $this->processIsoCertificates($data, $application);
+
             return ['success' => true, 'application_id' => $vendorApplicationId];
         });
     }
@@ -208,6 +211,50 @@ class VendorRegistrationService
                     ]
                 );
             }
+        }
+    }
+
+    private function processIsoCertificates(array $data, VendorApplication $application): void
+    {
+        $fieldName = 'iso_certificate';
+
+        // existing_iso_files tidak masuk validated() (tidak ada di rules FormRequest),
+        // jadi baca langsung dari request()->input() — sama seperti iso_files di bawah.
+        if (request()->has('existing_iso_files')) {
+            $kept = collect((array) request()->input('existing_iso_files'))
+                ->filter()
+                ->values()
+                ->all();
+
+            $application->documents()
+                ->where('field_name', $fieldName)
+                ->whereNotIn('file_path', $kept)
+                ->delete();
+        }
+
+        foreach ((array) request()->file('iso_files', []) as $file) {
+            if (!$file) {
+                continue;
+            }
+
+            $path = $this->fileService->store(
+                $application,
+                $file,
+                'vendor_docs/iso',
+                'general_document',
+                $fieldName,
+                null,
+                Auth::user()
+            );
+
+            VendorApplicationDocument::create([
+                'application_id' => $application->id,
+                'field_name'     => $fieldName,
+                'original_name'  => $file->getClientOriginalName(),
+                'file_path'      => $path,
+                'file_size'      => $file->getSize(),
+                'mime_type'      => $file->getMimeType(),
+            ]);
         }
     }
 }

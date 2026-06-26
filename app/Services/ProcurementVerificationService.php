@@ -671,6 +671,13 @@ class ProcurementVerificationService
             'goods_products' => $this->productRows($application),
             'certificates' => [
                 ['label' => 'Sertifikat ISO', 'value' => $this->formatIsoCertificates($general)],
+                ['field' => 'iso_files', 'label' => 'Dokumen Sertifikat ISO', 'type' => 'iso_files_table', 'value' => $application->documents->where('field_name', 'iso_certificate')->map(function ($document) use ($application) {
+                    return [
+                        'original_name' => $document->original_name,
+                        'file_path' => $document->file_path,
+                        'url' => $this->fileService->url($application, $document->file_path),
+                    ];
+                })->values()->all()],
                 ['label' => 'Komitmen Kualitas, Lingkungan & K3', 'value' => $this->yesNo(data_get($general, 'komitmen_kualitas'))],
                 ['label' => 'Detail Komitmen', 'value' => data_get($general, 'komitmen_kualitas_detail')],
                 $this->documentRow($application, 'dok_sertifikat_halal', 'Dokumen Sertifikat Halal'),
