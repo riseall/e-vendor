@@ -4,9 +4,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProcurementVerificationController;
 use App\Http\Controllers\RegistrasiController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VendorQualificationController;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -94,6 +94,18 @@ Route::group(
                     ->name('items.approve');
                 Route::post('/{application}/items/{item}/reject', [ProcurementVerificationController::class, 'rejectItem'])
                     ->name('items.reject');
+            });
+
+            // QA - Risk Assessment
+            Route::prefix('qa/risk-assessment')->name('qa.risk-assessment.')->group(function () {
+                Route::get('/', [VendorQualificationController::class, 'index'])
+                    ->name('index');
+
+                Route::get('/{application_id}/create', [VendorQualificationController::class, 'create'])
+                    ->name('create');
+
+                Route::post('/{application_id}', [VendorQualificationController::class, 'store'])
+                    ->name('store');
             });
 
             // Users

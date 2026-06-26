@@ -28,6 +28,7 @@ class RegistrasiController extends Controller
         );
 
         view()->share('revisionNotes', $viewData['revisionNotes']);
+        view()->share('application', $viewData['application']);
 
         return view(
             $viewData['isProfileMode'] ? 'admin.registrasi.profile' : 'admin.registrasi.reg',
@@ -38,8 +39,7 @@ class RegistrasiController extends Controller
     public function saveDraft(
         Request $request,
         VendorApplicationWorkflowService $workflowService
-    )
-    {
+    ) {
         $request->validate([
             'categories' => 'required|array|min:1',
         ]);
@@ -174,8 +174,7 @@ class RegistrasiController extends Controller
         Request $request,
         VendorApplicationNotificationService $notificationService,
         VendorApplicationWorkflowService $workflowService
-    )
-    {
+    ) {
         $request->validate([
             'application_id' => 'required|integer|exists:vendor_applications,id',
         ]);
@@ -242,15 +241,15 @@ class RegistrasiController extends Controller
                 VendorApplication::STATUS_SUBMITTED,
                 $isRevisionSubmit ? 'revision_submitted' : 'application_submitted',
                 [
-                'application_number' => $application->application_number ?: $this->generateApplicationNumber($application, $submittedAt),
-                'submitted_at' => $submittedAt,
-                'revision_submitted_at' => $isRevisionSubmit ? $submittedAt : $application->revision_submitted_at,
-                'revision_count' => $isRevisionSubmit ? ((int) $application->revision_count + 1) : $application->revision_count,
-                'verified_at' => null,
-                'verified_by' => null,
-                'admin_note' => null,
-                'revision_notes' => null,
-                'auto_verified' => false,
+                    'application_number' => $application->application_number ?: $this->generateApplicationNumber($application, $submittedAt),
+                    'submitted_at' => $submittedAt,
+                    'revision_submitted_at' => $isRevisionSubmit ? $submittedAt : $application->revision_submitted_at,
+                    'revision_count' => $isRevisionSubmit ? ((int) $application->revision_count + 1) : $application->revision_count,
+                    'verified_at' => null,
+                    'verified_by' => null,
+                    'admin_note' => null,
+                    'revision_notes' => null,
+                    'auto_verified' => false,
                 ],
                 Auth::user(),
                 [
