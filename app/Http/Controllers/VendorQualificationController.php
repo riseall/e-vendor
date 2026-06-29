@@ -17,8 +17,8 @@ class VendorQualificationController extends Controller
     private const QA_ROLES = ['Super Admin', 'Admin IT', 'Quality Assurance', 'Apoteker', 'Specialist'];
 
     private const STATUS_OPTIONS = [
+        'all' => 'Semua Status',
         'pending' => 'Belum Assessment',
-        'all' => 'Semua Status QA',
         VendorApplication::STATUS_VERIFIED => 'Verified',
         VendorApplication::STATUS_RISK_ASSESSED => 'Risk Assessed',
         VendorApplication::STATUS_AUDIT_REQUIRED => 'Audit Required',
@@ -29,7 +29,7 @@ class VendorQualificationController extends Controller
     {
         $this->authorizeQaAccess();
 
-        $status = $request->input('status', 'pending');
+        $status = $request->input('status', 'all');
         $search = trim((string) $request->input('q', ''));
 
         $query = VendorApplication::query()
@@ -83,15 +83,15 @@ class VendorQualificationController extends Controller
         $application = VendorApplication::with(['user', 'general', 'categories', 'documents', 'specBaku', 'qualification'])
             ->findOrFail($application_id);
 
-        abort_unless(
-            in_array($application->status, [
-                VendorApplication::STATUS_VERIFIED,
-                VendorApplication::STATUS_RISK_ASSESSED,
-                VendorApplication::STATUS_AUDIT_REQUIRED,
-            ], true),
-            403,
-            'Risk assessment hanya dapat dilakukan setelah permohonan verified.'
-        );
+        // abort_unless(
+        //     in_array($application->status, [
+        //         VendorApplication::STATUS_VERIFIED,
+        //         VendorApplication::STATUS_RISK_ASSESSED,
+        //         VendorApplication::STATUS_AUDIT_REQUIRED,
+        //     ], true),
+        //     403,
+        //     'Risk assessment hanya dapat dilakukan setelah permohonan verified.'
+        // );
 
         $autoScores = $this->automaticScores($application);
 
@@ -118,15 +118,15 @@ class VendorQualificationController extends Controller
 
         $application = VendorApplication::with('qualification')->findOrFail($application_id);
 
-        abort_unless(
-            in_array($application->status, [
-                VendorApplication::STATUS_VERIFIED,
-                VendorApplication::STATUS_RISK_ASSESSED,
-                VendorApplication::STATUS_AUDIT_REQUIRED,
-            ], true),
-            403,
-            'Risk assessment hanya dapat dilakukan setelah permohonan verified.'
-        );
+        // abort_unless(
+        //     in_array($application->status, [
+        //         VendorApplication::STATUS_VERIFIED,
+        //         VendorApplication::STATUS_RISK_ASSESSED,
+        //         VendorApplication::STATUS_AUDIT_REQUIRED,
+        //     ], true),
+        //     403,
+        //     'Risk assessment hanya dapat dilakukan setelah permohonan verified.'
+        // );
 
         DB::transaction(function () use ($application, $data, $workflow) {
             $application->loadMissing(['general', 'documents', 'specBaku']);
@@ -222,13 +222,15 @@ class VendorQualificationController extends Controller
 
     private function automaticScores(VendorApplication $application): array
     {
-        $docScore = $this->documentCompletenessScore($application);
+        $docChecklist = $this->documentCompletenessChecklist($application);
+        $docScore = $this->documentCompletenessScore($docChecklist);
         $traceabilityScore = $this->traceabilityScore($application);
         $supplierTypeScore = $this->supplierTypeScore($application);
 
         return [
             'doc_score' => $docScore,
             'doc_label' => $this->documentScoreLabel($docScore),
+            'doc_checklist' => $docChecklist,
             'traceability_score' => $traceabilityScore,
             'traceability_label' => $traceabilityScore === 1 ? 'Lengkap' : 'Tidak Lengkap',
             'supplier_type_score' => $supplierTypeScore,
@@ -236,30 +238,59 @@ class VendorQualificationController extends Controller
         ];
     }
 
-    private function documentCompletenessScore(VendorApplication $application): int
+    private function documentCompletenessChecklist(VendorApplication $application): array
     {
-        $available = 0;
-        $required = [
-            (bool) optional($application->general)->nib,
-            (bool) optional($application->general)->npwp,
-            $application->documents->contains('field_name', 'dok_nib'),
-            $application->documents->contains('field_name', 'dok_npwp'),
-            $application->documents->contains('field_name', 'dok_company_profile'),
-            $application->documents->contains('field_name', 'dok_sertifikat_halal') || optional($application->general)->sertifikat_halal === 'no',
-            !empty((array) optional($application->general)->iso_certificates),
+        $specBaku = $application->specBaku;
+        $general = $application->general;
+        $documents = $application->documents;
+        $halalNotRequired = optional($general)->sertifikat_halal === 'no';
+        $hasIsoData = !empty(optional($general)->iso_certificates) || !empty(optional($general)->iso_other);
+
+        return [
+            [
+                'label' => 'Sertifikat CDOB/GDP',
+                'fulfilled' => !empty(optional($specBaku)->q5_document),
+            ],
+            [
+                'label' => 'Surat Izin PBF',
+                'fulfilled' => !empty(optional($specBaku)->pbf_document),
+            ],
+            [
+                'label' => 'Sertifikat Halal PBF',
+                'fulfilled' => $documents->contains('field_name', 'dok_sertifikat_halal') || $halalNotRequired,
+            ],
+            [
+                'label' => 'Sertifikat ISO',
+                'fulfilled' => $documents->contains('field_name', 'iso_certificate') || $hasIsoData,
+            ],
+            [
+                'label' => 'NIB (Nomor Induk Berusaha)',
+                'fulfilled' => $documents->contains('field_name', 'dok_nib'),
+            ],
+            [
+                'label' => 'NPWP Perusahaan',
+                'fulfilled' => $documents->contains('field_name', 'dok_npwp'),
+            ],
         ];
+    }
 
-        foreach ($required as $item) {
-            if ($item) {
-                $available++;
-            }
-        }
+    private function documentCompletenessScore(array $checklist): int
+    {
+        $checks = array_map(function ($item) {
+            return !empty($item['fulfilled']);
+        }, $checklist);
 
-        if ($available === count($required)) {
+        $available = count(array_filter($checks));
+
+        if ($available === count($checks)) {
             return 1;
         }
 
-        return $available > 0 ? 3 : 4;
+        if ($available > 0) {
+            return 3;
+        }
+
+        return 4;
     }
 
     private function traceabilityScore(VendorApplication $application): int
