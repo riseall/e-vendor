@@ -4,7 +4,7 @@
         ['name' => 'dok_npwp', 'label' => 'NPWP Perusahaan', 'type' => 'General'],
         ['name' => 'dok_company_profile', 'label' => 'Company Profile', 'type' => 'General'],
         ['name' => 'dok_struktur_org', 'label' => 'Struktur Organisasi', 'type' => 'General'],
-        ['name' => 'dok_sertifikat_halal', 'label' => 'Sertifikat Halal (PBF)', 'type' => 'General'],
+        ['name' => 'dok_sertifikat_halal', 'label' => 'Sertifikat Halal PBF', 'type' => 'General'],
         // Khusus Lokal
         ['name' => 'dok_akte_pendirian', 'label' => 'Akte Pendirian', 'type' => 'Local Vendor Only'],
         ['name' => 'dok_akte_direksi', 'label' => 'Akte Pengangkatan Direksi', 'type' => 'Local Vendor Only'],

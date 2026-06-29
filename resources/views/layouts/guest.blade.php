@@ -108,7 +108,7 @@
     <!--end::Global Theme Bundle-->
     <!--begin::Page Scripts(used by this page)-->
     @stack('scripts')
-    <script src="{{ asset('js/login-general.js') }}"></script>
+    <script src="{{ asset('js/login-general.js') }}?v={{ filemtime(public_path('js/login-general.js')) }}"></script>
     <!--end::Page Scripts-->
 </body>
 <!--end::Body-->

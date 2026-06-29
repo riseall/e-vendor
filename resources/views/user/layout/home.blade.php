@@ -15,6 +15,7 @@
         type="text/css">
     <!-- Style Css-->
     <link href="{{ asset('css/style.css') }}" id="color-opt" class="theme-opt" rel="stylesheet" type="text/css">
+    @stack('styles')
 
 </head>
 

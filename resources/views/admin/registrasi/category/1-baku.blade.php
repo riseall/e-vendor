@@ -95,7 +95,7 @@
     <div class="row">
         <div class="col-12">
             <div class="question-wrapper">
-                <label class="question-label">Sertifikat CDOB</label>
+                <label class="question-label">Sertifikat CDOB / GDP</label>
                 <div class="form-row">
                     <div class="col-md-4">
                         <x-vendor-input type="file" name="q5_document" label="Dokumen Sertifikat CDOB"
