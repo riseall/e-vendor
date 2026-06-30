@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Permohonan Vendor Otomatis Terverifikasi</title>
+    <title>Hasil Risk Assessment - Vendor Terekomendasi</title>
 </head>
 
 <body style="margin:0; padding:0; background:#ffffff; font-family:Arial, Helvetica, sans-serif; color:#1f2933;">
@@ -21,8 +21,8 @@
                         <td align="center" style="font-size:26px; font-weight:700; padding-bottom:28px;">E-VENDOR</td>
                     </tr>
                     <tr>
-                        <td align="center" style="font-size:20px; color:#166534; padding-bottom:14px;">
-                            Permohonan Otomatis Terverifikasi
+                        <td align="center" style="font-size:20px; color:#15803d; padding-bottom:14px;">
+                            Risk Assessment - Hasil Terekomendasi
                         </td>
                     </tr>
                     <tr>
@@ -30,7 +30,33 @@
                             style="font-size:15px; line-height:22px; color:#4b5563; padding-bottom:20px;">
                             Permohonan <strong>{{ $applicationNumber }}</strong> milik
                             <strong>{{ optional($application->general)->nama_perusahaan ?? '-' }}</strong>
-                            otomatis berstatus verified karena telah melewati batas 10 hari kalender.
+                            telah melalui proses Risk Assessment dengan hasil: <strong>LOW RISK</strong>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center"
+                            style="font-size:14px; line-height:20px; color:#4b5563; padding-bottom:16px;">
+                            Berdasarkan penilaian risiko komprehensif, permohonan Anda telah terekomendasi untuk
+                            persetujuan. Anda akan menerima notifikasi lebih lanjut mengenai status final permohonan.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-bottom:20px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                                style="background:#f3f4f6; border-radius:6px; padding:16px;">
+                                <tr>
+                                    <td style="font-size:13px; color:#374151;">
+                                        <strong>Detail Assessment:</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size:12px; color:#6b7280; padding-top:8px;">
+                                        Total Score: <strong>{{ $qualification->total_score ?? '-' }}</strong><br />
+                                        Risk Level: <strong>LOW</strong><br />
+                                        Assessment Date: <strong>{{ now()->format('d M Y') }}</strong>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                     <tr>

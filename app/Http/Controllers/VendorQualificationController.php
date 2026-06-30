@@ -6,6 +6,7 @@ use App\Http\Requests\StoreRiskAssessmentRequest;
 use App\Models\User;
 use App\Models\VendorApplication;
 use App\Models\VendorQualification;
+use App\Services\VendorApplicationNotificationService;
 use App\Services\VendorApplicationWorkflowService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -108,7 +109,8 @@ class VendorQualificationController extends Controller
     public function store(
         StoreRiskAssessmentRequest $request,
         int $application_id,
-        VendorApplicationWorkflowService $workflow
+        VendorApplicationWorkflowService $workflow,
+        VendorApplicationNotificationService $notificationService
     ) {
         $this->authorizeQaAccess();
 
@@ -128,7 +130,7 @@ class VendorQualificationController extends Controller
         //     'Risk assessment hanya dapat dilakukan setelah permohonan verified.'
         // );
 
-        DB::transaction(function () use ($application, $data, $workflow) {
+        $qualification = DB::transaction(function () use ($application, $data, $workflow) {
             $application->loadMissing(['general', 'documents', 'specBaku']);
             $autoScores = $this->automaticScores($application);
 
@@ -192,7 +194,7 @@ class VendorQualificationController extends Controller
                     ['qualification_id' => $qualification->id]
                 );
 
-                return;
+                return $qualification;
             }
 
             $workflow->transition(
@@ -206,7 +208,11 @@ class VendorQualificationController extends Controller
                     'audit_type' => $qualification->audit_type,
                 ]
             );
+
+            return $qualification;
         });
+
+        $notificationService->riskAssessmentResult($application, $qualification);
 
         return redirect()
             ->route('qa.risk-assessment.index')

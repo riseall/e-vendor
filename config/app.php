@@ -125,6 +125,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Notification Email Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Email addresses to notify for various application events
+    |
+    */
+
+    'qa_notification_emails' => env('QA_NOTIFICATION_EMAILS', ''),
+
+    'procurement_notification_emails' => env('PROCUREMENT_NOTIFICATION_EMAILS', ''),
+
+    /*
+    |--------------------------------------------------------------------------
     | Autoloaded Service Providers
     |--------------------------------------------------------------------------
     |

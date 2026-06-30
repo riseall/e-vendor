@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Mail\VendorApplicationApproved;
 use App\Mail\VendorApplicationAutoVerified;
 use App\Mail\VendorApplicationNeedsRevision;
 use App\Mail\VendorApplicationRevisionSubmittedToProcurement;
@@ -9,9 +10,13 @@ use App\Mail\VendorApplicationSubmittedToProcurement;
 use App\Mail\VendorApplicationSubmittedToVendor;
 use App\Mail\VendorApplicationVerified;
 use App\Mail\VendorApplicationVerificationReminder;
+use App\Mail\VendorRiskAssessmentHighRisk;
+use App\Mail\VendorRiskAssessmentLowRisk;
+use App\Mail\VendorRiskAssessmentMediumRisk;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\VendorApplication;
+use App\Models\VendorQualification;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -21,8 +26,7 @@ class VendorApplicationNotificationService
     public function submitted(
         VendorApplication $application,
         bool $isRevisionSubmit = false
-    ): void
-    {
+    ): void {
         $application->loadMissing(['user', 'general']);
         $number = $this->applicationNumber($application);
         $deadline = app(ProcurementVerificationService::class)->verificationDeadline($application);
@@ -68,6 +72,8 @@ class VendorApplicationNotificationService
     private function submissionReviewerEmails(): array
     {
         return collect($this->roleEmails([
+            'Super Admin',
+            'Admin IT',
             'Procurement',
             'Verifikator',
             'Quality Assurance',
@@ -125,9 +131,97 @@ class VendorApplicationNotificationService
         );
     }
 
+    // Notif email Risk Assessment
+    public function riskAssessmentResult(
+        VendorApplication $application,
+        VendorQualification $qualification
+    ): void {
+        $application->loadMissing(['user', 'general']);
+
+        $vendorRecipients = $application->user ? [$application->user->email] : [];
+        $notificationRecipients = $this->riskAssessmentNotificationEmails();
+        $applicationNumber = $this->applicationNumber($application);
+
+        if ($qualification->risk_level === 'low') {
+            $this->queue(
+                $vendorRecipients,
+                new VendorRiskAssessmentLowRisk($application, $qualification, $applicationNumber),
+                $application,
+                'risk_assessment_low_vendor'
+            );
+
+            $this->queue(
+                $notificationRecipients,
+                new VendorRiskAssessmentLowRisk($application, $qualification, $applicationNumber),
+                $application,
+                'risk_assessment_low_notifications'
+            );
+
+            $this->queue(
+                $vendorRecipients,
+                new VendorApplicationApproved($application, $qualification, $applicationNumber),
+                $application,
+                'application_approved_vendor'
+            );
+
+            $this->queue(
+                $notificationRecipients,
+                new VendorApplicationApproved($application, $qualification, $applicationNumber),
+                $application,
+                'application_approved_notifications'
+            );
+
+            return;
+        }
+
+        if ($qualification->risk_level === 'medium') {
+            $this->queue(
+                $vendorRecipients,
+                new VendorRiskAssessmentMediumRisk($application, $qualification, $applicationNumber),
+                $application,
+                'risk_assessment_medium_vendor'
+            );
+
+            $this->queue(
+                $notificationRecipients,
+                new VendorRiskAssessmentMediumRisk($application, $qualification, $applicationNumber),
+                $application,
+                'risk_assessment_medium_notifications'
+            );
+
+            return;
+        }
+
+        if ($qualification->risk_level === 'high') {
+            $this->queue(
+                $vendorRecipients,
+                new VendorRiskAssessmentHighRisk($application, $qualification, $applicationNumber),
+                $application,
+                'risk_assessment_high_vendor'
+            );
+
+            $this->queue(
+                $notificationRecipients,
+                new VendorRiskAssessmentHighRisk($application, $qualification, $applicationNumber),
+                $application,
+                'risk_assessment_high_notifications'
+            );
+        }
+    }
+
+    private function riskAssessmentNotificationEmails(): array
+    {
+        return collect($this->roleEmails(['Super Admin', 'Admin IT', 'Procurement', 'Quality Assurance']))
+            // ->merge(config('mail.akuntansi', []))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
     private function procurementEmails(): array
     {
-        return collect($this->roleEmails(['Procurement', 'Verifikator']))
+        return collect($this->roleEmails(['Super Admin', 'Admin IT', 'Procurement', 'Verifikator']))
             ->merge(config('mail.procurement_recipients', []))
             ->filter()
             ->unique()

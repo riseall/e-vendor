@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Reminder Verifikasi Vendor</title>
 </head>
+
 <body style="margin:0;padding:0;background:#fff;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
@@ -35,7 +37,7 @@
                     </tr>
                     <tr>
                         <td align="center" style="font-size:12px;color:#6b7280;">
-                            E-Vendor &copy;{{ date('Y') }} PT. Phapros, Tbk.
+                            E-Vendor &copy;{{ date('Y') }} PT. Phapros, Tbk. - All rights reserved.
                         </td>
                     </tr>
                 </table>
@@ -43,4 +45,5 @@
         </tr>
     </table>
 </body>
+
 </html>
