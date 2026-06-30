@@ -150,8 +150,9 @@
     }
 
     .has-revision,
-    .has-revision .custom-file-label,
-    .has-revision .bootstrap-select>.dropdown-toggle {
+    .revision-field-highlight,
+    .revision-field-highlight .custom-file-label,
+    .revision-field-highlight .bootstrap-select>.dropdown-toggle {
         border-color: #dc3545 !important;
     }
 
