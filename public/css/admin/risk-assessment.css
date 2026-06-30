@@ -545,3 +545,98 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     font-size: 0.76rem;
     margin-top: 0.25rem;
 }
+
+.swal2-container.swal2-top-end {
+    top: 1rem !important;
+    right: 1rem;
+    left: auto !important;
+}
+
+.swal2-popup.ra-swal-toast {
+    border-radius: 0.5rem;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.swal2-popup .swal2-content {
+    margin: 0;
+}
+
+.ra-swal-toast {
+    border-radius: 0.75rem !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    min-width: 360px !important;
+    position: relative !important;
+}
+
+.ra-swal-toast .swal2-timer-progress-bar-container {
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    height: 4px !important;
+    background: rgba(0, 0, 0, 0.06) !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+    z-index: 5 !important;
+}
+
+.ra-swal-toast .swal2-timer-progress-bar {
+    height: 100% !important;
+    background: #005db6 !important;
+    opacity: 1 !important;
+    transition: 3.5s linear !important;
+}
+
+.ra-swal-toast-body {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem 1rem 1rem;
+    background: #ffffff;
+    min-height: 72px;
+}
+
+.ra-swal-toast-body > .btn-circle {
+    flex-shrink: 0 !important;
+}
+
+.ra-swal-toast-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.ra-swal-toast__title {
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    margin: 0 0 0.2rem !important;
+    color: #111827;
+}
+
+.ra-swal-toast__text {
+    font-size: 0.85rem !important;
+    color: #4b5563;
+    margin: 0 !important;
+    line-height: 1.4;
+}
+
+.ra-swal-toast__close {
+    position: absolute !important;
+    top: 0.9rem !important;
+    right: 0.9rem !important;
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    color: #9ca3af !important;
+    opacity: 1 !important;
+}
+
+.ra-swal-toast__close:hover {
+    color: #374151 !important;
+}

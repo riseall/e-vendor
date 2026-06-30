@@ -8,47 +8,6 @@
 @push('style')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="{{ asset('css/admin/risk-assessment.css') }}">
-    <style>
-        /* Rapikan posisi & tipografi SweetAlert toast */
-        .swal2-container.swal2-top-end {
-            top: 1rem !important;
-            right: 1rem;
-            left: auto !important;
-        }
-
-        .swal2-popup.ra-swal-toast {
-            border-radius: .5rem;
-            align-items: flex-start;
-            text-align: left;
-        }
-
-        .ra-swal-toast .swal2-icon {
-            margin: 0 .75rem 0 0 !important;
-            width: 1.75rem !important;
-            height: 1.75rem !important;
-            line-height: 1.75rem !important;
-        }
-
-        .ra-swal-toast__title {
-            font-size: .95rem !important;
-            font-weight: 600 !important;
-            margin: 0 0 .15rem !important;
-        }
-
-        .ra-swal-toast__body {
-            font-size: .8rem !important;
-            color: #5a5a6b;
-            margin: 0 !important;
-        }
-
-        .ra-swal-toast__close {
-            color: #b5b5c3;
-        }
-
-        .ra-swal-toast__close:hover {
-            color: #5a5a6b;
-        }
-    </style>
 @endpush
 
 @php
@@ -233,10 +192,8 @@
 
 @push('scripts')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js">
-        < /link> <
-        script src = "https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js" >
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
     <script>
         $(function() {
@@ -271,9 +228,15 @@
                     var msg = $el.data(m.key);
                     if (msg) {
                         Swal.fire({
-                            icon: m.icon,
-                            title: m.title,
-                            text: msg,
+                            html: '<div class="ra-swal-toast-body">' +
+                                '<div class="btn btn-icon btn-outline-success btn-circle btn-sm m-0">' +
+                                '<i class="flaticon2-check-mark" style="font-size:1rem;"></i>' +
+                                '</div>' +
+                                '<div class="ra-swal-toast-content">' +
+                                '<div class="ra-swal-toast__title">' + m.title + '</div>' +
+                                '<div class="ra-swal-toast__text">' + msg + '</div>' +
+                                '</div>' +
+                                '</div>',
                             toast: true,
                             position: 'top-end',
                             showConfirmButton: false,
@@ -281,11 +244,9 @@
                             timer: 3500,
                             timerProgressBar: true,
                             width: 360,
-                            padding: '1rem',
+                            padding: '0',
                             customClass: {
                                 popup: 'ra-swal-toast shadow-sm',
-                                title: 'ra-swal-toast__title',
-                                htmlContainer: 'ra-swal-toast__body',
                                 closeButton: 'ra-swal-toast__close',
                             },
                         });
