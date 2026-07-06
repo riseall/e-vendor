@@ -116,14 +116,6 @@
             </div>
         </div>
         <div class="ra-header-meta">
-            <span class="ra-meta-chip">
-                <span class="ra-meta-chip-lbl">Alamat</span>{{ $vendorAddress }}
-            </span>
-            <span class="ra-meta-chip">
-                <span class="ra-meta-chip-lbl">Jenis</span>
-                {{ $supplierType }}
-                <span class="ra-meta-chip-score">({{ $autoScores['supplier_type_score'] }})</span>
-            </span>
             @if ($categoryLabels)
                 <span class="ra-meta-chip">
                     <span class="ra-meta-chip-lbl">Kategori</span>{{ $categoryLabels }}
@@ -202,11 +194,11 @@
                         <div class="ra-section-letter ra-section-letter--e">+</div>
                         <div>
                             <div class="ra-section-title">Keterangan QA</div>
-                            <div class="ra-section-sub">Opsional — Manager &amp; catatan tambahan</div>
+                            <div class="ra-section-sub">Opsional — catatan tambahan</div>
                         </div>
                     </div>
                     <div class="ra-section-body">
-                        <div class="ra-field">
+                        {{-- <div class="ra-field">
                             <label class="ra-field-label" for="qa_manager_id">Manager QA</label>
                             <select name="qa_manager_id" id="qa_manager_id"
                                 class="ra-select select2 @error('qa_manager_id') is-invalid @enderror">
@@ -214,14 +206,14 @@
                                 @foreach ($qaManagers as $manager)
                                     <option value="{{ $manager->id }}"
                                         {{ (string) old('qa_manager_id', optional($qualification)->qa_manager_id) === (string) $manager->id ? 'selected' : '' }}>
-                                        {{ $manager->name }}{{ $manager->email ? ' &mdash; ' . $manager->email : '' }}
+                                        {{ $manager->name }}{{ $manager->email ? ' - ' . $manager->email : '' }}
                                     </option>
                                 @endforeach
                             </select>
                             @error('qa_manager_id')
                                 <div class="ra-invalid">{{ $message }}</div>
                             @enderror
-                        </div>
+                        </div> --}}
 
                         <div class="ra-field">
                             <label class="ra-field-label" for="notes">Keterangan / Catatan</label>

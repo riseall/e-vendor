@@ -16,15 +16,17 @@
         <select name="score_detectability_country" id="score_detectability_country"
             class="ra-select calc-trigger select2 @error('score_detectability_country') is-invalid @enderror" required>
             <option value="">&mdash; Pilih risiko negara &mdash;</option>
-            <option value="4" {{ (string) $selectedCountry === '4' ? 'selected' : '' }}>Negara high risk / regulasi
-                lemah</option>
-            <option value="3" {{ (string) $selectedCountry === '3' ? 'selected' : '' }}>Negara berkembang / kontrol
-                terbatas</option>
-            <option value="2" {{ (string) $selectedCountry === '2' ? 'selected' : '' }}>Negara dengan regulasi
-                menengah</option>
-            <option value="1" {{ (string) $selectedCountry === '1' ? 'selected' : '' }}>Negara dengan otoritas kuat
-                / FDA</option>
+            <option value="4" {{ (string) $selectedCountry === '4' ? 'selected' : '' }}>Negara High Risk (Regulasi
+                Lemah)</option>
+            <option value="3" {{ (string) $selectedCountry === '3' ? 'selected' : '' }}>Negara Berkembang (Kontrol
+                Terbatas)</option>
+            <option value="2" {{ (string) $selectedCountry === '2' ? 'selected' : '' }}>Negara dengan Regulasi
+                Menengah</option>
+            <option value="1" {{ (string) $selectedCountry === '1' ? 'selected' : '' }}>Negara dengan Otoritas Kuat
+                (FDA)</option>
         </select>
+        <div class="ra-hint">Otoritas kuat (FDA) : 1 &middot; Regulasi menengah: 2 &middot; Berkembang (Kontrol
+            terbatas): 3 &middot; High Risk (Regulasi lemah): 4</div>
         @error('score_detectability_country')
             <div class="ra-invalid">{{ $message }}</div>
         @enderror

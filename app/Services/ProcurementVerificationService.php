@@ -248,42 +248,42 @@ class ProcurementVerificationService
     ): array {
         if ($isVerificationInProgress) {
             return [
-                'class' => 'vp-badge--in-progress',
+                'class' => 'vnd-status--in-progress',
                 'label' => 'Dalam Verifikasi',
-                'icon' => 'flaticon2-writing',
+                'icon' => 'flaticon2-writing icon-sm text-info',
             ];
         }
 
         if ($isRevisionResubmitted) {
             return [
-                'class' => 'vp-badge--revision',
+                'class' => 'vnd-status--revision',
                 'label' => 'Revisi Dikirim',
-                'icon' => 'flaticon2-refresh',
+                'icon' => 'flaticon2-refresh icon-sm text-warning',
             ];
         }
 
         $labels = [
             VendorApplication::STATUS_SUBMITTED => [
-                'class' => 'vp-badge--submitted',
+                'class' => 'vnd-status--submitted',
                 'label' => 'Submitted',
-                'icon' => 'flaticon2-hourglass',
+                'icon' => 'flaticon2-hourglass icon-sm text-primary',
             ],
             VendorApplication::STATUS_NEED_REVISION => [
-                'class' => 'vp-badge--revision',
+                'class' => 'vnd-status--revision',
                 'label' => 'Need Revision',
-                'icon' => 'flaticon-warning',
+                'icon' => 'flaticon-warning icon-sm text-warning',
             ],
             VendorApplication::STATUS_VERIFIED => [
-                'class' => 'vp-badge--verified',
+                'class' => 'vnd-status--verified',
                 'label' => 'Verified',
-                'icon' => 'flaticon2-check-mark',
+                'icon' => 'flaticon2-check-mark icon-sm text-success',
             ],
         ];
 
         return $labels[$application->status] ?? [
             'class' => '',
             'label' => ucwords(str_replace('_', ' ', $application->status)),
-            'icon' => 'flaticon2-information',
+            'icon' => 'flaticon2-information icon-sm text-info',
         ];
     }
 
@@ -296,22 +296,22 @@ class ProcurementVerificationService
         $daysLeft = $this->deadlineService->remainingDays($application);
 
         if ($application->status !== VendorApplication::STATUS_SUBMITTED) {
-            return ['class' => 'vp-hk--done', 'text' => 'Selesai'];
+            return ['class' => 'vnd-hk--done', 'text' => 'Selesai'];
         }
 
         if ($daysLeft <= 1) {
             if ($daysLeft < 0) {
-                return ['class' => 'vp-hk--overdue', 'text' => abs($daysLeft) . ' hari terlambat'];
+                return ['class' => 'vnd-hk--overdue', 'text' => abs($daysLeft) . ' hari terlambat'];
             }
 
-            return ['class' => 'vp-hk--overdue', 'text' => $daysLeft . ' hari tersisa'];
+            return ['class' => 'vnd-hk--overdue', 'text' => $daysLeft . ' hari tersisa'];
         }
 
         if ($daysLeft <= 3) {
-            return ['class' => 'vp-hk--warn', 'text' => $daysLeft . ' hari tersisa'];
+            return ['class' => 'vnd-hk--warn', 'text' => $daysLeft . ' hari tersisa'];
         }
 
-        return ['class' => 'vp-hk--ok', 'text' => $daysLeft . ' hari tersisa'];
+        return ['class' => 'vnd-hk--ok', 'text' => $daysLeft . ' hari tersisa'];
     }
 
     private function applicationStatusMeta(string $status): array
@@ -377,17 +377,17 @@ class ProcurementVerificationService
             VendorApplicationVerificationItem::STATUS_PENDING => [
                 'label' => 'Belum Diverifikasi',
                 'class' => 'label-light-primary',
-                'icon' => 'flaticon2-hourglass',
+                'icon' => 'flaticon2-hourglass icon-sm text-warning',
             ],
             VendorApplicationVerificationItem::STATUS_APPROVED => [
                 'label' => 'Disetujui',
                 'class' => 'label-light-success',
-                'icon' => 'flaticon2-check-mark',
+                'icon' => 'flaticon2-check-mark icon-sm text-success',
             ],
             VendorApplicationVerificationItem::STATUS_REJECTED => [
                 'label' => 'Tidak Disetujui',
                 'class' => 'label-light-danger',
-                'icon' => 'flaticon2-cross',
+                'icon' => 'flaticon2-cross icon-sm text-danger',
             ],
         ];
     }

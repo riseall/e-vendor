@@ -7,7 +7,7 @@
 
 @push('style')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
-    <link rel="stylesheet" href="{{ asset('css/admin/risk-assessment.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/vms.css') }}">
 @endpush
 
 @php
@@ -19,26 +19,26 @@
 
     // Risk level → css class & icon, single source of truth.
     $riskMap = [
-        'low' => ['class' => 'ra-risk--low', 'icon' => 'flaticon2-check-mark text-success'],
-        'medium' => ['class' => 'ra-risk--medium', 'icon' => 'flaticon-warning text-warning'],
-        'high' => ['class' => 'ra-risk--high', 'icon' => 'flaticon-danger text-danger'],
+        'low' => ['class' => 'vnd-status--submitted', 'icon' => 'flaticon2-check-mark text-success'],
+        'medium' => ['class' => 'vnd-status--revision', 'icon' => 'flaticon-warning text-warning'],
+        'high' => ['class' => 'vnd-status--rejected', 'icon' => 'flaticon-danger text-danger'],
     ];
 @endphp
 
 @section('content')
     {{-- Flash (ditampilkan via SweetAlert di @push('scripts')) --}}
-    <div id="ra-flash" data-success="{{ session('success') }}" data-error="{{ session('error') }}"
+    <div id="vnd-flash" data-success="{{ session('success') }}" data-error="{{ session('error') }}"
         data-warning="{{ session('warning') }}" data-info="{{ session('info') }}" hidden></div>
 
     {{-- ══════ Stat Cards ══════ --}}
     <div class="row mb-6">
-        @foreach ([['key' => 'total', 'num' => $countTotal, 'lbl' => 'Total Vendor', 'icon' => 'flaticon2-layers-1 text-white'], ['key' => 'low', 'num' => $countLow, 'lbl' => 'Low Risk', 'icon' => 'flaticon2-check-mark text-white'], ['key' => 'medium', 'num' => $countMedium, 'lbl' => 'Medium Risk', 'icon' => 'flaticon-warning text-white'], ['key' => 'high', 'num' => $countHigh, 'lbl' => 'High Risk', 'icon' => 'flaticon-danger text-white']] as $stat)
+        @foreach ([['key' => 'primary', 'num' => $countTotal, 'lbl' => 'Total Vendor', 'icon' => 'flaticon2-layers-1 text-white'], ['key' => 'success', 'num' => $countLow, 'lbl' => 'Low Risk', 'icon' => 'flaticon2-check-mark text-white'], ['key' => 'warning', 'num' => $countMedium, 'lbl' => 'Medium Risk', 'icon' => 'flaticon-warning text-white'], ['key' => 'danger', 'num' => $countHigh, 'lbl' => 'High Risk', 'icon' => 'flaticon-danger text-white']] as $stat)
             <div class="col-6 col-sm-3 mb-3 mb-sm-0">
-                <div class="ra-stat ra-stat--{{ $stat['key'] }}">
-                    <div class="ra-stat-icon"><i class="{{ $stat['icon'] }}"></i></div>
+                <div class="vnd-stat vnd-stat--{{ $stat['key'] }}">
+                    <div class="vnd-stat-icon"><i class="{{ $stat['icon'] }}"></i></div>
                     <div>
-                        <div class="ra-stat-num">{{ $stat['num'] }}</div>
-                        <div class="ra-stat-lbl">{{ $stat['lbl'] }}</div>
+                        <div class="vnd-stat-num">{{ $stat['num'] }}</div>
+                        <div class="vnd-stat-lbl">{{ $stat['lbl'] }}</div>
                     </div>
                 </div>
             </div>
@@ -46,24 +46,24 @@
     </div>
 
     {{-- ══════ Main Card ══════ --}}
-    <div class="ra-card">
+    <div class="vnd-card">
 
         {{-- Head: judul + threshold info + filter --}}
-        <div class="ra-card-head">
+        <div class="vnd-card-head">
             <div>
-                <div class="ra-card-title">
-                    <span class="ra-card-title-dot"></span>
+                <div class="vnd-card-title">
+                    <span class="vnd-card-title-dot"></span>
                     Risk Assessment Vendor
                 </div>
-                <div class="ra-threshold-tag mt-1">
+                <div class="vnd-threshold-tag mt-1">
                     Threshold:
-                    <span class="ra-tag ra-tag--low">Low &le; {{ $lowThreshold }}</span>
-                    <span class="ra-tag ra-tag--medium">Medium {{ $lowThreshold + 1 }}&ndash;{{ $highThreshold }}</span>
-                    <span class="ra-tag ra-tag--high">High &gt; {{ $highThreshold }}</span>
+                    <span class="vnd-tag vnd-tag--low">Low &le; {{ $lowThreshold }}</span>
+                    <span class="vnd-tag vnd-tag--medium">Medium {{ $lowThreshold + 1 }}&ndash;{{ $highThreshold }}</span>
+                    <span class="vnd-tag vnd-tag--high">High &gt; {{ $highThreshold }}</span>
                 </div>
             </div>
 
-            <form method="GET" action="{{ route('qa.risk-assessment.index') }}" class="ra-filter">
+            <form method="GET" action="{{ route('qa.risk-assessment.index') }}" class="vnd-filter">
                 <div class="form-input" style="width:210px;">
                     <input type="text" name="q" value="{{ $search }}" class="form-control form-control-sm"
                         placeholder="Nomor, vendor, email&hellip;">
@@ -75,16 +75,16 @@
                         </option>
                     @endforeach
                 </select>
-                <button type="submit" class="ra-btn-filter">
+                <button type="submit" class="vnd-btn-filter">
                     <i class="flaticon-search" style="font-size:.65rem;"></i> Filter
                 </button>
-                <a href="{{ route('qa.risk-assessment.index') }}" class="ra-btn-reset">Reset</a>
+                <a href="{{ route('qa.risk-assessment.index') }}" class="vnd-btn-reset">Reset</a>
             </form>
         </div>
 
         {{-- Table --}}
         <div class="card-body p-0 px-4 pt-5 pb-6">
-            <table id="tbl-risk" class="table table-borderless" style="width:100%">
+            <table id="tbl-vendor" class="table tbl-vendor table-borderless" style="width:100%">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -102,7 +102,7 @@
                         @php
                             $qualification = $application->qualification;
                             $risk = $riskMap[$application->risk_level] ?? [
-                                'class' => 'ra-risk--none',
+                                'class' => 'vnd-status--none',
                                 'icon' => 'flaticon2-information',
                             ];
                             $vendorName =
@@ -120,54 +120,54 @@
                             $isAssessed = (bool) $qualification;
                         @endphp
                         <tr>
-                            <td class="ra-cell-muted">
+                            <td class="vnd-cell-muted">
                                 {{ $applications->firstItem() + $loop->index }}
                             </td>
                             <td>
-                                <span class="ra-appnum">{{ $application->application_number ?? '—' }}</span>
+                                <span class="vnd-appnum">{{ $application->application_number ?? '—' }}</span>
                             </td>
                             <td>
                                 <div class="d-flex align-items-center" style="gap:.65rem;">
-                                    <div class="ra-avatar">{{ $initial }}</div>
+                                    <div class="vnd-avatar">{{ $initial }}</div>
                                     <div>
-                                        <div class="ra-vendor-name">{!! $vendorName !!}</div>
-                                        <div class="ra-vendor-email">{!! $vendorEmail !!}</div>
+                                        <div class="vnd-vendor-name">{!! $vendorName !!}</div>
+                                        <div class="vnd-vendor-email">{!! $vendorEmail !!}</div>
                                     </div>
                                 </div>
                             </td>
                             <td>
                                 @forelse ($cats as $cat)
-                                    <span class="ra-cat-chip">{{ $cat }}</span>
+                                    <span class="vnd-cat-chip">{{ $cat }}</span>
                                 @empty
-                                    <span class="ra-cell-muted">&mdash;</span>
+                                    <span class="vnd-cell-muted">&mdash;</span>
                                 @endforelse
                             </td>
                             <td>
-                                <span class="ra-status">
+                                <span class="vnd-status vnd-status--in-progress">
                                     {{ str_replace('_', ' ', strtoupper($application->status)) }}
                                 </span>
                             </td>
                             <td>
                                 @if ($qualification)
                                     <span
-                                        class="ra-score">{{ number_format($qualification->total_score, 0, ',', '.') }}</span>
+                                        class="vnd-score">{{ number_format($qualification->total_score, 0, ',', '.') }}</span>
                                 @else
-                                    <span class="ra-score-empty">Belum dinilai</span>
+                                    <span class="vnd-score-empty">Belum dinilai</span>
                                 @endif
                             </td>
                             <td>
-                                <span class="ra-risk {{ $risk['class'] }}">
+                                <span class="vnd-status {{ $risk['class'] }}">
                                     <i class="{{ $risk['icon'] }}" style="font-size:.55rem;"></i>
                                     {{ $application->risk_level ? strtoupper($application->risk_level) : '—' }}
                                 </span>
                             </td>
                             <td class="text-right">
                                 <a href="{{ route('qa.risk-assessment.create', $application->id) }}"
-                                    class="ra-btn-action {{ $isAssessed ? 'ra-btn-action--edit' : 'ra-btn-action--new' }}">
+                                    class="vnd-btn-detail {{ $isAssessed ? 'vnd-btn-detail' : 'vnd-btn-detail--primary' }}">
                                     @if ($isAssessed)
-                                        <i class="flaticon-eye" style="font-size:.7rem;"></i> Lihat
+                                        <i class="flaticon-eye icon-sm text-primary" style="font-size:.7rem;"></i> Detail
                                     @else
-                                        <i class="flaticon2-add-1" style="font-size:.7rem;"></i> Mulai Assessment
+                                        <i class="flaticon2-add-1 icon-sm" style="font-size:.7rem;"></i> Mulai Assessment
                                     @endif
                                 </a>
                             </td>
@@ -175,10 +175,10 @@
                     @empty
                         <tr>
                             <td colspan="8">
-                                <div class="ra-empty">
+                                <div class="vnd-empty">
                                     <i class="flaticon2-search-1"></i>
-                                    <div class="ra-empty-title">Tidak ada vendor</div>
-                                    <div class="ra-empty-sub">Coba ubah filter pencarian.</div>
+                                    <div class="vnd-empty-title">Tidak ada vendor</div>
+                                    <div class="vnd-empty-sub">Coba ubah filter pencarian.</div>
                                 </div>
                             </td>
                         </tr>
@@ -187,7 +187,7 @@
             </table>
         </div>
 
-    </div>{{-- /ra-card --}}
+    </div>{{-- /vnd-card --}}
 @endsection
 
 @push('scripts')
@@ -199,7 +199,7 @@
         $(function() {
             /* Tampilkan flash session sebagai SweetAlert */
             (function() {
-                var $el = $('#ra-flash');
+                var $el = $('#vnd-flash');
                 if (!$el.length || typeof Swal === 'undefined') return;
 
                 var messages = [{
@@ -228,13 +228,13 @@
                     var msg = $el.data(m.key);
                     if (msg) {
                         Swal.fire({
-                            html: '<div class="ra-swal-toast-body">' +
+                            html: '<div class="vnd-swal-toast-body">' +
                                 '<div class="btn btn-icon btn-outline-success btn-circle btn-sm m-0">' +
                                 '<i class="flaticon2-check-mark" style="font-size:1rem;"></i>' +
                                 '</div>' +
-                                '<div class="ra-swal-toast-content">' +
-                                '<div class="ra-swal-toast__title">' + m.title + '</div>' +
-                                '<div class="ra-swal-toast__text">' + msg + '</div>' +
+                                '<div class="vnd-swal-toast-content">' +
+                                '<div class="vnd-swal-toast__title">' + m.title + '</div>' +
+                                '<div class="vnd-swal-toast__text">' + msg + '</div>' +
                                 '</div>' +
                                 '</div>',
                             toast: true,
@@ -246,8 +246,8 @@
                             width: 360,
                             padding: '0',
                             customClass: {
-                                popup: 'ra-swal-toast shadow-sm',
-                                closeButton: 'ra-swal-toast__close',
+                                popup: 'vnd-swal-toast shadow-sm',
+                                closeButton: 'vnd-swal-toast__close',
                             },
                         });
                     }
