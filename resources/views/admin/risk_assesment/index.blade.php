@@ -5,11 +5,6 @@
 @section('page_title', 'Risk Assessment Vendor Baru')
 @section('page_desc', 'Daftar vendor yang sudah diverifikasi pengadaan dan perlu penilaian risiko QA.')
 
-@push('style')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
-    <link rel="stylesheet" href="{{ asset('css/admin/vms.css') }}">
-@endpush
-
 @php
     // Stat-card counts come from controller ($countByLevel is total across pages).
     $countTotal = $applications->total();
@@ -64,11 +59,11 @@
             </div>
 
             <form method="GET" action="{{ route('qa.risk-assessment.index') }}" class="vnd-filter">
-                <div class="form-input" style="width:210px;">
+                {{-- <div class="form-input" style="width:210px;">
                     <input type="text" name="q" value="{{ $search }}" class="form-control form-control-sm"
                         placeholder="Nomor, vendor, email&hellip;">
-                </div>
-                <select name="status" class="form-control form-control-sm" style="width:160px;">
+                </div> --}}
+                <select name="status" class="selectpicker" style="width:160px;">
                     @foreach ($statusOptions as $value => $label)
                         <option value="{{ $value }}" {{ $status === $value ? 'selected' : '' }}>
                             {{ $label }}
@@ -84,7 +79,7 @@
 
         {{-- Table --}}
         <div class="card-body p-0 px-4 pt-5 pb-6">
-            <table id="tbl-vendor" class="table tbl-vendor table-borderless" style="width:100%">
+            <table id="tbl-risk" class="table tbl-vendor table-borderless" style="width:100%">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -191,10 +186,6 @@
 @endsection
 
 @push('scripts')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
     <script>
         $(function() {
             /* Tampilkan flash session sebagai SweetAlert */
@@ -255,15 +246,10 @@
             })();
 
             var table = $('#tbl-risk').DataTable({
-                pageLength: 15,
-                lengthMenu: [10, 15, 25, 50],
-                order: [
-                    [1, 'asc']
-                ],
-                columnDefs: [{
-                    orderable: false,
-                    targets: -1
-                }],
+                scrollY: '65vh',
+                scrollCollapse: true,
+                scrollX: true,
+                paging: true,
                 dom: '<"d-flex justify-content-between align-items-center mb-4"lf>rtip',
             });
 
