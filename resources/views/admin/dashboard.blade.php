@@ -1,3 +1,6 @@
+@push('style')
+@endpush
+
 @extends('layouts.app', ['title' => 'Dashboard'])
 
 @php
@@ -22,7 +25,6 @@
                 <div class="flex-grow-1">
                     <div class="vnd-stat-num">{{ number_format($totalSupplier) }}</div>
                     <div class="vnd-stat-lbl">Total Supplier</div>
-                    <div class="vnd-cell-muted">Seluruh supplier terdaftar</div>
                 </div>
             </div>
         </div>
@@ -32,7 +34,6 @@
                 <div class="flex-grow-1">
                     <div class="vnd-stat-num">{{ number_format($approvedSupplier) }}</div>
                     <div class="vnd-stat-lbl">Approved Supplier</div>
-                    <div class="vnd-cell-muted">Telah disetujui</div>
                 </div>
             </div>
         </div>
@@ -42,7 +43,6 @@
                 <div class="flex-grow-1">
                     <div class="vnd-stat-num">{{ number_format($underQualification) }}</div>
                     <div class="vnd-stat-lbl">Under Qualification</div>
-                    <div class="vnd-cell-muted">Sedang proses kualifikasi</div>
                 </div>
             </div>
         </div>
@@ -52,7 +52,6 @@
                 <div class="flex-grow-1">
                     <div class="vnd-stat-num">{{ number_format($suspendedSupplier) }}</div>
                     <div class="vnd-stat-lbl">Suspended Supplier</div>
-                    <div class="vnd-cell-muted">Dibekukan / on-hold</div>
                 </div>
             </div>
         </div>
@@ -62,7 +61,6 @@
                 <div class="flex-grow-1">
                     <div class="vnd-stat-num">{{ number_format($requalificationDue) }}</div>
                     <div class="vnd-stat-lbl">Requalification Due</div>
-                    <div class="vnd-cell-muted">Evaluasi ulang</div>
                 </div>
             </div>
         </div>
@@ -84,7 +82,7 @@
         </div>
         <div class="table-responsive">
             <div class="card-body p-0 px-4 pt-5 pb-6">
-                <table class="table tbl-vendor mb-0">
+                <table class="table tbl-vendor table-borderless table-sm mb-0" id="tbl-audit-monitoring">
                     <thead>
                         <tr>
                             <th>Supplier Name</th>
@@ -147,7 +145,7 @@
                 </div>
                 <div class="table-responsive">
                     <div class="card-body p-0 px-4 pt-5 pb-6">
-                        <table class="table tbl-vendor mb-0">
+                        <table class="table tbl-vendor table-borderless table-sm mb-0" id="tbl-document-expiry">
                             <thead>
                                 <tr>
                                     <th>Supplier</th>
@@ -237,8 +235,6 @@
 @endSection
 
 @push('scripts')
-    {{-- <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> --}}
-
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Mengambil data dari variabel PHP/Blade
@@ -332,6 +328,24 @@
 
             const chart = new ApexCharts(document.querySelector("#supplier-risk-chart"), options);
             chart.render();
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#tbl-audit-monitoring').DataTable({
+                responsive: true,
+                paging: true,
+                pageLength: 5,
+                lengthMenu: [5, 10, 25],
+            });
+
+            $('#tbl-document-expiry').DataTable({
+                responsive: true,
+                paging: true,
+                pageLength: 5,
+                lengthMenu: [5, 10, 25],
+            });
         });
     </script>
 @endpush

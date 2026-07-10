@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\VendorApplication;
-use App\Models\VendorApplicationDocument;
+use App\Models\VendorAppSpecBaku;
 use App\Models\VendorAudit;
 use App\Models\VendorQualification;
 use Carbon\Carbon;
@@ -55,8 +55,6 @@ class DashboardController extends Controller
             'application.general',
             'application.user',
             'application.categories',
-            'qualification.qaManager',
-            'auditorTeam',
         ])
             ->latest('confirmed_schedule_at')
             ->take(5)
@@ -73,20 +71,6 @@ class DashboardController extends Controller
                     ->take(2)
                     ->values() : collect();
 
-                $auditorDisplay = '';
-                if ($a->auditorTeam) {
-                    $auditorDisplay = $a->auditorTeam->name;
-                }
-                if ($auditorDisplay === '' && !empty($a->auditor_team)) {
-                    $auditorDisplay = $a->auditor_team;
-                }
-                if ($auditorDisplay === '' && $a->qualification && $a->qualification->qaManager) {
-                    $auditorDisplay = $a->qualification->qaManager->name;
-                }
-                if ($auditorDisplay === '') {
-                    $auditorDisplay = '—';
-                }
-
                 list($statusLabel, $statusCls) = self::resolveStatus(
                     self::$auditStatusMap,
                     $a->status,
@@ -101,51 +85,51 @@ class DashboardController extends Controller
                     'next_audit_date'   => $a->confirmed_schedule_at ? $a->confirmed_schedule_at->format('d M Y') : '',
                     'status_label'      => $statusLabel,
                     'status_cls'        => $statusCls,
-                    'auditor_display'   => $auditorDisplay,
+                    'auditor_display'   => $app->approved_by ?? '-',
                 ];
             });
 
-        // ── 3. DOCUMENT EXPIRY MONITORING ───────────────────────────────
-        $documents = VendorApplicationDocument::with('application.general', 'application.user')
-            ->whereIn('field_name', [
-                'iso_certificate',
-                'gmp_certificate',
-                'nib_document',
-                'halal_certificate',
-                'cpob_certificate',
-                'cdob_certificate',
-            ])
-            ->latest()
-            ->take(10)
+        // ── 3. DOCUMENT EXPIRY MONITORING (CDOB & SIPA APJ only) ────────
+        // Sumber: vendor_app_spec_baku (field q5_* untuk CDOB, q6_* untuk SIPA APJ)
+        $today = Carbon::now();
+
+        $documents = VendorAppSpecBaku::with('application.general', 'application.user')
+            ->where(function ($q) use ($today) {
+                $q->whereNotNull('q5_valid_until')
+                    ->orWhereNotNull('q6_valid_until');
+            })
             ->get()
-            ->map(function (VendorApplicationDocument $doc) {
-                $expiry = self::inferExpiry($doc);
-                $daysLeft = Carbon::now()->diffInDays($expiry, false);
-
-                if ($daysLeft < 0) {
-                    $status = 'expired';
-                } elseif ($daysLeft <= 60) {
-                    $status = 'expiring_soon';
-                } else {
-                    $status = 'valid';
-                }
-
-                list($statusLabel, $statusCls) = self::resolveStatus(self::$docStatusMap, $status, 'vnd-status--muted');
-
-                $app    = $doc->application;
+            ->flatMap(function (VendorAppSpecBaku $baku) use ($today) {
+                $app    = $baku->application;
                 $gen    = $app && $app->general ? $app->general : null;
                 $supplier = $gen ? $gen->nama_perusahaan : ($app && $app->user ? $app->user->name : '-');
 
-                return (object) [
-                    'supplier'     => $supplier,
-                    'doc_type'     => strtoupper(str_replace('_', ' ', $doc->field_name)),
-                    'issue_date'   => $doc->created_at ? $doc->created_at->format('d M Y') : '',
-                    'expiry_date'  => $expiry ? $expiry->format('d M Y') : '',
-                    'status_label' => $statusLabel,
-                    'status_cls'   => $statusCls,
-                ];
+                $out = [];
+                // CDOB
+                if (!empty($baku->q5_valid_until)) {
+                    $expiry = Carbon::parse($baku->q5_valid_until);
+                    $out[] = self::mapExpiryRow(
+                        $supplier,
+                        'CDOB',
+                        $baku->q5_issue_date,
+                        $expiry,
+                        $today
+                    );
+                }
+                // SIPA APJ
+                if (!empty($baku->q6_valid_until)) {
+                    $expiry = Carbon::parse($baku->q6_valid_until);
+                    $out[] = self::mapExpiryRow(
+                        $supplier,
+                        'SIPA APJ',
+                        $baku->q6_issue_date,
+                        $expiry,
+                        $today
+                    );
+                }
+                return $out;
             })
-            ->sortBy('expiry_date')
+            ->sortBy('expiry_date') // soonest expiry first
             ->take(5)
             ->values();
 
@@ -166,7 +150,7 @@ class DashboardController extends Controller
             });
 
         // ── 5. SUPPLIER RISK ASSESSMENT (single-query rollup) ───────────
-        $rows = DB::table('vendor_qualifications')
+        $riskRows = DB::table('vendor_qualifications')
             ->whereNotNull('risk_level')
             ->select('risk_level', DB::raw('count(*) as total'))
             ->groupBy('risk_level')
@@ -174,9 +158,9 @@ class DashboardController extends Controller
             ->toArray();
 
         $riskCounts = [
-            'high'   => (int) ($rows['high'] ?? $rows['HIGH'] ?? 0),
-            'medium' => (int) ($rows['medium'] ?? $rows['MEDIUM'] ?? 0),
-            'low'    => (int) ($rows['low'] ?? $rows['LOW'] ?? 0),
+            'high'   => (int) ($riskRows['high'] ?? $riskRows['HIGH'] ?? 0),
+            'medium' => (int) ($riskRows['medium'] ?? $riskRows['MEDIUM'] ?? 0),
+            'low'    => (int) ($riskRows['low'] ?? $riskRows['LOW'] ?? 0),
         ];
 
         $riskTotal = array_sum($riskCounts);
@@ -205,6 +189,33 @@ class DashboardController extends Controller
         return [ucwords(str_replace('_', ' ', (string) $key)), $fallbackCls];
     }
 
+    /**
+     * Build a single expiry-monitoring row.
+     */
+    private static function mapExpiryRow(string $supplier, string $docType, $issueDate, Carbon $expiry, Carbon $today): object
+    {
+        $daysLeft = $today->diffInDays($expiry, false);
+
+        if ($daysLeft < 0) {
+            $status = 'expired';
+        } elseif ($daysLeft <= 60) {
+            $status = 'expiring_soon';
+        } else {
+            $status = 'valid';
+        }
+
+        list($statusLabel, $statusCls) = self::resolveStatus(self::$docStatusMap, $status, 'vnd-status--muted');
+
+        return (object) [
+            'supplier'     => $supplier,
+            'doc_type'     => $docType,
+            'issue_date'   => $issueDate ? Carbon::parse($issueDate)->format('d M Y') : '',
+            'expiry_date'  => $expiry->format('d M Y'),
+            'status_label' => $statusLabel,
+            'status_cls'   => $statusCls,
+        ];
+    }
+
     /** Audit type → display label (PHP 7.3-safe). */
     private static function auditTypeLabel($t)
     {
@@ -215,18 +226,5 @@ class DashboardController extends Controller
             'remote'  => 'Remote',
         ];
         return isset($map[$t]) ? $map[$t] : ucwords(str_replace('_', ' ', (string) $t));
-    }
-
-    /**
-     * Best-effort expiry inference from the file name.
-     * Replace with a dedicated `expiry_date` column when available.
-     */
-    private static function inferExpiry(VendorApplicationDocument $doc)
-    {
-        $name = strtolower($doc->original_name ? $doc->original_name : '');
-        if (preg_match('/(\d{4})/', $name, $m)) {
-            return Carbon::create((int) $m[1] + 3, 12, 31);
-        }
-        return $doc->created_at ? $doc->created_at->copy()->addYears(3) : null;
     }
 }
