@@ -1,0 +1,441 @@
+/* ==========================================================================
+   Audit Vendor - On Desk & On Site
+   Mirrors risk-assessment.css style for consistency
+   ========================================================================== */
+
+:root {
+    --au-color-scheduled: #3699ff;
+    --au-color-progress: #1bc5bd;
+    --au-color-revision: #ffa800;
+    --au-color-done: #1bc5bd;
+    --au-color-rejected: #f64e60;
+    --au-color-on-desk: #8950fc;
+    --au-color-on-site: #f64e60;
+}
+
+.au-stat {
+    display: flex;
+    align-items: center;
+    padding: 1.1rem 1.25rem;
+    border-radius: 0.85rem;
+    color: #fff;
+    box-shadow: 0 0 20px 0 rgba(76, 87, 125, 0.05);
+}
+.au-stat-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    background: rgba(255, 255, 255, 0.18);
+    margin-right: 0.9rem;
+    flex: 0 0 auto;
+}
+.au-stat-num {
+    font-size: 1.55rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.au-stat-lbl {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    margin-top: 0.15rem;
+}
+.au-stat--scheduled {
+    background: linear-gradient(135deg, #3699ff 0%, #187dee 100%);
+}
+.au-stat--progress {
+    background: linear-gradient(135deg, #1bc5bd 0%, #0f9688 100%);
+}
+.au-stat--revision {
+    background: linear-gradient(135deg, #ffa800 0%, #ee9d01 100%);
+}
+.au-stat--done {
+    background: linear-gradient(135deg, #0bb783 0%, #089b6b 100%);
+}
+
+/* Card */
+.au-card {
+    background: #fff;
+    border-radius: 0.85rem;
+    box-shadow: 0 0 20px 0 rgba(76, 87, 125, 0.05);
+    padding: 1.5rem 1.5rem 1.5rem;
+}
+.au-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+.au-card-title {
+    font-weight: 600;
+    color: #181c32;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+.au-card-title-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3699ff;
+}
+
+/* Filter */
+.au-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+.au-btn-filter,
+.au-btn-reset {
+    border: 0;
+    cursor: pointer;
+    padding: 0.35rem 0.9rem;
+    border-radius: 0.55rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.au-btn-filter {
+    background: #3699ff;
+    color: #fff;
+}
+.au-btn-filter:hover {
+    background: #187dee;
+}
+.au-btn-reset {
+    background: #f3f6f9;
+    color: #7e8299;
+}
+.au-btn-reset:hover {
+    background: #e4e6ef;
+}
+
+/* Tags */
+.au-tag {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 0.35rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: #f3f6f9;
+    color: #5e6278;
+}
+.au-tag--on-desk {
+    background: rgba(137, 80, 252, 0.12);
+    color: #8950fc;
+}
+.au-tag--on-site {
+    background: rgba(246, 78, 96, 0.12);
+    color: #f64e60;
+}
+.au-tag--low {
+    background: rgba(27, 197, 189, 0.12);
+    color: #1bc5bd;
+}
+.au-tag--medium {
+    background: rgba(255, 168, 0, 0.15);
+    color: #ee9d01;
+}
+.au-tag--high {
+    background: rgba(246, 78, 96, 0.12);
+    color: #f64e60;
+}
+.au-tag--muted {
+    background: #f3f6f9;
+    color: #5e6278;
+}
+
+/* Status */
+.au-status {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    border-radius: 1rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: #f3f6f9;
+    color: #5e6278;
+}
+.au-status--scheduled {
+    background: rgba(54, 153, 255, 0.12);
+    color: #3699ff;
+}
+.au-status--questionnaire_in_progress,
+.au-status--schedule_proposed,
+.au-status--in_progress,
+.au-status--capa_in_progress,
+.au-status--capa_submitted,
+.au-status--capa_revised,
+.au-status--findings_recorded {
+    background: rgba(27, 197, 189, 0.12);
+    color: #1bc5bd;
+}
+.au-status--questionnaire_submitted {
+    background: rgba(54, 153, 255, 0.12);
+    color: #3699ff;
+}
+.au-status--schedule_confirmed {
+    background: rgba(54, 153, 255, 0.12);
+    color: #3699ff;
+}
+.au-status--need_revision {
+    background: rgba(255, 168, 0, 0.15);
+    color: #ee9d01;
+}
+.au-status--completed {
+    background: rgba(11, 183, 131, 0.12);
+    color: #0bb783;
+}
+.au-status--rejected {
+    background: rgba(246, 78, 96, 0.12);
+    color: #f64e60;
+}
+.au-status--open {
+    background: rgba(255, 168, 0, 0.15);
+    color: #ee9d01;
+}
+.au-status--closed {
+    background: rgba(11, 183, 131, 0.12);
+    color: #0bb783;
+}
+.au-status--accepted {
+    background: rgba(54, 153, 255, 0.12);
+    color: #3699ff;
+}
+.au-status--pending {
+    background: #f3f6f9;
+    color: #5e6278;
+}
+.au-status--approved {
+    background: rgba(11, 183, 131, 0.12);
+    color: #0bb783;
+}
+
+/* Cell helpers */
+.au-cell-muted {
+    color: #b5b5c3;
+    font-size: 0.85rem;
+}
+.au-appnum {
+    font-weight: 600;
+    color: #181c32;
+}
+.au-vendor-name {
+    font-weight: 600;
+    color: #181c32;
+    font-size: 0.9rem;
+}
+.au-vendor-email {
+    color: #b5b5c3;
+    font-size: 0.78rem;
+}
+
+/* Action button */
+.au-btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.5rem;
+    background: rgba(54, 153, 255, 0.1);
+    color: #3699ff;
+    font-weight: 600;
+    font-size: 0.8rem;
+    transition: background 0.15s ease;
+}
+.au-btn-action:hover {
+    background: rgba(54, 153, 255, 0.2);
+    color: #187dee;
+}
+
+/* Progress bar */
+.au-progress {
+    position: relative;
+    height: 22px;
+    background: #f3f6f9;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+.au-progress--large {
+    height: 28px;
+}
+.au-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #3699ff 0%, #1bc5bd 100%);
+    border-radius: 0.5rem;
+    transition: width 0.3s ease;
+}
+.au-progress-text {
+    position: relative;
+    z-index: 1;
+    margin-left: 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #181c32;
+}
+
+/* Empty */
+.au-empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: #b5b5c3;
+}
+.au-empty i {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+.au-empty-title {
+    font-weight: 600;
+    color: #5e6278;
+}
+.au-empty-sub {
+    font-size: 0.85rem;
+}
+
+/* Form */
+.au-form-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #181c32;
+    margin-bottom: 0.35rem;
+    display: block;
+}
+.au-section-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #181c32;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 1rem 0 0.75rem;
+}
+.au-info-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #b5b5c3;
+    margin-bottom: 0.2rem;
+}
+.au-info-value {
+    font-weight: 600;
+    color: #181c32;
+}
+
+/* Repeater rows */
+.au-repeater-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.au-repeater-row > input {
+    flex: 1;
+}
+.au-repeater-card {
+    background: #f9f9fb;
+    border-radius: 0.55rem;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+/* CAPA items */
+.au-capa-item {
+    background: #fafbfc;
+    border-left: 3px solid #3699ff;
+    padding: 0.85rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+.au-capa-head {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+.au-capa-body {
+    font-size: 0.85rem;
+    color: #5e6278;
+}
+.au-capa-attachments a {
+    margin-right: 0.65rem;
+    font-size: 0.8rem;
+}
+
+.au-capa-summary {
+    background: #f9f9fb;
+    padding: 1rem;
+    border-radius: 0.65rem;
+    margin-bottom: 1rem;
+}
+.au-capa-summary-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Q&A list */
+.au-qa-item {
+    border-bottom: 1px solid #f3f6f9;
+    padding: 0.5rem 0;
+}
+.au-qa-q {
+    font-size: 0.75rem;
+    color: #b5b5c3;
+}
+.au-qa-a {
+    color: #181c32;
+    font-weight: 500;
+}
+
+/* Timeline */
+.au-timeline {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+.au-timeline li {
+    position: relative;
+    padding: 0.5rem 0 0.5rem 1.1rem;
+    border-left: 2px solid #e4e6ef;
+    margin-left: 0.4rem;
+}
+.au-timeline li::before {
+    content: "";
+    position: absolute;
+    left: -5px;
+    top: 1rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3699ff;
+}
+.au-timeline li + li {
+    margin-top: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .au-card-head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .au-repeater-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

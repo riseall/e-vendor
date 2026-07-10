@@ -111,6 +111,18 @@ class VendorApplication extends Model
         return $this->hasOne(VendorQualification::class, 'vendor_application_id')->latestOfMany();
     }
 
+    public function audits()
+    {
+        return $this->hasMany(VendorAudit::class, 'vendor_application_id')->latest();
+    }
+
+    public function activeAudit()
+    {
+        return $this->hasOne(VendorAudit::class, 'vendor_application_id')
+            ->whereNotIn('status', [VendorAudit::STATUS_COMPLETED, VendorAudit::STATUS_REJECTED])
+            ->latestOfMany();
+    }
+
     public function fileVersions()
     {
         return $this->hasMany(VendorApplicationFile::class, 'application_id');

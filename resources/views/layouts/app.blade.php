@@ -21,6 +21,10 @@
     <link href="{{ asset('css/brand/dark.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('css/aside/dark.css') }}" rel="stylesheet" type="text/css" />
     <!--end::Layout Themes-->
+    <!--begin::Page Vendors Styles(used by this page)-->
+    <link href="{{ asset('css/admin/vms.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('plugins/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
+    <!--end::Page Vendors Styles-->
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" href="{{ asset('images/evendor-logo.png') }}" sizes="32x32">
     <link rel="icon" type="image/png" href="{{ asset('images/evendor-logo.png') }}" sizes="192x192">
@@ -177,6 +181,7 @@
     <!--begin::Global Theme Bundle(used by all pages)-->
     <script src="{{ asset('plugins/plugins.bundle.js') }}"></script>
     <script src="{{ asset('js/scripts.bundle.js') }}"></script>
+    <script src="{{ asset('plugins/datatables/datatables.bundle.js') }}"></script>
     <!--end::Global Theme Bundle-->
     @stack('scripts')
     <!--end::Page Scripts-->

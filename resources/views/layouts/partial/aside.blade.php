@@ -118,6 +118,44 @@
                     </li>
                 @endif --}}
 
+                @php
+                    $activeAudit = \App\Models\VendorAudit::whereHas('application', function ($q) {
+                        $q->where('user_id', Auth::id());
+                    })
+                        ->whereNotIn('status', [
+                            \App\Models\VendorAudit::STATUS_COMPLETED,
+                            \App\Models\VendorAudit::STATUS_REJECTED,
+                        ])
+                        ->latest('id')
+                        ->first();
+                @endphp
+                @if ($activeAudit)
+                    <li class="menu-item" aria-haspopup="true">
+                        <a href="{{ $activeAudit->audit_type === 'on_desk'
+                            ? route('vendor.audit.questionnaire', $activeAudit->id)
+                            : route('vendor.audit.capa', $activeAudit->id) }}"
+                            class="menu-link">
+                            <span class="svg-icon menu-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px"
+                                    height="24px">
+                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                        <rect x="0" y="0" width="24" height="24" />
+                                        <path
+                                            d="M9,11 L9,13 L7,13 L7,11 L9,11 Z M13,11 L13,13 L11,13 L11,11 L13,11 Z M17,11 L17,13 L15,13 L15,11 L17,11 Z"
+                                            fill="#000000" opacity="0.3" />
+                                        <path
+                                            d="M5,5 L19,5 C20.1045695,5 21,5.8954305 21,7 L21,19 C21,20.1045695 20.1045695,21 19,21 L5,21 C3.8954305,21 3,20.1045695 3,19 L3,7 C3,5.8954305 3.8954305,5 5,5 Z M5,7 L5,19 L19,19 L19,7 L5,7 Z"
+                                            fill="#000000" />
+                                    </g>
+                                </svg>
+                            </span>
+                            <span class="menu-text">
+                                {{ $activeAudit->audit_type === 'on_desk' ? 'Isi Questionnaire' : 'Tugas CAPA' }}
+                            </span>
+                        </a>
+                    </li>
+                @endif
+
                 @hasanyrole(['Super Admin', 'Admin IT'])
                     <li class="menu-section">
                         <h4 class="menu-text">Master</h4>
@@ -211,6 +249,26 @@
                                 </svg>
                             </span>
                             <span class="menu-text">Risk Assessment</span>
+                        </a>
+                    </li>
+                    <li class="menu-item" aria-haspopup="true">
+                        <a href="{{ route('qa.audit.index') }}" class="menu-link">
+                            <span class="svg-icon menu-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px"
+                                    height="24px">
+                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                        <rect x="0" y="0" width="24" height="24" />
+                                        <path
+                                            d="M9,11 L9,13 L7,13 L7,11 L9,11 Z M13,11 L13,13 L11,13 L11,11 L13,11 Z M17,11 L17,13 L15,13 L15,11 L17,11 Z"
+                                            fill="#000000" opacity="0.3" />
+                                        <path
+                                            d="M5,5 L19,5 C20.1045695,5 21,5.8954305 21,7 L21,19 C21,20.1045695 20.1045695,21 19,21 L5,21 C3.8954305,21 3,20.1045695 3,19 L3,7 C3,5.8954305 3.8954305,5 5,5 Z M5,7 L5,19 L19,19 L19,7 L5,7 Z"
+                                            fill="#000000" />
+                                        <path d="M9,3 L15,3 L15,5 L9,5 L9,3 Z" fill="#000000" opacity="0.3" />
+                                    </g>
+                                </svg>
+                            </span>
+                            <span class="menu-text">Audit Vendor</span>
                         </a>
                     </li>
                 @endhasanyrole

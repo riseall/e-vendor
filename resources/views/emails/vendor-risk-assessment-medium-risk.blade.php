@@ -63,10 +63,23 @@
                     </tr>
                     <tr>
                         <td align="center" style="padding:4px 0 34px;">
-                            <a href="{{ route('registrasi.tracking', $applicationNumber) }}"
+                            @php
+                                $auditLink = optional($application->audits()->latest('id')->first())->id
+                                    ? route(
+                                        'vendor.audit.questionnaire',
+                                        $application->audits()->latest('id')->first()->id,
+                                    )
+                                    : route('registrasi.tracking', $applicationNumber);
+                            @endphp
+                            <a href="{{ $auditLink }}"
                                 style="display:inline-block; background:#f59e0b; color:#ffffff; text-decoration:none; font-size:13px; padding:9px 18px; border-radius:3px;">
-                                LIHAT STATUS
+                                ISI QUESTIONNAIRE
                             </a>
+                            <div style="font-size:12px; color:#9ca3af; padding-top:10px;">
+                                atau lihat status permohonan
+                                <a href="{{ route('registrasi.tracking', $applicationNumber) }}"
+                                    style="color:#f59e0b; text-decoration:underline;">di sini</a>
+                            </div>
                         </td>
                     </tr>
                     <tr>

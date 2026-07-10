@@ -82841,7 +82841,8 @@ td > .radio.radio-single {
 }
 .dataTables_wrapper .dataTable tfoot th,
 .dataTables_wrapper .dataTable thead th {
-    font-weight: 500;
+    font-size: 0.8rem;
+    font-weight: 800;
     color: #212121;
 }
 .dataTables_wrapper .dataTable thead th {

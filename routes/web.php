@@ -4,7 +4,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProcurementVerificationController;
 use App\Http\Controllers\RegistrasiController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VendorAuditController;
+use App\Http\Controllers\VendorCapaController;
 use App\Http\Controllers\VendorQualificationController;
+use App\Http\Controllers\VendorQuestionnaireController;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 /*
@@ -106,6 +109,56 @@ Route::group(
 
                 Route::post('/{application_id}', [VendorQualificationController::class, 'store'])
                     ->name('store');
+            });
+
+            // QA - Audit (Stage 5)
+            Route::prefix('qa/audit')->name('qa.audit.')->group(function () {
+                Route::get('/', [VendorAuditController::class, 'index'])->name('index');
+                Route::get('/{applicationId}/create', [VendorAuditController::class, 'create'])->name('create');
+                Route::post('/{applicationId}/store', [VendorAuditController::class, 'store'])->name('store');
+                Route::get('/{auditId}', [VendorAuditController::class, 'show'])->name('show');
+
+                // Verifikasi questionnaire (on desk)
+                Route::post('/{auditId}/questionnaire/verify', [VendorAuditController::class, 'verifyQuestionnaire'])
+                    ->name('questionnaire.verify');
+
+                // Konfirmasi jadwal (on site)
+                Route::post('/{auditId}/schedule/confirm', [VendorAuditController::class, 'confirmSchedule'])
+                    ->name('schedule.confirm');
+
+                // Surat audit
+                Route::post('/{auditId}/letter', [VendorAuditController::class, 'generateLetter'])
+                    ->name('letter.generate');
+                Route::get('/{auditId}/letter/download', [VendorAuditController::class, 'downloadLetter'])
+                    ->name('letter.download');
+
+                // Temuan audit
+                Route::post('/{auditId}/findings', [VendorAuditController::class, 'storeFindings'])
+                    ->name('findings.store');
+
+                // Verifikasi CAPA per item
+                Route::post('/capa/{capaId}/verify', [VendorAuditController::class, 'verifyCapa'])
+                    ->name('capa.verify');
+
+                // Final decision
+                Route::post('/{auditId}/finalize', [VendorAuditController::class, 'finalize'])
+                    ->name('finalize');
+            });
+
+            // Vendor - Audit (Stage 5)
+            Route::prefix('vendor/audit')->name('vendor.audit.')->group(function () {
+                // Questionnaire (on desk)
+                Route::get('/{auditId}/questionnaire', [VendorQuestionnaireController::class, 'show'])
+                    ->name('questionnaire');
+                Route::post('/{auditId}/questionnaire/save', [VendorQuestionnaireController::class, 'saveDraft'])
+                    ->name('questionnaire.save');
+                Route::post('/{auditId}/questionnaire/submit', [VendorQuestionnaireController::class, 'submit'])
+                    ->name('questionnaire.submit');
+
+                // CAPA (on site)
+                Route::get('/capa', [VendorCapaController::class, 'index'])->name('capa.index');
+                Route::get('/{auditId}/capa', [VendorCapaController::class, 'show'])->name('capa');
+                Route::post('/{auditId}/capa/save', [VendorCapaController::class, 'save'])->name('capa.save');
             });
 
             // Users
