@@ -41,7 +41,8 @@
                     <div class="mt-2 text-dark-75">
                         @foreach ($draft['revision_notes'] as $revision)
                             <div>
-                                <span class="font-weight-bold">{{ $revision['label'] ?? ($revision['field'] ?? 'Umum') }}:</span>
+                                <span
+                                    class="font-weight-bold">{{ $revision['label'] ?? ($revision['field'] ?? 'Umum') }}:</span>
                                 {{ $revision['note'] ?? '-' }}
                             </div>
                         @endforeach
@@ -248,17 +249,94 @@
         $(document).ready(function() {
 
             function showValidationErrors(errors) {
-                let msg = "<ul>";
+                // Bersihkan error lama
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback.dynamic-error').remove();
+
+                var $firstError = null;
+                var errorCount = 0;
+                // group error per step: { 'step-2': 2, 'cat-3': 1, ... }
+                var perStep = {};
+
                 $.each(errors, function(key, value) {
-                    msg += "<li class='text-left'>" + value[0] + "</li>";
-                    $('[name="' + key + '"]').addClass('is-invalid');
+                    var $inputs = $('[name="' + key + '"]');
+                    if ($inputs.length === 0) return;
+
+                    // Deteksi radio/checkbox group (name sama, type radio/checkbox)
+                    var isGroup = $inputs.length > 1 &&
+                        $.inArray($inputs.attr('type'), ['radio', 'checkbox']) > -1;
+
+                    $inputs.addClass('is-invalid');
+
+                    if (isGroup) {
+                        // Cari container pembungkus group (label / .radio-list / .form-group)
+                        // lalu sisipkan pesan di BAWAH seluruh group, bukan di sela radio pertama
+                        var $container = $inputs.first().closest(
+                            '.radio-list, .checkbox-list, .form-group, .form-item, label');
+                        if ($container.length === 0) $container = $inputs.first().parent();
+                        $container.append(
+                            '<div class="invalid-feedback dynamic-error d-block w-100 mt-2">' +
+                            value[0] + '</div>'
+                        );
+                    } else {
+                        // Input / select / textarea: sisipkan tepat di bawah field
+                        $inputs.first().after(
+                            '<div class="invalid-feedback dynamic-error">' + value[0] + '</div>'
+                        );
+                    }
+
+                    var $step = $inputs.first().closest('div[data-step-id]');
+                    var stepId = $step.length ? $step.attr('data-step-id') : 'unknown';
+                    perStep[stepId] = (perStep[stepId] || 0) + 1;
+
+                    errorCount++;
+                    if (!$firstError) $firstError = $inputs.first();
                 });
-                msg += "</ul>";
+
+                if (errorCount === 0) return;
+
+                // Auto-scroll ke error pertama supaya user langsung tahu letaknya
+                if ($firstError && $firstError.length) {
+                    $('html, body').animate({
+                        scrollTop: $firstError.offset().top - 100
+                    }, 300);
+                    $firstError.trigger('focus');
+                }
+
+                // Label step yang ramah dibaca user
+                var stepLabels = {
+                    'step-1': 'Kategori',
+                    'step-2': 'Info Umum',
+                    'step-3': 'Pembayaran',
+                    'step-4': 'Komitmen',
+                    'step-5': 'Info Lain',
+                    'step-6': 'Khusus Vendor Lokal',
+                    'step-7': 'Produk',
+                    'step-8': 'Dokumen',
+                    'cat-1': 'Bahan Baku',
+                    'cat-2': 'Varia Teknik',
+                    'cat-3': 'Transporter',
+                    'cat-4': 'Kontraktor',
+                    'cat-5': 'Pengujian',
+                    'cat-6': 'Facility',
+                    'cat-7': 'Pelatihan',
+                    'cat-8': 'Advertising'
+                };
+
+                // Ringkasan: nama step + jumlah error (bukan daftar pesan lengkap)
+                var list = '<ul class="text-left mb-0">';
+                Object.keys(perStep).forEach(function(stepId) {
+                    var label = stepLabels[stepId] || stepId;
+                    list += '<li><b>' + label + '</b> &mdash; ' + perStep[stepId] +
+                        ' isian perlu diperbaiki</li>';
+                });
+                list += '</ul>';
 
                 Swal.fire({
                     icon: 'error',
                     title: 'Validasi Gagal',
-                    html: msg
+                    html: '<p class="mb-2">Terdapat <b>' + errorCount +
+                        '</b> isian yang perlu diperbaiki pada:</p>' + list
                 });
             }
 
@@ -303,7 +381,8 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal',
-                                text: xhr.responseJSON?.message || 'Gagal membuat draft kategori.'
+                                text: xhr.responseJSON?.message ||
+                                    'Gagal membuat draft kategori.'
                             });
                         }
                     },
@@ -396,7 +475,8 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Gagal',
-                            text: xhr.responseJSON?.message || 'Gagal menyimpan revisi sebelum submit.'
+                            text: xhr.responseJSON?.message ||
+                                'Gagal menyimpan revisi sebelum submit.'
                         });
                     }
                     btnElement.attr('disabled', false).html(btnElement.data('original-html'));
@@ -506,7 +586,17 @@
                 e.preventDefault();
                 sendForm('submit', $(this));
             });
+
+            // Hapus error secara otomatis saat user mulai memperbaiki input.
+            // Untuk radio/checkbox group, hapus class di semua sibling + pesan terkait.
+            $(document).on('input change', '.is-invalid', function() {
+                var $changed = $(this);
+                var name = $changed.attr('name');
+                $('[name="' + name + '"]').removeClass('is-invalid');
+                $changed.closest('div, td, label').find('.invalid-feedback.dynamic-error').remove();
+                // fallback: kalau masih ada (struktur DOM unik), hapus satu pesan setelah input pertama
+                $('[name="' + name + '"]').first().next('.invalid-feedback.dynamic-error').remove();
+            });
         });
     </script>
-
 @endpush

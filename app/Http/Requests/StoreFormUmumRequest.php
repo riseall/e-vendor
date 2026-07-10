@@ -63,11 +63,11 @@ class StoreFormUmumRequest extends FormRequest
                 'lead_time'          => 'required|string|max:100',
                 'customer_list'      => 'required|string|max:255',
 
-                'status_perusahaan'  => 'required|string|max:20',
-                'status_pajak'       => 'required|string|max:20',
-                'skala_perusahaan'   => 'required|string|max:30',
-                'jenis_modal'        => 'required|string|max:20',
-                'kbli'               => 'required|string|max:50',
+                'status_perusahaan'  => 'nullable|string|max:20',
+                'status_pajak'       => 'nullable|string|max:20',
+                'skala_perusahaan'   => 'nullable|string|max:30',
+                'jenis_modal'        => 'nullable|string|max:20',
+                'kbli'               => 'nullable|string|max:50',
             ];
         } else {
             // Loose validation for draft

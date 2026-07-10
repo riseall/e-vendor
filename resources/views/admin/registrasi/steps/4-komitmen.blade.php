@@ -49,8 +49,14 @@
         @php $uploadedIso = $uploadedIsoCertificates ?? []; @endphp
 
         @if (!$isReadOnly)
-            <input type="file" name="iso_files[]" id="isoFilesInput" multiple accept=".pdf,.jpg,.jpeg,.png"
-                class="form-control form-control-sm">
+            <div class="custom-file custom-file-sm">
+                <input type="file" class="custom-file-input product-file-input" name="iso_files[]" id="isoFilesInput"
+                    multiple accept=".pdf,.jpg,.jpeg,.png">
+                <label class="custom-file-label text-truncate" for="isoFilesInput"
+                    style="border-radius:6px; font-size:0.8rem;">
+                    Pilih File
+                </label>
+            </div>
 
             <small class="text-muted">Format: PDF/JPG/PNG. Maks 5 MB per file.</small>
 
@@ -90,7 +96,7 @@
     <div class="col-md-12">
         <div class="question-wrapper">
             <label class="question-label">Komitmen Kualitas, Lingkungan & K3 (Selain ISO) @if (!$isReadOnly)
-                    <span class="text-danger">*</span>
+                    {{-- <span class="text-danger">*</span> --}}
                 @endif
             </label>
 

@@ -11,12 +11,12 @@
     <label class="question-label">Informasi Perusahaan</label>
     <div class="row">
         <div class="col-md-6">
-            <x-vendor-input name="nama_perusahaan" label="Nama Perusahaan" placeholder="PT / CV / UD ..."
-                :value="$draft['general']->nama_perusahaan ?? ''" :readonly="$isReadOnly" required />
+            <x-vendor-input name="nama_perusahaan" label="Nama Perusahaan (example: PHAPROS TBK PT.)"
+                placeholder="example: PHAPROS TBK PT." :value="$draft['general']->nama_perusahaan ?? ''" :readonly="$isReadOnly" required />
         </div>
         <div class="col-md-6">
             <x-vendor-input type="url" name="website" label="Situs Resmi Perusahaan"
-                placeholder="https://www.company.com" :value="$draft['general']->website ?? ''" :readonly="$isReadOnly" />
+                placeholder="https://www.company.com" :value="$draft['general']->website ?? ''" :readonly="$isReadOnly" required />
         </div>
     </div>
 

@@ -39,11 +39,13 @@
                 <tr>
                     <th>Produk</th>
                     <th>Manufaktur / Asal <span class="text-danger">*</span></th>
+                    <th>Negara</th>
                     <th>Rantai Pasok <span class="text-danger">*</span></th>
                     <th>Surat Keagenan <span class="text-danger">*</span></th>
                     <th>TKDN</th>
                     <th>SNI</th>
                     <th>Halal</th>
+                    <th>BSE/TSE</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -75,60 +77,60 @@
     <script src="{{ asset('plugins/datatables/datatables.bundle.js') }}"></script>
     <script>
         $(document).ready(function() {
-                const productTable = $('#selectedProductsTable').DataTable({
-                    responsive: false,
-                    scrollX: true,
-                    pageLength: 10,
-                    lengthMenu: [
-                        [10, 25, 50, 100, -1],
-                        [10, 25, 50, 100, 'Semua']
-                    ],
-                    order: [],
-                    columnDefs: [{
-                        targets: -1,
-                        orderable: false,
-                        searchable: false
-                    }],
-                    language: {
-                        search: 'Cari:',
-                        lengthMenu: 'Tampilkan _MENU_ produk',
-                        info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ produk',
-                        infoEmpty: 'Belum ada produk',
-                        emptyTable: 'Belum ada produk yang dipilih',
-                        zeroRecords: 'Produk tidak ditemukan',
-                        paginate: {
-                            previous: 'Sebelumnya',
-                            next: 'Berikutnya'
-                        }
-                    }
-                });
-                let productTableSubmitState = null;
+            const productTable = $('#selectedProductsTable').DataTable({
+                responsive: false,
+                scrollX: true,
+                pageLength: 10,
+                lengthMenu: [
+                    [10, 25, 50, 100, -1],
+                    [10, 25, 50, 100, 'Semua']
+                ],
+                order: [],
+                columnDefs: [{
+                    targets: -1,
+                    orderable: false,
+                    searchable: false
+                }],
+                // language: {
+                //     search: 'Cari:',
+                //     lengthMenu: 'Tampilkan _MENU_ produk',
+                //     info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ produk',
+                //     infoEmpty: 'Belum ada produk',
+                //     emptyTable: 'Belum ada produk yang dipilih',
+                //     zeroRecords: 'Produk tidak ditemukan',
+                //     paginate: {
+                //         previous: 'Sebelumnya',
+                //         next: 'Berikutnya'
+                //     }
+                // }
+            });
+            let productTableSubmitState = null;
 
-                window.prepareProductRowsForSubmit = function() {
-                    productTableSubmitState = {
-                        length: productTable.page.len(),
-                        page: productTable.page()
-                    };
-                    productTable.page.len(-1).draw(false);
+            window.prepareProductRowsForSubmit = function() {
+                productTableSubmitState = {
+                    length: productTable.page.len(),
+                    page: productTable.page()
                 };
+                productTable.page.len(-1).draw(false);
+            };
 
-                window.restoreProductRowsAfterSubmit = function() {
-                    if (!productTableSubmitState) {
-                        return;
-                    }
+            window.restoreProductRowsAfterSubmit = function() {
+                if (!productTableSubmitState) {
+                    return;
+                }
 
-                    productTable.page.len(productTableSubmitState.length).draw(false);
-                    if (productTableSubmitState.page < productTable.page.info().pages) {
-                        productTable.page(productTableSubmitState.page).draw(false);
-                    }
-                    productTableSubmitState = null;
-                };
+                productTable.page.len(productTableSubmitState.length).draw(false);
+                if (productTableSubmitState.page < productTable.page.info().pages) {
+                    productTable.page(productTableSubmitState.page).draw(false);
+                }
+                productTableSubmitState = null;
+            };
 
-                window.refreshProductTable = function() {
-                    productTable.columns.adjust().draw(false);
-                };
+            window.refreshProductTable = function() {
+                productTable.columns.adjust().draw(false);
+            };
 
-                @if (!$isReadOnly)
+            @if (!$isReadOnly)
                 function productExists(id) {
                     let exists = false;
                     productTable.rows().every(function() {
@@ -203,7 +205,7 @@
                         });
                     }
                 });
-                @endif
+            @endif
         });
     </script>
 @endpush

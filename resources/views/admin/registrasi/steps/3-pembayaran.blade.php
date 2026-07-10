@@ -4,9 +4,9 @@
 <div class="question-wrapper">
     @php
         $termOptions = [
-            ['value' => '14', 'label' => '14 hari'],
-            ['value' => '30', 'label' => '30 hari'],
-            ['value' => '60', 'label' => '60 hari'],
+            ['value' => '14D', 'label' => '14D'],
+            ['value' => '30D', 'label' => '30D'],
+            ['value' => '60D', 'label' => '60D'],
             ['value' => 'other', 'label' => 'Lainnya'],
         ];
     @endphp
@@ -21,7 +21,7 @@
 
     {{-- Input text muncul jika pilih 'Lainnya' --}}
     <div id="paymentTermOther" style="{{ ($draft['general']->payment_term ?? '') === 'other' ? '' : 'display:none' }}">
-        <x-vendor-input name="payment_term_other" placeholder="contoh: 90 hari" :value="$draft['general']->payment_term_other ?? ''" :readonly="$isReadOnly" />
+        <x-vendor-input name="payment_term_other" placeholder="example: 90D" :value="$draft['general']->payment_term_other ?? ''" :readonly="$isReadOnly" />
     </div>
 </div>
 
@@ -45,7 +45,7 @@
         </div>
         <div class="col-md-6">
             <x-vendor-input name="swift_code" label="SWIFT Code" placeholder="XXXXXXXX" :value="$draft['general']->swift_code ?? ''"
-                :readonly="$isReadOnly" />
+                :readonly="$isReadOnly" required />
         </div>
     </div>
 

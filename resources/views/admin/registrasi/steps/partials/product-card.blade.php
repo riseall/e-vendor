@@ -16,6 +16,39 @@
             value="{{ old('products.' . $id . '.manufaktur', $data['manufaktur'] ?? '') }}"
             placeholder="Manufaktur / Asal" style="border-radius:6px;" {{ $isReadOnly ? 'readonly disabled' : '' }}
             required>
+
+        <label class="font-weight-bold text-dark d-block mt-2" style="font-size:0.75rem;">GMP</label>
+        <div class="custom-file custom-file-sm">
+            <input type="file" class="custom-file-input product-file-input"
+                name="products[{{ $id }}][gmp_file]" id="file_{{ $id }}"
+                accept=".pdf,.jpg,.jpeg,.png" required>
+            <label class="custom-file-label text-truncate" for="file_{{ $id }}"
+                style="border-radius:6px; font-size:0.8rem;">
+                Pilih File
+            </label>
+        </div>
+    </td>
+
+    {{-- Kolom: Negara --}}
+    <td class="align-top" style="min-width:175px; padding:14px 12px;">
+        <select name="products[{{ $id }}][negara]" class="form-control form-control-sm custom-select"
+            style="border-radius:6px;" {{ $isReadOnly ? 'disabled' : '' }} required>
+            <option value="">Pilih...</option>
+            @foreach ([
+        'Indonesia' => 'Indonesia',
+        'China' => 'China',
+        'Japan' => 'Japan',
+        'Korea' => 'Korea',
+        'Malaysia' => 'Malaysia',
+        'Thailand' => 'Thailand',
+        'Vietnam' => 'Vietnam',
+    ] as $val => $txt)
+                <option value="{{ $val }}"
+                    {{ old('products.' . $id . '.negara', $data['negara'] ?? '') == $val ? 'selected' : '' }}>
+                    {{ $txt }}
+                </option>
+            @endforeach
+        </select>
     </td>
 
     {{-- Kolom: Rantai Pasok --}}
@@ -71,8 +104,7 @@
                 <button type="button" class="btn btn-icon btn-xs btn-success btn-preview-doc"
                     style="width:22px; height:22px; border-radius:4px; padding:0;"
                     data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $suratPath) }}"
-                    data-title="Preview Surat Keagenan"
-                    title="Preview">
+                    data-title="Preview Surat Keagenan" title="Preview">
                     <i class="flaticon-eye" style="font-size:0.7rem;"></i>
                 </button>
             </div>
@@ -130,7 +162,8 @@
     @endphp
     <td class="align-top" style="min-width:155px; padding:14px 12px;">
         @if ($sniFilePath)
-            <input type="hidden" name="products[{{ $id }}][existing_sni_file]" value="{{ $sniFilePath }}">
+            <input type="hidden" name="products[{{ $id }}][existing_sni_file]"
+                value="{{ $sniFilePath }}">
         @endif
         <select name="products[{{ $id }}][has_sni]"
             class="form-control form-control-sm custom-select product-cert-toggle"
@@ -176,6 +209,36 @@
                 'fieldId' => "halal_file_{$id}",
                 'previewTitle' => 'Preview Sertifikat Halal',
                 'required' => $hasHalal === 'yes' && !$halalFilePath,
+            ])
+        </div>
+    </td>
+
+    {{-- Kolom: BSE/TSE --}}
+    @php
+        $hasBseTse = old('products.' . $id . '.has_bse_tse', $data['has_bse_tse'] ?? 'no');
+        $bseTseFilePath = $data['bse_tse_file_path'] ?? null;
+    @endphp
+    <td class="align-top" style="min-width:155px; padding:14px 12px;">
+        @if ($bseTseFilePath)
+            <input type="hidden" name="products[{{ $id }}][existing_bse_tse_file]"
+                value="{{ $bseTseFilePath }}">
+        @endif
+        <select name="products[{{ $id }}][has_bse_tse]"
+            class="form-control form-control-sm custom-select product-cert-toggle"
+            data-target=".detail-bse-tse-{{ $id }}" style="border-radius:6px;"
+            {{ $isReadOnly ? 'disabled' : '' }}>
+            <option value="no" {{ $hasBseTse === 'no' ? 'selected' : '' }}>Tidak</option>
+            <option value="yes" {{ $hasBseTse === 'yes' ? 'selected' : '' }}>Ya</option>
+        </select>
+        <div class="detail-bse-tse-{{ $id }} mt-2"
+            style="{{ $hasBseTse === 'yes' ? '' : 'display:none' }}">
+            @include('admin.registrasi.steps.partials._cert-field', [
+                'isReadOnly' => $isReadOnly,
+                'filePath' => $bseTseFilePath,
+                'fieldName' => "products[{$id}][bse_tse_file]",
+                'fieldId' => "bse_tse_file_{$id}",
+                'previewTitle' => 'Preview Sertifikat BSE/TSE',
+                'required' => $hasBseTse === 'yes' && !$bseTseFilePath,
             ])
         </div>
     </td>
