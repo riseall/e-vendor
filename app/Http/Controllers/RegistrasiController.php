@@ -305,7 +305,7 @@ class RegistrasiController extends Controller
     {
         $query = VendorApplication::where('user_id', Auth::id())
             ->where('status', '!=', VendorApplication::STATUS_DRAFT)
-            ->with(['user', 'general', 'categories', 'activityLogs']);
+            ->with(['user', 'general', 'categories', 'activityLogs', 'audits']);
 
         if ($applicationNumber) {
             $application = $query->where('application_number', $applicationNumber)->firstOrFail();
@@ -547,47 +547,46 @@ class RegistrasiController extends Controller
 
     private function trackingStatusSteps(VendorApplication $application): array
     {
-        $status = $application->status;
-        $revisionSubmitted = !empty($application->revision_submitted_at);
-        $revisionRequestedAt = optional(
-            $application->activityLogs
-                ->where('action', 'revision_requested')
-                ->sortByDesc('created_at')
-                ->first()
-        )->created_at;
-        $resultDescription = 'Hasil akhir akan tampil setelah proses verifikasi selesai.';
+        // Get semua status transitions dari activity logs (berurut)
+        $transitions = $application->activityLogs
+            ->whereIn('action', [
+                'submitted',
+                'revision_requested',
+                'revision_submitted',
+                'verified',
+                'risk_assessed',
+                'audit_required',
+                'on_hold',
+                'approved',
+                'rejected'
+            ])
+            ->sortBy('created_at')
+            ->pluck('action', 'created_at')
+            ->toArray();
 
-        switch ($status) {
-            case VendorApplication::STATUS_VERIFIED:
-                $resultDescription = 'Permohonan telah selesai diverifikasi dan menunggu risk assessment QA.';
-                break;
-            case VendorApplication::STATUS_RISK_ASSESSED:
-                $resultDescription = 'Risk assessment QA telah selesai.';
-                break;
-            case VendorApplication::STATUS_AUDIT_REQUIRED:
-                $resultDescription = 'Risk assessment selesai. Vendor perlu mengikuti proses audit QA.';
-                break;
-            case VendorApplication::STATUS_ON_HOLD:
-                $resultDescription = 'Permohonan sedang menunggu tindak lanjut QA.';
-                break;
-            case VendorApplication::STATUS_APPROVED:
-                $resultDescription = 'Permohonan telah disetujui dan vendor terekomendasi.';
-                break;
-            case VendorApplication::STATUS_REJECTED:
-                $resultDescription = 'Permohonan tidak disetujui.';
-                break;
-        }
+        $steps = [];
 
-        return [
-            [
-                'key' => VendorApplication::STATUS_SUBMITTED,
-                'title' => $revisionSubmitted ? 'Revisi Dikirim' : 'Permohonan Dikirim',
-                'description' => $revisionSubmitted
-                    ? 'Perbaikan data sudah dikirim kembali ke tim pengadaan.'
-                    : 'Data vendor sudah dikirim ke sistem E-Vendor.',
-                'date' => $application->revision_submitted_at ?: $application->submitted_at,
-                'state' => in_array($status, [
-                    VendorApplication::STATUS_SUBMITTED,
+        // Step 1: Submitted (selalu ada)
+        $steps[] = [
+            'key' => VendorApplication::STATUS_SUBMITTED,
+            'title' => 'Permohonan Dikirim',
+            'description' => 'Data vendor sudah dikirim ke sistem E-Vendor.',
+            'date' => $application->submitted_at,
+            'state' => 'done',
+        ];
+
+        // Step 2: Need Revision (hanya jika ada)
+        if ($application->activityLogs->where('action', 'revision_requested')->isNotEmpty()) {
+            $steps[] = [
+                'key' => VendorApplication::STATUS_NEED_REVISION,
+                'title' => 'Revisi Dikirim',
+                'description' => 'Tim pengadaan meminta revisi data permohonan.',
+                'date' => $application->activityLogs
+                    ->where('action', 'revision_requested')
+                    ->sortByDesc('created_at')
+                    ->first()
+                    ->created_at,
+                'state' => in_array($application->status, [
                     VendorApplication::STATUS_NEED_REVISION,
                     VendorApplication::STATUS_VERIFIED,
                     VendorApplication::STATUS_RISK_ASSESSED,
@@ -595,58 +594,133 @@ class RegistrasiController extends Controller
                     VendorApplication::STATUS_ON_HOLD,
                     VendorApplication::STATUS_APPROVED,
                     VendorApplication::STATUS_REJECTED,
-                ], true) ? 'done' : 'pending',
-            ],
-            [
-                'key' => 'review',
-                'title' => 'Verifikasi Pengadaan',
-                'description' => $status === VendorApplication::STATUS_NEED_REVISION
-                    ? 'Tim pengadaan meminta revisi data permohonan.'
-                    : 'Tim pengadaan memeriksa kelengkapan data dan dokumen.',
-                'date' => $status === VendorApplication::STATUS_NEED_REVISION
-                    ? $revisionRequestedAt
-                    : $application->verified_at,
-                'state' => in_array($status, [
-                    VendorApplication::STATUS_VERIFIED,
-                    VendorApplication::STATUS_RISK_ASSESSED,
-                    VendorApplication::STATUS_AUDIT_REQUIRED,
-                    VendorApplication::STATUS_ON_HOLD,
-                    VendorApplication::STATUS_APPROVED,
-                    VendorApplication::STATUS_REJECTED,
-                ], true)
-                    ? 'done'
-                    : ($status === VendorApplication::STATUS_NEED_REVISION
-                        ? 'warning'
-                        : ($status === VendorApplication::STATUS_SUBMITTED ? 'active' : 'pending')),
-            ],
-            [
-                'key' => VendorApplication::STATUS_APPROVED,
-                'title' => 'Hasil Permohonan',
-                'description' => $resultDescription,
-                'date' => in_array($status, [
-                    VendorApplication::STATUS_VERIFIED,
-                    VendorApplication::STATUS_RISK_ASSESSED,
-                    VendorApplication::STATUS_AUDIT_REQUIRED,
-                    VendorApplication::STATUS_ON_HOLD,
-                    VendorApplication::STATUS_APPROVED,
-                    VendorApplication::STATUS_REJECTED,
-                ], true) ? ($application->verified_at ?: $application->updated_at) : null,
-                'state' => in_array($status, [
-                    VendorApplication::STATUS_APPROVED,
-                ], true)
-                    ? 'done'
-                    : ($status === VendorApplication::STATUS_REJECTED
-                        ? 'danger'
-                        : (in_array($status, [
-                            VendorApplication::STATUS_VERIFIED,
-                            VendorApplication::STATUS_RISK_ASSESSED,
-                            VendorApplication::STATUS_AUDIT_REQUIRED,
-                            VendorApplication::STATUS_ON_HOLD,
-                        ], true) ? 'active' : 'pending')),
-            ],
-        ];
-    }
+                ]) ? 'done' : 'pending',
+            ];
 
+            // Sub-step: Revision Submitted
+            if ($application->revision_submitted_at) {
+                $steps[] = [
+                    'key' => 'revision_submitted',
+                    'title' => 'Revisi Diproses',
+                    'description' => 'Perbaikan data sudah dikirim kembali ke tim pengadaan.',
+                    'date' => $application->revision_submitted_at,
+                    'state' => in_array($application->status, [
+                        VendorApplication::STATUS_VERIFIED,
+                        VendorApplication::STATUS_RISK_ASSESSED,
+                        VendorApplication::STATUS_AUDIT_REQUIRED,
+                        VendorApplication::STATUS_ON_HOLD,
+                        VendorApplication::STATUS_APPROVED,
+                        VendorApplication::STATUS_REJECTED,
+                    ]) ? 'done' : 'active',
+                ];
+            }
+        }
+
+        // Step 3+: Verified (hanya jika passed revision atau no revision needed)
+        if (
+            $application->activityLogs->where('action', 'verified')->isNotEmpty() ||
+            in_array($application->status, [
+                VendorApplication::STATUS_VERIFIED,
+                VendorApplication::STATUS_RISK_ASSESSED,
+                VendorApplication::STATUS_AUDIT_REQUIRED,
+                VendorApplication::STATUS_ON_HOLD,
+                VendorApplication::STATUS_APPROVED,
+                VendorApplication::STATUS_REJECTED,
+            ])
+        ) {
+            $steps[] = [
+                'key' => VendorApplication::STATUS_VERIFIED,
+                'title' => 'Verifikasi Selesai',
+                'description' => 'Tim pengadaan selesai memeriksa kelengkapan data dan dokumen.',
+                'date' => $application->verified_at,
+                'state' => in_array($application->status, [
+                    VendorApplication::STATUS_VERIFIED,
+                    VendorApplication::STATUS_RISK_ASSESSED,
+                    VendorApplication::STATUS_AUDIT_REQUIRED,
+                    VendorApplication::STATUS_ON_HOLD,
+                    VendorApplication::STATUS_APPROVED,
+                    VendorApplication::STATUS_REJECTED,
+                ]) ? 'done' : 'active',
+            ];
+        }
+
+        // Step 4: Risk Assessment (hanya jika ada)
+        if (
+            $application->activityLogs->where('action', 'risk_assessed')->isNotEmpty() ||
+            in_array($application->status, [
+                VendorApplication::STATUS_RISK_ASSESSED,
+                VendorApplication::STATUS_AUDIT_REQUIRED,
+                VendorApplication::STATUS_ON_HOLD,
+                VendorApplication::STATUS_APPROVED,
+                VendorApplication::STATUS_REJECTED,
+            ])
+        ) {
+            $steps[] = [
+                'key' => VendorApplication::STATUS_RISK_ASSESSED,
+                'title' => 'Risk Assessment QA',
+                'description' => 'Penilaian risiko terhadap vendor telah selesai.',
+                'date' => $application->risk_assessed_at ?? $application->updated_at,
+                'state' => in_array($application->status, [
+                    VendorApplication::STATUS_RISK_ASSESSED,
+                    VendorApplication::STATUS_AUDIT_REQUIRED,
+                    VendorApplication::STATUS_ON_HOLD,
+                    VendorApplication::STATUS_APPROVED,
+                    VendorApplication::STATUS_REJECTED,
+                ]) ? 'done' : 'active',
+            ];
+        }
+
+        // Step 5: Audit Required (hanya jika ada)
+        if (
+            $application->status === VendorApplication::STATUS_AUDIT_REQUIRED ||
+            $application->activityLogs->where('action', 'audit_required')->isNotEmpty()
+        ) {
+            $steps[] = [
+                'key' => VendorApplication::STATUS_AUDIT_REQUIRED,
+                'title' => 'Audit QA',
+                'description' => 'Vendor perlu mengikuti proses audit kualitas lebih lanjut.',
+                'date' => $application->audit_required_at ?? $application->updated_at,
+                'state' => in_array($application->status, [
+                    VendorApplication::STATUS_AUDIT_REQUIRED,
+                    VendorApplication::STATUS_ON_HOLD,
+                    VendorApplication::STATUS_APPROVED,
+                    VendorApplication::STATUS_REJECTED,
+                ]) ? 'done' : 'active',
+            ];
+        }
+
+        // Step 6: On Hold (hanya jika ada)
+        if ($application->status === VendorApplication::STATUS_ON_HOLD) {
+            $steps[] = [
+                'key' => VendorApplication::STATUS_ON_HOLD,
+                'title' => 'Proses Evaluasi',
+                'description' => 'Permohonan sedang menunggu tindak lanjut QA.',
+                'date' => $application->updated_at,
+                'state' => 'active',
+            ];
+        }
+
+        // Step Final: Approved atau Rejected
+        if ($application->status === VendorApplication::STATUS_APPROVED) {
+            $steps[] = [
+                'key' => VendorApplication::STATUS_APPROVED,
+                'title' => 'Disetujui',
+                'description' => 'Permohonan telah disetujui dan vendor terekomendasi.',
+                'date' => $application->approved_at ?? $application->updated_at,
+                'state' => 'done',
+            ];
+        } elseif ($application->status === VendorApplication::STATUS_REJECTED) {
+            $steps[] = [
+                'key' => VendorApplication::STATUS_REJECTED,
+                'title' => 'Ditolak',
+                'description' => 'Permohonan tidak disetujui.',
+                'date' => $application->rejected_at ?? $application->updated_at,
+                'state' => 'danger',
+            ];
+        }
+
+        return $steps;
+    }
 
 
     public function searchProducts(Request $request, SupplierItemService $qad)

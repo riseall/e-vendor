@@ -27,11 +27,11 @@
         ];
 
         $dotIcon = [
-            'done' => 'fas fa-check',
-            'active' => 'fas fa-search',
-            'warning' => 'fas fa-exclamation-triangle',
-            'danger' => 'fas fa-times',
-            'pending' => 'far fa-clock',
+            'done' => 'fas fa-check text-white',
+            'active' => 'fas fa-search text-white',
+            'warning' => 'fas fa-exclamation-triangle text-white',
+            'danger' => 'fas fa-times text-white',
+            'pending' => 'far fa-clock text-white',
         ];
     @endphp
 
@@ -471,6 +471,49 @@
                 </div>
             @endif
 
+            {{-- Audit action --}}
+            @php
+                $activeAudit = $application
+                    ->audits()
+                    ->whereNotIn('status', [
+                        \App\Models\VendorAudit::STATUS_COMPLETED,
+                        \App\Models\VendorAudit::STATUS_REJECTED,
+                    ])
+                    ->latest('id')
+                    ->first();
+            @endphp
+            @if ($application->status === \App\Models\VendorApplication::STATUS_AUDIT_REQUIRED && $activeAudit)
+                <div class="trk-revision mt-5" style="background:#EEEDFE;border-color:#534AB7;">
+                    <div class="trk-revision-title" style="color:#534AB7;">
+                        <i class="fas fa-clipboard-check"></i>
+                        {{ $activeAudit->audit_type === 'on_desk' ? 'Audit On Desk — Questionnaire' : 'Audit On Site — Jadwal & CAPA' }}
+                    </div>
+                    <div class="trk-revision-note">
+                        Permohonan Anda memerlukan audit
+                        <strong>{{ $activeAudit->audit_type === 'on_desk' ? 'On Desk (questionnaire)' : 'On Site' }}</strong>.
+                        @if ($activeAudit->audit_type === 'on_desk')
+                            Silakan mengisi questionnaire dari Quality Assurance. Anda dapat menyimpan draft dan melanjutkan
+                            nanti.
+                        @else
+                            Tim QA akan mengirim jadwal audit. Anda akan menerima surat pemberitahuan setelah QA
+                            mengkonfirmasi jadwal.
+                        @endif
+                    </div>
+                    <div class="mt-3">
+                        @if ($activeAudit->audit_type === 'on_desk')
+                            <a href="{{ route('vendor.audit.questionnaire', $activeAudit->id) }}"
+                                class="btn btn-primary font-weight-bold">
+                                <i class="fas fa-pen"></i> Isi Questionnaire
+                            </a>
+                        @else
+                            <a href="{{ route('vendor.audit.capa.index') }}" class="btn btn-primary font-weight-bold">
+                                <i class="fas fa-tasks"></i> Lihat Tugas Audit
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             <div class="mt-8">
                 <a href="{{ route('registrasi.index') }}" class="btn btn-light-primary font-weight-bold mr-2">
                     @if ($application->status === \App\Models\VendorApplication::STATUS_NEED_REVISION)
@@ -483,7 +526,6 @@
                     <i class="fas fa-tachometer-alt"></i> Ke Dashboard
                 </a>
             </div>
-
         </div>
     </div>
 
