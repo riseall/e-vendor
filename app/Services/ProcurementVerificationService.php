@@ -711,14 +711,18 @@ class ProcurementVerificationService
                 'product' => $productName,
                 'erp' => $product->erp_product_id ?: '-',
                 'manufaktur' => $product->manufaktur ?: '-',
+                'negara' => $product->negara ?: '-',
                 'rantai_pasok' => $product->rantai_pasok ?: '-',
                 'surat' => $this->fileService->url($application, $product->file_surat_path),
+                'gmp' => $this->fileService->url($application, $product->gmp_file_path),
                 'has_tkdn' => $product->has_tkdn === 'yes',
                 'tkdn' => $this->fileService->url($application, $product->tkdn_file_path),
                 'has_sni' => $product->has_sni === 'yes',
                 'sni' => $this->fileService->url($application, $product->sni_file_path),
                 'has_halal' => $product->has_halal === 'yes',
                 'halal' => $this->fileService->url($application, $product->halal_file_path),
+                'has_bse_tse' => $product->has_bse_tse === 'yes',
+                'bse_tse' => $this->fileService->url($application, $product->bse_tse_file_path),
             ];
         })->values()->all();
 

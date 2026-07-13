@@ -11,6 +11,7 @@
     </td>
 
     {{-- Kolom: Manufaktur / Asal --}}
+    @php $gmpFilePath = $data['gmp_file_path'] ?? null; @endphp
     <td class="align-top" style="min-width:160px; padding:14px 12px;">
         <input type="text" name="products[{{ $id }}][manufaktur]" class="form-control form-control-sm"
             value="{{ old('products.' . $id . '.manufaktur', $data['manufaktur'] ?? '') }}"
@@ -18,15 +19,32 @@
             required>
 
         <label class="font-weight-bold text-dark d-block mt-2" style="font-size:0.75rem;">GMP</label>
-        <div class="custom-file custom-file-sm">
-            <input type="file" class="custom-file-input product-file-input"
-                name="products[{{ $id }}][gmp_file]" id="file_{{ $id }}"
-                accept=".pdf,.jpg,.jpeg,.png" required>
-            <label class="custom-file-label text-truncate" for="file_{{ $id }}"
-                style="border-radius:6px; font-size:0.8rem;">
-                Pilih File
-            </label>
-        </div>
+        @if ($gmpFilePath)
+            <input type="hidden" name="products[{{ $id }}][existing_gmp_file]" value="{{ $gmpFilePath }}">
+        @endif
+        @if ($isReadOnly)
+            @if ($gmpFilePath)
+                <button type="button"
+                    class="btn btn-xs btn-light-success btn-preview-doc d-inline-flex align-items-center"
+                    style="gap:4px; border-radius:5px; font-size:0.78rem;"
+                    data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $gmpFilePath) }}"
+                    data-title="Preview Sertifikat GMP">
+                    <i class="flaticon-eye icon-sm"></i> Lihat
+                </button>
+            @else
+                <span class="text-muted" style="font-size:0.78rem;">—</span>
+            @endif
+        @else
+            <div class="custom-file custom-file-sm">
+                <input type="file" class="custom-file-input product-file-input"
+                    name="products[{{ $id }}][gmp_file]" id="gmp_file_{{ $id }}"
+                    accept=".pdf,.jpg,.jpeg,.png" {{ $gmpFilePath ? '' : 'required' }}>
+                <label class="custom-file-label text-truncate" for="gmp_file_{{ $id }}"
+                    style="border-radius:6px; font-size:0.8rem;">
+                    {{ $gmpFilePath ? 'Ganti file...' : 'Pilih File' }}
+                </label>
+            </div>
+        @endif
     </td>
 
     {{-- Kolom: Negara --}}

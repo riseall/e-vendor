@@ -71,7 +71,7 @@ class VendorRegistrationService
             ->get();
 
         foreach ($removedProducts as $removedProduct) {
-            foreach (['file_surat', 'tkdn_file', 'sni_file', 'halal_file'] as $field) {
+            foreach (['file_surat', 'gmp_file', 'tkdn_file', 'sni_file', 'halal_file', 'bse_tse_file'] as $field) {
                 $this->fileService->deactivate(
                     $application,
                     'product',
@@ -91,6 +91,7 @@ class VendorRegistrationService
                 [
                     'product_name'   => $pData['product_name'],
                     'manufaktur'     => $pData['manufaktur'],
+                    'negara'         => $pData['negara'] ?? null,
                     'rantai_pasok'   => $pData['rantai_pasok'],
                     'has_tkdn'       => $pData['has_tkdn'],
                     'tkdn_value'     => null,
@@ -98,6 +99,7 @@ class VendorRegistrationService
                     'sni_number'     => null,
                     'has_halal'      => $pData['has_halal'] ?? 'no',
                     'halal_number'   => null,
+                    'has_bse_tse'    => $pData['has_bse_tse'] ?? 'no',
                 ]
             );
 
@@ -109,6 +111,16 @@ class VendorRegistrationService
                 'file_surat',
                 'file_surat_path',
                 'existing_file_surat',
+                true
+            );
+            $this->processProductFile(
+                $product,
+                $application,
+                $index,
+                $pData,
+                'gmp_file',
+                'gmp_file_path',
+                'existing_gmp_file',
                 true
             );
             $this->processProductFile(
@@ -140,6 +152,16 @@ class VendorRegistrationService
                 'halal_file_path',
                 'existing_halal_file',
                 ($pData['has_halal'] ?? 'no') === 'yes'
+            );
+            $this->processProductFile(
+                $product,
+                $application,
+                $index,
+                $pData,
+                'bse_tse_file',
+                'bse_tse_file_path',
+                'existing_bse_tse_file',
+                ($pData['has_bse_tse'] ?? 'no') === 'yes'
             );
         }
     }
