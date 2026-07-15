@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\{VendorApplication, VendorApplicationGeneral, VendorApplicationProduct, VendorApplicationDocument};
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class VendorRegistrationService
@@ -14,6 +15,17 @@ class VendorRegistrationService
     public function __construct(VendorFileService $fileService)
     {
         $this->fileService = $fileService;
+    }
+
+    /**
+     * Helper untuk membersihkan prefix /storage/ atau URL dari string path temp
+     */
+    private function sanitizeTempPath(string $path): string
+    {
+        if (preg_match('/storage\/(.*)/', $path, $matches)) {
+            return ltrim($matches[1], '/');
+        }
+        return ltrim($path, '/');
     }
 
     public function saveFormUmum(array $data, int $vendorApplicationId, string $action): array
@@ -103,66 +115,12 @@ class VendorRegistrationService
                 ]
             );
 
-            $this->processProductFile(
-                $product,
-                $application,
-                $index,
-                $pData,
-                'file_surat',
-                'file_surat_path',
-                'existing_file_surat',
-                true
-            );
-            $this->processProductFile(
-                $product,
-                $application,
-                $index,
-                $pData,
-                'gmp_file',
-                'gmp_file_path',
-                'existing_gmp_file',
-                true
-            );
-            $this->processProductFile(
-                $product,
-                $application,
-                $index,
-                $pData,
-                'tkdn_file',
-                'tkdn_file_path',
-                'existing_tkdn_file',
-                $pData['has_tkdn'] === 'yes'
-            );
-            $this->processProductFile(
-                $product,
-                $application,
-                $index,
-                $pData,
-                'sni_file',
-                'sni_file_path',
-                'existing_sni_file',
-                $pData['has_sni'] === 'yes'
-            );
-            $this->processProductFile(
-                $product,
-                $application,
-                $index,
-                $pData,
-                'halal_file',
-                'halal_file_path',
-                'existing_halal_file',
-                ($pData['has_halal'] ?? 'no') === 'yes'
-            );
-            $this->processProductFile(
-                $product,
-                $application,
-                $index,
-                $pData,
-                'bse_tse_file',
-                'bse_tse_file_path',
-                'existing_bse_tse_file',
-                ($pData['has_bse_tse'] ?? 'no') === 'yes'
-            );
+            $this->processProductFile($product, $application, $index, $pData, 'file_surat', 'file_surat_path', 'existing_file_surat', true);
+            $this->processProductFile($product, $application, $index, $pData, 'gmp_file', 'gmp_file_path', 'existing_gmp_file', true);
+            $this->processProductFile($product, $application, $index, $pData, 'tkdn_file', 'tkdn_file_path', 'existing_tkdn_file', $pData['has_tkdn'] === 'yes');
+            $this->processProductFile($product, $application, $index, $pData, 'sni_file', 'sni_file_path', 'existing_sni_file', $pData['has_sni'] === 'yes');
+            $this->processProductFile($product, $application, $index, $pData, 'halal_file', 'halal_file_path', 'existing_halal_file', ($pData['has_halal'] ?? 'no') === 'yes');
+            $this->processProductFile($product, $application, $index, $pData, 'bse_tse_file', 'bse_tse_file_path', 'existing_bse_tse_file', ($pData['has_bse_tse'] ?? 'no') === 'yes');
         }
     }
 
@@ -176,15 +134,8 @@ class VendorRegistrationService
         string $existingInput,
         bool $enabled
     ): void {
-        $currentPath = $product->{$column};
-
         if (!$enabled) {
-            $this->fileService->deactivate(
-                $application,
-                'product',
-                $input,
-                $product->id
-            );
+            $this->fileService->deactivate($application, 'product', $input, $product->id);
             $product->update([$column => null]);
             return;
         }
@@ -203,6 +154,27 @@ class VendorRegistrationService
             return;
         }
 
+        $tempPath = request()->input("products.{$index}.{$input}");
+        if (!empty($tempPath)) {
+            $tempPath = $this->sanitizeTempPath($tempPath); // Sanitize path produk
+
+            if (Storage::disk('public')->exists($tempPath)) {
+                $path = $this->fileService->storeFromTempPath(
+                    $application,
+                    $tempPath,
+                    $input === 'file_surat' ? 'vendor_products' : 'vendor_products/certificates',
+                    'product',
+                    $input,
+                    $product->id,
+                    Auth::user()
+                );
+                if ($path) {
+                    $product->update([$column => $path]);
+                }
+            }
+            return;
+        }
+
         if (!empty($data[$existingInput])) {
             $product->update([$column => $data[$existingInput]]);
         }
@@ -213,6 +185,10 @@ class VendorRegistrationService
         foreach ($fields as $field) {
             if (request()->hasFile($field)) {
                 $file = request()->file($field);
+                $originalName = $file->getClientOriginalName();
+                $fileSize = $file->getSize();
+                $mimeType = $file->getMimeType();
+
                 $path = $this->fileService->store(
                     $application,
                     $file,
@@ -222,17 +198,43 @@ class VendorRegistrationService
                     null,
                     Auth::user()
                 );
+            } elseif ($tempPath = request()->input($field)) {
+                $tempPath = $this->sanitizeTempPath($tempPath); // Sanitize path dokumen utama
 
-                VendorApplicationDocument::updateOrCreate(
-                    ['application_id' => $application->id, 'field_name' => $field],
-                    [
-                        'original_name' => $file->getClientOriginalName(),
-                        'file_path'     => $path,
-                        'file_size'     => $file->getSize(),
-                        'mime_type'     => $file->getMimeType(),
-                    ]
+                if (!Storage::disk('public')->exists($tempPath)) {
+                    continue;
+                }
+
+                $originalName = basename($tempPath);
+                $fileSize = Storage::disk('public')->size($tempPath);
+                $mimeType = Storage::disk('public')->mimeType($tempPath) ?: 'application/octet-stream';
+
+                $path = $this->fileService->storeFromTempPath(
+                    $application,
+                    $tempPath,
+                    'vendor_docs/general',
+                    'general_document',
+                    $field,
+                    null,
+                    Auth::user()
                 );
+
+                if ($path === null) {
+                    continue;
+                }
+            } else {
+                continue;
             }
+
+            VendorApplicationDocument::updateOrCreate(
+                ['application_id' => $application->id, 'field_name' => $field],
+                [
+                    'original_name' => $originalName,
+                    'file_path'     => $path,
+                    'file_size'     => $fileSize,
+                    'mime_type'     => $mimeType,
+                ]
+            );
         }
     }
 
@@ -240,42 +242,91 @@ class VendorRegistrationService
     {
         $fieldName = 'iso_certificate';
 
-        // existing_iso_files tidak masuk validated() (tidak ada di rules FormRequest),
-        // jadi baca langsung dari request()->input() — sama seperti iso_files di bawah.
         if (request()->has('existing_iso_files')) {
             $kept = collect((array) request()->input('existing_iso_files'))
                 ->filter()
                 ->values()
                 ->all();
 
+            // Proteksi Concurrency agar tidak bentrok saat double-submit
             $application->documents()
                 ->where('field_name', $fieldName)
                 ->whereNotIn('file_path', $kept)
+                ->where('created_at', '<', now()->subSeconds(10))
                 ->delete();
         }
 
-        foreach ((array) request()->file('iso_files', []) as $file) {
-            if (!$file) {
+        // ponytail: hidden mirror with name "iso_files[]" sends a single comma-joined string.
+        // Accept both: a) array of single paths, b) array containing one comma-joined string.
+        $isoFilesInput = request()->input('iso_files');
+
+        if (is_array($isoFilesInput)) {
+            $tempPaths = [];
+            foreach (array_filter($isoFilesInput) as $item) {
+                foreach (explode(',', (string) $item) as $p) {
+                    if (trim($p) !== '') {
+                        $tempPaths[] = trim($p);
+                    }
+                }
+            }
+        } else {
+            $tempPaths = $isoFilesInput ? array_filter(array_map('trim', explode(',', $isoFilesInput))) : [];
+        }
+
+        $nativeFiles = (array) request()->file('iso_files', []);
+
+        foreach (array_merge($nativeFiles, $tempPaths) as $item) {
+            if (!$item) {
                 continue;
             }
 
-            $path = $this->fileService->store(
-                $application,
-                $file,
-                'vendor_docs/iso',
-                'general_document',
-                $fieldName,
-                null,
-                Auth::user()
-            );
+            if ($item instanceof \Illuminate\Http\UploadedFile) {
+                $originalName = $item->getClientOriginalName();
+                $fileSize = $item->getSize();
+                $mimeType = $item->getMimeType();
+
+                $path = $this->fileService->store(
+                    $application,
+                    $item,
+                    'vendor_docs/iso',
+                    'general_document',
+                    $fieldName,
+                    null,
+                    Auth::user()
+                );
+            } else {
+                $item = $this->sanitizeTempPath($item); // Sanitize path ISO Multi-file
+
+                if (!Storage::disk('public')->exists($item)) {
+                    continue;
+                }
+
+                $originalName = basename($item);
+                $fileSize = Storage::disk('public')->size($item);
+                $mimeType = Storage::disk('public')->mimeType($item) ?: 'application/octet-stream';
+
+                $path = $this->fileService->storeFromTempPath(
+                    $application,
+                    $item,
+                    'vendor_docs/iso',
+                    'general_document',
+                    $fieldName,
+                    null,
+                    Auth::user()
+                );
+
+                if (!$path) {
+                    continue;
+                }
+            }
 
             VendorApplicationDocument::create([
                 'application_id' => $application->id,
                 'field_name'     => $fieldName,
-                'original_name'  => $file->getClientOriginalName(),
+                'original_name'  => $originalName,
                 'file_path'      => $path,
-                'file_size'      => $file->getSize(),
-                'mime_type'      => $file->getMimeType(),
+                'file_size'      => $fileSize,
+                'mime_type'      => $mimeType,
             ]);
         }
     }

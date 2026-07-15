@@ -22,10 +22,11 @@
         @if ($gmpFilePath)
             <input type="hidden" name="products[{{ $id }}][existing_gmp_file]" value="{{ $gmpFilePath }}">
         @endif
+
         @if ($isReadOnly)
             @if ($gmpFilePath)
                 <button type="button"
-                    class="btn btn-xs btn-light-success btn-preview-doc d-inline-flex align-items-center"
+                    class="btn btn-sm btn-light-primary mt-2 btn-preview-doc w-100"
                     style="gap:4px; border-radius:5px; font-size:0.78rem;"
                     data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $gmpFilePath) }}"
                     data-title="Preview Sertifikat GMP">
@@ -34,15 +35,38 @@
             @else
                 <span class="text-muted" style="font-size:0.78rem;">—</span>
             @endif
+        @elseif ($gmpFilePath)
+            <input type="file" class="product-file-input d-none ajax-file-upload"
+                data-field="products[{{ $id }}][gmp_file]" id="gmp_file_{{ $id }}"
+                accept=".pdf,.jpg,.jpeg,.png">
+            <span class="upload-status" style="display:none;"></span>
+
+            <div class="d-flex align-items-center px-2 py-1 bg-light-success rounded"
+                style="gap:6px; border-radius:6px;">
+                <i class="flaticon2-check-mark text-success" style="font-size:0.75rem;"></i>
+                <span class="text-success font-weight-bold flex-grow-1"
+                    style="font-size:0.75rem; white-space:nowrap;">Terlampir</span>
+                <button type="button" class="btn btn-icon btn-xs btn-success btn-preview-doc"
+                    style="width:22px; height:22px; border-radius:4px; padding:0;"
+                    data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $gmpFilePath) }}"
+                    data-title="Preview Sertifikat GMP" title="Preview">
+                    <i class="flaticon-eye" style="font-size:0.7rem;"></i>
+                </button>
+            </div>
+            <a href="#" class="d-block mt-1 text-muted cert-change-trigger" style="font-size:0.72rem;"
+                data-target="#gmp_file_{{ $id }}">
+                Ganti file...
+            </a>
         @else
             <div class="custom-file custom-file-sm">
-                <input type="file" class="custom-file-input product-file-input"
-                    name="products[{{ $id }}][gmp_file]" id="gmp_file_{{ $id }}"
+                <input type="file" class="custom-file-input product-file-input ajax-file-upload"
+                    data-field="products[{{ $id }}][gmp_file]" id="gmp_file_{{ $id }}"
                     accept=".pdf,.jpg,.jpeg,.png" {{ $gmpFilePath ? '' : 'required' }}>
                 <label class="custom-file-label text-truncate" for="gmp_file_{{ $id }}"
                     style="border-radius:6px; font-size:0.8rem;">
-                    {{ $gmpFilePath ? 'Ganti file...' : 'Pilih File' }}
+                    Pilih File
                 </label>
+                <span class="upload-status" style="display:none;"></span>
             </div>
         @endif
     </td>
@@ -100,7 +124,7 @@
         @if ($isReadOnly)
             @if ($suratPath)
                 <button type="button"
-                    class="btn btn-xs btn-light-success btn-preview-doc d-inline-flex align-items-center"
+                    class="btn btn-sm btn-light-primary mt-2 btn-preview-doc w-100"
                     style="gap:4px; border-radius:5px; font-size:0.78rem;"
                     data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $suratPath) }}"
                     data-title="Preview Surat Keagenan">
@@ -110,9 +134,12 @@
                 <span class="text-muted" style="font-size:0.78rem;">—</span>
             @endif
         @elseif ($suratPath)
-            {{-- Ada file: badge compact --}}
-            <input type="file" class="product-file-input d-none" name="products[{{ $id }}][file_surat]"
-                id="file_{{ $id }}" accept=".pdf,.jpg,.jpeg,.png">
+            <div>
+                <input type="file" class="product-file-input d-none ajax-file-upload"
+                    data-field="products[{{ $id }}][file_surat]" id="file_{{ $id }}"
+                    accept=".pdf,.jpg,.jpeg,.png">
+                <span class="upload-status" style="display:none;"></span>
+            </div>
 
             <div class="d-flex align-items-center px-2 py-1 bg-light-success rounded"
                 style="gap:6px; border-radius:6px;">
@@ -133,13 +160,14 @@
         @else
             {{-- Belum ada file --}}
             <div class="custom-file custom-file-sm">
-                <input type="file" class="custom-file-input product-file-input"
-                    name="products[{{ $id }}][file_surat]" id="file_{{ $id }}"
+                <input type="file" class="custom-file-input product-file-input ajax-file-upload"
+                    data-field="products[{{ $id }}][file_surat]" id="file_{{ $id }}"
                     accept=".pdf,.jpg,.jpeg,.png" required>
                 <label class="custom-file-label text-truncate" for="file_{{ $id }}"
                     style="border-radius:6px; font-size:0.8rem;">
                     Pilih File
                 </label>
+                <span class="upload-status" style="display:none;"></span>
             </div>
         @endif
     </td>

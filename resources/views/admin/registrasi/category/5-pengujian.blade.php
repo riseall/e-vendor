@@ -93,11 +93,12 @@
                                     @endif
 
                                     <div class="custom-file mb-2">
-                                        <input type="file" name="l2_{{ $key }}_file"
-                                            class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png"
+                                        <input type="file" data-field="l2_{{ $key }}_file"
+                                            class="custom-file-input ajax-file-upload" accept=".pdf,.jpg,.jpeg,.png"
                                             {{ $isReadOnly ? 'disabled' : '' }}>
                                         <label
                                             class="custom-file-label form-control-sm text-truncate">{{ $certFile ? 'Ganti berkas...' : 'Pilih berkas...' }}</label>
+                                        <span class="upload-status" style="display:none;"></span>
                                     </div>
 
                                     @if ($certFile && !$isReadOnly)

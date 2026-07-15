@@ -18,7 +18,7 @@
         @endif
     </label>
 
-    <x-vendor-checkbox name="iso_certificates" :options="$isoOptions" :selected="$selectedIso" :readonly="$isReadOnly">
+    <x-vendor-checkbox name="iso_certificates" :options="$isoOptions" :selected="$selectedIso" :readonly="$isReadOnly" required>
         <div class="d-flex align-items-center mt-3">
             <label class="checkbox checkbox-primary mr-3 mb-0 {{ $isReadOnly ? 'checkbox-disabled' : '' }}">
                 <input type="checkbox" name="iso_certificates[]" value="other" id="isoOtherCb"
@@ -50,12 +50,16 @@
 
         @if (!$isReadOnly)
             <div class="custom-file custom-file-sm">
-                <input type="file" class="custom-file-input product-file-input" name="iso_files[]" id="isoFilesInput"
-                    multiple accept=".pdf,.jpg,.jpeg,.png">
+                <input type="file" class="custom-file-input product-file-input ajax-file-upload"
+                    data-field="iso_files" multiple accept=".pdf,.jpg,.jpeg,.png">
                 <label class="custom-file-label text-truncate" for="isoFilesInput"
                     style="border-radius:6px; font-size:0.8rem;">
                     Pilih File
                 </label>
+
+                <!-- Indikator loading (otomatis di-handle JS) -->
+                <span class="upload-status" style="display:none;"></span>
+                {{-- Hidden input akan auto-di-create oleh JS handler (name="iso_files[]") --}}
             </div>
 
             <small class="text-muted">Format: PDF/JPG/PNG. Maks 5 MB per file.</small>

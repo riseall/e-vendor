@@ -28,13 +28,17 @@
                 placeholder="{{ $placeholder }}" {{ $readonly ? 'readonly disabled' : '' }}>{{ old($name, $value) }}</textarea>
         @elseif ($type === 'file')
             <div class="custom-file w-100">
-                <input type="{{ $type }}" name="{{ $name }}"
-                    class="custom-file-input {{ $errors->has($name) ? 'is-invalid' : '' }}" id="{{ $name }}"
-                    accept=".pdf,.jpg,.jpeg,.png" {{ $readonly ? 'disabled' : '' }}>
+                {{-- ponytail: class ajax-file-upload triggers layout's auto-uploader.
+                    name= removed so browser does not re-send the file on form submit
+                    (the layout handler cleared input.value, this is belt-and-suspenders). --}}
+                <input type="{{ $type }}" data-field="{{ $name }}"
+                    class="custom-file-input ajax-file-upload {{ $errors->has($name) ? 'is-invalid' : '' }}"
+                    id="{{ $name }}" accept=".pdf,.jpg,.jpeg,.png" {{ $readonly ? 'disabled' : '' }}>
                 <label class="custom-file-label" for="{{ $name }}">
                     {{ $value ? 'Ganti file...' : $placeholder ?? 'Upload Dokumen...' }}
                 </label>
             </div>
+            <span class="upload-status d-block mt-1 font-weight-bold" style="display:none;"></span>
 
             @if ($value)
                 <input type="hidden" name="existing_{{ $name }}" value="{{ $value }}">

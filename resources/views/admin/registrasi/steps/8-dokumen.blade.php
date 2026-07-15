@@ -64,6 +64,8 @@
                                 @else
                                     <span class="text-muted file-name-text">Belum ada file terpilih</span>
                                 @endif
+                                <div class="upload-status mt-1"
+                                    style="display:none; font-size:0.78rem; font-weight:600;"></div>
                                 @if ($revisionNote)
                                     <div class="revision-note-message text-danger font-weight-bold mt-1"
                                         data-revision-field="{{ $dok['name'] }}">
@@ -95,7 +97,7 @@
                         @if (!$isReadOnly)
                             <label class="btn btn-light-primary btn-sm font-weight-bold mb-0 btn-upload">
                                 <span>{{ $isUploaded ? 'Ganti' : 'Upload' }}</span>
-                                <input type="file" name="{{ $dok['name'] }}" class="file-upload-validate d-none"
+                                <input type="file" data-field="{{ $dok['name'] }}" class="ajax-file-upload d-none"
                                     accept=".pdf,.jpg,.jpeg,.png">
                             </label>
                         @endif
@@ -109,40 +111,20 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('[Step 8 Dokumen] Initializing...');
-
-            // Log semua preview buttons dan URL mereka
-            const previewButtons = document.querySelectorAll('.btn-preview-doc');
-            console.log(`[Step 8 Dokumen] Found ${previewButtons.length} preview buttons:`);
-
-            previewButtons.forEach((btn, index) => {
-                const url = btn.getAttribute('data-url');
-                const title = btn.getAttribute('data-title');
-                console.log(`  [Button ${index}] URL: ${url || '(kosong)'}, Title: ${title}`);
+            document.querySelectorAll('input.ajax-file-upload[type="file"]').forEach(input => {
+                input.addEventListener('change', function() {
+                    if (!this.files || !this.files[0]) return;
+                    const container = this.closest('.doc-item');
+                    if (!container) return;
+                    const fileNameDisplay = container.querySelector('.file-name-text');
+                    const btnText = container.querySelector('.btn-upload span');
+                    if (fileNameDisplay) {
+                        fileNameDisplay.innerHTML =
+                            `<i class="flaticon-upload text-primary"></i> File dipilih: <strong>${this.files[0].name}</strong>`;
+                    }
+                    if (btnText) btnText.textContent = 'Ganti';
+                });
             });
-
-            // File upload handler
-            $(document).on('change', '.file-upload-validate', function(e) {
-                const fileInput = $(this);
-                const file = e.target.files[0];
-                const container = fileInput.closest('.doc-item');
-                const fileNameDisplay = container.find('.file-name-text');
-                const btnText = container.find('.btn-upload span');
-
-                if (file) {
-                    // Update UI ke mode "Siap Upload"
-                    container.removeClass('status-uploaded status-pending').addClass('status-ready');
-                    fileNameDisplay.html(
-                        `<i class="flaticon-upload text-primary"></i> Siap upload: <strong>${file.name}</strong>`
-                        );
-                    btnText.text('Ganti');
-
-                    // Kasih feedback visual dikit
-                    container.fadeOut(100).fadeIn(400);
-                }
-            });
-
-            console.log('[Step 8 Dokumen] Ready');
         });
     </script>
 @endpush

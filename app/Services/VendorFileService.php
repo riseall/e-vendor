@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Http\File;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -49,6 +50,32 @@ class VendorFileService
             'is_current' => true,
             'uploaded_by' => optional($uploader)->id,
         ]);
+
+        return $path;
+    }
+
+    public function storeFromTempPath(
+        VendorApplication $application,
+        string $tempPath,
+        string $directory,
+        string $ownerType,
+        string $fieldName,
+        ?int $ownerId = null,
+        ?User $uploader = null
+    ): ?string {
+        if (!Storage::disk('public')->exists($tempPath)) {
+            return null;
+        }
+
+        // Wrap as UploadedFile so we can reuse store() logic.
+        $absolutePath = Storage::disk('public')->path($tempPath);
+        $tempName = basename($tempPath);
+        $uploaded = new UploadedFile($absolutePath, $tempName, null, null, true);
+
+        $path = $this->store($application, $uploaded, $directory, $ownerType, $fieldName, $ownerId, $uploader);
+
+        // Clean up the temp file (best effort, no error if already gone).
+        Storage::disk('public')->delete($tempPath);
 
         return $path;
     }

@@ -8,6 +8,7 @@ use App\Http\Controllers\VendorAuditController;
 use App\Http\Controllers\VendorCapaController;
 use App\Http\Controllers\VendorQualificationController;
 use App\Http\Controllers\VendorQuestionnaireController;
+use App\Http\Controllers\VendorUploadController;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 /*
@@ -79,7 +80,11 @@ Route::group(
 
                 Route::get('/files/{application}', [RegistrasiController::class, 'showFile'])
                     ->name('files.show');
+
+                //ajax upload document
+                Route::post('/upload-temp', [VendorUploadController::class, 'uploadTemp'])->name('upload.temp');
             });
+
 
             // Product Search
             Route::get('/search-products', [RegistrasiController::class, 'searchProducts'])->name('search-products');

@@ -18,7 +18,7 @@
 
                     // Kalau modal belum ada, buat secara manual
                     if (!modalEl) {
-                        console.log('[DocumentPreview] Modal not found, creating...');
+                        // console.log('[DocumentPreview] Modal not found, creating...');
                         modalEl = document.createElement('div');
                         modalEl.id = 'documentPreviewModal';
                         modalEl.className = 'modal fade';
@@ -137,10 +137,10 @@
                         const documentTitle = button.getAttribute('data-title') ||
                             button.getAttribute('title') || 'Preview Dokumen';
 
-                        console.log('[DocumentPreview] Click:', {
-                            url,
-                            documentTitle
-                        });
+                        // console.log('[DocumentPreview] Click:', {
+                        //     url,
+                        //     documentTitle
+                        // });
 
                         titleEl.textContent = documentTitle;
                         if (url) {
@@ -190,7 +190,7 @@
                             iframe.style.border = '0';
                             iframe.style.background = '#fff';
                             iframe.onload = function() {
-                                console.log('[DocumentPreview] Iframe loaded');
+                                // console.log('[DocumentPreview] Iframe loaded');
                             };
                             iframe.onerror = function() {
                                 showError('Gagal memuat dokumen. Klik "Buka di Tab Baru".');
@@ -238,7 +238,7 @@
                         titleEl.textContent = 'Preview Dokumen';
                     });
 
-                    console.log('[DocumentPreview] Ready');
+                    // console.log('[DocumentPreview] Ready');
                 }
 
                 if (document.readyState === 'loading') {
