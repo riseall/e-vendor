@@ -76,10 +76,15 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="font-size-xs text-muted">Masa Berlaku:</label>
-                                    <input type="date" name="l2_{{ $key }}_date"
-                                        class="form-control form-control-sm"
-                                        value="{{ $draft["l2_{$key}_date"] ?? '' }}"
-                                        {{ $isReadOnly ? 'readonly' : '' }}>
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="l2_{{ $key }}_date"
+                                            class="form-control datepicker" autocomplete="off"
+                                            value="{{ $draft["l2_{$key}_date"] ?? '' }}"
+                                            {{ $isReadOnly ? 'readonly disabled' : '' }}>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                        </div>
+                                    </div>
                                     <x-revision-note name="l2_{{ $key }}_date" :notes="$revisionNotes ?? []" />
                                 </div>
                                 <div class="col-md-5">

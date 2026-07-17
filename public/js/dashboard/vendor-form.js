@@ -185,6 +185,17 @@ $(document).ready(function () {
 
         const $newRow = $(templateHtml).hide();
         $(targetBody).append($newRow);
+        
+        // Initialize datepickers if any exist in the new row
+        if ($.fn.datepicker) {
+            $newRow.find('.datepicker').datepicker({
+                format: 'yyyy-mm-dd',
+                todayHighlight: true,
+                autoclose: true,
+                orientation: 'top left'
+            });
+        }
+
         $newRow.fadeIn(300);
 
         updateRepeaterNumbers(targetBody);
@@ -209,6 +220,16 @@ $(document).ready(function () {
             $(this)
                 .find(".row-number")
                 .text(index + 1);
+        });
+    }
+
+    // Initialize global datepickers on load
+    if ($.fn.datepicker) {
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+            todayHighlight: true,
+            autoclose: true,
+            orientation: 'top left'
         });
     }
 });

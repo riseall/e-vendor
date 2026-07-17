@@ -52,7 +52,7 @@
                             <tr>
                                 <th>Jenis Keterampilan</th>
                                 <th>Nama Pemegang</th>
-                                <th width="180px">Tanggal Sertifikat</th>
+                                <th width="200px">Tanggal Sertifikat</th>
                                 @if (!$isReadOnly)
                                     <th width="50px"></th>
                                 @endif
@@ -68,9 +68,16 @@
                                     <td><input type="text" name="f4_certs[{{ $index }}][name]"
                                             class="form-control form-control-sm" value="{{ $item['name'] ?? '' }}"
                                             {{ $isReadOnly ? 'readonly' : '' }} required></td>
-                                    <td><input type="date" name="f4_certs[{{ $index }}][date]"
-                                            class="form-control form-control-sm" value="{{ $item['date'] ?? '' }}"
-                                            {{ $isReadOnly ? 'readonly' : '' }} required></td>
+                                    <td>
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="f4_certs[{{ $index }}][date]"
+                                                class="form-control datepicker" autocomplete="off" value="{{ $item['date'] ?? '' }}"
+                                                {{ $isReadOnly ? 'readonly disabled' : '' }} required>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                            </div>
+                                        </div>
+                                    </td>
                                     @if (!$isReadOnly)
                                         <td class="text-center align-middle"><button type="button"
                                                 class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater"><i
@@ -138,7 +145,14 @@
     <tr>
         <td><input type="text" name="f4_certs[__INDEX__][type]" class="form-control form-control-sm" required></td>
         <td><input type="text" name="f4_certs[__INDEX__][name]" class="form-control form-control-sm" required></td>
-        <td><input type="date" name="f4_certs[__INDEX__][date]" class="form-control form-control-sm" required></td>
+        <td>
+            <div class="input-group input-group-sm">
+                <input type="text" name="f4_certs[__INDEX__][date]" class="form-control datepicker" autocomplete="off" required>
+                <div class="input-group-append">
+                    <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                </div>
+            </div>
+        </td>
         <td class="text-center align-middle"><button type="button" class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater"><i class="flaticon2-trash"></i></button></td>
     </tr>
 </script>

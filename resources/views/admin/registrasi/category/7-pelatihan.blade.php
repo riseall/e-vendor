@@ -49,7 +49,7 @@
                             <tr>
                                 <th>Jenis Ijin / Deskripsi</th>
                                 <th width="200px">Nomor Ijin</th>
-                                <th width="180px">Masa Berlaku</th>
+                                <th width="200px">Masa Berlaku</th>
                                 @if (!$isReadOnly)
                                     <th width="50px"></th>
                                 @endif
@@ -73,9 +73,14 @@
                                             required>
                                     </td>
                                     <td>
-                                        <input type="date" name="g3_permits[{{ $index }}][date]"
-                                            class="form-control form-control-sm" value="{{ $item['date'] ?? '' }}"
-                                            {{ $isReadOnly ? 'readonly' : '' }} required>
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="g3_permits[{{ $index }}][date]"
+                                                class="form-control datepicker" autocomplete="off" value="{{ $item['date'] ?? '' }}"
+                                                {{ $isReadOnly ? 'readonly disabled' : '' }} required>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                            </div>
+                                        </div>
                                     </td>
                                     @if (!$isReadOnly)
                                         <td class="text-center">
@@ -122,7 +127,14 @@
     <tr>
         <td><input type="text" name="g3_permits[__INDEX__][desc]" class="form-control form-control-sm" placeholder="Cth. Notaris: ijin dari Kemenkumham" required></td>
         <td><input type="text" name="g3_permits[__INDEX__][no]" class="form-control form-control-sm" placeholder="Nomor Ijin" required></td>
-        <td><input type="date" name="g3_permits[__INDEX__][date]" class="form-control form-control-sm" required></td>
+        <td>
+            <div class="input-group input-group-sm">
+                <input type="text" name="g3_permits[__INDEX__][date]" class="form-control datepicker" autocomplete="off" required>
+                <div class="input-group-append">
+                    <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                </div>
+            </div>
+        </td>
         <td class="text-center">
             <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater">
                 <i class="flaticon2-trash"></i>

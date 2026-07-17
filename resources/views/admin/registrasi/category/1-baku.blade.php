@@ -102,11 +102,11 @@
                             :value="$draft['q5_document'] ?? null" :readonly="$isReadOnly" placeholder="Pilih file sertifikat CDOB..." />
                     </div>
                     <div class="col-md-4">
-                        <x-vendor-input name="q5_issue_date" label="Tanggal Terbit" type="date" :value="$draft['q5_issue_date'] ?? ''"
+                        <x-vendor-input name="q5_issue_date" label="Tanggal Terbit" type="text" class="datepicker" autocomplete="off" rightIcon="far fa-calendar-alt" :value="$draft['q5_issue_date'] ?? ''"
                             :readonly="$isReadOnly" />
                     </div>
                     <div class="col-md-4">
-                        <x-vendor-input name="q5_valid_until" label="Berlaku Sampai" type="date" :value="$draft['q5_valid_until'] ?? ''"
+                        <x-vendor-input name="q5_valid_until" label="Berlaku Sampai" type="text" class="datepicker" autocomplete="off" rightIcon="far fa-calendar-alt" :value="$draft['q5_valid_until'] ?? ''"
                             :readonly="$isReadOnly" />
                     </div>
                 </div>
@@ -131,7 +131,7 @@
                             placeholder="No. Izin PBF..." />
                     </div>
                     <div class="col-md-4">
-                        <x-vendor-input name="pbf_issue_date" label="Tanggal Terbit" type="date" :value="$draft['pbf_issue_date'] ?? ''"
+                        <x-vendor-input name="pbf_issue_date" label="Tanggal Terbit" type="text" class="datepicker" autocomplete="off" rightIcon="far fa-calendar-alt" :value="$draft['pbf_issue_date'] ?? ''"
                             :readonly="$isReadOnly" />
                     </div>
                 </div>
@@ -157,11 +157,11 @@
                             :readonly="$isReadOnly" />
                     </div>
                     <div class="col-md-4">
-                        <x-vendor-input name="q6_issue_date" label="Tanggal Terbit" type="date" :value="$draft['q6_issue_date'] ?? ''"
+                        <x-vendor-input name="q6_issue_date" label="Tanggal Terbit" type="text" class="datepicker" autocomplete="off" rightIcon="far fa-calendar-alt" :value="$draft['q6_issue_date'] ?? ''"
                             :readonly="$isReadOnly" />
                     </div>
                     <div class="col-md-4">
-                        <x-vendor-input name="q6_valid_until" label="Berlaku Sampai" type="date"
+                        <x-vendor-input name="q6_valid_until" label="Berlaku Sampai" type="text" class="datepicker" autocomplete="off" rightIcon="far fa-calendar-alt"
                             :value="$draft['q6_valid_until'] ?? ''" :readonly="$isReadOnly" />
                     </div>
                 </div>
