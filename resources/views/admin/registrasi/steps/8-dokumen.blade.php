@@ -77,7 +77,7 @@
                     </div>
 
                     <div class="doc-actions">
-                        @if (!empty($dok['template']))
+                        @if (!empty($dok['template']) && !$isReadOnly)
                             <a href="{{ Storage::url('doc_template/' . $dok['template']) }}" target="_blank"
                                 class="btn btn-light-warning btn-icon btn-sm mr-2 btn-download-template"
                                 title="Download Template {{ $dok['label'] }}">

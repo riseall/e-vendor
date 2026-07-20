@@ -1,4 +1,4 @@
-    <div id="verificationMainCard" class="card card-custom"
+<div id="verificationMainCard" class="card card-custom"
         style="border-radius:var(--radius-lg);box-shadow:var(--shadow-md);border:none;">
         <div class="card-header border-bottom-0 pt-6 pb-0">
             <div class="card-title">
@@ -202,19 +202,20 @@
                                     @endif
 
                                     {{-- Field Grid --}}
-                                    <div class="verification-field-grid">
+                                    <div class="row px-4 pb-4 pt-2">
                                         @forelse ($rows as $row)
                                             @if (($row['type'] ?? null) === 'section_title')
-                                                <div class="verification-subsection-title">
-                                                    {{ $row['label'] }}
+                                                <div class="col-12 mt-4 mb-2">
+                                                    <div class="font-weight-bold text-dark text-uppercase border-bottom pb-2">
+                                                        {{ $row['label'] }}
+                                                    </div>
                                                 </div>
                                             @elseif (($row['type'] ?? null) === 'other_company_table')
-                                                <div class="verification-table-wrap p-4 js-revision-field"
+                                                <div class="col-12 mb-4 js-revision-field"
                                                     data-field="{{ $row['field'] ?? $row['label'] }}"
                                                     data-label="{{ $row['label'] }}">
-                                                    <div class="font-weight-bold text-dark mb-3">{{ $row['label'] }}
-                                                    </div>
-                                                    <table class="table table-sm table-bordered table-hover mb-0">
+                                                    <label class="font-size-sm font-weight-bold text-muted">{{ $row['label'] }}</label>
+                                                    <table class="table table-sm table-bordered mb-0">
                                                         <thead class="thead-light">
                                                             <tr>
                                                                 <th style="width:60px;">No</th>
@@ -233,7 +234,7 @@
                                                             @empty
                                                                 <tr>
                                                                     <td colspan="3"
-                                                                        class="text-center text-muted py-5">
+                                                                        class="text-center text-muted py-3">
                                                                         Tidak ada perusahaan lain milik pimpinan.
                                                                     </td>
                                                                 </tr>
@@ -242,33 +243,46 @@
                                                     </table>
                                                 </div>
                                             @elseif (($row['type'] ?? null) === 'product_table')
-                                                <div class="verification-table-wrap p-4">
-                                                    <div class="font-weight-bold text-dark mb-3">{{ $row['label'] }}
-                                                    </div>
-                                                    <table class="table table-sm table-bordered table-hover mb-0">
-                                                        <thead class="thead-light">
+                                                <div class="col-12 mb-4">
+                                                    <label class="font-size-sm font-weight-bold text-muted">{{ $row['label'] }}</label>
+                                                    <table class="table table-sm table-bordered table-hover mb-0" id="verificationProductTable">
+                                                        <thead class="thead-light text-nowrap text-center align-middle">
                                                             <tr>
-                                                                <th style="width:220px;">Produk</th>
-                                                                <th style="width:100px;">Kode ERP</th>
-                                                                <th style="width:160px;">Manufaktur / Asal</th>
-                                                                <th style="width:140px;">Rantai Pasok</th>
-                                                                <th style="width:120px;">Surat Keagenan</th>
-                                                                <th style="width:100px;">TKDN</th>
-                                                                <th style="width:110px;">SNI</th>
-                                                                <th style="width:110px;">Halal</th>
+                                                                <th class="align-middle" style="min-width:250px;">Produk</th>
+                                                                <th class="align-middle" style="min-width:100px;">Item PH</th>
+                                                                <th class="align-middle" style="min-width:160px;">Manufaktur / Asal</th>
+                                                                <th class="align-middle" style="min-width:100px;">GMP</th>
+                                                                <th class="align-middle" style="min-width:120px;">Negara</th>
+                                                                <th class="align-middle" style="min-width:140px;">Rantai Pasok</th>
+                                                                <th class="align-middle" style="min-width:140px;">Surat Keagenan</th>
+                                                                <th class="align-middle" style="min-width:90px;">TKDN</th>
+                                                                <th class="align-middle" style="min-width:90px;">SNI</th>
+                                                                <th class="align-middle" style="min-width:90px;">Halal</th>
+                                                                <th class="align-middle" style="min-width:110px;">BSE/TSE</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
                                                             @forelse (($row['value'] ?? []) as $product)
-                                                                <tr class="js-revision-field"
+                                                                <tr class="js-revision-field align-middle text-center"
                                                                     data-field="{{ $product['field'] ?? 'products.' . ($product['erp'] ?? $loop->iteration) }}"
                                                                     data-label="{{ $product['label'] ?? ($product['product'] ?? 'Produk') }}">
-                                                                    <td class="font-weight-bold text-dark">
+                                                                    <td class="font-weight-bold text-dark text-left align-middle" style="white-space: normal;">
                                                                         {{ $product['product'] ?? '-' }}</td>
-                                                                    <td>{{ $product['erp'] ?? '-' }}</td>
-                                                                    <td>{{ $product['manufaktur'] ?? '-' }}</td>
-                                                                    <td>{{ $product['rantai_pasok'] ?? '-' }}</td>
-                                                                    <td>
+                                                                    <td class="align-middle">{{ $product['erp'] ?? '-' }}</td>
+                                                                    <td class="align-middle">{{ $product['manufaktur'] ?? '-' }}</td>
+                                                                    <td class="align-middle">
+                                                                        @if (!empty($product['gmp']))
+                                                                            <x-preview-doc-button
+                                                                                url="{{ $product['gmp'] }}"
+                                                                                title="GMP - {{ $product['product'] ?? 'Produk' }}"
+                                                                                compact />
+                                                                        @else
+                                                                            -
+                                                                        @endif
+                                                                    </td>
+                                                                    <td class="align-middle">{{ $product['negara'] ?? '-' }}</td>
+                                                                    <td class="align-middle">{{ $product['rantai_pasok'] ?? '-' }}</td>
+                                                                    <td class="align-middle">
                                                                         @if (!empty($product['surat']))
                                                                             <x-preview-doc-button
                                                                                 url="{{ $product['surat'] }}"
@@ -278,7 +292,7 @@
                                                                             -
                                                                         @endif
                                                                     </td>
-                                                                    <td>
+                                                                    <td class="align-middle">
                                                                         @if (!empty($product['tkdn']))
                                                                             <x-preview-doc-button
                                                                                 url="{{ $product['tkdn'] }}"
@@ -288,7 +302,7 @@
                                                                             {{ !empty($product['has_tkdn']) ? '-' : 'Tidak' }}
                                                                         @endif
                                                                     </td>
-                                                                    <td>
+                                                                    <td class="align-middle">
                                                                         @if (!empty($product['sni']))
                                                                             <x-preview-doc-button
                                                                                 url="{{ $product['sni'] }}"
@@ -298,7 +312,7 @@
                                                                             {{ !empty($product['has_sni']) ? '-' : 'Tidak' }}
                                                                         @endif
                                                                     </td>
-                                                                    <td>
+                                                                    <td class="align-middle">
                                                                         @if (!empty($product['halal']))
                                                                             <x-preview-doc-button
                                                                                 url="{{ $product['halal'] }}"
@@ -308,10 +322,20 @@
                                                                             {{ !empty($product['has_halal']) ? '-' : 'Tidak' }}
                                                                         @endif
                                                                     </td>
+                                                                    <td class="align-middle">
+                                                                        @if (!empty($product['bse_tse']))
+                                                                            <x-preview-doc-button
+                                                                                url="{{ $product['bse_tse'] }}"
+                                                                                title="Dokumen BSE/TSE - {{ $product['product'] ?? 'Produk' }}"
+                                                                                compact />
+                                                                        @else
+                                                                            {{ !empty($product['has_bse_tse']) ? '-' : 'Tidak' }}
+                                                                        @endif
+                                                                    </td>
                                                                 </tr>
                                                             @empty
                                                                 <tr>
-                                                                    <td colspan="8"
+                                                                    <td colspan="11"
                                                                         class="text-center text-muted py-5">
                                                                         Belum ada produk yang dipilih.
                                                                     </td>
@@ -322,13 +346,13 @@
                                                 </div>
                                             @elseif (($row['type'] ?? null) === 'iso_files_table')
                                                 @php $isoFileService = app(\App\Services\VendorFileService::class); @endphp
-                                                <div class="verification-field js-revision-field"
+                                                <div class="col-md-6 mb-4 js-revision-field"
                                                     data-field="{{ $row['field'] ?? 'iso_files' }}"
                                                     data-label="{{ $row['label'] }}">
-                                                    <div class="verification-field-label">{{ $row['label'] }}</div>
-                                                    <div class="verification-field-value">
+                                                    <label class="font-size-sm font-weight-bold text-muted">{{ $row['label'] }}</label>
+                                                    <div class="form-control form-control-solid h-auto" style="min-height: 38px;">
                                                         @if (empty($row['value']) || (is_object($row['value']) && $row['value']->isEmpty()))
-                                                            <span class="text-muted">Tidak ada dokumen.</span>
+                                                            <span class="text-muted font-size-sm">Tidak ada dokumen.</span>
                                                         @else
                                                             @php
                                                                 $isoDocs =
@@ -337,7 +361,7 @@
                                                                         ? $row['value']->all()
                                                                         : (array) $row['value'];
                                                             @endphp
-                                                            <div class="verification-documents">
+                                                            <div class="d-flex flex-column" style="gap: .5rem;">
                                                                 @foreach ($isoDocs as $doc)
                                                                     @php
                                                                         $docPath =
@@ -359,22 +383,12 @@
                                                                         <x-preview-doc-button
                                                                             url="{{ $docUrl }}"
                                                                             title="{{ $docName }}"
-                                                                            label="{{ $docName }}" />
+                                                                            label="{{ $docName }}"
+                                                                            class="btn btn-sm btn-light-primary text-left" />
                                                                     @else
-                                                                        <div class="verification-document-entry">
-                                                                            <div class="verification-document-info">
-                                                                                <span
-                                                                                    class="verification-document-icon">
-                                                                                    <i
-                                                                                        class="flaticon2-document icon-sm"></i>
-                                                                                </span>
-                                                                                <span
-                                                                                    class="verification-document-label">
-                                                                                    {{ $docName }}
-                                                                                </span>
-                                                                            </div>
-                                                                            <span class="text-muted">(file tidak
-                                                                                tersedia)</span>
+                                                                        <div class="text-muted font-size-sm">
+                                                                            <i class="flaticon2-document icon-sm mr-1"></i>
+                                                                            {{ $docName }} (file tidak tersedia)
                                                                         </div>
                                                                     @endif
                                                                 @endforeach
@@ -383,17 +397,24 @@
                                                     </div>
                                                 </div>
                                             @else
-                                                <div class="verification-field js-revision-field"
+                                                <div class="col-md-6 mb-4 js-revision-field"
                                                     data-field="{{ $row['field'] ?? $row['label'] }}"
                                                     data-label="{{ $row['label'] }}">
-                                                    <div class="verification-field-label">{{ $row['label'] }}</div>
-                                                    <div class="verification-field-value">
+                                                    <div class="form-group mb-0">
+                                                        <label class="font-size-sm font-weight-bold text-muted">{{ $row['label'] }}</label>
                                                         @if (!empty($row['url']))
-                                                            <x-preview-doc-button url="{{ $row['url'] }}"
-                                                                title="{{ $row['label'] ?? 'Preview Dokumen' }}"
-                                                                label="{{ $row['value'] ?? ($row['label'] ?? 'Preview Dokumen') }}" />
+                                                            <div class="mt-1">
+                                                                <x-preview-doc-button url="{{ $row['url'] }}"
+                                                                    title="{{ $row['label'] ?? 'Preview Dokumen' }}"
+                                                                    label="Lihat Dokumen: {{ $row['value'] ?? ($row['label'] ?? 'Dokumen') }}"
+                                                                    class="btn btn-sm btn-light-primary w-100 text-left" />
+                                                            </div>
                                                         @else
-                                                            {!! nl2br(e($row['value'] ?? null ?: '-')) !!}
+                                                            @if (strlen($row['value'] ?? '') > 100)
+                                                                <textarea class="form-control form-control-solid" rows="3" readonly disabled>{!! strip_tags($row['value'] ?? null ?: '-') !!}</textarea>
+                                                            @else
+                                                                <input type="text" class="form-control form-control-solid" value="{!! strip_tags($row['value'] ?? null ?: '-') !!}" readonly disabled>
+                                                            @endif
                                                         @endif
                                                     </div>
                                                 </div>
@@ -418,3 +439,22 @@
     </div>
 
     {{-- ───── Modal Tolak ───── --}}
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            if ($('#verificationProductTable').length) {
+                $('#verificationProductTable').DataTable({
+                    responsive: false,
+                    scrollX: true,
+                    pageLength: 10,
+                    lengthMenu: [
+                        [10, 25, 50, 100, -1],
+                        [10, 25, 50, 100, 'Semua']
+                    ],
+                    order: []
+                });
+            }
+        });
+    </script>
+@endpush

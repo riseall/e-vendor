@@ -31,16 +31,18 @@
                 {{ $attributes->merge(['class' => 'form-control ' . ($errors->has($name) ? 'is-invalid' : '')]) }}
                 placeholder="{{ $placeholder }}" {{ $readonly ? 'readonly disabled' : '' }}>{{ old($name, $value) }}</textarea>
         @elseif ($type === 'file')
-            <div class="custom-file w-100">
-                <input type="{{ $type }}" data-field="{{ $name }}"
-                    class="custom-file-input ajax-file-upload {{ $errors->has($name) ? 'is-invalid' : '' }}"
-                    id="{{ $name }}" accept=".pdf,.jpg,.jpeg,.png" {{ $readonly ? 'disabled' : '' }}
-                    placeholder="{{ $placeholder }}" {{ $required && !$value ? 'required' : '' }}>
-                <label class="custom-file-label font-size-xs" for="{{ $name }}">
-                    {{ $value ? 'Ganti file...' : ($placeholder ?: 'Upload File...') }}
-                </label>
-            </div>
-            <span class="upload-status d-block mt-1 font-weight-bold" style="display:none;"></span>
+            @if (!$readonly)
+                <div class="custom-file w-100">
+                    <input type="{{ $type }}" data-field="{{ $name }}"
+                        class="custom-file-input ajax-file-upload {{ $errors->has($name) ? 'is-invalid' : '' }}"
+                        id="{{ $name }}" accept=".pdf,.jpg,.jpeg,.png"
+                        placeholder="{{ $placeholder }}" {{ $required && !$value ? 'required' : '' }}>
+                    <label class="custom-file-label font-size-xs" for="{{ $name }}">
+                        {{ $value ? 'Ganti file...' : ($placeholder ?: 'Upload File...') }}
+                    </label>
+                </div>
+                <span class="upload-status d-block mt-1 font-weight-bold" style="display:none;"></span>
+            @endif
 
             @if ($value)
                 <input type="hidden" name="{{ $existingName ?? 'existing_' . $name }}" value="{{ $value }}">
@@ -59,9 +61,11 @@
             @elseif($value && $readonly)
                 <button type="button"
                     data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $value) }}"
-                    class="btn btn-sm btn-light-primary mt-2 btn-preview-doc w-100">
+                    class="btn btn-sm btn-light-primary btn-preview-doc w-100">
                     <i class="flaticon-eye mr-2"></i> Lihat Dokumen
                 </button>
+            @elseif(!$value && $readonly)
+                <input type="text" class="form-control form-control-solid font-size-sm text-muted" readonly disabled value="Tidak ada dokumen">
             @endif
         @else
             @if ($leftIcon)

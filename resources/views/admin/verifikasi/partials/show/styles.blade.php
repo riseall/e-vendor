@@ -227,12 +227,26 @@
 
         .verif-tabs.nav-tabs {
             border-bottom: 2px solid var(--border-light);
-            scrollbar-width: none;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
             gap: .15rem;
         }
 
         .verif-tabs.nav-tabs::-webkit-scrollbar {
-            display: none;
+            height: 5px;
+        }
+
+        .verif-tabs.nav-tabs::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .verif-tabs.nav-tabs::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+        }
+
+        .verif-tabs.nav-tabs::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
         }
 
         .verif-tabs .nav-link {

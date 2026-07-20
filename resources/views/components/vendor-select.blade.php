@@ -23,20 +23,36 @@
         </label>
     @endif
 
-    <select name="{{ $name }}" id="{{ $name }}_select"
-        {{ $attributes->merge(['class' => 'form-control ' . ($isSimple ? 'custom-select' : 'selectpicker ') . ($readonly ? 'form-control-solid' : '')]) }}
-        {{ $readonly ? 'disabled' : '' }} {{ $required && !$readonly ? 'required' : '' }} data-size="7" data-live-search="true" title="{{ $placeholder }}" width="100%">
+    @if ($readonly)
+        @php
+            $selectedText = '';
+            foreach ($options as $val => $txt) {
+                if (old($name, $selected) == $val) {
+                    $selectedText = $txt;
+                    break;
+                }
+            }
+            if (!$selectedText && $isSimple) $selectedText = $placeholder;
+            if (!$selectedText) $selectedText = '-';
+        @endphp
+        <input type="text" class="form-control form-control-solid" value="{{ $selectedText }}" readonly disabled>
+        <input type="hidden" name="{{ $name }}" value="{{ old($name, $selected) }}">
+    @else
+        <select name="{{ $name }}" id="{{ $name }}_select"
+            {{ $attributes->merge(['class' => 'form-control ' . ($isSimple ? 'custom-select' : 'selectpicker ')]) }}
+            {{ $required ? 'required' : '' }} data-size="7" data-live-search="true" title="{{ $placeholder }}" width="100%">
 
-        @if ($isSimple)
-            <option value="">{{ $placeholder }}</option>
-        @endif
+            @if ($isSimple)
+                <option value="">{{ $placeholder }}</option>
+            @endif
 
-        @foreach ($options as $val => $txt)
-            <option value="{{ $val }}" {{ old($name, $selected) == $val ? 'selected' : '' }}>
-                {{ $txt }}
-            </option>
-        @endforeach
-    </select>
+            @foreach ($options as $val => $txt)
+                <option value="{{ $val }}" {{ old($name, $selected) == $val ? 'selected' : '' }}>
+                    {{ $txt }}
+                </option>
+            @endforeach
+        </select>
+    @endif
 
     @if ($hasRevision)
         <div class="revision-note-message text-danger mt-1 font-size-sm font-weight-bold"

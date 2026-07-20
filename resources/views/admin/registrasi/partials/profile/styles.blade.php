@@ -72,7 +72,8 @@
     }
 
     .vendor-profile-nav a:hover,
-    .vendor-profile-nav a:focus {
+    .vendor-profile-nav a:focus,
+    .vendor-profile-nav a.active {
         color: #0f6fc6;
         background: #f2f8fd;
         border-left-color: #0f6fc6;
@@ -222,7 +223,8 @@
         }
 
         .vendor-profile-nav a:hover,
-        .vendor-profile-nav a:focus {
+        .vendor-profile-nav a:focus,
+        .vendor-profile-nav a.active {
             border-left-color: transparent;
             border-bottom-color: #0f6fc6;
         }

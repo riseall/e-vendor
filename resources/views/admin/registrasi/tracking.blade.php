@@ -23,7 +23,7 @@
             'active' => 'tl-dot-active',
             'warning' => 'tl-dot-warning',
             'danger' => 'tl-dot-danger',
-            'pending' => 'tl-dot-pending',
+            'pending' => 'tl-dot-warning',
         ];
 
         $dotIcon = [
@@ -496,7 +496,8 @@
                             Silakan mengisi questionnaire dari Quality Assurance. Anda dapat menyimpan draft dan melanjutkan
                             nanti.
                         @else
-                            Proses audit on-site akan dikoordinasikan secara langsung oleh tim QA Phapros dengan perusahaan Anda.
+                            Proses audit on-site akan dikoordinasikan secara langsung oleh tim QA Phapros dengan perusahaan
+                            Anda.
                         @endif
                     </div>
                     <div class="mt-3">
@@ -521,13 +522,14 @@
                         Hasil evaluasi audit on-site Anda telah dirilis:
                     </div>
                     <div class="mb-3" style="font-size:12px;">
-                        <strong>Rekomendasi QA:</strong> 
+                        <strong>Rekomendasi QA:</strong>
                         <span class="badge badge-pill badge-success" style="font-size: 11px;">
                             {{ strtoupper(str_replace('_', ' ', $latestAudit->audit_result_category)) }}
                         </span>
                     </div>
                     @if ($latestAudit->summary)
-                        <div class="mb-3 p-3 bg-white rounded text-dark font-weight-bold" style="font-size:12px; border: 1px solid #C8E6C9;">
+                        <div class="mb-3 p-3 bg-white rounded text-dark font-weight-bold"
+                            style="font-size:12px; border: 1px solid #C8E6C9;">
                             {!! nl2br(e($latestAudit->summary)) !!}
                         </div>
                     @endif

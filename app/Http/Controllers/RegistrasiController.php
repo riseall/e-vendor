@@ -719,6 +719,41 @@ class RegistrasiController extends Controller
             ];
         }
 
+        // Tampilkan proses selanjutnya yang sedang berjalan (Active State)
+        if ($application->status === VendorApplication::STATUS_SUBMITTED) {
+            $steps[] = [
+                'key' => 'in_progress',
+                'title' => 'Proses Verifikasi',
+                'description' => 'Tim pengadaan sedang memeriksa kelengkapan data dan dokumen Anda.',
+                'date' => null,
+                'state' => 'active',
+            ];
+        } elseif ($application->status === VendorApplication::STATUS_VERIFIED) {
+            $steps[] = [
+                'key' => 'in_progress',
+                'title' => 'Risk Assessment QA',
+                'description' => 'Tim Quality Assurance sedang melakukan penilaian risiko terhadap profil Anda.',
+                'date' => null,
+                'state' => 'active',
+            ];
+        } elseif ($application->status === VendorApplication::STATUS_RISK_ASSESSED) {
+            $steps[] = [
+                'key' => 'in_progress',
+                'title' => 'Proses Keputusan Final',
+                'description' => 'Menunggu keputusan persetujuan final atau penetapan jadwal audit.',
+                'date' => null,
+                'state' => 'active',
+            ];
+        } elseif ($application->status === VendorApplication::STATUS_AUDIT_REQUIRED) {
+            $steps[] = [
+                'key' => 'in_progress',
+                'title' => 'Proses Pelaksanaan Audit',
+                'description' => 'Menunggu penyelesaian dan perilisan hasil dari audit kualitas.',
+                'date' => null,
+                'state' => 'active',
+            ];
+        }
+
         return $steps;
     }
 
