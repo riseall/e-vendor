@@ -259,7 +259,26 @@
                 var perStep = {};
 
                 $.each(errors, function(key, value) {
-                    var $inputs = $('[name="' + key + '"]');
+                    // Laravel mereturn dot notation untuk array: 'products.1.manufaktur'
+                    // Tapi di HTML atribut name menggunakan bracket: 'products[1][manufaktur]'
+                    var arrayName = key;
+                    if (key.indexOf('.') !== -1) {
+                        var parts = key.split('.');
+                        arrayName = parts[0];
+                        for (var i = 1; i < parts.length; i++) {
+                            arrayName += '[' + parts[i] + ']';
+                        }
+                    }
+
+                    // Cari berdasarkan dot notation atau bracket notation
+                    var $inputs = $('[name="' + key + '"], [name="' + arrayName + '"]');
+                    
+                    // Khusus untuk ajax-file-upload dan summernote atau custom component
+                    // terkadang kita harus menarget fieldnya saja jika input aslinya dihidden
+                    if ($inputs.length === 0) {
+                        $inputs = $('[data-field="' + key + '"], [data-field="' + arrayName + '"]');
+                    }
+
                     if ($inputs.length === 0) return;
 
                     // Deteksi radio/checkbox group (name sama, type radio/checkbox)
@@ -279,10 +298,26 @@
                             value[0] + '</div>'
                         );
                     } else {
-                        // Input / select / textarea: sisipkan tepat di bawah field
-                        $inputs.first().after(
-                            '<div class="invalid-feedback dynamic-error">' + value[0] + '</div>'
-                        );
+                        var $input = $inputs.first();
+                        var errorHtml = '<div class="invalid-feedback dynamic-error d-block" style="font-size: 0.85rem; line-height: 1.2; margin-top: 4px; word-break: break-word;">' + value[0] + '</div>';
+
+                        if ($input.hasClass('custom-file-input')) {
+                            // File input: letakkan di luar .custom-file
+                            $input.closest('.custom-file').after(errorHtml);
+                        } else if ($input.hasClass('selectpicker') || $input.next().hasClass('bootstrap-select')) {
+                            // Selectpicker: letakkan setelah div .bootstrap-select
+                            var $bsSelect = $input.next('.bootstrap-select');
+                            if ($bsSelect.length) {
+                                $bsSelect.after(errorHtml);
+                            } else {
+                                $input.after(errorHtml);
+                            }
+                        } else if ($input.closest('.input-group').length) {
+                            $input.closest('.input-group').after(errorHtml);
+                        } else {
+                            // Default: tepat di bawah input
+                            $input.after(errorHtml);
+                        }
                     }
 
                     var $step = $inputs.first().closest('div[data-step-id]');
@@ -293,7 +328,20 @@
                     if (!$firstError) $firstError = $inputs.first();
                 });
 
-                if (errorCount === 0) return;
+                if (errorCount === 0) {
+                    var genericErrors = '';
+                    $.each(errors, function(key, value) {
+                        genericErrors += '<li>' + value[0] + '</li>';
+                    });
+                    if (genericErrors) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validasi Gagal',
+                            html: '<ul class="text-left mb-0 text-danger" style="font-size:0.9rem;">' + genericErrors + '</ul>'
+                        });
+                    }
+                    return;
+                }
 
                 // Auto-scroll ke error pertama supaya user langsung tahu letaknya
                 if ($firstError && $firstError.length) {
@@ -594,6 +642,16 @@
                 var name = $changed.attr('name');
                 $('[name="' + name + '"]').removeClass('is-invalid');
                 $changed.closest('div, td, label').find('.invalid-feedback.dynamic-error').remove();
+                
+                // Fallback untuk custom-file dan selectpicker yang meletakkan error di luar komponen
+                if ($changed.hasClass('custom-file-input')) {
+                    $changed.closest('.custom-file').next('.invalid-feedback.dynamic-error').remove();
+                } else if ($changed.hasClass('selectpicker')) {
+                    $changed.next('.bootstrap-select').next('.invalid-feedback.dynamic-error').remove();
+                } else if ($changed.closest('.input-group').length) {
+                    $changed.closest('.input-group').next('.invalid-feedback.dynamic-error').remove();
+                }
+                
                 // fallback: kalau masih ada (struktur DOM unik), hapus satu pesan setelah input pertama
                 $('[name="' + name + '"]').first().next('.invalid-feedback.dynamic-error').remove();
             });

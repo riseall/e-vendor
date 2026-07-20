@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class VendorUploadPolicy
 {
     public const MAX_FILE_KB = 5120;
-    public const MAX_APPLICATION_BYTES = 50 * 1024 * 1024;
+    public const MAX_APPLICATION_BYTES = 200 * 1024 * 1024;
 
     public static function fileRule(): string
     {
@@ -17,29 +17,54 @@ class VendorUploadPolicy
 
     public static function validateTotalSize(FormRequest $request, $validator): void
     {
-        $uploadedBytes = collect($request->allFiles())
-            ->flatten()
-            ->filter()
-            ->sum(function ($file) {
-                return method_exists($file, 'getSize') ? (int) $file->getSize() : 0;
-            });
+        $totalBytes = 0;
+        $countedPaths = [];
 
-        $uploadedFields = self::uploadedFieldNames($request->allFiles());
+        $walk = function ($items) use (&$walk, &$totalBytes, &$countedPaths) {
+            foreach ($items as $key => $item) {
+                if (is_array($item)) {
+                    $walk($item);
+                    continue;
+                }
+                
+                // Skip 'existing_xxx' if 'xxx' is provided (meaning the file is being replaced)
+                if (is_string($key) && str_starts_with($key, 'existing_')) {
+                    $baseKey = substr($key, 9);
+                    if (!empty($items[$baseKey])) {
+                        continue; // File replaced, don't count the old one
+                    }
+                }
 
-        $existingBytes = VendorApplicationFile::where(
-            'application_id',
-            $request->input('application_id')
-        )
-            ->where('is_current', true)
-            ->when($uploadedFields, function ($query) use ($uploadedFields) {
-                $query->whereNotIn('field_name', $uploadedFields);
-            })
-            ->sum('file_size');
+                if ($item instanceof \Illuminate\Http\UploadedFile) {
+                    $totalBytes += $item->getSize();
+                } elseif (is_string($item) && !empty($item)) {
+                    if (isset($countedPaths[$item])) continue;
 
-        if (($existingBytes + $uploadedBytes) > self::MAX_APPLICATION_BYTES) {
+                    // Check if it's a temp file (ajax-auto-upload)
+                    if (str_starts_with($item, 'temp_vendor/')) {
+                        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($item)) {
+                            $totalBytes += \Illuminate\Support\Facades\Storage::disk('public')->size($item);
+                            $countedPaths[$item] = true;
+                        }
+                    }
+                    // Check if it's an existing file
+                    elseif (str_starts_with($item, 'vendor_documents/') || str_starts_with($item, 'vendor_products/') || str_starts_with($item, 'vendor_iso/') || str_starts_with($item, 'vendor_')) {
+                        if (\Illuminate\Support\Facades\Storage::disk(\App\Services\VendorFileService::DISK)->exists($item)) {
+                            $totalBytes += \Illuminate\Support\Facades\Storage::disk(\App\Services\VendorFileService::DISK)->size($item);
+                            $countedPaths[$item] = true;
+                        }
+                    }
+                }
+            }
+        };
+
+        $walk($request->all());
+
+        if ($totalBytes > self::MAX_APPLICATION_BYTES) {
+            $pathsDebug = implode(', ', array_keys($countedPaths));
             $validator->errors()->add(
                 'documents',
-                'Total ukuran dokumen dalam satu permohonan maksimal 50 MB.'
+                'Total ukuran dokumen dalam satu permohonan maksimal 50 MB. (Terhitung: ' . round($totalBytes / 1024 / 1024, 2) . ' MB) Paths: ' . substr($pathsDebug, 0, 200)
             );
         }
     }

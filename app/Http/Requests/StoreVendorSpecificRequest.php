@@ -156,6 +156,10 @@ class StoreVendorSpecificRequest extends FormRequest
 
     public function withValidator($validator): void
     {
+        if ($this->input('action') === 'draft') {
+            return;
+        }
+
         $validator->after(function ($validator) {
             VendorUploadPolicy::validateTotalSize($this, $validator);
         });

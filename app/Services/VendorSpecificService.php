@@ -156,6 +156,7 @@ class VendorSpecificService
         string $field,
         array $data
     ): ?string {
+        // 1. Jika di-upload sebagai file normal (fallback)
         if (request()->hasFile($field)) {
             return $this->fileService->store(
                 $application,
@@ -168,7 +169,31 @@ class VendorSpecificService
             );
         }
 
-        // Jika tidak upload file baru, cek apakah ada file lama
+        // 2. Cek apakah ada data path file dari AJAX
+        if (isset($data[$field]) && is_string($data[$field]) && trim($data[$field]) !== '') {
+            $filePath = trim($data[$field]);
+
+            // Jika masih di folder temp, pindahkan ke storage privat
+            if (strpos($filePath, 'temp_vendor/') === 0) {
+                $storedPath = $this->fileService->storeFromTempPath(
+                    $application,
+                    $filePath,
+                    'vendor_docs/specific',
+                    'specific',
+                    $field,
+                    null,
+                    Auth::user()
+                );
+                if ($storedPath) {
+                    return $storedPath;
+                }
+            } else {
+                // Jika sudah dipindahkan sebelumnya, return path tersebut
+                return $filePath;
+            }
+        }
+
+        // 3. Jika tidak ada file baru, gunakan data file lama yang sudah ada
         return $data['existing_' . $field] ?? null;
     }
 }

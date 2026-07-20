@@ -481,12 +481,13 @@
                     ])
                     ->latest('id')
                     ->first();
+                $latestAudit = $application->audits()->latest('id')->first();
             @endphp
             @if ($application->status === \App\Models\VendorApplication::STATUS_AUDIT_REQUIRED && $activeAudit)
                 <div class="trk-revision mt-5" style="background:#EEEDFE;border-color:#534AB7;">
                     <div class="trk-revision-title" style="color:#534AB7;">
                         <i class="fas fa-clipboard-check"></i>
-                        {{ $activeAudit->audit_type === 'on_desk' ? 'Audit On Desk — Questionnaire' : 'Audit On Site — Jadwal & CAPA' }}
+                        {{ $activeAudit->audit_type === 'on_desk' ? 'Audit On Desk — Questionnaire' : 'Audit On Site — Koordinasi Offline' }}
                     </div>
                     <div class="trk-revision-note">
                         Permohonan Anda memerlukan audit
@@ -495,8 +496,7 @@
                             Silakan mengisi questionnaire dari Quality Assurance. Anda dapat menyimpan draft dan melanjutkan
                             nanti.
                         @else
-                            Tim QA akan mengirim jadwal audit. Anda akan menerima surat pemberitahuan setelah QA
-                            mengkonfirmasi jadwal.
+                            Proses audit on-site akan dikoordinasikan secara langsung oleh tim QA Phapros dengan perusahaan Anda.
                         @endif
                     </div>
                     <div class="mt-3">
@@ -505,11 +505,34 @@
                                 class="btn btn-primary font-weight-bold">
                                 <i class="fas fa-pen"></i> Isi Questionnaire
                             </a>
-                        @else
-                            <a href="{{ route('vendor.audit.capa.index') }}" class="btn btn-primary font-weight-bold">
-                                <i class="fas fa-tasks"></i> Lihat Tugas Audit
-                            </a>
                         @endif
+                    </div>
+                </div>
+            @endif
+
+            {{-- Hasil Audit --}}
+            @if ($latestAudit && $latestAudit->audit_result_path)
+                <div class="trk-revision mt-5" style="background:#E8F5E9;border-color:#2E7D32;">
+                    <div class="trk-revision-title" style="color:#2E7D32;">
+                        <i class="fas fa-file-invoice"></i>
+                        Hasil Audit On-Site
+                    </div>
+                    <div class="trk-revision-note" style="color:#1B5E20; font-size:12px;">
+                        Hasil evaluasi audit on-site Anda telah dirilis:
+                    </div>
+                    <div class="mb-3" style="font-size:12px;">
+                        <strong>Rekomendasi QA:</strong> 
+                        <span class="badge badge-pill badge-success" style="font-size: 11px;">
+                            {{ strtoupper(str_replace('_', ' ', $latestAudit->audit_result_category)) }}
+                        </span>
+                    </div>
+                    @if ($latestAudit->summary)
+                        <div class="mb-3 p-3 bg-white rounded text-dark font-weight-bold" style="font-size:12px; border: 1px solid #C8E6C9;">
+                            {!! nl2br(e($latestAudit->summary)) !!}
+                        </div>
+                    @endif
+                    <div class="mt-3">
+                        <x-preview-doc-button :url="Storage::url($latestAudit->audit_result_path)" label="Lihat File Hasil Audit" />
                     </div>
                 </div>
             @endif
@@ -528,5 +551,7 @@
             </div>
         </div>
     </div>
+
+    <x-document-preview />
 
 @endsection

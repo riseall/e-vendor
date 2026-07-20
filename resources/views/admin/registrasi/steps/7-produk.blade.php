@@ -1,5 +1,4 @@
 @push('style')
-    <link href="{{ asset('plugins/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
     <style>
         #selectedProductsTable td {
             vertical-align: top;
@@ -74,7 +73,6 @@
 @endif
 
 @push('scripts')
-    <script src="{{ asset('plugins/datatables/datatables.bundle.js') }}"></script>
     <script>
         $(document).ready(function() {
             const productTable = $('#selectedProductsTable').DataTable({
@@ -179,11 +177,7 @@
                     productTable.row($(this).closest('tr')).remove().draw(false);
                 });
 
-                // 3. Nama File Upload
-                $('#selectedProductsTable').on('change', '.product-file-input', function() {
-                    let name = $(this).val().split('\\').pop();
-                    $(this).siblings('.custom-file-label').text(name || 'Pilih File');
-                });
+                // 3. (Dihapus: Nama File Upload dihandle global oleh ajax-file-upload)
 
                 // 4. Toggle input detail sertifikat
                 $('#selectedProductsTable').on('change', '.product-cert-toggle', function() {

@@ -155,7 +155,7 @@ class VendorRegistrationViewService
                 return [
                     'label' => 'On Hold',
                     'class' => 'warning',
-                    'description' => 'Permohonan menunggu tindak lanjut CAPA atau klarifikasi QA.',
+                    'description' => 'Permohonan ditunda menunggu tindak lanjut atau evaluasi dari tim QA.',
                 ];
             case VendorApplication::STATUS_APPROVED:
                 return [

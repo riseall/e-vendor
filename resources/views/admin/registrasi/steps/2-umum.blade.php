@@ -1,7 +1,10 @@
-<h4 class="font-weight-bold text-dark mb-2">Formulir Pendaftaran Vendor</h4>
-<p class="text-muted mb-8">
-    Silakan lengkapi seluruh data perusahaan Anda. Tanda <span class="text-danger font-weight-bold">*</span> wajib diisi.
-</p>
+@if (empty($isProfileMode))
+    <h4 class="font-weight-bold text-dark mb-2">Formulir Pendaftaran Vendor</h4>
+    <p class="text-muted mb-8">
+        Silakan lengkapi seluruh data perusahaan Anda. Tanda <span class="text-danger font-weight-bold">*</span> wajib
+        diisi.
+    </p>
+@endif
 
 <div class="form-section-title mt-0">
     Informasi Umum Perusahaan

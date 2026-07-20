@@ -88,41 +88,7 @@
                                     <x-revision-note name="l2_{{ $key }}_date" :notes="$revisionNotes ?? []" />
                                 </div>
                                 <div class="col-md-5">
-                                    <label class="font-size-xs text-muted">Lampiran File:</label>
-
-                                    @php $certFile = $draft["l2_{$key}_file"] ?? null; @endphp
-
-                                    @if ($certFile)
-                                        <input type="hidden" name="existing_l2_{{ $key }}_file"
-                                            value="{{ $certFile }}">
-                                    @endif
-
-                                    <div class="custom-file mb-2">
-                                        <input type="file" data-field="l2_{{ $key }}_file"
-                                            class="custom-file-input ajax-file-upload" accept=".pdf,.jpg,.jpeg,.png"
-                                            {{ $isReadOnly ? 'disabled' : '' }}>
-                                        <label
-                                            class="custom-file-label form-control-sm text-truncate">{{ $certFile ? 'Ganti berkas...' : 'Pilih berkas...' }}</label>
-                                        <span class="upload-status" style="display:none;"></span>
-                                    </div>
-
-                                    @if ($certFile && !$isReadOnly)
-                                        <div class="d-flex justify-content-between p-1 bg-light-success rounded">
-                                            <span class="text-success font-size-xs font-weight-bold mr-2 ml-2">File
-                                                Tersimpan</span>
-                                            <button type="button"
-                                                data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $certFile) }}"
-                                                class="btn btn-xs btn-success btn-icon btn-preview-doc"><i
-                                                    class="flaticon-eye"></i></button>
-                                        </div>
-                                    @elseif($certFile && $isReadOnly)
-                                        <button type="button"
-                                            data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $certFile) }}"
-                                            class="btn btn-xs btn-light-primary mt-1 btn-preview-doc"><i
-                                                class="flaticon-eye"></i>
-                                            Lihat File</button>
-                                    @endif
-                                    <x-revision-note name="l2_{{ $key }}_file" :notes="$revisionNotes ?? []" />
+                                    <x-vendor-input type="file" name="l2_{{ $key }}_file" label="Lampiran File:" :value="$draft['l2_' . $key . '_file'] ?? null" :application="$application" :readonly="$isReadOnly" />
                                 </div>
                             </div>
                         </div>
