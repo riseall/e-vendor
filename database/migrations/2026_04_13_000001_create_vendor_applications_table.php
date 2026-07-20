@@ -12,13 +12,25 @@ class CreateVendorApplicationsTable extends Migration
         Schema::create('vendor_applications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('status', ['draft', 'submitted', 'need_revision', 'verified', 'approved', 'rejected'])
+            $table->string('application_number', 30)->nullable()->unique();
+            $table->enum('status', ['draft', 'submitted', 'need_revision', 'verified', 'risk_assessed', 'audit_required', 'on_hold', 'approved', 'rejected'])
                 ->default('draft');
             $table->unsignedTinyInteger('current_step')->default(1);
             $table->text('admin_note')->nullable();
+            $table->json('revision_notes')->nullable();
             $table->timestamp('submitted_at')->nullable();
+            $table->timestamp('revision_submitted_at')->nullable();
+            $table->unsignedInteger('revision_count')->default(0);
             $table->timestamp('verified_at')->nullable();
+            $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->boolean('auto_verified')->default(false);
+            $table->enum('risk_level', ['low', 'medium', 'high'])->nullable();
+            $table->unsignedInteger('risk_rpn')->nullable();
+            $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('approved_at')->nullable();
+            $table->date('valid_until')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         // Tabel kategori yang dipilih vendor

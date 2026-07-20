@@ -25,7 +25,7 @@ class CreateVendorApplicationDocumentsTable extends Migration
             $table->string('mime_type')->nullable();
             $table->timestamps();
 
-            $table->unique(['application_id', 'field_name']);
+            $table->index(['application_id', 'field_name'], 'vad_app_field_idx');
         });
     }
 

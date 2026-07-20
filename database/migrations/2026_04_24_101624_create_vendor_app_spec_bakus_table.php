@@ -29,7 +29,12 @@ return new class extends Migration
 
             // Baris 3: Sertifikat CDOB
             $table->string('q5_num')->nullable();
-            $table->date('q5_date')->nullable();
+            $table->string('q5_document')->nullable();
+            $table->date('q5_issue_date')->nullable();
+            $table->date('q5_valid_until')->nullable();
+            $table->string('pbf_document')->nullable();
+            $table->string('pbf_num')->nullable();
+            $table->date('pbf_issue_date')->nullable();
 
             // Khusus Pemasok Lokal: SIPA APJ
             $table->string('q6_name')->nullable();

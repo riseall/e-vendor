@@ -25,18 +25,19 @@ class CreateVendorQualificationsTable extends Migration
             // Komponen formulir fisik risk assessment supplier.
             $blueprint->integer('score_safety_efficacy_doc')->nullable()->comment('A1 Kelengkapan Dokumen');
             $blueprint->integer('score_safety_efficacy_attr')->nullable()->comment('A2 Critical Attribute');
-            $blueprint->integer('score_safety_efficacy')->comment('Total Nilai Safety Efficacy');
+            $blueprint->integer('score_safety_efficacy')->nullable()->comment('Total Nilai Safety Efficacy');
             $blueprint->integer('score_availability_trace')->nullable()->comment('B1 Traceability Supply Chain');
             $blueprint->integer('score_availability_type')->nullable()->comment('B2 Jenis Pemasok');
-            $blueprint->integer('score_availability')->comment('Total Nilai Availability');
+            $blueprint->integer('score_availability')->nullable()->comment('Total Nilai Availability');
             $blueprint->integer('score_detectability_country')->nullable()->comment('C1 Country / Regulatory Risk');
             $blueprint->integer('score_detectability_warning')->nullable()->comment('C2 Warning Letter / Hasil Audit');
-            $blueprint->integer('score_detectability')->comment('Total Nilai Detectability');
+            $blueprint->integer('score_detectability')->nullable()->comment('Total Nilai Detectability');
             $blueprint->integer('score_probability_function')->nullable()->comment('D1 Fungsi Bahan');
-            $blueprint->integer('score_probability')->comment('Total Nilai Probability');
+            $blueprint->string('material_function_label', 100)->nullable()->comment('Snapshot label fungsi bahan');
+            $blueprint->integer('score_probability')->nullable()->comment('Total Nilai Probability');
 
             // Rumus: (Safety Efficacy + Availability) x (Detectability + Probability)
-            $blueprint->integer('total_score')->comment('Total Nilai Pemasok');
+            $blueprint->integer('total_score')->nullable()->comment('Total Nilai Pemasok');
 
             // Kategori Tingkat Risiko berdasarkan threshold konfigurasi.
             $blueprint->enum('risk_level', ['low', 'medium', 'high'])->comment('Kategori: Low, Medium, High');

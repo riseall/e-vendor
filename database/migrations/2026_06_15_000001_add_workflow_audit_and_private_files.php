@@ -8,9 +8,6 @@ class AddWorkflowAuditAndPrivateFiles extends Migration
 {
     public function up()
     {
-        Schema::table('vendor_applications', function (Blueprint $table) {
-            $table->softDeletes();
-        });
 
         Schema::create('vendor_application_activity_logs', function (Blueprint $table) {
             $table->id();
@@ -47,9 +44,5 @@ class AddWorkflowAuditAndPrivateFiles extends Migration
     {
         Schema::dropIfExists('vendor_application_files');
         Schema::dropIfExists('vendor_application_activity_logs');
-
-        Schema::table('vendor_applications', function (Blueprint $table) {
-            $table->dropSoftDeletes();
-        });
     }
 }
