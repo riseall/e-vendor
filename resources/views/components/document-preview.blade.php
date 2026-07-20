@@ -27,7 +27,7 @@
                         modalEl.setAttribute('aria-hidden', 'true');
                         modalEl.setAttribute('data-backdrop', 'true');
                         modalEl.innerHTML =
-                            '<div class="modal-dialog modal-xl modal-dialog-centered" role="document">' +
+                            '<div class="modal-dialog modal-lg modal-dialog-centered" role="document">' +
                             '<div class="modal-content border-0">' +
                             '<div class="modal-header">' +
                             '<h5 class="modal-title font-weight-bold" id="documentPreviewModalLabel">Preview Dokumen</h5>' +

@@ -7,6 +7,10 @@
     'required' => false,
     'placeholder' => '',
     'labelClass' => 'font-size-sm font-weight-bold text-muted',
+    'application' => null,
+    'rightIcon' => null,
+    'leftIcon' => null,
+    'existingName' => null,
 ])
 
 @php $hasRevision = isset($revisionNotes) && isset($revisionNotes[$name]); @endphp
@@ -28,20 +32,18 @@
                 placeholder="{{ $placeholder }}" {{ $readonly ? 'readonly disabled' : '' }}>{{ old($name, $value) }}</textarea>
         @elseif ($type === 'file')
             <div class="custom-file w-100">
-                {{-- ponytail: class ajax-file-upload triggers layout's auto-uploader.
-                    name= removed so browser does not re-send the file on form submit
-                    (the layout handler cleared input.value, this is belt-and-suspenders). --}}
                 <input type="{{ $type }}" data-field="{{ $name }}"
                     class="custom-file-input ajax-file-upload {{ $errors->has($name) ? 'is-invalid' : '' }}"
-                    id="{{ $name }}" accept=".pdf,.jpg,.jpeg,.png" {{ $readonly ? 'disabled' : '' }}>
-                <label class="custom-file-label" for="{{ $name }}">
-                    {{ $value ? 'Ganti file...' : $placeholder ?? 'Upload Dokumen...' }}
+                    id="{{ $name }}" accept=".pdf,.jpg,.jpeg,.png" {{ $readonly ? 'disabled' : '' }}
+                    placeholder="{{ $placeholder }}" {{ $required && !$value ? 'required' : '' }}>
+                <label class="custom-file-label font-size-xs" for="{{ $name }}">
+                    {{ $value ? 'Ganti file...' : ($placeholder ?: 'Upload File...') }}
                 </label>
             </div>
             <span class="upload-status d-block mt-1 font-weight-bold" style="display:none;"></span>
 
             @if ($value)
-                <input type="hidden" name="existing_{{ $name }}" value="{{ $value }}">
+                <input type="hidden" name="{{ $existingName ?? 'existing_' . $name }}" value="{{ $value }}">
             @endif
 
             @if ($value && !$readonly)
@@ -62,9 +64,24 @@
                 </button>
             @endif
         @else
+            @if ($leftIcon)
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="{{ $leftIcon }}"></i></span>
+                </div>
+            @endif
+            @php
+                $isDatepicker = strpos($attributes->get('class', ''), 'datepicker') !== false || $type === 'date';
+                $defaultPlaceholder = $isDatepicker ? 'Pilih Tanggal...' : '';
+                $finalPlaceholder = $placeholder ?: $defaultPlaceholder;
+            @endphp
             <input type="{{ $type }}" name="{{ $name }}" value="{{ old($name, $value) }}"
                 {{ $attributes->merge(['class' => 'form-control ' . ($errors->has($name) ? 'is-invalid' : '')]) }}
-                placeholder="{{ $placeholder }}" {{ $readonly ? 'readonly disabled' : '' }}>
+                placeholder="{{ $finalPlaceholder }}" {{ $readonly ? 'readonly disabled' : '' }}>
+            @if ($rightIcon)
+                <div class="input-group-append">
+                    <span class="input-group-text"><i class="{{ $rightIcon }}"></i></span>
+                </div>
+            @endif
         @endif
     </div>
 

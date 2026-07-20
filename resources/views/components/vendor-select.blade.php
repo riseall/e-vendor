@@ -25,7 +25,7 @@
 
     <select name="{{ $name }}" id="{{ $name }}_select"
         {{ $attributes->merge(['class' => 'form-control ' . ($isSimple ? 'custom-select' : 'selectpicker ') . ($readonly ? 'form-control-solid' : '')]) }}
-        {{ $readonly ? 'disabled' : '' }} data-size="7" data-live-search="true" title="{{ $placeholder }}" width="100%">
+        {{ $readonly ? 'disabled' : '' }} {{ $required && !$readonly ? 'required' : '' }} data-size="7" data-live-search="true" title="{{ $placeholder }}" width="100%">
 
         @if ($isSimple)
             <option value="">{{ $placeholder }}</option>
