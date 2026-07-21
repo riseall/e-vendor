@@ -24,10 +24,6 @@ class VendorAudit extends Model
     const STATUS_SCHEDULE_PROPOSED       = 'schedule_proposed';
     const STATUS_SCHEDULE_CONFIRMED      = 'schedule_confirmed';
     const STATUS_IN_PROGRESS             = 'in_progress';
-    const STATUS_FINDINGS_RECORDED       = 'findings_recorded';
-    const STATUS_CAPA_PROGRESS           = 'capa_in_progress';
-    const STATUS_CAPA_SUBMITTED          = 'capa_submitted';
-    const STATUS_CAPA_REVISED            = 'capa_revised';
     const STATUS_NEED_REVISION           = 'need_revision';
     const STATUS_COMPLETED               = 'completed';
     const STATUS_REJECTED                = 'rejected';
@@ -35,6 +31,7 @@ class VendorAudit extends Model
     protected $fillable = [
         'vendor_application_id',
         'vendor_qualification_id',
+        'questionnaire_form_id',
         'audit_type',
         'status',
         'questionnaire_submitted_at',
@@ -51,6 +48,8 @@ class VendorAudit extends Model
         'preparation_submitted_at',
         'summary',
         'completed_at',
+        'audit_result_path',
+        'audit_result_category',
         'qa_lead_id',
         'created_by',
     ];
@@ -78,14 +77,9 @@ class VendorAudit extends Model
         return $this->belongsTo(VendorQualification::class, 'vendor_qualification_id');
     }
 
-    public function findings(): HasMany
+    public function questionnaireForm(): BelongsTo
     {
-        return $this->hasMany(VendorAuditFinding::class, 'vendor_audit_id');
-    }
-
-    public function capas(): HasMany
-    {
-        return $this->hasMany(VendorAuditCapa::class, 'vendor_audit_id');
+        return $this->belongsTo(VendorAuditQuestionnaireForm::class, 'questionnaire_form_id');
     }
 
     public function qaLead(): BelongsTo
@@ -119,13 +113,8 @@ class VendorAudit extends Model
             self::STATUS_SCHEDULED               => 5,
             self::STATUS_QUESTIONNAIRE_PROGRESS  => 25,
             self::STATUS_QUESTIONNAIRE_SUBMITTED => 45,
-            self::STATUS_SCHEDULE_PROPOSED       => 30,
             self::STATUS_SCHEDULE_CONFIRMED      => 50,
             self::STATUS_IN_PROGRESS             => 70,
-            self::STATUS_FINDINGS_RECORDED       => 80,
-            self::STATUS_CAPA_PROGRESS           => 85,
-            self::STATUS_CAPA_SUBMITTED          => 90,
-            self::STATUS_CAPA_REVISED            => 92,
             self::STATUS_NEED_REVISION           => 50,
             self::STATUS_COMPLETED               => 100,
             self::STATUS_REJECTED                => 100,

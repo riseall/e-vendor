@@ -9,7 +9,9 @@ use App\Http\Controllers\VendorCapaController;
 use App\Http\Controllers\VendorQualificationController;
 use App\Http\Controllers\VendorQuestionnaireController;
 use App\Http\Controllers\VendorUploadController;
+use App\Http\Controllers\QuestionnaireFormController;
 use Illuminate\Support\Facades\Route;
+
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 /*
 |--------------------------------------------------------------------------
@@ -138,16 +140,8 @@ Route::group(
                     ->name('letter.download');
 
                 // Temuan audit
-                Route::post('/{auditId}/findings', [VendorAuditController::class, 'storeFindings'])
-                    ->name('findings.store');
+                Route::post('/{auditId}/result', [VendorAuditController::class, 'storeResult'])->name('store-result');
 
-                // Verifikasi CAPA per item
-                Route::post('/capa/{capaId}/verify', [VendorAuditController::class, 'verifyCapa'])
-                    ->name('capa.verify');
-
-                // Final decision
-                Route::post('/{auditId}/finalize', [VendorAuditController::class, 'finalize'])
-                    ->name('finalize');
             });
 
             // Vendor - Audit (Stage 5)
@@ -159,17 +153,21 @@ Route::group(
                     ->name('questionnaire.save');
                 Route::post('/{auditId}/questionnaire/submit', [VendorQuestionnaireController::class, 'submit'])
                     ->name('questionnaire.submit');
-
-                // CAPA (on site)
-                Route::get('/capa', [VendorCapaController::class, 'index'])->name('capa.index');
-                Route::get('/{auditId}/capa', [VendorCapaController::class, 'show'])->name('capa');
-                Route::post('/{auditId}/capa/save', [VendorCapaController::class, 'save'])->name('capa.save');
             });
 
             // Users
             Route::resource('user', UserController::class)->only('index', 'store', 'update', 'destroy');
             Route::get('/user/data', [UserController::class, 'getUser'])->name('user.data');
             Route::get('/user/search', [UserController::class, 'searchInternalUser'])->name('user.search');
+
+            // Master Questionnaire
+            Route::resource('questionnaire-form', QuestionnaireFormController::class);
+            Route::get('/questionnaire-form/{form}/questions', [QuestionnaireFormController::class, 'questions'])->name('questionnaire-form.questions');
+            Route::post('/questionnaire-form/{form}/questions', [QuestionnaireFormController::class, 'storeQuestion'])->name('questionnaire-form.questions.store');
+            Route::post('/questionnaire-form/{form}/questions/import', [QuestionnaireFormController::class, 'importQuestions'])->name('questionnaire-form.questions.import');
+            Route::put('/questionnaire-form/{form}/questions/{question}', [QuestionnaireFormController::class, 'updateQuestion'])->name('questionnaire-form.questions.update');
+            Route::delete('/questionnaire-form/{form}/questions/{question}', [QuestionnaireFormController::class, 'destroyQuestion'])->name('questionnaire-form.questions.destroy');
+
         });
     }
 );

@@ -29,6 +29,7 @@ class StoreRiskAssessmentRequest extends FormRequest
             'score_detectability_country' => 'required|integer|in:1,2,3,4',
             'score_detectability_warning' => 'required|integer|in:1,4',
             'score_probability_function' => 'required|integer|in:1,2,3,4',
+            'questionnaire_form_id' => 'nullable|exists:vendor_audit_questionnaire_forms,id',
             'qa_manager_id' => 'nullable|exists:users,id',
             'notes' => 'nullable|string|max:2000',
         ];
