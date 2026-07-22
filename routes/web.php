@@ -146,6 +146,8 @@ Route::group(
 
             // Vendor - Audit (Stage 5)
             Route::prefix('vendor/audit')->name('vendor.audit.')->group(function () {
+                Route::get('/results', [VendorQuestionnaireController::class, 'indexResults'])
+                    ->name('results');
                 // Questionnaire (on desk)
                 Route::get('/{auditId}/questionnaire', [VendorQuestionnaireController::class, 'show'])
                     ->name('questionnaire');

@@ -29,11 +29,7 @@ class CreateVendorAuditsTable extends Migration
                 'schedule_proposed', // on_site: QA kirim proposed date
                 'schedule_confirmed', // on_site: vendor pilih tanggal
                 'in_progress',       // on_site: pelaksanaan audit
-                'findings_recorded', // on_site: QA sudah input temuan
-                'capa_in_progress',  // vendor sedang isi CAPA
-                'capa_submitted',    // vendor sudah submit CAPA
-                'capa_revised',      // vendor revisi CAPA setelah reject
-                'need_revision',     // questionnaire/CAPA perlu direvisi vendor
+                'need_revision',     // questionnaire perlu direvisi vendor
                 'completed',         // audit selesai, hasil akhir approved
                 'rejected',          // QA reject vendor
             ])->default('scheduled');
@@ -74,41 +70,6 @@ class CreateVendorAuditsTable extends Migration
             $table->index('status');
         });
 
-        // Temuan audit (untuk on_site)
-        Schema::create('vendor_audit_findings', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('vendor_audit_id')
-                ->constrained('vendor_audits')
-                ->onDelete('cascade');
-            $table->string('category', 80)->nullable(); // Critical / Major / Minor / Observasi
-            $table->text('description');
-            $table->text('evidence_reference')->nullable();
-            $table->date('capa_deadline')->nullable();
-            $table->enum('status', ['open', 'closed', 'accepted'])->default('open');
-            $table->timestamps();
-        });
-
-        // CAPA per temuan
-        Schema::create('vendor_audit_capas', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('vendor_audit_finding_id')
-                ->constrained('vendor_audit_findings')
-                ->onDelete('cascade');
-            $table->text('corrective_action')->nullable();
-            $table->text('preventive_action')->nullable();
-            $table->json('attachments')->nullable();           // path file bukti
-            $table->timestamp('submitted_at')->nullable();
-            $table->foreignId('submitted_by')->nullable()->constrained('users')->nullOnDelete();
-
-            // Verifikasi per item CAPA oleh QA
-            $table->enum('qa_verdict', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->text('qa_note')->nullable();
-            $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('verified_at')->nullable();
-
-            $table->timestamps();
-        });
-
         // Template pertanyaan questionnaire (Master) — dipakai untuk generate kuesioner dinamis per kategori
         Schema::create('vendor_audit_question_templates', function (Blueprint $table) {
             $table->id();
@@ -129,8 +90,6 @@ class CreateVendorAuditsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('vendor_audit_question_templates');
-        Schema::dropIfExists('vendor_audit_capas');
-        Schema::dropIfExists('vendor_audit_findings');
         Schema::dropIfExists('vendor_audits');
     }
 }

@@ -6,9 +6,11 @@ use App\Models\User;
 use App\Models\VendorApplication;
 use App\Models\VendorAudit;
 use App\Models\VendorAuditFinding;
-use App\Models\VendorAuditQuestionTemplate;
-use App\Models\VendorQualification;
+use App\Models\VendorAuditQuestionnaireForm;
 use App\Services\VendorApplicationNotificationService;
+use App\Mail\VendorAuditResultNotification;
+use App\Mail\VendorAuditOnDeskNotification;
+use Illuminate\Support\Facades\Mail;
 use App\Services\VendorApplicationWorkflowService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -16,7 +18,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class VendorAuditController extends Controller
@@ -44,7 +45,7 @@ class VendorAuditController extends Controller
         $search = trim((string) $request->input('q', ''));
 
         $query = VendorAudit::query()
-            ->with(['application.general', 'application.user', 'qualification', 'findings'])
+            ->with(['application.general', 'application.user', 'qualification'])
             ->latest();
 
         if ($status !== 'all') {
@@ -85,10 +86,6 @@ class VendorAuditController extends Controller
                 VendorAudit::STATUS_SCHEDULE_PROPOSED,
                 VendorAudit::STATUS_SCHEDULE_CONFIRMED,
                 VendorAudit::STATUS_IN_PROGRESS,
-                VendorAudit::STATUS_FINDINGS_RECORDED,
-                VendorAudit::STATUS_CAPA_PROGRESS,
-                VendorAudit::STATUS_CAPA_SUBMITTED,
-                VendorAudit::STATUS_CAPA_REVISED,
             ])->count(),
             'need_revision' => VendorAudit::where('status', VendorAudit::STATUS_NEED_REVISION)->count(),
             'completed' => VendorAudit::where('status', VendorAudit::STATUS_COMPLETED)->count(),
@@ -117,7 +114,6 @@ class VendorAuditController extends Controller
             'general',
             'categories',
             'qualification',
-            'audits.findings.capas',
         ])
             ->findOrFail($applicationId);
 
@@ -135,17 +131,13 @@ class VendorAuditController extends Controller
             ->latest()
             ->first();
 
-        $templates = $activeAudit
-            ? collect()
-            : VendorAuditQuestionTemplate::forCategories(
-                $application->categories->pluck('category_id')->all()
-            );
+        $questionnaireForms = VendorAuditQuestionnaireForm::optionsForMaterial()->values();
 
         return view('admin.audit.create', [
-            'application'  => $application,
-            'activeAudit'  => $activeAudit,
-            'templates'    => $templates,
-            'qaUsers'      => $this->qaUsers(),
+            'application'       => $application,
+            'activeAudit'       => $activeAudit,
+            'questionnaireForms'=> $questionnaireForms,
+            'qaUsers'           => $this->qaUsers(),
         ]);
     }
 
@@ -158,26 +150,34 @@ class VendorAuditController extends Controller
             'application.general',
             'application.categories',
             'application.qualification',
-            'findings.capas',
             'qaLead',
         ])
             ->findOrFail($auditId);
 
         $progress = $audit->progressPercent();
 
+        $questions = collect();
+        if ($audit->audit_type === \App\Models\VendorAudit::TYPE_ON_DESK) {
+            if ($audit->questionnaire_form_id) {
+                $questions = \App\Models\VendorAuditQuestionTemplate::forForm($audit->questionnaire_form_id);
+            } else {
+                $categoryIds = $audit->application->categories->pluck('category_id')->all();
+                $questions   = \App\Models\VendorAuditQuestionTemplate::forCategories($categoryIds);
+            }
+        }
+
         return view('admin.audit.show', [
             'audit'        => $audit,
             'progress'     => $progress,
             'application'  => $audit->application,
-            'findings'     => $audit->findings,
-            'capaProgress' => $this->capaProgress($audit),
+            'questions'    => $questions,
         ]);
     }
 
     /* ──────────────────────────────────────────────────────────────────
      |  STORE – QA membuat audit row dari hasil risk assessment
      * ────────────────────────────────────────────────────────────────*/
-    public function store(Request $request, int $applicationId, VendorApplicationWorkflowService $workflow)
+    public function store(Request $request, int $applicationId, VendorApplicationWorkflowService $workflow, VendorApplicationNotificationService $notification)
     {
         $this->authorizeQaAccess();
 
@@ -200,20 +200,22 @@ class VendorAuditController extends Controller
         // Validasi berbeda untuk on_desk vs on_site
         if ($auditType === VendorAudit::TYPE_ON_SITE) {
             $data = $request->validate([
-                'proposed_schedules'   => 'required|array|min:1',
-                'proposed_schedules.*' => 'required|date|after:today',
-                'audit_location'       => 'required|string|max:255',
-                'audit_agenda'         => 'required|string|max:500',
-                'auditor_team'         => 'required|array|min:1',
-                'auditor_team.*.name'  => 'required|string|max:120',
-                'auditor_team.*.role'  => 'required|string|max:80',
-                'qa_lead_id'           => 'nullable|exists:users,id',
-                'summary'              => 'nullable|string|max:1000',
+                'confirmed_schedule_at' => 'required|date|after:today',
+                'audit_location'        => 'required|string|max:255',
+                'audit_agenda'          => 'required|string|max:500',
+                'auditor_team'          => 'required|array|min:1',
+                'auditor_team.*.name'   => 'required|string|max:120',
+                'auditor_team.*.role'   => 'required|string|max:80',
+                'qa_lead_id'            => 'nullable|exists:users,id',
+                'summary'               => 'nullable|string|max:1000',
             ]);
         } else {
+            // Ponytail: on_desk wajib pilih form questionnaire. Add when: butuh form berbeda per
+            // kategori material, ganti Rule::exists ke scope material_type.
             $data = $request->validate([
-                'qa_lead_id' => 'nullable|exists:users,id',
-                'summary'    => 'nullable|string|max:1000',
+                'questionnaire_form_id' => 'required|exists:vendor_audit_questionnaire_forms,id',
+                'qa_lead_id'            => 'nullable|exists:users,id',
+                'summary'               => 'nullable|string|max:1000',
             ]);
         }
 
@@ -224,39 +226,61 @@ class VendorAuditController extends Controller
                 'audit_type'              => $auditType,
                 'status'                  => $auditType === VendorAudit::TYPE_ON_DESK
                     ? VendorAudit::STATUS_QUESTIONNAIRE_PROGRESS
-                    : VendorAudit::STATUS_SCHEDULE_PROPOSED,
+                    : VendorAudit::STATUS_IN_PROGRESS,
                 'qa_lead_id'              => $data['qa_lead_id'] ?? Auth::id(),
                 'created_by'              => Auth::id(),
             ];
 
             if ($auditType === VendorAudit::TYPE_ON_SITE) {
                 $payload = array_merge($payload, [
-                    'proposed_schedules' => array_map(
-                        fn($dt) => Carbon::parse($dt)->toDateTimeString(),
-                        $data['proposed_schedules']
-                    ),
-                    'audit_location'     => $data['audit_location'],
-                    'audit_agenda'       => $data['audit_agenda'],
-                    'auditor_team'       => $data['auditor_team'],
-                    'summary'            => $data['summary'] ?? null,
+                    'confirmed_schedule_at' => Carbon::parse($data['confirmed_schedule_at'])->toDateTimeString(),
+                    'audit_location'        => $data['audit_location'],
+                    'audit_agenda'          => $data['audit_agenda'],
+                    'auditor_team'          => $data['auditor_team'],
+                    'summary'               => $data['summary'] ?? null,
                 ]);
             } else {
-                $payload['summary'] = $data['summary'] ?? null;
+                $payload = array_merge($payload, [
+                    'questionnaire_form_id' => $data['questionnaire_form_id'],
+                    'summary'               => $data['summary'] ?? null,
+                ]);
             }
 
             $audit = VendorAudit::create($payload);
+
+            if ($auditType === VendorAudit::TYPE_ON_SITE) {
+                // Auto generate audit letter
+                $html = view('admin.audit.letter', [
+                    'audit'       => $audit,
+                    'application' => $application,
+                ])->render();
+
+                $filename = 'audit-letter-' . $audit->id . '-' . Str::slug((string) $application->application_number) . '.html';
+                $path = 'audit-letters/' . $filename;
+
+                Storage::disk('public')->put($path, $html);
+
+                $audit->update([
+                    'audit_letter_path'    => $path,
+                    'audit_letter_sent_at' => now(),
+                ]);
+            }
 
             $workflow->record(
                 $application,
                 $auditType === VendorAudit::TYPE_ON_DESK
                     ? 'audit_on_desk_started'
-                    : 'audit_on_site_proposed',
+                    : 'audit_on_site_started',
                 Auth::user(),
                 ['audit_id' => $audit->id, 'audit_type' => $auditType]
             );
 
             return $audit;
         });
+
+        if ($audit->audit_type === VendorAudit::TYPE_ON_SITE) {
+            $notification->auditOnSiteScheduled($audit);
+        }
 
         return redirect()
             ->route('qa.audit.show', $audit->id)
@@ -266,7 +290,7 @@ class VendorAuditController extends Controller
     /* ──────────────────────────────────────────────────────────────────
      |  VERIFY QUESTIONNAIRE (On Desk)
      * ────────────────────────────────────────────────────────────────*/
-    public function verifyQuestionnaire(Request $request, int $auditId, VendorApplicationWorkflowService $workflow)
+    public function verifyQuestionnaire(Request $request, int $auditId, VendorApplicationWorkflowService $workflow, VendorApplicationNotificationService $notification)
     {
         $this->authorizeQaAccess();
 
@@ -274,8 +298,7 @@ class VendorAuditController extends Controller
         abort_unless($audit->audit_type === VendorAudit::TYPE_ON_DESK, 404);
         abort_unless(
             in_array($audit->status, [
-                VendorAudit::STATUS_QUESTIONNAIRE_SUBMITTED,
-                VendorAudit::STATUS_CAPA_REVISED,
+                VendorAudit::STATUS_QUESTIONNAIRE_SUBMITTED
             ], true),
             422,
             'Questionnaire belum di-submit vendor.'
@@ -294,13 +317,19 @@ class VendorAuditController extends Controller
                 'rejected'       => VendorAudit::STATUS_REJECTED,
                 'need_revision'  => VendorAudit::STATUS_NEED_REVISION,
             ];
+            $categoryMap = [
+                'approved' => 'terekomendasi',
+                'rejected' => 'tdk_rekomendasi',
+            ];
             $status = $verdictMap[$data['verdict']] ?? VendorAudit::STATUS_NEED_REVISION;
+            $category = $categoryMap[$data['verdict']] ?? $audit->audit_result_category;
 
             $audit->update([
-                'status'                     => $status,
+                'status'                       => $status,
+                'audit_result_category'        => $category,
                 'questionnaire_revision_notes' => $data['revision_notes'] ?? null,
-                'summary'                    => $data['summary'] ?? $audit->summary,
-                'completed_at'               => in_array($status, [VendorAudit::STATUS_COMPLETED, VendorAudit::STATUS_REJECTED])
+                'summary'                      => $data['summary'] ?? $audit->summary,
+                'completed_at'                 => in_array($status, [VendorAudit::STATUS_COMPLETED, VendorAudit::STATUS_REJECTED])
                     ? now()
                     : $audit->completed_at,
             ]);
@@ -337,90 +366,15 @@ class VendorAuditController extends Controller
             }
         });
 
+        // 👱‍♀️ Ponytail: Send On-Desk notification email via Service
+        $notification->auditQuestionnaireVerified($audit);
+
         return redirect()
             ->route('qa.audit.show', $audit->id)
             ->with('success', 'Verifikasi questionnaire disimpan.');
     }
 
-    /* ──────────────────────────────────────────────────────────────────
-     |  CONFIRM SCHEDULE (vendor) – dipanggil QA setelah vendor pilih tanggal
-     * ────────────────────────────────────────────────────────────────*/
-    public function confirmSchedule(Request $request, int $auditId, VendorApplicationWorkflowService $workflow)
-    {
-        $this->authorizeQaAccess();
 
-        $audit = VendorAudit::findOrFail($auditId);
-        abort_unless($audit->audit_type === VendorAudit::TYPE_ON_SITE, 404);
-        abort_unless($audit->status === VendorAudit::STATUS_SCHEDULE_PROPOSED, 422);
-
-        $data = $request->validate([
-            'confirmed_schedule_at' => 'required|date',
-        ]);
-
-        $audit->update([
-            'status'                 => VendorAudit::STATUS_SCHEDULE_CONFIRMED,
-            'confirmed_schedule_at'  => Carbon::parse($data['confirmed_schedule_at']),
-        ]);
-
-        $workflow->record($audit->application, 'audit_on_site_schedule_confirmed', Auth::user(), [
-            'audit_id' => $audit->id,
-            'schedule' => $data['confirmed_schedule_at'],
-        ]);
-
-        return redirect()
-            ->route('qa.audit.show', $audit->id)
-            ->with('success', 'Jadwal audit on-site dikonfirmasi.');
-    }
-
-    /* ──────────────────────────────────────────────────────────────────
-     |  GENERATE SURAT PEMBERITAHUAN AUDIT (PDF)
-     * ────────────────────────────────────────────────────────────────*/
-    public function generateLetter(int $auditId, VendorApplicationWorkflowService $workflow)
-    {
-        $this->authorizeQaAccess();
-
-        $audit = VendorAudit::with([
-            'application.general',
-            'application.user',
-            'application.categories',
-            'qaLead',
-        ])
-            ->findOrFail($auditId);
-
-        abort_unless(
-            $audit->audit_type === VendorAudit::TYPE_ON_SITE
-                && in_array($audit->status, [
-                    VendorAudit::STATUS_SCHEDULE_CONFIRMED,
-                    VendorAudit::STATUS_IN_PROGRESS,
-                ], true),
-            422,
-            'Surat hanya bisa dibuat setelah vendor konfirmasi jadwal.'
-        );
-
-        $html = view('admin.audit.letter', [
-            'audit' => $audit,
-            'application' => $audit->application,
-        ])->render();
-
-        $filename = 'audit-letter-' . $audit->id . '-' . Str::slug((string) $audit->application->application_number) . '.html';
-        $path = 'audit-letters/' . $filename;
-
-        Storage::disk('public')->put($path, $html);
-
-        $audit->update([
-            'audit_letter_path'    => $path,
-            'audit_letter_sent_at' => now(),
-        ]);
-
-        $workflow->record($audit->application, 'audit_letter_generated', Auth::user(), [
-            'audit_id' => $audit->id,
-            'path'     => $path,
-        ]);
-
-        return redirect()
-            ->route('qa.audit.show', $audit->id)
-            ->with('success', 'Surat pemberitahuan audit berhasil di-generate.');
-    }
 
     public function downloadLetter(int $auditId)
     {
@@ -432,216 +386,86 @@ class VendorAuditController extends Controller
         return Storage::disk('public')->download($audit->audit_letter_path);
     }
 
-    /* ──────────────────────────────────────────────────────────────────
-     |  RECORD FINDINGS (On Site)
-     * ────────────────────────────────────────────────────────────────*/
-    public function storeFindings(Request $request, int $auditId, VendorApplicationWorkflowService $workflow)
-    {
-        $this->authorizeQaAccess();
-
-        $audit = VendorAudit::findOrFail($auditId);
-        abort_unless($audit->audit_type === VendorAudit::TYPE_ON_SITE, 404);
-        abort_unless(
-            in_array($audit->status, [
-                VendorAudit::STATUS_SCHEDULE_CONFIRMED,
-                VendorAudit::STATUS_IN_PROGRESS,
-                VendorAudit::STATUS_FINDINGS_RECORDED,
-            ], true),
-            422
-        );
-
-        $data = $request->validate([
-            'findings'                 => 'required|array|min:1',
-            'findings.*.category'      => 'required|string|max:80',
-            'findings.*.description'   => 'required|string',
-            'findings.*.evidence_reference' => 'nullable|string|max:500',
-            'findings.*.capa_deadline' => 'required|date|after_or_equal:today',
-        ]);
-
-        DB::transaction(function () use ($audit, $data, $workflow) {
-            foreach ($data['findings'] as $row) {
-                VendorAuditFinding::create([
-                    'vendor_audit_id'   => $audit->id,
-                    'category'          => $row['category'],
-                    'description'       => $row['description'],
-                    'evidence_reference' => $row['evidence_reference'] ?? null,
-                    'capa_deadline'     => $row['capa_deadline'],
-                    'status'            => VendorAuditFinding::STATUS_OPEN,
-                ]);
-            }
-
-            $audit->update([
-                'status' => VendorAudit::STATUS_FINDINGS_RECORDED,
-            ]);
-
-            $workflow->transition(
-                $audit->application,
-                VendorApplication::STATUS_ON_HOLD,
-                'audit_on_site_findings_recorded',
-                [],
-                Auth::user(),
-                ['audit_id' => $audit->id, 'finding_count' => count($data['findings'])]
-            );
-        });
-
-        return redirect()
-            ->route('qa.audit.show', $audit->id)
-            ->with('success', 'Temuan audit berhasil disimpan. Vendor akan menerima notifikasi untuk mengisi CAPA.');
-    }
-
-    /* ──────────────────────────────────────────────────────────────────
-     |  VERIFY CAPA per item
-     * ────────────────────────────────────────────────────────────────*/
-    public function verifyCapa(Request $request, int $capaId, VendorApplicationWorkflowService $workflow)
-    {
-        $this->authorizeQaAccess();
-
-        $capa = VendorAuditCapa::with('finding.audit')->findOrFail($capaId);
-        $audit = $capa->finding->audit;
-
-        $data = $request->validate([
-            'verdict' => 'required|in:approved,rejected',
-            'qa_note' => 'nullable|string|max:1000',
-        ]);
-
-        DB::transaction(function () use ($capa, $data, $audit, $workflow) {
-            $capa->update([
-                'qa_verdict'  => $data['verdict'],
-                'qa_note'     => $data['qa_note'] ?? null,
-                'verified_by' => Auth::id(),
-                'verified_at' => now(),
-            ]);
-
-            $finding = $capa->finding;
-            if ($data['verdict'] === 'approved') {
-                $finding->update(['status' => VendorAuditFinding::STATUS_CLOSED]);
-            } else {
-                $finding->update(['status' => VendorAuditFinding::STATUS_OPEN]);
-            }
-
-            // Recalculate aggregate status
-            $this->recalculateAuditStatus($audit, $workflow);
-        });
-
-        return redirect()
-            ->route('qa.audit.show', $audit->id)
-            ->with('success', 'Verifikasi CAPA disimpan.');
-    }
-
-    /* ──────────────────────────────────────────────────────────────────
-     |  APPROVE / REJECT audit (final decision)
-     * ────────────────────────────────────────────────────────────────*/
-    public function finalize(Request $request, int $auditId, VendorApplicationWorkflowService $workflow)
+    public function storeResult(Request $request, int $auditId, VendorApplicationWorkflowService $workflow, VendorApplicationNotificationService $notification)
     {
         $this->authorizeQaAccess();
 
         $audit = VendorAudit::with('application')->findOrFail($auditId);
-
-        $data = $request->validate([
-            'decision' => 'required|in:approved,rejected',
-            'summary'  => 'nullable|string|max:1000',
-        ]);
-
+        abort_unless($audit->audit_type === VendorAudit::TYPE_ON_SITE, 404);
         abort_unless(
             in_array($audit->status, [
-                VendorAudit::STATUS_CAPA_SUBMITTED,
-                VendorAudit::STATUS_FINDINGS_RECORDED,
-                VendorAudit::STATUS_QUESTIONNAIRE_SUBMITTED,
+                VendorAudit::STATUS_SCHEDULE_CONFIRMED,
+                VendorAudit::STATUS_IN_PROGRESS
             ], true),
             422
         );
 
-        $newStatus = $data['decision'] === 'approved'
-            ? VendorAudit::STATUS_COMPLETED
-            : VendorAudit::STATUS_REJECTED;
+        $data = $request->validate([
+            'audit_result_file'     => 'required|file|max:10240',
+            'audit_result_category' => 'required|in:terekomendasi,tdk_rekomendasi,on_hold',
+            'summary'               => 'required|string|max:2000',
+        ]);
 
-        $application = $audit->application;
+        $path = $request->file('audit_result_file')->store('audit-results', 'public');
 
-        DB::transaction(function () use ($audit, $newStatus, $data, $workflow, $application) {
+        $category = $data['audit_result_category'];
+        $newAuditStatus = VendorAudit::STATUS_COMPLETED;
+        $newAppStatus = VendorApplication::STATUS_APPROVED;
+        $transitionReason = 'audit_final_approved';
+        $attributes = [];
+
+        if ($category === 'tdk_rekomendasi') {
+            $newAuditStatus = VendorAudit::STATUS_REJECTED;
+            $newAppStatus = VendorApplication::STATUS_REJECTED;
+            $transitionReason = 'audit_final_rejected';
+        } elseif ($category === 'on_hold') {
+            $newAuditStatus = VendorAudit::STATUS_COMPLETED;
+            $newAppStatus = VendorApplication::STATUS_ON_HOLD;
+            $transitionReason = 'audit_final_on_hold';
+        }
+
+        if ($newAppStatus === VendorApplication::STATUS_APPROVED) {
+            $attributes = [
+                'approved_by' => Auth::id(),
+                'approved_at' => now(),
+                'valid_until' => now()->addYears(5)->toDateString(),
+            ];
+        }
+
+        DB::transaction(function () use ($audit, $data, $path, $workflow, $newAuditStatus, $newAppStatus, $transitionReason, $attributes) {
+            // Delete old file if exists
+            if ($audit->audit_result_path && \Storage::disk('public')->exists($audit->audit_result_path)) {
+                \Storage::disk('public')->delete($audit->audit_result_path);
+            }
+
             $audit->update([
-                'status'        => $newStatus,
-                'summary'       => $data['summary'] ?? $audit->summary,
-                'completed_at'  => now(),
+                'audit_result_path'     => $path,
+                'audit_result_category' => $data['audit_result_category'],
+                'summary'               => $data['summary'],
+                'status'                => $newAuditStatus,
+                'completed_at'          => now(),
             ]);
 
-            if ($newStatus === VendorAudit::STATUS_COMPLETED) {
-                $workflow->transition(
-                    $application,
-                    VendorApplication::STATUS_APPROVED,
-                    'audit_final_approved',
-                    [
-                        'approved_by' => Auth::id(),
-                        'approved_at' => now(),
-                        'valid_until' => now()->addYears(5)->toDateString(),
-                    ],
-                    Auth::user(),
-                    ['audit_id' => $audit->id]
-                );
-            } else {
-                $workflow->transition(
-                    $application,
-                    VendorApplication::STATUS_REJECTED,
-                    'audit_final_rejected',
-                    [],
-                    Auth::user(),
-                    ['audit_id' => $audit->id, 'reason' => $data['summary'] ?? null]
-                );
-            }
+            // Transition application status
+            $workflow->transition(
+                $audit->application,
+                $newAppStatus,
+                $transitionReason,
+                $attributes,
+                Auth::user(),
+                ['audit_id' => $audit->id, 'reason' => $data['summary'] ?? null]
+            );
         });
+
+        // Send email notification via Service
+        $notification->auditOnSiteResult($audit);
 
         return redirect()
             ->route('qa.audit.show', $audit->id)
-            ->with('success', 'Keputusan akhir audit disimpan.');
+            ->with('success', 'Hasil audit berhasil diunggah dan status permohonan vendor telah diperbarui.');
     }
 
-    /* ──────────────────────────────────────────────────────────────────
-     |  HELPERS
-     * ────────────────────────────────────────────────────────────────*/
-    private function recalculateAuditStatus(VendorAudit $audit, VendorApplicationWorkflowService $workflow): void
-    {
-        $findings = $audit->findings()->with('latestCapa')->get();
 
-        if ($findings->isEmpty()) {
-            return;
-        }
-
-        $allClosed = $findings->every(fn($f) => $f->status === VendorAuditFinding::STATUS_CLOSED);
-        $anyRejected = $findings->contains(
-            fn($f) =>
-            optional($f->latestCapa)->qa_verdict === VendorAuditCapa::VERDICT_REJECTED
-        );
-
-        if ($allClosed) {
-            $audit->update(['status' => VendorAudit::STATUS_COMPLETED]);
-            $workflow->transition(
-                $audit->application,
-                VendorApplication::STATUS_APPROVED,
-                'audit_all_capas_approved',
-                [
-                    'approved_by' => Auth::id(),
-                    'approved_at' => now(),
-                    'valid_until' => now()->addYears(5)->toDateString(),
-                ],
-                Auth::user(),
-                ['audit_id' => $audit->id]
-            );
-        } elseif ($anyRejected) {
-            $audit->update(['status' => VendorAudit::STATUS_CAPA_REVISED]);
-        }
-    }
-
-    private function capaProgress(VendorAudit $audit): array
-    {
-        $findings = $audit->findings;
-        $total = $findings->count();
-        $closed = $findings->where('status', VendorAuditFinding::STATUS_CLOSED)->count();
-
-        return [
-            'total'   => $total,
-            'closed'  => $closed,
-            'percent' => $total === 0 ? 0 : (int) round($closed / $total * 100),
-        ];
-    }
 
     private function qaUsers()
     {

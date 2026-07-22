@@ -5,10 +5,6 @@
 @section('page_title', 'Setup Audit Vendor')
 @section('page_desc', 'Konfigurasi awal proses audit berdasarkan hasil risk assessment.')
 
-@push('style')
-    <link rel="stylesheet" href="{{ asset('css/admin/audit.css') }}">
-@endpush
-
 @section('content')
     <div id="au-flash" data-success="{{ session('success') }}" data-error="{{ session('error') }}"
         data-warning="{{ session('warning') }}" data-info="{{ session('info') }}" hidden></div>
@@ -32,42 +28,54 @@
         </div>
     @endif
 
-    <div class="au-card">
-        <div class="au-card-head">
-            <div>
-                <div class="au-card-title">
-                    <span class="au-card-title-dot"></span>
+    <div class="card card-custom mb-5">
+        <div class="card-header border-0 pt-5">
+            <div class="card-title align-items-start flex-column">
+                <h3 class="card-label font-weight-bolder text-dark">
                     Informasi Vendor
-                </div>
-                <div class="mt-1 text-muted" style="font-size:.85rem;">
+                </h3>
+                <div class="text-muted mt-2 font-weight-bold font-size-sm">
                     No Permohonan: <strong>{{ optional($application)->application_number ?? '—' }}</strong>
                 </div>
             </div>
         </div>
 
-        <div class="card-body px-4 pb-4">
+        <div class="card-body">
             <div class="row">
-                <div class="col-md-4">
-                    <div class="au-info-label">Vendor</div>
-                    <div class="au-info-value">{{ $vendorName }}</div>
+                <div class="col-md-4 mb-4">
+                    <div class="text-muted font-weight-bold mb-1">Vendor</div>
+                    <div class="font-weight-bolder text-dark font-size-h6">{{ $vendorName }}</div>
                 </div>
-                <div class="col-md-4">
-                    <div class="au-info-label">Risk Level</div>
-                    <div class="au-info-value">
-                        <span class="au-tag au-tag--{{ optional($application)->risk_level ?? 'muted' }}">
-                            {{ strtoupper(optional($application)->risk_level ?? '—') }}
+                <div class="col-md-4 mb-4">
+                    <div class="text-muted font-weight-bold mb-1">Risk Level</div>
+                    <div class="font-weight-bolder text-dark font-size-h6">
+                        @php
+                            $risk = optional($application)->risk_level ?? 'muted';
+                            $riskClass =
+                                $risk === 'high'
+                                    ? 'danger'
+                                    : ($risk === 'medium'
+                                        ? 'warning'
+                                        : ($risk === 'low'
+                                            ? 'success'
+                                            : 'secondary'));
+                        @endphp
+                        <span class="label label-light-{{ $riskClass }} label-inline font-weight-bold">
+                            {{ strtoupper($risk !== 'muted' ? $risk : '—') }}
                         </span>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="au-info-label">RPN Score</div>
-                    <div class="au-info-value">{{ optional($application)->risk_rpn ?? '—' }}</div>
+                <div class="col-md-4 mb-4">
+                    <div class="text-muted font-weight-bold mb-1">RPN Score</div>
+                    <div class="font-weight-bolder text-dark font-size-h6">{{ optional($application)->risk_rpn ?? '—' }}
+                    </div>
                 </div>
-                <div class="col-md-12 mt-3">
-                    <div class="au-info-label">Kategori</div>
+                <div class="col-md-12">
+                    <div class="text-muted font-weight-bold mb-1">Kategori</div>
                     <div>
                         @forelse ($categoryLabels as $cat)
-                            <span class="au-tag au-tag--muted mr-1">{{ $cat }}</span>
+                            <span
+                                class="label label-light-primary label-inline font-weight-bold mr-1">{{ $cat }}</span>
                         @empty
                             <span class="text-muted">—</span>
                         @endforelse
@@ -77,102 +85,88 @@
         </div>
     </div>
 
-    <div class="au-card mt-4">
-        <div class="au-card-head">
-            <div class="au-card-title">
-                <span class="au-card-title-dot"></span>
-                Setup Audit
+    <div class="card card-custom mb-5">
+        <div class="card-header border-0 pt-5">
+            <div class="card-title align-items-center">
+                <h3 class="card-label font-weight-bolder text-dark mb-0">
+                    Setup Audit
+                </h3>
                 @if ($qualification = optional($application)->qualification)
                     <span
-                        class="au-tag au-tag--{{ $qualification->audit_type === 'on_desk' ? 'on-desk' : 'on-site' }} ml-2">
+                        class="label label-light-{{ $qualification->audit_type === 'on_desk' ? 'info' : 'primary' }} label-inline font-weight-bold ml-3">
                         {{ strtoupper(str_replace('_', '-', $qualification->audit_type)) }}
                     </span>
                 @endif
             </div>
         </div>
 
-        <div class="card-body px-4 pb-5">
+        <div class="card-body">
             @php $auditType = optional(optional($application)->qualification)->audit_type; @endphp
 
-            <form method="POST" action="{{ route('qa.audit.store', $application->id) }}" class="au-form">
+            <form method="POST" action="{{ route('qa.audit.store', $application->id) }}">
                 @csrf
 
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="au-form-label">QA Lead</label>
-                            <select name="qa_lead_id" class="form-control">
-                                <option value="">— Pilih QA Lead —</option>
-                                @foreach ($qaUsers as $u)
-                                    <option value="{{ $u->id }}">{{ $u->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                        <x-vendor-select name="qa_lead_id" label="QA Lead" :options="$qaUsers->pluck('name', 'id')->toArray()"
+                            placeholder="— Pilih QA Lead —" />
                     </div>
                     <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="au-form-label">Catatan Awal (opsional)</label>
-                            <input type="text" name="summary" maxlength="1000" class="form-control"
-                                placeholder="Catatan internal QA">
-                        </div>
+                        <x-vendor-input name="summary" label="Catatan Awal (opsional)" placeholder="Catatan internal QA"
+                            labelClass="font-weight-bolder text-dark" />
                     </div>
                 </div>
 
                 @if ($auditType === 'on_site')
                     <hr>
-                    <h6 class="au-section-title">Detail Audit On Site</h6>
+                    <h6 class="font-weight-bolder text-dark mb-4 mt-5">Detail Audit On Site</h6>
 
-                    <div class="form-group">
-                        <label class="au-form-label">Lokasi Audit</label>
-                        <input type="text" name="audit_location" maxlength="255"
-                            class="form-control @error('audit_location') is-invalid @enderror"
-                            placeholder="Alamat lengkap lokasi vendor" required>
-                        @error('audit_location')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    <x-vendor-input name="audit_location" label="Lokasi Audit" placeholder="Alamat lengkap lokasi vendor"
+                        :required="true" labelClass="font-weight-bolder text-dark" />
 
-                    <div class="form-group">
-                        <label class="au-form-label">Agenda Audit</label>
-                        <input type="text" name="audit_agenda" maxlength="500"
-                            class="form-control @error('audit_agenda') is-invalid @enderror"
-                            placeholder="Misal: Tour pabrik, review dokumen mutu, wawancara PIC" required>
-                        @error('audit_agenda')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    <x-vendor-input name="audit_agenda" label="Agenda Audit"
+                        placeholder="Misal: Tour pabrik, review dokumen mutu, wawancara PIC" :required="true"
+                        labelClass="font-weight-bolder text-dark" />
 
-                    <div class="form-group">
-                        <label class="au-form-label">Tim Auditor</label>
+                    <div class="form-group mb-4">
+                        <label class="font-weight-bolder text-dark">Tim Auditor</label>
                         <div id="au-team-list"></div>
                         <button type="button" class="btn btn-sm btn-light-primary mt-2" id="au-add-team">
                             <i class="flaticon2-add-1"></i> Tambah Auditor
                         </button>
                     </div>
 
-                    <div class="form-group">
-                        <label class="au-form-label">Proposed Schedule (Beberapa Pilihan Tanggal)</label>
-                        <div id="au-schedule-list"></div>
-                        <button type="button" class="btn btn-sm btn-light-primary mt-2" id="au-add-schedule">
-                            <i class="flaticon2-add-1"></i> Tambah Tanggal
-                        </button>
-                        @error('proposed_schedules')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    <x-vendor-input name="confirmed_schedule_at" type="text" label="Tanggal Pelaksanaan Audit"
+                        :required="true" labelClass="font-weight-bolder text-dark" class="datepicker"
+                        placeholder="Pilih Tanggal" autocomplete="off" rightIcon="far fa-calendar-alt" />
                 @else
                     <hr>
-                    <h6 class="au-section-title">Audit On Desk (Questionnaire)</h6>
-                    <p class="text-muted small">
-                        Sistem akan otomatis mengirim questionnaire dinamis ke vendor berdasarkan kategori yang dipilih
-                        vendor
-                        ({{ $templates->count() }} template tersedia). Vendor dapat menyimpan draft dan submit setelah
-                        lengkap.
-                    </p>
+                    <h6 class="font-weight-bolder text-dark mb-4 mt-5">Audit On Desk (Questionnaire)</h6>
+
+                    @if ($questionnaireForms->isEmpty())
+                        <div class="alert alert-warning small mb-0">
+                            Belum ada master form questionnaire yang aktif.
+                            Jalankan <code>php artisan db:seed --class=VendorAuditQuestionnaireKemasPrimerSeeder</code>
+                            (atau seed form lain) untuk menambahkan.
+                        </div>
+                    @else
+                        @php
+                            $qFormOptions = [];
+                            foreach ($questionnaireForms as $form) {
+                                $qFormOptions[$form->id] = "[{$form->materialTypeLabel()}] {$form->name}";
+                            }
+                        @endphp
+                        <x-vendor-select name="questionnaire_form_id" label="Pilih Checklist / Form Questionnaire"
+                            :options="$qFormOptions" placeholder="— Pilih Form Checklist —" :required="true" />
+                        <small class="form-text text-muted mt-2">
+                            Vendor akan menerima questionnaire sesuai form yang dipilih (beserta pertanyaan
+                            kondisional-nya).
+                        </small>
+                    @endif
                 @endif
 
                 <div class="d-flex justify-content-end mt-4">
-                    <a href="{{ route('qa.audit.index') }}" class="btn btn-light mr-2">Batal</a>
+                    <a href="{{ route('qa.risk-assessment.index') }}" class="btn btn-light mr-2">Batal</a>
                     <button type="submit" class="btn btn-primary">
                         <i class="flaticon2-check-mark"></i> Mulai Audit
                     </button>
@@ -191,12 +185,12 @@
                 var idx = 0;
 
                 function addTeam() {
-                    var row = '<div class="au-repeater-row">' +
+                    var row = '<div class="d-flex mb-2 au-repeater-row" style="gap: 0.5rem;">' +
                         '<input type="text" name="auditor_team[' + idx +
-                        '][name]" class="form-control form-control-sm" placeholder="Nama auditor" required>' +
+                        '][name]" class="form-control" placeholder="Nama auditor" required>' +
                         '<input type="text" name="auditor_team[' + idx +
-                        '][role]" class="form-control form-control-sm" placeholder="Role (Lead / Observer / dll)" required>' +
-                        '<button type="button" class="btn btn-sm btn-light-danger au-remove-row"><i class="flaticon-delete"></i></button>' +
+                        '][role]" class="form-control" placeholder="Role (Lead / Observer / dll)" required>' +
+                        '<button type="button" class="btn btn-icon btn-light-danger au-remove-row"><i class="flaticon-delete"></i></button>' +
                         '</div>';
                     $teamList.append(row);
                     idx++;
@@ -206,24 +200,15 @@
                     $(this).closest('.au-repeater-row').remove();
                 });
                 addTeam();
+            }
 
-                // Schedule repeater
-                var sIdx = 0;
-
-                function addSchedule() {
-                    var row = '<div class="au-repeater-row">' +
-                        '<input type="datetime-local" name="proposed_schedules[' + sIdx +
-                        ']" class="form-control form-control-sm" required>' +
-                        '<button type="button" class="btn btn-sm btn-light-danger au-remove-row"><i class="flaticon-delete"></i></button>' +
-                        '</div>';
-                    $('#au-schedule-list').append(row);
-                    sIdx++;
-                }
-                $('#au-add-schedule').on('click', addSchedule);
-                $('#au-schedule-list').on('click', '.au-remove-row', function() {
-                    $(this).closest('.au-repeater-row').remove();
+            if ($.fn.datepicker) {
+                $('.datepicker').datepicker({
+                    format: 'yyyy-mm-dd',
+                    todayHighlight: true,
+                    autoclose: true,
+                    orientation: 'top left'
                 });
-                addSchedule();
             }
         });
     </script>

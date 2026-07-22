@@ -61,7 +61,7 @@ class VendorAudit extends Model
         'auditor_team' => 'array',
         'preparation_checklist' => 'array',
         'questionnaire_submitted_at' => 'datetime',
-        'confirmed_schedule_at' => 'datetime',
+        'confirmed_schedule_at' => 'date:Y-m-d',
         'audit_letter_sent_at' => 'datetime',
         'preparation_submitted_at' => 'datetime',
         'completed_at' => 'datetime',

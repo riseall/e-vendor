@@ -160,6 +160,21 @@
                     </li>
                 @endif
 
+                <li class="menu-item {{ request()->routeIs('vendor.audit.results') ? 'menu-item-active' : '' }}" aria-haspopup="true">
+                    <a href="{{ route('vendor.audit.results') }}" class="menu-link">
+                        <span class="svg-icon menu-icon">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px">
+                                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                    <rect x="0" y="0" width="24" height="24" />
+                                    <path fill="currentColor" opacity=".3" d="M 6 4 C 4.895 4 4 4.895 4 6 L 4 18 C 4 19.105 4.895 20 6 20 L 18 20 C 19.105 20 20 19.105 20 18 L 20 6 C 20 4.895 19.105 4 18 4 L 6 4 Z" class="duo-icons-secondary-layer" />
+                                    <path fill="currentColor" d="M 10.5 15 L 7.5 12 C 7.114 11.614 7.114 10.986 7.5 10.6 C 7.886 10.214 8.514 10.214 8.9 10.6 L 10.5 12.2 L 15.1 7.6 C 15.486 7.214 16.114 7.214 16.5 7.6 C 16.886 7.986 16.886 8.614 16.5 9 L 11.2 14.3 C 11.007 14.493 10.745 14.601 10.471 14.601 C 10.198 14.601 9.936 14.493 9.743 14.3 L 10.5 15 Z" class="duo-icons-primary-layer" />
+                                </g>
+                            </svg>
+                        </span>
+                        <span class="menu-text">Hasil Audit</span>
+                    </a>
+                </li>
+
                 @hasanyrole(['Super Admin', 'Admin IT'])
                     <li class="menu-section">
                         <h4 class="menu-text">Master</h4>
