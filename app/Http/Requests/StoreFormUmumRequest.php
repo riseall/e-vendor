@@ -45,7 +45,7 @@ class StoreFormUmumRequest extends FormRequest
                 'pic_email'          => 'required|email|max:255',
                 'pic_telepon'        => 'required|string|max:20',
                 'has_other_company'  => 'required|in:yes,no',
-                'other_companies'    => 'required_if:has_other_company,yes|array|min:1',
+                'other_companies'    => 'nullable|required_if:has_other_company,yes|array|min:1',
 
                 'payment_term'       => 'required|string|max:20',
                 'payment_term_other' => 'required_if:payment_term,other|nullable|string|max:20',
@@ -58,7 +58,7 @@ class StoreFormUmumRequest extends FormRequest
                 'iso_certificates'   => 'required|array|min:1',
                 'iso_other'          => 'nullable|string|max:255',
                 'komitmen_kualitas' => 'required|in:yes,no',
-                'komitmen_kualitas_detail' => 'required_if:komitmen_kualitas,yes|string|max:255',
+                'komitmen_kualitas_detail' => 'nullable|required_if:komitmen_kualitas,yes|string|max:255',
 
                 'lead_time'          => 'required|string|max:100',
                 'customer_list'      => 'required|string|max:255',

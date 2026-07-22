@@ -161,7 +161,7 @@ class VendorRegistrationViewService
                 return [
                     'label' => 'Terekomendasi',
                     'class' => 'success',
-                    'description' => 'Vendor telah disetujui dan masuk proses Supplier Item Maintenance.',
+                    'description' => 'Vendor telah disetujui.',
                 ];
             case VendorApplication::STATUS_REJECTED:
                 return [
