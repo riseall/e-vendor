@@ -151,24 +151,10 @@ class VendorApplicationNotificationService
             );
 
             $this->queue(
-                $notificationRecipients,
-                new VendorRiskAssessmentLowRisk($application, $qualification, $applicationNumber),
-                $application,
-                'risk_assessment_low_notifications'
-            );
-
-            $this->queue(
                 $vendorRecipients,
                 new VendorApplicationApproved($application, $qualification, $applicationNumber),
                 $application,
                 'application_approved_vendor'
-            );
-
-            $this->queue(
-                $notificationRecipients,
-                new VendorApplicationApproved($application, $qualification, $applicationNumber),
-                $application,
-                'application_approved_notifications'
             );
 
             return;
@@ -182,13 +168,6 @@ class VendorApplicationNotificationService
                 'risk_assessment_medium_vendor'
             );
 
-            $this->queue(
-                $notificationRecipients,
-                new VendorRiskAssessmentMediumRisk($application, $qualification, $applicationNumber),
-                $application,
-                'risk_assessment_medium_notifications'
-            );
-
             return;
         }
 
@@ -199,13 +178,6 @@ class VendorApplicationNotificationService
                 $application,
                 'risk_assessment_high_vendor'
             );
-
-            $this->queue(
-                $notificationRecipients,
-                new VendorRiskAssessmentHighRisk($application, $qualification, $applicationNumber),
-                $application,
-                'risk_assessment_high_notifications'
-            );
         }
     }
 
@@ -213,6 +185,101 @@ class VendorApplicationNotificationService
     {
         return collect($this->roleEmails(['Super Admin', 'Admin IT', 'Procurement', 'Quality Assurance']))
             // ->merge(config('mail.akuntansi', []))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    public function auditQuestionnaireSubmitted(\App\Models\VendorAudit $audit, bool $isRevision): void
+    {
+        $application = $audit->application;
+        $application->loadMissing(['user', 'general']);
+        $number = $this->applicationNumber($application);
+
+        $this->queue(
+            $this->qaNotificationEmails(),
+            new \App\Mail\VendorAuditQuestionnaireSubmittedToQa($application, $audit, $number, $isRevision),
+            $application,
+            'audit_questionnaire_submitted'
+        );
+    }
+
+    public function auditQuestionnaireVerified(\App\Models\VendorAudit $audit): void
+    {
+        $application = $audit->application;
+        $application->loadMissing(['user', 'general']);
+        $number = $this->applicationNumber($application);
+
+        $vendorRecipients = $application->user ? [$application->user->email] : [];
+        $qaRecipients = $this->qaNotificationEmails();
+
+        $this->queue(
+            $vendorRecipients,
+            new \App\Mail\VendorAuditOnDeskNotification($application, $audit, $number),
+            $application,
+            'audit_questionnaire_verified_vendor'
+        );
+
+        $this->queue(
+            $qaRecipients,
+            new \App\Mail\VendorAuditOnDeskNotification($application, $audit, $number),
+            $application,
+            'audit_questionnaire_verified_qa'
+        );
+    }
+
+    public function auditOnSiteScheduled(\App\Models\VendorAudit $audit): void
+    {
+        $application = $audit->application;
+        $application->loadMissing(['user', 'general']);
+        $number = $this->applicationNumber($application);
+
+        $vendorRecipients = $application->user ? [$application->user->email] : [];
+        $qaRecipients = $this->qaNotificationEmails();
+
+        $this->queue(
+            $vendorRecipients,
+            new \App\Mail\VendorAuditOnSiteScheduledNotification($application, $audit, $number),
+            $application,
+            'audit_onsite_scheduled_vendor'
+        );
+
+        $this->queue(
+            $qaRecipients,
+            new \App\Mail\VendorAuditOnSiteScheduledNotification($application, $audit, $number),
+            $application,
+            'audit_onsite_scheduled_qa'
+        );
+    }
+
+    public function auditOnSiteResult(\App\Models\VendorAudit $audit): void
+    {
+        $application = $audit->application;
+        $application->loadMissing(['user', 'general']);
+        $number = $this->applicationNumber($application);
+
+        $vendorRecipients = $application->user ? [$application->user->email] : [];
+        $qaRecipients = $this->qaNotificationEmails();
+
+        $this->queue(
+            $vendorRecipients,
+            new \App\Mail\VendorAuditResultNotification($application, $audit, $number),
+            $application,
+            'audit_onsite_result_vendor'
+        );
+
+        $this->queue(
+            $qaRecipients,
+            new \App\Mail\VendorAuditResultNotification($application, $audit, $number),
+            $application,
+            'audit_onsite_result_qa'
+        );
+    }
+
+    private function qaNotificationEmails(): array
+    {
+        return collect($this->roleEmails(['Super Admin', 'Admin IT', 'Quality Assurance']))
             ->filter()
             ->unique()
             ->values()

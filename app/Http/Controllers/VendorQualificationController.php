@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRiskAssessmentRequest;
 use App\Models\User;
 use App\Models\VendorApplication;
+use App\Models\VendorApplicationProduct;
 use App\Models\VendorQualification;
 use App\Services\VendorApplicationNotificationService;
 use App\Services\VendorApplicationWorkflowService;
@@ -34,7 +35,7 @@ class VendorQualificationController extends Controller
         $search = trim((string) $request->input('q', ''));
 
         $query = VendorApplication::query()
-            ->with(['user', 'general', 'categories', 'qualification'])
+            ->with(['user', 'general', 'categories', 'qualification', 'audits'])
             ->whereIn('status', [
                 VendorApplication::STATUS_VERIFIED,
                 VendorApplication::STATUS_RISK_ASSESSED,
@@ -65,6 +66,12 @@ class VendorQualificationController extends Controller
             });
         }
 
+        $countByLevel = [
+            'low' => (clone $query)->where('risk_level', 'low')->count(),
+            'medium' => (clone $query)->where('risk_level', 'medium')->count(),
+            'high' => (clone $query)->where('risk_level', 'high')->count(),
+        ];
+
         $applications = $query->paginate(10)->withQueryString();
 
         return view('admin.risk_assesment.index', [
@@ -72,6 +79,7 @@ class VendorQualificationController extends Controller
             'status' => $status,
             'search' => $search,
             'statusOptions' => self::STATUS_OPTIONS,
+            'countByLevel' => $countByLevel,
             'lowThreshold' => (int) config('risk_assessment.low_threshold', 88),
             'highThreshold' => (int) config('risk_assessment.high_threshold', 164),
         ]);
@@ -81,7 +89,7 @@ class VendorQualificationController extends Controller
     {
         $this->authorizeQaAccess();
 
-        $application = VendorApplication::with(['user', 'general', 'categories', 'documents', 'specBaku', 'qualification'])
+        $application = VendorApplication::with(['user', 'general', 'categories', 'documents', 'specBaku', 'qualification', 'products'])
             ->findOrFail($application_id);
 
         // abort_unless(
@@ -131,13 +139,32 @@ class VendorQualificationController extends Controller
         // );
 
         $qualification = DB::transaction(function () use ($application, $data, $workflow) {
-            $application->loadMissing(['general', 'documents', 'specBaku']);
+            $application->loadMissing(['general', 'documents', 'specBaku', 'products']);
             $autoScores = $this->automaticScores($application);
 
             $scoreA = $autoScores['doc_score'] + (int) $data['score_safety_efficacy_attr'];
             $scoreB = $autoScores['traceability_score'] + $autoScores['supplier_type_score'];
             $scoreC = (int) $data['score_detectability_country'] + (int) $data['score_detectability_warning'];
             $scoreD = (int) $data['score_probability_function'];
+
+            $lowThreshold = (int) config('risk_assessment.low_threshold', 88);
+            $highThreshold = (int) config('risk_assessment.high_threshold', 164);
+            $totalScore = ($scoreA + $scoreB) * ($scoreC + $scoreD);
+
+            $riskLevel = 'low';
+            if ($totalScore <= $lowThreshold) {
+                $riskLevel = 'low';
+            } elseif ($totalScore <= $highThreshold) {
+                $riskLevel = 'medium';
+            } else {
+                $riskLevel = 'high';
+            }
+
+
+
+            // Snapshot label fungsi bahan: angka -> teks, supaya branching form
+            // vendor tidak ikut berubah kalau config label diupdate di kemudian hari.
+            $functionLabel = config('risk_assessment.material_functions.' . $scoreD);
 
             $qualification = VendorQualification::updateOrCreate(
                 ['vendor_application_id' => $application->id],
@@ -151,7 +178,8 @@ class VendorQualificationController extends Controller
                     'score_detectability_country' => (int) $data['score_detectability_country'],
                     'score_detectability_warning' => (int) $data['score_detectability_warning'],
                     'score_detectability' => $scoreC,
-                    'score_probability_function' => (int) $data['score_probability_function'],
+                    'score_probability_function' => $scoreD,
+                    'material_function_label' => $functionLabel,
                     'score_probability' => $scoreD,
                     'qa_pharmacist_id' => Auth::id(),
                     'qa_manager_id' => $data['qa_manager_id'] ?? null,
@@ -208,7 +236,6 @@ class VendorQualificationController extends Controller
                     'audit_type' => $qualification->audit_type,
                 ]
             );
-
             return $qualification;
         });
 
@@ -301,11 +328,9 @@ class VendorQualificationController extends Controller
 
     private function traceabilityScore(VendorApplication $application): int
     {
-        if (optional($application->specBaku)->q1_is_manufacturer === 'yes') {
-            return 1;
-        }
+        $product = $this->availabilityRiskProduct($application);
 
-        if (optional($application->specBaku)->q2_is_sole_agent === 'yes' && optional($application->specBaku)->q2_auth_letter) {
+        if ($product && !empty($product->file_surat_path)) {
             return 1;
         }
 
@@ -316,7 +341,7 @@ class VendorQualificationController extends Controller
     {
         $label = strtolower($this->supplierTypeLabel($application));
 
-        if (strpos($label, 'manufaktur') !== false || strpos($label, 'manufacturer') !== false) {
+        if (strpos($label, 'manufaktur') !== false) {
             return 1;
         }
 
@@ -333,6 +358,12 @@ class VendorQualificationController extends Controller
 
     private function supplierTypeLabel(VendorApplication $application): string
     {
+        $product = $this->availabilityRiskProduct($application);
+
+        if ($product && !empty($product->rantai_pasok)) {
+            return $product->rantai_pasok;
+        }
+
         if (optional($application->specBaku)->q1_is_manufacturer === 'yes') {
             return 'Manufaktur';
         }
@@ -344,6 +375,45 @@ class VendorQualificationController extends Controller
         }
 
         return 'Trader';
+    }
+
+    // Logika untuk menentukan produk beresiko
+    private function availabilityRiskProduct(VendorApplication $application): ?VendorApplicationProduct
+    {
+        $products = $application->products ?? collect();
+
+        if ($products->isEmpty()) {
+            return null;
+        }
+
+        return $products->sortByDesc(function (VendorApplicationProduct $product) {
+            return $this->availabilityPriorityScore($product);
+        })->first();
+    }
+
+    private function availabilityPriorityScore(VendorApplicationProduct $product): int
+    {
+        return $this->supplierTypeScoreFromLabel($product->rantai_pasok) * 10
+            + ($product->file_surat_path ? 0 : 1);
+    }
+
+    private function supplierTypeScoreFromLabel(?string $label): int
+    {
+        $label = strtolower(trim((string) $label));
+
+        if (strpos($label, 'manufaktur') !== false) {
+            return 1;
+        }
+
+        if (strpos($label, 'distributor') !== false) {
+            return 2;
+        }
+
+        if (strpos($label, 'repacker') !== false) {
+            return 3;
+        }
+
+        return 4;
     }
 
     private function documentScoreLabel(int $score): string

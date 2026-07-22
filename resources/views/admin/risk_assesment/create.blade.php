@@ -198,23 +198,6 @@
                         </div>
                     </div>
                     <div class="ra-section-body">
-                        {{-- <div class="ra-field">
-                            <label class="ra-field-label" for="qa_manager_id">Manager QA</label>
-                            <select name="qa_manager_id" id="qa_manager_id"
-                                class="ra-select select2 @error('qa_manager_id') is-invalid @enderror">
-                                <option value="">&mdash; Pilih Manager QA jika diperlukan &mdash;</option>
-                                @foreach ($qaManagers as $manager)
-                                    <option value="{{ $manager->id }}"
-                                        {{ (string) old('qa_manager_id', optional($qualification)->qa_manager_id) === (string) $manager->id ? 'selected' : '' }}>
-                                        {{ $manager->name }}{{ $manager->email ? ' - ' . $manager->email : '' }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('qa_manager_id')
-                                <div class="ra-invalid">{{ $message }}</div>
-                            @enderror
-                        </div> --}}
-
                         <div class="ra-field">
                             <label class="ra-field-label" for="notes">Keterangan / Catatan</label>
                             <textarea name="notes" id="notes" rows="4" class="ra-textarea @error('notes') is-invalid @enderror"
@@ -234,6 +217,8 @@
                 'sections' => $sections,
             ])
 
+
+
         </div>{{-- /ra-layout --}}
     </form>
 
@@ -249,6 +234,7 @@
 
             var lowThreshold = {{ $lowThreshold }};
             var highThreshold = {{ $highThreshold }};
+            var isMediumRisk = false;
 
             /* ── Radio card click ─────────────────────────── */
             $(document).on('click', '.ra-radio-card', function() {
@@ -320,27 +306,34 @@
                 $risk.removeClass(riskClasses).find('i').removeClass(iconClasses);
                 $action.removeClass('border-success border-warning border-danger');
 
+                isMediumRisk = false;
+
                 if (!isOk) {
+                    isMediumRisk = false;
                     $risk.addClass('ra-risk-result--none').find('i').addClass('flaticon2-information');
                     $('#risk_text').text('Belum Dihitung');
                     $('#action_text').text('Lengkapi form terlebih dahulu');
                     $('#display_total_score').css('color', 'var(--ra-blue)');
                 } else if (total <= lowThreshold) {
+                    isMediumRisk = false;
                     $risk.addClass('ra-risk-result--low').find('i').addClass('flaticon2-check-mark');
                     $('#risk_text').text('LOW RISK');
                     $('#action_text').text('Qualified');
                     $('#display_total_score').css('color', 'var(--ra-green)');
                 } else if (total <= highThreshold) {
+                    isMediumRisk = true;
                     $risk.addClass('ra-risk-result--medium').find('i').addClass('flaticon-warning');
                     $('#risk_text').text('MEDIUM RISK');
                     $('#action_text').text('Desk Evaluation / Document / Questionnaire');
                     $('#display_total_score').css('color', 'var(--ra-amber)');
                 } else {
+                    isMediumRisk = false;
                     $risk.addClass('ra-risk-result--high').find('i').addClass('flaticon-danger');
                     $('#risk_text').text('HIGH RISK');
                     $('#action_text').text('Audit On Site');
                     $('#display_total_score').css('color', 'var(--ra-red)');
                 }
+
             }
         });
     </script>

@@ -113,6 +113,19 @@
                                 ->values();
                             $initial = strtoupper(substr(strip_tags($vendorName), 0, 1));
                             $isAssessed = (bool) $qualification;
+                            $hasActiveAudit = $application->audits
+                                ->whereNotIn('status', [
+                                    \App\Models\VendorAudit::STATUS_COMPLETED,
+                                    \App\Models\VendorAudit::STATUS_REJECTED,
+                                ])
+                                ->isNotEmpty();
+                            $canCreateAudit = $isAssessed
+                                && in_array($application->risk_level, ['medium', 'high'], true)
+                                && ! $hasActiveAudit
+                                && in_array($application->status, [
+                                    \App\Models\VendorApplication::STATUS_AUDIT_REQUIRED,
+                                    \App\Models\VendorApplication::STATUS_RISK_ASSESSED,
+                                ], true);
                         @endphp
                         <tr>
                             <td class="vnd-cell-muted">
@@ -157,14 +170,22 @@
                                 </span>
                             </td>
                             <td class="text-right">
-                                <a href="{{ route('qa.risk-assessment.create', $application->id) }}"
-                                    class="vnd-btn-detail {{ $isAssessed ? 'vnd-btn-detail' : 'vnd-btn-detail--primary' }}">
-                                    @if ($isAssessed)
-                                        <i class="flaticon-eye icon-sm text-primary" style="font-size:.7rem;"></i> Detail
-                                    @else
-                                        <i class="flaticon2-add-1 icon-sm" style="font-size:.7rem;"></i> Mulai Assessment
+                                <div class="d-inline-flex flex-wrap justify-content-end" style="gap:.35rem;">
+                                    @if ($canCreateAudit)
+                                        <a href="{{ route('qa.audit.create', $application->id) }}"
+                                            class="vnd-btn-detail vnd-btn-detail--primary">
+                                            <i class="flaticon2-add-1 icon-sm" style="font-size:.7rem;"></i> Buat Audit
+                                        </a>
                                     @endif
-                                </a>
+                                    <a href="{{ route('qa.risk-assessment.create', $application->id) }}"
+                                        class="vnd-btn-detail {{ $isAssessed ? 'vnd-btn-detail' : 'vnd-btn-detail--primary' }}">
+                                        @if ($isAssessed)
+                                            <i class="flaticon-eye icon-sm text-primary" style="font-size:.7rem;"></i> Detail
+                                        @else
+                                            <i class="flaticon2-add-1 icon-sm" style="font-size:.7rem;"></i> Mulai Assessment
+                                        @endif
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @empty

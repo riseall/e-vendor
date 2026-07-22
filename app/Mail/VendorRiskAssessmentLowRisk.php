@@ -29,7 +29,7 @@ class VendorRiskAssessmentLowRisk extends Mailable implements ShouldQueue
 
     public function build()
     {
-        return $this->subject('Hasil Risk Assessment - Rekomendasi Terekomendasi: ' . $this->applicationNumber)
+        return $this->subject('Hasil Risk Assessment - Terekomendasi: ' . $this->applicationNumber)
             ->view('emails.vendor-risk-assessment-low-risk');
     }
 }
