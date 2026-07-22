@@ -511,30 +511,20 @@
                 </div>
             @endif
 
-            {{-- Hasil Audit --}}
-            @if ($latestAudit && $latestAudit->audit_result_path)
+            {{-- Hasil Audit Notice --}}
+            @if ($latestAudit && ($latestAudit->audit_result_path || in_array($latestAudit->status, [\App\Models\VendorAudit::STATUS_COMPLETED, \App\Models\VendorAudit::STATUS_REJECTED])))
                 <div class="trk-revision mt-5" style="background:#E8F5E9;border-color:#2E7D32;">
                     <div class="trk-revision-title" style="color:#2E7D32;">
                         <i class="fas fa-file-invoice"></i>
-                        Hasil Audit On-Site
+                        Hasil Audit Tersedia
                     </div>
                     <div class="trk-revision-note" style="color:#1B5E20; font-size:12px;">
-                        Hasil evaluasi audit on-site Anda telah dirilis:
+                        Hasil evaluasi audit permohonan Anda telah dirilis. Silakan buka halaman <strong>Hasil Audit</strong> untuk melihat dokumen dan detail rekomendasi resmi.
                     </div>
-                    <div class="mb-3" style="font-size:12px;">
-                        <strong>Rekomendasi QA:</strong>
-                        <span class="badge badge-pill badge-success" style="font-size: 11px;">
-                            {{ strtoupper(str_replace('_', ' ', $latestAudit->audit_result_category)) }}
-                        </span>
-                    </div>
-                    @if ($latestAudit->summary)
-                        <div class="mb-3 p-3 bg-white rounded text-dark font-weight-bold"
-                            style="font-size:12px; border: 1px solid #C8E6C9;">
-                            {!! nl2br(e($latestAudit->summary)) !!}
-                        </div>
-                    @endif
                     <div class="mt-3">
-                        <x-preview-doc-button :url="Storage::url($latestAudit->audit_result_path)" label="Lihat File Hasil Audit" />
+                        <a href="{{ route('vendor.audit.results') }}" class="btn btn-sm btn-success font-weight-bold">
+                            <i class="fas fa-external-link-alt"></i> Buka Halaman Hasil Audit
+                        </a>
                     </div>
                 </div>
             @endif

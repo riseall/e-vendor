@@ -219,8 +219,6 @@
                     hidden = document.createElement('input');
                     hidden.type = 'hidden';
                     hidden.id = targetId;
-                    // ponytail: prefer name= attribute, fall back to data-field.
-                    // After we removed name= from raw inputs, data-field is the source of truth.
                     hidden.name = (input.name || input.getAttribute('data-field') || 'file');
                     if (input.hasAttribute('multiple')) hidden.name += '[]';
                     input.insertAdjacentElement('afterend', hidden);
@@ -245,66 +243,63 @@
                     });
             }
 
-            document.querySelectorAll('input.ajax-file-upload[type="file"]').forEach(input => {
-                input.addEventListener('change', async function() {
-                    const files = Array.from(this.files || []);
-                    if (files.length === 0) return;
+            document.addEventListener('change', async function(e) {
+                if (!e.target.matches('input.ajax-file-upload[type="file"]')) return;
 
-                    const status = statusFor(this);
-                    const fieldName = this.getAttribute('data-field') || this.name || 'file';
-                    const isMulti = this.hasAttribute('multiple') || files.length > 1;
+                const files = Array.from(e.target.files || []);
+                if (files.length === 0) return;
 
-                    // Validasi client cepat
-                    for (const f of files) {
-                        if (f.size > MAX_BYTES) {
-                            setStatus(status, 'red', `${f.name} > 5MB.`);
-                            this.value = '';
-                            return;
+                const status = statusFor(e.target);
+                const fieldName = e.target.getAttribute('data-field') || e.target.name || 'file';
+                const isMulti = e.target.hasAttribute('multiple') || files.length > 1;
+
+                // Validasi client cepat
+                for (const f of files) {
+                    if (f.size > MAX_BYTES) {
+                        setStatus(status, 'red', `${f.name} > 5MB.`);
+                        e.target.value = '';
+                        return;
+                    }
+                    if (!ALLOWED.test(f.name)) {
+                        setStatus(status, 'red', `${f.name}: format tidak didukung.`);
+                        e.target.value = '';
+                        return;
+                    }
+                }
+
+                setStatus(status, 'blue', `Mengunggah ${files.length} file...`);
+                const hidden = ensureHidden(e.target);
+
+                try {
+                    if (isMulti) {
+                        // Multi: append tiap path (hidden name sudah [] )
+                        hidden.value = '';
+                        const paths = [];
+                        for (let i = 0; i < files.length; i++) {
+                            setStatus(status, 'blue',
+                                `Mengunggah ${i+1}/${files.length}...`);
+                            const data = await uploadOne(files[i], fieldName);
+                            paths.push(data.path);
                         }
-                        if (!ALLOWED.test(f.name)) {
-                            setStatus(status, 'red', `${f.name}: format tidak didukung.`);
-                            this.value = '';
-                            return;
-                        }
+                        hidden.value = paths.join(','); // server split saat simpan
+
+                        // AMBIL SEMUA NAMA FILE & GABUNGKAN DENGAN KOMA
+                        const fileNames = files.map(f => f.name).join(', ');
+                        setStatus(status, 'green', `✓ Terunggah: ${fileNames}`);
+
+                    } else {
+                        const data = await uploadOne(files[0], fieldName);
+                        hidden.value = data.path;
+
+                        // TAMPILKAN NAMA FILE TUNGGAL YANG DI-UPLOAD
+                        setStatus(status, 'green', `✓ Terunggah: ${files[0].name}`);
                     }
 
-                    setStatus(status, 'blue', `Mengunggah ${files.length} file...`);
-                    const hidden = ensureHidden(this);
-
-                    try {
-                        if (isMulti) {
-                            // Multi: append tiap path (hidden name sudah [] )
-                            hidden.value = '';
-                            const paths = [];
-                            for (let i = 0; i < files.length; i++) {
-                                setStatus(status, 'blue',
-                                    `Mengunggah ${i+1}/${files.length}...`);
-                                const data = await uploadOne(files[i], fieldName);
-                                paths.push(data.path);
-                            }
-                            hidden.value = paths.join(','); // server split saat simpan
-
-                            // AMBIL SEMUA NAMA FILE & GABUNGKAN DENGAN KOMA
-                            const fileNames = files.map(f => f.name).join(', ');
-                            setStatus(status, 'green', `✓ Terunggah: ${fileNames}`);
-
-                        } else {
-                            const data = await uploadOne(files[0], fieldName);
-                            hidden.value = data.path;
-
-                            // TAMPILKAN NAMA FILE TUNGGAL YANG DI-UPLOAD
-                            setStatus(status, 'green', `✓ Terunggah: ${files[0].name}`);
-                        }
-
-                        // ponytail: clear native file input so the file isn't re-sent on form submit.
-                        // Server reads the path from the hidden mirror; the UploadedFile is no longer needed.
-                        // ceiling: 0 — we already have the path. upgrade: none.
-                        this.value = '';
-                    } catch (err) {
-                        setStatus(status, 'red', err.message || 'Gagal.');
-                        this.value = '';
-                    }
-                });
+                    e.target.value = '';
+                } catch (err) {
+                    setStatus(status, 'red', err.message || 'Gagal.');
+                    e.target.value = '';
+                }
             });
         });
     </script>

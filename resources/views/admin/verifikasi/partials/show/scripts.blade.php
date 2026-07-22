@@ -22,6 +22,8 @@
         @endif
 
         function refreshVerificationContent() {
+            var activeTabId = $('#verificationMainCard .nav-link.active').attr('href');
+            
             return $.get(window.location.href).then(function(html) {
                 var parsed = $.parseHTML(html, document, true);
                 var $html = $('<div>').append(parsed);
@@ -34,6 +36,16 @@
 
                 if ($newMainCard.length) {
                     $('#verificationMainCard').replaceWith($newMainCard);
+                    
+                    if (activeTabId) {
+                        $('#verificationMainCard .nav-link[href="' + activeTabId + '"]').tab('show');
+                        
+                        var navWrap = document.querySelector('.tab-nav-wrap .nav');
+                        var targetEl = document.querySelector('#verificationMainCard .nav-link[href="' + activeTabId + '"]');
+                        if (navWrap && targetEl) {
+                            navWrap.scrollLeft = targetEl.offsetLeft - 20;
+                        }
+                    }
                 }
             });
         }
