@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\VendorAudit;
+use App\Models\User;
+use App\Mail\VendorAuditQuestionnaireSubmittedToQa;
+use Illuminate\Support\Facades\Mail;
 use App\Models\VendorAuditQuestionTemplate;
 use App\Services\VendorApplicationWorkflowService;
 use Illuminate\Http\Request;
@@ -78,7 +81,7 @@ class VendorQuestionnaireController extends Controller
         ]);
     }
 
-    public function submit(Request $request, int $auditId, VendorApplicationWorkflowService $workflow)
+    public function submit(Request $request, int $auditId, VendorApplicationWorkflowService $workflow, \App\Services\VendorApplicationNotificationService $notification)
     {
         $audit = $this->loadAuditForVendor($auditId);
 
@@ -103,6 +106,8 @@ class VendorQuestionnaireController extends Controller
         $existingPayload = $audit->questionnaire_payload ?? [];
         $mergedAnswers = array_replace($existingPayload, $answers);
 
+        $isRevision = $audit->status === VendorAudit::STATUS_NEED_REVISION;
+
         DB::transaction(function () use ($audit, $mergedAnswers, $workflow) {
             $audit->update([
                 'questionnaire_payload'        => $mergedAnswers,
@@ -119,9 +124,26 @@ class VendorQuestionnaireController extends Controller
             );
         });
 
+        // 👱‍♀️ Ponytail: Notify QA and Super Admin via Service
+        $notification->auditQuestionnaireSubmitted($audit, $isRevision);
+
         return redirect()
             ->route('vendor.audit.questionnaire', $audit->id)
             ->with('success', 'Questionnaire berhasil di-submit. Menunggu verifikasi QA.');
+    }
+
+    public function indexResults(): View
+    {
+        $audits = VendorAudit::whereHas('application', function ($query) {
+            $query->where('user_id', Auth::id());
+        })
+        ->with(['application.general', 'application.qualification', 'qaLead'])
+        ->latest('id')
+        ->get();
+
+        return view('vendor.audit.results', [
+            'audits' => $audits,
+        ]);
     }
 
     private function loadAuditForVendor(int $auditId): VendorAudit

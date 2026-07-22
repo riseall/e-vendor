@@ -467,7 +467,6 @@
                         cancelButton: 'btn btn-light-primary'
                     }
                 }).then((result) => {
-                    // Compatible with SweetAlert2 v7 (boolean), v8 ({value}), and v9+ ({isConfirmed})
                     var confirmed = result === true || result?.value === true || result
                         ?.isConfirmed === true;
 
@@ -481,8 +480,6 @@
                                 Swal.showLoading();
                             }
                         });
-
-                        // Bypass all jQuery handlers and potential name="submit" collisions
                         var formObj = document.getElementById('au-qform');
                         HTMLFormElement.prototype.submit.call(formObj);
                     }
