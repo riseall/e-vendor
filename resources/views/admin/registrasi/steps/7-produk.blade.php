@@ -20,14 +20,122 @@
 @endpush
 
 <div class="form-section-title">Daftar Produk yang Disuplai</div>
-<p class="text-muted mb-6">Pilih produk, lalu lengkapi informasi manufaktur dan rantai pasok.</p>
 
 @if (!$isReadOnly)
-    <div class="form-group bg-light-primary p-5 rounded border border-primary border-dashed">
-        <label class="font-weight-bolder">Cari & Tambah Produk <span class="text-danger">*</span></label>
-        <select id="erpProductSelect" class="form-control select2" style="width: 100%;"></select>
-        <span class="form-text text-primary font-size-xs mt-2">Ketik minimal 3 karakter nama produk yang ingin
-            disuplai.</span>
+    <p class="text-muted mb-4">Pilih produk, lalu lengkapi informasi manufaktur dan rantai pasok.</p>
+
+
+    <div class="alert alert-custom alert-light-warning fade show mb-8" role="alert" style="border: 1px dashed #f9a825;">
+        <div class="alert-icon">
+            <i class="fas fa-info-circle text-warning"></i>
+        </div>
+        <div class="alert-text font-weight-normal">
+            Pastikan Anda memahami tingkat traceability rantai pasok sebelum mengisinya.
+            <a href="#" class="font-weight-bolder text-primary ml-1" data-toggle="modal"
+                data-target="#modalRantaiPasok">
+                <u>Lihat Panduan Disini</u>
+            </a>
+        </div>
+    </div>
+
+    <!-- Modal Panduan Rantai Pasok -->
+    <div class="modal fade" id="modalRantaiPasok" tabindex="-1" role="dialog" aria-labelledby="modalRantaiPasokLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalRantaiPasokLabel">Tingkat Traceability Rantai Pasok</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <i aria-hidden="true" class="ki ki-close"></i>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="{{ asset('images/rantai_pasok.png') }}" alt="Panduan Rantai Pasok"
+                        class="img-fluid rounded">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light-danger font-weight-bold"
+                        data-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @php
+        $bahanKemasList = \App\Models\PackagingMaterial::orderBy('name')->get();
+    @endphp
+
+    <div class="card card-custom mb-8">
+        <div class="card-header card-header-tabs-line">
+            <div class="card-toolbar">
+                <ul class="nav nav-tabs nav-bold nav-tabs-line" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#tab_qad">
+                            <span class="nav-icon"><i class="fas fa-pills"></i></span>
+                            <span class="nav-text">Bahan Baku</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#tab_kemas">
+                            <span class="nav-icon"><i class="fas fa-flask"></i></span>
+                            <span class="nav-text">Bahan Kemas</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#tab_manual">
+                            <span class="nav-icon"><i class="fas fa-pencil-alt"></i></span>
+                            <span class="nav-text">Free Text</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="tab-content">
+                {{-- 1. QAD --}}
+                <div class="tab-pane fade show active" id="tab_qad" role="tabpanel">
+                    <div class="form-group bg-light-primary p-6 rounded mb-0">
+                        <label class="font-weight-bolder text-primary">Cari & Pilih Bahan Baku<span
+                                class="text-danger">*</span></label>
+                        <select id="erpProductSelect" class="form-control select2" style="width: 100%;"></select>
+                        <span class="form-text text-primary font-size-xs mt-2">Ketik min. 3 karakter nama bahan
+                            baku.</span>
+                    </div>
+                </div>
+
+                {{-- 2. Bahan Kemas --}}
+                <div class="tab-pane fade" id="tab_kemas" role="tabpanel">
+                    <div class="form-group bg-light-info p-6 rounded mb-0">
+                        <label class="font-weight-bolder text-info">Pilih Bahan Kemas</label>
+                        <select id="kemasProductSelect" class="form-control select2" style="width: 100%;">
+                            <option value=""></option>
+                            @foreach ($bahanKemasList as $kemas)
+                                <option value="KEMAS-{{ $kemas->id }}" data-name="{{ $kemas->name }}">
+                                    {{ $kemas->name }}</option>
+                            @endforeach
+                        </select>
+                        <span class="form-text text-info font-size-xs mt-2">Pilih bahan kemas dari daftar.</span>
+                    </div>
+                </div>
+
+                {{-- 3. Free Text --}}
+                <div class="tab-pane fade" id="tab_manual" role="tabpanel">
+                    <div class="form-group bg-light-success p-6 rounded mb-0">
+                        <label class="font-weight-bolder text-success">Tambah Manual</label>
+                        <div class="input-group">
+                            <input type="text" id="customProductName" class="form-control form-control-solid"
+                                placeholder="Ketik nama produk...">
+                            <div class="input-group-append">
+                                <button class="btn btn-success font-weight-bold" type="button"
+                                    id="btnCustomProduct">Tambah</button>
+                            </div>
+                        </div>
+                        <span class="form-text text-success font-size-xs mt-2">Jika produk belum ada di daftar Bahan
+                            Baku atau Bahan Kemas.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endif
 
@@ -45,7 +153,9 @@
                     <th>SNI</th>
                     <th>Halal</th>
                     <th>BSE/TSE</th>
-                    <th>Aksi</th>
+                    @if (!$isReadOnly)
+                        <th>Aksi</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -139,7 +249,7 @@
                     return exists;
                 }
 
-                // 1. Select2 untuk cari produk
+                // 1. Select2 untuk cari produk (QAD)
                 $('#erpProductSelect').select2({
                     placeholder: "Cari Produk...",
                     ajax: {
@@ -170,6 +280,50 @@
                         window.refreshProductTable();
                     }
                     $(this).val(null).trigger('change');
+                });
+
+                // 1b. Select2 untuk Bahan Kemas
+                $('#kemasProductSelect').select2({
+                    placeholder: "Pilih Bahan Kemas...",
+                    allowClear: true
+                }).on('select2:select', function(e) {
+                    const el = $(e.params.data.element);
+                    const id = el.val();
+                    const name = el.data('name');
+
+                    if (!id) return;
+
+                    if (productExists(id)) {
+                        Swal.fire({
+                            text: 'Bahan Kemas sudah ada di daftar.',
+                            icon: 'warning'
+                        });
+                    } else {
+                        let html = $('#template-product-card').html()
+                            .replace(/__PRODUCT_ID__/g, id)
+                            .replace(/__PRODUCT_NAME__/g, name);
+                        productTable.row.add($(html)[0]).draw(false);
+                        window.refreshProductTable();
+                    }
+                    $(this).val(null).trigger('change');
+                });
+
+                // 1c. Tambah Produk Manual (Free Text)
+                $('#btnCustomProduct').on('click', function() {
+                    const name = $('#customProductName').val().trim();
+                    if (!name) return;
+
+                    // Generate pseudo-ID based on timestamp to ensure uniqueness
+                    const id = 'CUSTOM-' + Date.now();
+
+                    let html = $('#template-product-card').html()
+                        .replace(/__PRODUCT_ID__/g, id)
+                        .replace(/__PRODUCT_NAME__/g, name);
+
+                    productTable.row.add($(html)[0]).draw(false);
+                    window.refreshProductTable();
+
+                    $('#customProductName').val(''); // reset input
                 });
 
                 // 2. Hapus Row
