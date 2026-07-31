@@ -127,7 +127,7 @@
                                         <td class="text-center align-middle">
                                             <button type="button"
                                                 class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater">
-                                                <i class="flaticon2-trash"></i>
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </td>
                                     @endif
@@ -153,7 +153,7 @@
                 <td><input type="number" class="form-control form-control-sm" name="k6_equipments[__INDEX__][tahun]" placeholder="YYYY"></td>
                 <td class="text-center align-middle">
                     <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater">
-                        <i class="flaticon2-trash"></i>
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </td>
             </tr>

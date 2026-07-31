@@ -85,7 +85,7 @@
                         @if (!$isReadOnly)
                             <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove"
                                 title="Hapus">
-                                <i class="flaticon2-trash"></i>
+                                <i class="fas fa-trash-alt"></i>
                             </button>
                         @endif
                     </li>

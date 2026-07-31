@@ -86,7 +86,7 @@
                                         <td class="text-center">
                                             <button type="button"
                                                 class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater">
-                                                <i class="flaticon2-trash"></i>
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </td>
                                     @endif
@@ -137,7 +137,7 @@
         </td>
         <td class="text-center">
             <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater">
-                <i class="flaticon2-trash"></i>
+                <i class="fas fa-trash-alt"></i>
             </button>
         </td>
     </tr>

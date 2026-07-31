@@ -109,7 +109,7 @@
                                     <button type="button"
                                         class="btn btn-icon btn-light-danger btn-sm btn-remove-repeater"
                                         title="Hapus Baris" {{ $i == 0 ? 'disabled' : '' }}>
-                                        <i class="flaticon2-trash"></i>
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </td>
                             @endif
@@ -138,7 +138,7 @@
                         <td class="text-center pr-0 pb-3">
                             <button type="button" class="btn btn-icon btn-light-danger btn-sm btn-remove-repeater"
                                 title="Hapus Baris">
-                                <i class="flaticon2-trash"></i>
+                                <i class="fas fa-trash-alt"></i>
                             </button>
                         </td>
                     </tr>

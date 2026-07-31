@@ -190,7 +190,7 @@
                         '][name]" class="form-control" placeholder="Nama auditor" required>' +
                         '<input type="text" name="auditor_team[' + idx +
                         '][role]" class="form-control" placeholder="Role (Lead / Observer / dll)" required>' +
-                        '<button type="button" class="btn btn-icon btn-light-danger au-remove-row"><i class="flaticon-delete"></i></button>' +
+                        '<button type="button" class="btn btn-icon btn-light-danger au-remove-row"><i class="fas fa-trash-alt"></i></button>' +
                         '</div>';
                     $teamList.append(row);
                     idx++;

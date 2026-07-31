@@ -81,7 +81,7 @@
                                     @if (!$isReadOnly)
                                         <td class="text-center align-middle"><button type="button"
                                                 class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater"><i
-                                                    class="flaticon2-trash"></i></button></td>
+                                                    class="fas fa-trash-alt"></i></button></td>
                                     @endif
                                 </tr>
                             @endforeach
@@ -153,7 +153,7 @@
                 </div>
             </div>
         </td>
-        <td class="text-center align-middle"><button type="button" class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater"><i class="flaticon2-trash"></i></button></td>
+        <td class="text-center align-middle"><button type="button" class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater"><i class="fas fa-trash-alt"></i></button></td>
     </tr>
 </script>
 @endif

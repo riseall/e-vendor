@@ -227,7 +227,7 @@
                                     @if (!$isReadOnly)
                                         <td class="text-center"><button type="button"
                                                 class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater"><i
-                                                    class="flaticon2-trash"></i></button></td>
+                                                    class="fas fa-trash-alt"></i></button></td>
                                     @endif
                                 </tr>
                             @endforeach
@@ -272,7 +272,7 @@
         <td><input type="text" class="form-control form-control-sm" name="q7_equipments[__INDEX__][merk]"></td>
         <td><input type="number" class="form-control form-control-sm" name="q7_equipments[__INDEX__][tahun]"></td>
         <td class="text-center align-middle">
-            <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater"><i class="flaticon2-trash"></i></button>
+            <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater"><i class="fas fa-trash-alt"></i></button>
         </td>
     </tr>
 </script>
