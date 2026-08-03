@@ -1,333 +1,224 @@
-@extends('layouts.app', ['title' => 'Manage Questions'])
+@extends('layouts.app', ['title' => 'Kelola Pertanyaan Kuesioner'])
 
-@push('style')
-    <style>
-        .section-header {
-            background-color: #f3f6f9;
-            font-weight: 700;
-            color: #3f4254;
-            padding: 10px 15px !important;
-        }
-
-        .question-text {
-            font-size: 1.05rem;
-            color: #181c32;
-        }
-    </style>
-@endpush
+@section('breadcrumb', 'Quality Assurance')
+@section('step', 'Kelola Pertanyaan')
+@section('page_title', 'Kelola Pertanyaan Kuesioner')
+@section('page_desc', 'Daftar pertanyaan kuesioner audit untuk ' . $form->name)
 
 @section('content')
-    <div id="flash-message" data-success="{{ session('success') }}" data-error="{{ session('error') }}" hidden></div>
+    {{-- Flash container untuk SweetAlert Toast --}}
+    <div id="vnd-flash" data-success="{{ session('success') }}" data-error="{{ session('error') }}"
+        data-warning="{{ session('warning') }}" data-info="{{ session('info') }}" hidden></div>
 
-    <div class="card card-custom">
-        <div class="card-header align-items-center">
-            <div class="card-title d-flex align-items-center">
+    {{-- Stat Cards Summary --}}
+    @php
+        $questionsColl = collect($questions ?? []);
+        $totalQuestions = $questionsColl->count();
+        $requiredCount = $questionsColl->filter(fn($q) => (bool) $q->is_required)->count();
+        $sectionsCount = $questionsColl->pluck('section')->unique()->filter()->count();
+        $totalWeight = $questionsColl->sum('weight');
+    @endphp
+
+    <div class="row mb-6">
+        <x-dash-card :value="$totalQuestions" label="Total Pertanyaan" icon="flaticon2-list-1" type="primary" />
+        <x-dash-card :value="$requiredCount" label="Wajib Diisi" icon="flaticon2-check-mark" type="success" />
+        <x-dash-card :value="$sectionsCount" label="Bagian / Bab" icon="flaticon2-folder" type="info" />
+        <x-dash-card :value="$totalWeight" label="Total Bobot" icon="flaticon-shapes" type="warning" />
+    </div>
+
+    {{-- Main Container Card --}}
+    <div class="vnd-card">
+        {{-- Card Head --}}
+        <div class="vnd-card-head">
+            <div class="d-flex align-items-center" style="gap:.75rem;">
                 <a href="{{ route('questionnaire-form.index') }}"
-                    class="btn btn-sm btn-light-primary font-weight-bolder mr-4">
-                    <i class="ki ki-arrow-back"></i>
+                    class="btn btn-sm btn-icon btn-light-primary rounded-circle" title="Kembali ke Daftar Form">
+                    <i class="flaticon2-back" style="font-size:.8rem;"></i>
                 </a>
-                <h3 class="card-label mb-0">
-                    Pertanyaan: <span class="text-primary">{{ $form->name }}</span>
+                <div>
+                    <div class="vnd-card-title">
+                        <span class="vnd-card-title-dot"></span>
+                        {{ $form->name }}
+                    </div>
                     @if ($form->document_number)
-                        <small class="text-muted ml-2 font-size-sm">({{ $form->document_number }})</small>
+                        <div class="text-muted font-size-sm mt-1">
+                            No Dokumen: <code>{{ $form->document_number }}</code>
+                        </div>
                     @endif
-                </h3>
+                </div>
             </div>
-            <div class="card-toolbar">
-                <button type="button" class="btn btn-success font-weight-bolder mr-2" data-toggle="modal"
+
+            <div class="d-flex align-items-center" style="gap:.5rem;">
+                <button type="button" class="btn btn-sm btn-success font-weight-bolder px-4" data-toggle="modal"
                     data-target="#modalImport">
-                    <i class="la la-file-excel icon-md"></i> Import Excel
+                    <i class="fas fa-file-excel icon-sm" style="font-size:.75rem;"></i> Import Excel
                 </button>
-                <button type="button" class="btn btn-primary font-weight-bolder" data-toggle="modal"
+                <button type="button" class="btn btn-sm btn-primary font-weight-bolder px-4" data-toggle="modal"
                     data-target="#modalQuestion" onclick="openCreateModal()">
-                    <i class="la la-plus icon-md"></i> New Question
+                    <i class="fas fa-plus-circle icon-sm" style="font-size:.75rem;"></i> Tambah Pertanyaan
                 </button>
             </div>
         </div>
 
-        <div class="card-body">
-            @if ($questions->isEmpty())
-                <div class="text-center p-10">
-                    <img src="{{ asset('media/svg/illustrations/sad.svg') }}" alt="No data" style="height: 120px;"
-                        class="mb-5">
-                    <h5 class="text-muted">Belum ada pertanyaan pada form ini. Silakan tambahkan pertanyaan baru.</h5>
-                </div>
-            @else
-                <div class="table-responsive">
-                    <table class="table table-bordered table-vertical-center" id="questions_table">
-                        <thead>
-                            <tr class="bg-light">
-                                <th style="width: 70px;" class="text-center">No Urut</th>
-                                <th>Pertanyaan</th>
-                                <th style="width: 150px;">Tipe Jawaban</th>
-                                <th style="width: 100px;" class="text-center">Bobot</th>
-                                <th style="width: 100px;" class="text-center">Wajib</th>
-                                <th style="width: 100px;" class="text-center">Status</th>
-                                <th style="width: 150px;" class="text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                $currentSection = null;
-                            @endphp
-                            @foreach ($questions as $q)
-                                @if ($currentSection !== $q->section)
-                                    @php $currentSection = $q->section; @endphp
-                                    <tr>
-                                        <td colspan="7" class="section-header">
-                                            <i class="la la-folder-open text-primary mr-2 icon-lg"></i>
-                                            {{ $currentSection }}
-                                        </td>
-                                    </tr>
-                                @endif
-                                <tr>
-                                    <td class="text-center font-weight-bold">{{ $q->order }}</td>
-                                    <td>
-                                        <div class="question-text font-weight-bold mb-1">{!! nl2br(e($q->question)) !!}</div>
-                                        @if ($q->answer_type === 'multiple_choice' && is_array($q->options))
-                                            <div class="mt-1">
-                                                @foreach ($q->options as $opt)
-                                                    <span
-                                                        class="label label-inline label-light mr-1 mb-1">{{ $opt }}</span>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @php
-                                            $types = [
-                                                'yes_no' => ['label' => 'Yes / No', 'color' => 'primary'],
-                                                'multiple_choice' => ['label' => 'Pilihan Ganda', 'color' => 'warning'],
-                                                'text' => ['label' => 'Teks Bebas', 'color' => 'info'],
-                                                'document' => ['label' => 'Unggah Dokumen', 'color' => 'success'],
-                                            ];
-                                            $typeInfo = $types[$q->answer_type] ?? [
-                                                'label' => $q->answer_type,
-                                                'color' => 'secondary',
-                                            ];
-                                        @endphp
-                                        <span class="label label-dot label-{{ $typeInfo['color'] }} mr-2"></span>
-                                        <span
-                                            class="font-weight-bold text-{{ $typeInfo['color'] }}">{{ $typeInfo['label'] }}</span>
-                                    </td>
-                                    <td class="text-center font-weight-bolder">{{ $q->weight }}</td>
-                                    <td class="text-center">
-                                        @if ($q->is_required)
-                                            <span class="label label-light-danger label-inline font-weight-bold">Ya</span>
-                                        @else
-                                            <span class="label label-light-secondary label-inline text-dark">Tidak</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if ($q->is_active)
-                                            <span class="label label-success label-dot mr-2"></span><span
-                                                class="font-weight-bold text-success">Aktif</span>
-                                        @else
-                                            <span class="label label-danger label-dot mr-2"></span><span
-                                                class="font-weight-bold text-danger">Non-Aktif</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="d-flex justify-content-center">
-                                            <button type="button" class="btn btn-sm btn-icon btn-outline-warning mr-2"
-                                                title="Edit Pertanyaan" data-form="{{ json_encode($q) }}"
-                                                onclick="openEditModal(this)">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <form
-                                                action="{{ route('questionnaire-form.questions.destroy', [$form->id, $q->id]) }}"
-                                                method="POST" class="d-inline delete-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button"
-                                                    class="btn btn-sm btn-icon btn-outline-danger btn-delete"
-                                                    title="Hapus Pertanyaan">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+        {{-- Table Content --}}
+        <div class="card-body p-0 px-4 pt-5 pb-6">
+            <div class="table-responsive">
+                <table class="table tbl-vendor table-borderless" id="questions_table" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 70px;">No Urut</th>
+                            <th style="min-width: 250px;">Pertanyaan</th>
+                            <th style="min-width: 150px;">Tipe Jawaban</th>
+                            <th class="text-center" style="width: 90px;">Bobot</th>
+                            <th class="text-center" style="width: 90px;">Wajib</th>
+                            <th class="text-center" style="width: 100px;">Status</th>
+                            <th class="text-right no-sort" style="min-width: 160px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php $currentSection = null; @endphp
+                        @forelse ($questions as $q)
+                            @include('admin.questionnaire.partials.question-row', [
+                                'q' => $q,
+                                'currentSection' => $currentSection,
+                                'form' => $form,
+                            ])
+                            @php $currentSection = $q->section; @endphp
+                        @empty
+                            <tr>
+                                <td colspan="7">
+                                    <div class="vnd-empty py-8">
+                                        <div class="vnd-empty-icon">
+                                            <i class="flaticon2-list-1"></i>
                                         </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </div>
-    </div>
-
-    <!-- Modal Question Form -->
-    <div class="modal fade" id="modalQuestion" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Tambah Pertanyaan</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <i aria-hidden="true" class="ki ki-close"></i>
-                    </button>
-                </div>
-                <form id="questionForm" method="POST">
-                    @csrf
-                    <div id="methodPlaceholder"></div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Section / Bagian Kuesioner <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="section" id="q_section" required
-                                        placeholder="Contoh: I. Sistem Manajemen Mutu">
-                                    <span class="form-text text-muted">Mengelompokkan pertanyaan ke dalam bagian/bab
-                                        tertentu.</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Tipe Jawaban <span
-                                            class="text-danger">*</span></label>
-                                    <select class="form-control" name="answer_type" id="q_answer_type" required
-                                        onchange="toggleOptionsField()">
-                                        <option value="yes_no">Yes / No</option>
-                                        <option value="multiple_choice">Pilihan Ganda (Multiple Choice)</option>
-                                        <option value="text">Teks Bebas</option>
-                                        <option value="document">Unggah Dokumen Bukti</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="font-weight-bold">Pertanyaan <span class="text-danger">*</span></label>
-                            <textarea class="form-control" name="question" id="q_question" rows="4" required
-                                placeholder="Tuliskan pertanyaan disini..."></textarea>
-                        </div>
-
-                        <div class="form-group" id="optionsGroup" style="display: none;">
-                            <label class="font-weight-bold">Pilihan Jawaban (Satu baris satu pilihan) <span
-                                    class="text-danger">*</span></label>
-                            <textarea class="form-control" name="options" id="q_options" rows="4"
-                                placeholder="Ketik opsi jawaban&#10;Contoh:&#10;Pilihan A&#10;Pilihan B&#10;Pilihan C"></textarea>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Bobot Nilai <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" name="weight" id="q_weight"
-                                        value="1" min="0" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="font-weight-bold">No Urut Tampil <span
-                                            class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" name="order" id="q_order"
-                                        value="0" min="0" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mt-2">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="checkbox checkbox-lg checkbox-outline checkbox-danger font-weight-bold">
-                                        <input type="checkbox" name="is_required" id="q_is_required" value="1" checked />
-                                        <span></span>&nbsp; Wajib Diisi (Required)
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="checkbox checkbox-lg checkbox-outline checkbox-success font-weight-bold">
-                                        <input type="checkbox" name="is_active" id="q_is_active" value="1" checked />
-                                        <span></span>&nbsp; Aktifkan Pertanyaan
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light-primary font-weight-bold"
-                            data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary font-weight-bold" id="btnSubmit">Simpan</button>
-                    </div>
-                </form>
+                                        <div class="vnd-empty-title">Belum Ada Pertanyaan</div>
+                                        <div class="vnd-empty-sub">Klik "Tambah Pertanyaan" atau "Import Excel" untuk
+                                            membuat pertanyaan kuesioner.</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- Modal Import -->
-    <div class="modal fade" id="modalImport" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Import Pertanyaan Excel</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <i aria-hidden="true" class="ki ki-close"></i>
-                    </button>
-                </div>
-                <form action="{{ route('questionnaire-form.questions.import', $form->id) }}" method="POST"
-                    enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="custom-file custom-file-sm">
-                            <input type="file" name="file" class="custom-file-input" accept=".xlsx, .xls, .csv"
-                                required>
-                            <label class="custom-file-label text-truncated">Upload File</label>
-                            <span class="form-text text-muted">Pastikan format file excel sesuai dengan template yang
-                                disediakan.</span>
-                        </div>
-                        <div class="mt-4">
-                            <a href="{{ Storage::url('templates/template_questions.xlsx') }}"
-                                class="btn btn-sm btn-light-info font-weight-bold">
-                                <i class="la la-download"></i> Download Template
-                            </a>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light-primary font-weight-bold"
-                            data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-success font-weight-bold">Import</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    {{-- Question Modal Partial --}}
+    @include('admin.questionnaire.partials.question-modal')
+
+    {{-- Import Modal Partial --}}
+    @include('admin.questionnaire.partials.import-modal')
 @endsection
 
 @push('scripts')
     <script>
         $(document).ready(function() {
-            // Flash Message Alert
-            var flashSuccess = $('#flash-message').data('success');
-            var flashError = $('#flash-message').data('error');
-            if (flashSuccess) {
-                Swal.fire("Berhasil!", flashSuccess, "success");
-            }
-            if (flashError) {
-                Swal.fire("Gagal!", flashError, "error");
-            }
+            /* Flash Session via SweetAlert Toast */
+            (function() {
+                var $el = $('#vnd-flash');
+                if (!$el.length || typeof Swal === 'undefined') return;
 
-            @if ($errors->any())
-                Swal.fire("Error Validasi!", "{!! implode('\n', $errors->all()) !!}", "error");
-            @endif
+                var messages = [{
+                        key: 'success',
+                        icon: 'success',
+                        title: 'Sukses'
+                    },
+                    {
+                        key: 'error',
+                        icon: 'error',
+                        title: 'Gagal'
+                    },
+                    {
+                        key: 'warning',
+                        icon: 'warning',
+                        title: 'Peringatan'
+                    },
+                    {
+                        key: 'info',
+                        icon: 'info',
+                        title: 'Informasi'
+                    },
+                ];
 
-            // Confirm Delete
-            $(document).on('click', '.btn-delete', function() {
-                var form = $(this).closest('form');
-                Swal.fire({
-                    title: "Apakah Anda yakin?",
-                    text: "Pertanyaan ini akan dihapus permanen!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#d33",
-                    confirmButtonText: "Ya, Hapus!",
-                    cancelButtonText: "Batal"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
+                messages.forEach(function(m) {
+                    var msg = $el.data(m.key);
+                    if (msg) {
+                        Swal.fire({
+                            html: '<div class="vnd-swal-toast-body">' +
+                                '<div class="btn btn-icon btn-outline-success btn-circle btn-sm m-0">' +
+                                '<i class="flaticon2-check-mark" style="font-size:1rem;"></i>' +
+                                '</div>' +
+                                '<div class="vnd-swal-toast-content">' +
+                                '<div class="vnd-swal-toast__title">' + m.title + '</div>' +
+                                '<div class="vnd-swal-toast__text">' + msg + '</div>' +
+                                '</div>' +
+                                '</div>',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            showCloseButton: true,
+                            timer: 3500,
+                            timerProgressBar: true,
+                            width: 360,
+                            padding: '0',
+                            customClass: {
+                                popup: 'vnd-swal-toast shadow-sm',
+                                closeButton: 'vnd-swal-toast__close',
+                            },
+                        });
                     }
                 });
+            })();
+
+            @if ($errors->any())
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error Validasi',
+                        html: '{!! implode('<br>', array_map('e', $errors->all())) !!}'
+                    });
+                }
+            @endif
+
+            /* Confirm Delete Question via SweetAlert */
+            $(document).on('click', '.btn-delete-question', function(e) {
+                e.preventDefault();
+                var form = $(this).closest('form');
+                var questionText = $(this).data('question') || 'pertanyaan ini';
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Hapus Pertanyaan?',
+                        text: 'Pertanyaan "' + questionText + '" akan dihapus permanen!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#c62828',
+                        cancelButtonColor: '#6b7a96',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true,
+                        customClass: {
+                            confirmButton: 'btn btn-danger font-weight-bold mr-2',
+                            cancelButton: 'btn btn-secondary font-weight-bold'
+                        }
+                    }).then(function(result) {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                } else {
+                    if (confirm('Hapus pertanyaan ini?')) {
+                        form.submit();
+                    }
+                }
+            });
+
+            /* Update Custom File Input Label on file selection */
+            $(document).on('change', '.custom-file-input', function() {
+                var fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').addClass("selected").html(fileName ||
+                    'Pilih file excel...');
             });
         });
 
@@ -375,8 +266,8 @@
 
             $('#q_weight').val(q.weight);
             $('#q_order').val(q.order);
-            $('#q_is_required').prop('checked', q.is_required);
-            $('#q_is_active').prop('checked', q.is_active);
+            $('#q_is_required').prop('checked', Boolean(q.is_required));
+            $('#q_is_active').prop('checked', Boolean(q.is_active));
             toggleOptionsField();
             $('#modalQuestion').modal('show');
         }

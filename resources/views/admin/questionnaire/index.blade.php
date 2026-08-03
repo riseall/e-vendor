@@ -1,217 +1,185 @@
-@extends('layouts.app', ['title' => 'Master Questionnaire'])
+@extends('layouts.app', ['title' => 'Master Kuesioner Audit'])
 
-@push('style')
-    <style>
-        .custom-badge {
-            font-size: 0.85rem;
-            font-weight: 600;
-            padding: 0.35em 0.75em;
-        }
-    </style>
-@endpush
+@section('breadcrumb', 'Quality Assurance')
+@section('step', 'Master Kuesioner')
+@section('page_title', 'Master Template Kuesioner Audit')
+@section('page_desc', 'Kelola form template kuesioner dan daftar pertanyaan untuk audit vendor.')
 
 @section('content')
-    <div id="flash-message" data-success="{{ session('success') }}" data-error="{{ session('error') }}" hidden></div>
+    {{-- Flash notification container untuk SweetAlert --}}
+    <div id="vnd-flash" data-success="{{ session('success') }}" data-error="{{ session('error') }}"
+        data-warning="{{ session('warning') }}" data-info="{{ session('info') }}" hidden></div>
 
-    <div class="card card-custom">
-        <div class="card-header">
-            <div class="card-title">
-                <h3 class="card-label">Master Questionnaire Forms</h3>
+    {{-- Stat Cards Partial --}}
+    @include('admin.questionnaire.partials.stats')
+
+    {{-- Main Card Container --}}
+    <div class="vnd-card">
+        {{-- Card Head --}}
+        <div class="vnd-card-head">
+            <div>
+                <div class="vnd-card-title">
+                    <span class="vnd-card-title-dot"></span>
+                    Master Form Kuesioner
+                </div>
+                <div class="text-muted font-size-sm mt-1">
+                    Daftar template kuesioner audit yang aktif di sistem.
+                </div>
             </div>
-            <div class="card-toolbar">
-                <button type="button" class="btn btn-primary font-weight-bolder" data-toggle="modal"
-                    data-target="#modalFormQuestionnaire" onclick="openCreateModal()">
-                    <i class="la la-plus-circle icon-xl"></i> New Form
+
+            <div class="d-flex align-items-center" style="gap:.6rem;">
+                <button type="button" class="vnd-btn-filter style-none btn btn-primary font-weight-bolder px-4 text-white"
+                    data-toggle="modal" data-target="#modalFormQuestionnaire" onclick="openCreateModal()">
+                    <i class="fas fa-plus-circle icon-sm text-white" style="font-size:.7rem;"></i> Tambah Form
                 </button>
             </div>
         </div>
 
-        <div class="card-body">
+        {{-- Table Content --}}
+        <div class="card-body p-0 px-4 pt-5 pb-6">
             <div class="table-responsive">
-                <table class="table table-striped table-hover table-checkable tbl-vendor" id="forms_datatable">
+                <table class="table tbl-vendor table-borderless" id="forms_datatable" style="width:100%;">
                     <thead>
                         <tr>
-                            <th style="width: 60px;">Order</th>
-                            <th>Code</th>
-                            <th>Name</th>
-                            <th>Material Type</th>
-                            <th>Document No</th>
-                            <th>Status</th>
-                            <th class="text-center" style="width: 250px;">Actions</th>
+                            <th class="text-center" style="width: 60px;">No</th>
+                            <th style="min-width: 140px;">Kode</th>
+                            <th style="min-width: 220px;">Nama Form</th>
+                            <th style="min-width: 140px;">Tipe Material</th>
+                            <th style="min-width: 150px;">No. Dokumen</th>
+                            <th style="min-width: 110px;">Status</th>
+                            <th class="text-right no-sort" style="min-width: 220px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($forms as $form)
+                        @forelse ($forms as $form)
+                            @include('admin.questionnaire.partials.form-row', ['form' => $form])
+                        @empty
                             <tr>
-                                <td>{{ $form->order }}</td>
-                                <td><code>{{ $form->code }}</code></td>
-                                <td><strong>{{ $form->name }}</strong></td>
-                                <td>
-                                    @php
-                                        $badgeColor = 'badge-primary';
-                                        if ($form->material_type === 'bahan_kemas') {
-                                            $badgeColor = 'badge-warning';
-                                        }
-                                        if ($form->material_type === 'bahan_baku') {
-                                            $badgeColor = 'badge-success';
-                                        }
-                                    @endphp
-                                    <span class="badge {{ $badgeColor }} font-weight-bold">
-                                        {{ $form->materialTypeLabel() }}
-                                    </span>
-                                </td>
-                                <td>{{ $form->document_number ?? '-' }}</td>
-                                <td>
-                                    @if ($form->is_active)
-                                        <span class="label label-success label-dot mr-2"></span><span
-                                            class="font-weight-bold text-success">Aktif</span>
-                                    @else
-                                        <span class="label label-danger label-dot mr-2"></span><span
-                                            class="font-weight-bold text-danger">Non-Aktif</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <div class="d-flex justify-content-center">
-                                        <a href="{{ route('questionnaire-form.questions', $form->id) }}"
-                                            class="btn btn-sm btn-light-primary font-weight-bolder mr-2"
-                                            title="Manage Questions">
-                                            <i class="la la-list-alt"></i> Questions
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-icon btn-outline-warning mr-2"
-                                            title="Edit Form" data-form="{{ json_encode($form) }}"
-                                            onclick="openEditModal(this)">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <form action="{{ route('questionnaire-form.destroy', $form->id) }}" method="POST"
-                                            class="d-inline delete-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" class="btn btn-sm btn-icon btn-outline-danger btn-delete"
-                                                title="Delete Form">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
+                                <td colspan="7">
+                                    <div class="vnd-empty">
+                                        <div class="vnd-empty-icon">
+                                            <i class="flaticon2-document"></i>
+                                        </div>
+                                        <div class="vnd-empty-title">Belum Ada Form Kuesioner</div>
+                                        <div class="vnd-empty-sub">Klik tombol "Tambah Form" untuk membuat template
+                                            kuesioner baru.</div>
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Modal Form (Create / Edit) -->
-    <div class="modal fade" id="modalFormQuestionnaire" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Tambah Form Kuesioner</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <i aria-hidden="true" class="ki ki-close"></i>
-                    </button>
-                </div>
-                <form id="questionnaireForm" method="POST">
-                    @csrf
-                    <div id="methodPlaceholder"></div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Code <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="code" id="form_code" required
-                                        placeholder="Contoh: bahan_baku_pemasok">
-                                    <small class="text-muted">Unique identifier for the form templates.</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Material Type <span class="text-danger">*</span></label>
-                                    <select class="form-control" name="material_type" id="form_material_type" required>
-                                        <option value="bahan_baku">Bahan Baku</option>
-                                        <option value="bahan_kemas">Bahan Kemas</option>
-                                        {{-- <option value="produk_jadi">Produk Jadi</option>
-                                <option value="alkes">Alkes</option> --}}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="font-weight-bold">Form Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="name" id="form_name" required
-                                placeholder="Contoh: Daftar Periksa Pemasok Bahan Baku">
-                        </div>
-
-                        <div class="form-group">
-                            <label class="font-weight-bold">Document Number</label>
-                            <input type="text" class="form-control" name="document_number" id="form_document_number"
-                                placeholder="Contoh: QA-FM-I2.02-017">
-                        </div>
-                        {{-- <div class="form-group">
-                            <label class="font-weight-bold">Description</label>
-                            <textarea class="form-control" name="description" id="form_description" rows="3"
-                                placeholder="Deskripsi form..."></textarea>
-                        </div> --}}
-                        <div class="form-group">
-                            <label class="font-weight-bold">Sort Order <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" name="order" id="form_order" value="0"
-                                min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="checkbox checkbox-lg checkbox-outline checkbox-success font-weight-bold">
-                                <input type="checkbox" name="is_active" id="form_is_active" value="1" checked />
-                                <span></span>&nbsp; Aktifkan Form
-                            </label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light-primary font-weight-bold"
-                            data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary font-weight-bold" id="btnSubmit">Simpan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    {{-- Modal Form Partial --}}
+    @include('admin.questionnaire.partials.form-modal')
 @endsection
 
 @push('scripts')
     <script>
         $(document).ready(function() {
-            $('#forms_datatable').DataTable({
-                responsive: true,
-                order: [
-                    [0, 'asc']
-                ]
-            });
-
-            // Flash Message Alert
-            var flashSuccess = $('#flash-message').data('success');
-            var flashError = $('#flash-message').data('error');
-            if (flashSuccess) {
-                Swal.fire("Berhasil!", flashSuccess, "success");
-            }
-            if (flashError) {
-                Swal.fire("Gagal!", flashError, "error");
+            /* Initialize DataTables jika ada data */
+            if ($('#forms_datatable tbody tr').find('.vnd-empty').length === 0) {
+                $('#forms_datatable').DataTable({
+                    responsive: true,
+                    order: [
+                        [0, 'asc']
+                    ],
+                    dom: '<"d-flex justify-content-between align-items-center mb-4"lf>rtip',
+                });
             }
 
-            // Confirm Delete
-            $(document).on('click', '.btn-delete', function() {
-                var form = $(this).closest('form');
-                Swal.fire({
-                    title: "Apakah Anda yakin?",
-                    text: "Menghapus form akan menghapus semua pertanyaan di dalamnya!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#d33",
-                    confirmButtonText: "Ya, Hapus!",
-                    cancelButtonText: "Batal"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
+            /* Flash Session via SweetAlert Toast */
+            (function() {
+                var $el = $('#vnd-flash');
+                if (!$el.length || typeof Swal === 'undefined') return;
+
+                var messages = [{
+                        key: 'success',
+                        icon: 'success',
+                        title: 'Sukses'
+                    },
+                    {
+                        key: 'error',
+                        icon: 'error',
+                        title: 'Gagal'
+                    },
+                    {
+                        key: 'warning',
+                        icon: 'warning',
+                        title: 'Peringatan'
+                    },
+                    {
+                        key: 'info',
+                        icon: 'info',
+                        title: 'Informasi'
+                    },
+                ];
+
+                messages.forEach(function(m) {
+                    var msg = $el.data(m.key);
+                    if (msg) {
+                        Swal.fire({
+                            html: '<div class="vnd-swal-toast-body">' +
+                                '<div class="btn btn-icon btn-outline-success btn-circle btn-sm m-0">' +
+                                '<i class="flaticon2-check-mark" style="font-size:1rem;"></i>' +
+                                '</div>' +
+                                '<div class="vnd-swal-toast-content">' +
+                                '<div class="vnd-swal-toast__title">' + m.title + '</div>' +
+                                '<div class="vnd-swal-toast__text">' + msg + '</div>' +
+                                '</div>' +
+                                '</div>',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            showCloseButton: true,
+                            timer: 3500,
+                            timerProgressBar: true,
+                            width: 360,
+                            padding: '0',
+                            customClass: {
+                                popup: 'vnd-swal-toast shadow-sm',
+                                closeButton: 'vnd-swal-toast__close',
+                            },
+                        });
                     }
                 });
+            })();
+
+            /* Confirm Delete Form via SweetAlert Modal */
+            $(document).on('click', '.btn-delete-form', function(e) {
+                e.preventDefault();
+                var form = $(this).closest('form');
+                var formName = $(this).data('form-name') || 'form ini';
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Hapus Form Kuesioner?',
+                        text: 'Menghapus "' + formName +
+                            '" akan menghapus seluruh pertanyaan di dalamnya!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#c62828',
+                        cancelButtonColor: '#6b7a96',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true,
+                        customClass: {
+                            confirmButton: 'btn btn-danger font-weight-bold mr-2',
+                            cancelButton: 'btn btn-secondary font-weight-bold'
+                        }
+                    }).then(function(result) {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                } else {
+                    if (confirm('Hapus form ' + formName + '? Seluruh pertanyaan akan ikut terhapus.')) {
+                        form.submit();
+                    }
+                }
             });
         });
 
@@ -238,7 +206,7 @@
             $('#form_material_type').val(form.material_type);
             $('#form_document_number').val(form.document_number);
             $('#form_order').val(form.order);
-            $('#form_is_active').prop('checked', form.is_active);
+            $('#form_is_active').prop('checked', Boolean(form.is_active));
             $('#modalFormQuestionnaire').modal('show');
         }
     </script>
