@@ -80,7 +80,14 @@ class VendorRekualifikasiController extends Controller
 
         $applications = $query->latest()->paginate(15);
 
-        return view('vendor.rekualifikasi.index', compact('applications'));
+        $approvedVendors = collect();
+        if (Auth::user()->role !== 'supplier') {
+            $approvedVendors = VendorApplication::where('status', VendorApplication::STATUS_APPROVED)
+                ->with(['general', 'user'])
+                ->get();
+        }
+
+        return view('admin.rekualifikasi.index', compact('applications', 'approvedVendors'));
     }
 
     /**
@@ -98,11 +105,11 @@ class VendorRekualifikasiController extends Controller
                 $q->where('application_number', 'like', "%{$search}%")
                     ->orWhereHas('general', function ($g) use ($search) {
                         $g->where('nama_perusahaan', 'like', "%{$search}%")
-                          ->orWhere('email_perusahaan', 'like', "%{$search}%");
+                            ->orWhere('email_perusahaan', 'like', "%{$search}%");
                     })
                     ->orWhereHas('user', function ($u) use ($search) {
                         $u->where('name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%");
+                            ->orWhere('email', 'like', "%{$search}%");
                     });
             });
         }
