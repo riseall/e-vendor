@@ -10,9 +10,31 @@
                     <div class="text-muted font-size-xs font-weight-bold text-uppercase mb-1">
                         Nomor Permohonan
                     </div>
-                    <h4 class="font-weight-bolder mb-1" style="color:var(--brand-primary); font-size:1.2rem;">
-                        {{ $application->application_number ?? '-' }}
+                    <h4 class="font-weight-bolder mb-1 d-flex align-items-center flex-wrap"
+                        style="color:var(--brand-primary); font-size:1.2rem; gap:6px;">
+                        <span>{{ $application->application_number ?? '-' }}</span>
+                        @if ($application->isRekualifikasi())
+                            <span class="badge badge-warning font-weight-bold"
+                                style="font-size:0.72rem; padding:4px 8px;">
+                                <i class="fas fa-sync-alt mr-1 font-size-xs text-dark"></i> Rekualifikasi Vendor
+                            </span>
+                        @else
+                            <span class="badge badge-info font-weight-bold" style="font-size:0.72rem; padding:4px 8px;">
+                                <i class="fas fa-user-plus mr-1 font-size-xs"></i> Registrasi Vendor Baru
+                            </span>
+                        @endif
                     </h4>
+                    @if ($application->isRekualifikasi() && $application->requalification_reason)
+                        @php
+                            $reasonLabels = \App\Models\VendorApplication::REASON_LABELS;
+                            $reasonText =
+                                $reasonLabels[$application->requalification_reason] ??
+                                $application->requalification_reason;
+                        @endphp
+                        <div class="font-size-xs text-warning font-weight-bold mb-1">
+                            <i class="flaticon-info icon-xs mr-1"></i> Alasan: {{ $reasonText }}
+                        </div>
+                    @endif
                     <div class="font-size-sm mb-1" style="color:var(--text-secondary);">
                         <i class="flaticon2-group icon-xs mr-1"></i>
                         {{ optional($general)->nama_perusahaan ?? '-' }}
@@ -90,5 +112,16 @@
                 </span>
             @endif
         </div>
+
+        @if ($application->isRekualifikasi())
+            <div class="alert alert-custom alert-light-warning mb-0 mt-4 py-3 px-4" role="alert">
+                <div class="alert-icon"><i class="fas fa-sync-alt text-warning"></i></div>
+                <div class="alert-text font-size-sm">
+                    <strong class="text-dark">Permohonan Rekualifikasi (Pembaruan Profil):</strong> Vendor telah
+                    memperbarui data profilnya. Seluruh bagian verifikasi telah dikembalikan ke status <strong>Menunggu
+                        Verifikasi Ulang</strong> agar dapat Anda periksa kembali.
+                </div>
+            </div>
+        @endif
     </div>
 </div>

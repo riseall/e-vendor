@@ -23,30 +23,45 @@
 
         function refreshVerificationContent() {
             var activeTabId = $('#verificationMainCard .nav-link.active').attr('href');
-            
-            return $.get(window.location.href).then(function(html) {
-                var parsed = $.parseHTML(html, document, true);
-                var $html = $('<div>').append(parsed);
-                var $newHeader = $html.find('#verificationHeader');
-                var $newMainCard = $html.find('#verificationMainCard');
 
-                if ($newHeader.length) {
-                    $('#verificationHeader').replaceWith($newHeader);
+            return $.ajax({
+                url: window.location.href,
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
+            }).then(function(html) {
+                try {
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    var newHeaderEl = doc.querySelector('#verificationHeader');
+                    var newMainCardEl = doc.querySelector('#verificationMainCard');
 
-                if ($newMainCard.length) {
-                    $('#verificationMainCard').replaceWith($newMainCard);
-                    
-                    if (activeTabId) {
-                        $('#verificationMainCard .nav-link[href="' + activeTabId + '"]').tab('show');
-                        
-                        var navWrap = document.querySelector('.tab-nav-wrap .nav');
-                        var targetEl = document.querySelector('#verificationMainCard .nav-link[href="' + activeTabId + '"]');
-                        if (navWrap && targetEl) {
-                            navWrap.scrollLeft = targetEl.offsetLeft - 20;
+                    if (newHeaderEl) {
+                        $('#verificationHeader').replaceWith(newHeaderEl);
+                    }
+
+                    if (newMainCardEl) {
+                        $('#verificationMainCard').replaceWith(newMainCardEl);
+
+                        if (activeTabId) {
+                            var tabBtn = document.querySelector('#verificationMainCard .nav-link[href="' + activeTabId + '"]');
+                            if (tabBtn) {
+                                $(tabBtn).tab('show');
+                                var navWrap = document.querySelector('.tab-nav-wrap .nav');
+                                if (navWrap) {
+                                    navWrap.scrollLeft = tabBtn.offsetLeft - 20;
+                                }
+                            }
                         }
                     }
+                } catch (err) {
+                    console.error('Error updating verification content:', err);
+                    window.location.reload();
                 }
+            }).catch(function(err) {
+                console.error('Failed to fetch verification content:', err);
+                window.location.reload();
             });
         }
 
@@ -82,8 +97,9 @@
                         showConfirmButton: false
                     });
                 });
-            }).fail(function(xhr) {
-                var response = xhr.responseJSON || {};
+            }).catch(function(xhrOrErr) {
+                console.error('Verification action failed:', xhrOrErr);
+                var response = (xhrOrErr && xhrOrErr.responseJSON) ? xhrOrErr.responseJSON : {};
                 var message = response.message || 'Gagal memproses data verifikasi.';
 
                 if (response.errors) {

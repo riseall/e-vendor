@@ -7,51 +7,11 @@
 
 @section('content')
     {{-- Stat Cards --}}
-    <div class="row mb-6" style="gap:0;">
-        <div class="col-12 col-sm-6 col-xl-3 mb-4 mb-xl-0 pr-xl-3">
-            <div class="vnd-stat vnd-stat--primary">
-                <div class="vnd-stat-icon">
-                    <i class="flaticon2-layers-1 text-white"></i>
-                </div>
-                <div>
-                    <div class="vnd-stat-num">{{ $totalApplicationsAll }}</div>
-                    <div class="vnd-stat-lbl">Total Permohonan</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3 mb-4 mb-xl-0 px-xl-2">
-            <div class="vnd-stat vnd-stat--info">
-                <div class="vnd-stat-icon">
-                    <i class="flaticon2-hourglass text-white"></i>
-                </div>
-                <div>
-                    <div class="vnd-stat-num">{{ $totalSubmittedAll ?? '—' }}</div>
-                    <div class="vnd-stat-lbl">Menunggu Verifikasi</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3 mb-4 mb-sm-0 px-xl-2">
-            <div class="vnd-stat vnd-stat--warning">
-                <div class="vnd-stat-icon">
-                    <i class="flaticon-warning text-white"></i>
-                </div>
-                <div>
-                    <div class="vnd-stat-num">{{ $totalNeedRevisionAll }}</div>
-                    <div class="vnd-stat-lbl">Perlu Revisi</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3 pl-xl-3">
-            <div class="vnd-stat vnd-stat--success">
-                <div class="vnd-stat-icon">
-                    <i class="flaticon2-check-mark text-white"></i>
-                </div>
-                <div>
-                    <div class="vnd-stat-num">{{ $totalVerifiedAll ?? '—' }}</div>
-                    <div class="vnd-stat-lbl">Terverifikasi</div>
-                </div>
-            </div>
-        </div>
+    <div class="row mb-6">
+        <x-dash-card :value="$totalApplicationsAll" label="Total Permohonan" icon="flaticon2-layers-1" type="primary" />
+        <x-dash-card :value="$totalSubmittedAll ?? '—'" label="Menunggu Verifikasi" icon="flaticon2-hourglass" type="info" />
+        <x-dash-card :value="$totalNeedRevisionAll" label="Perlu Revisi" icon="flaticon-warning" type="warning" />
+        <x-dash-card :value="$totalVerifiedAll ?? '—'" label="Terverifikasi" icon="flaticon2-check-mark" type="success" />
     </div>
 
     {{-- Main Card --}}

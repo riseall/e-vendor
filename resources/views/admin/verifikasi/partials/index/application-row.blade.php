@@ -6,7 +6,20 @@
     </td>
 
     <td>
-        <span class="vnd-appnum">{{ $application->application_number ?? '-' }}</span>
+        <div class="d-flex flex-column align-items-start" style="gap:4px;">
+            <span class="vnd-appnum">{{ $application->application_number ?? '-' }}</span>
+            @if ($application->isRekualifikasi())
+                <span class="badge badge-warning font-weight-bolder text-uppercase"
+                    style="font-size:0.65rem; padding:3px 6px; letter-spacing:0.3px;">
+                    <i class="fas fa-sync-alt mr-1 text-dark" style="font-size:0.6rem;"></i> Rekualifikasi
+                </span>
+            @else
+                <span class="badge badge-light-info font-weight-bolder text-uppercase"
+                    style="font-size:0.65rem; padding:3px 6px; letter-spacing:0.3px;">
+                    Registrasi Baru
+                </span>
+            @endif
+        </div>
     </td>
 
     <td>
