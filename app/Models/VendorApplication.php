@@ -26,8 +26,6 @@ class VendorApplication extends Model
         'admin_note',
         'revision_notes',
         'auto_verified',
-        'risk_level',
-        'risk_rpn',
         'approved_by',
         'approved_at',
         'valid_until',
@@ -40,7 +38,6 @@ class VendorApplication extends Model
         'verified_at' => 'datetime',
         'revision_notes' => 'array',
         'auto_verified' => 'boolean',
-        'risk_rpn' => 'integer',
         'approved_at' => 'datetime',
         'valid_until' => 'date',
         'parent_id' => 'integer',
@@ -219,5 +216,29 @@ class VendorApplication extends Model
     public function specAgency()
     {
         return $this->hasOne(VendorAppSpecAgency::class, 'application_id');
+    }
+
+    /**
+     * Accessor for risk_level directly from single source of truth (VendorQualification).
+     */
+    public function getRiskLevelAttribute()
+    {
+        return $this->qualification ? $this->qualification->risk_level : null;
+    }
+
+    /**
+     * Accessor for total_score directly from single source of truth (VendorQualification).
+     */
+    public function getTotalScoreAttribute()
+    {
+        return $this->qualification ? $this->qualification->total_score : null;
+    }
+
+    /**
+     * Legacy accessor alias for risk_rpn.
+     */
+    public function getRiskRpnAttribute()
+    {
+        return $this->total_score;
     }
 }

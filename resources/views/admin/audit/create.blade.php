@@ -66,8 +66,8 @@
                     </div>
                 </div>
                 <div class="col-md-4 mb-4">
-                    <div class="text-muted font-weight-bold mb-1">RPN Score</div>
-                    <div class="font-weight-bolder text-dark font-size-h6">{{ optional($application)->risk_rpn ?? '—' }}
+                    <div class="text-muted font-weight-bold mb-1">Total Score</div>
+                    <div class="font-weight-bolder text-dark font-size-h6">{{ optional($application)->total_score ?? '—' }}
                     </div>
                 </div>
                 <div class="col-md-12">

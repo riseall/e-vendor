@@ -67,9 +67,15 @@ class VendorQualificationController extends Controller
         }
 
         $countByLevel = [
-            'low' => (clone $query)->where('risk_level', 'low')->count(),
-            'medium' => (clone $query)->where('risk_level', 'medium')->count(),
-            'high' => (clone $query)->where('risk_level', 'high')->count(),
+            'low' => (clone $query)->whereHas('qualification', function ($q) {
+                $q->where('risk_level', 'low');
+            })->count(),
+            'medium' => (clone $query)->whereHas('qualification', function ($q) {
+                $q->where('risk_level', 'medium');
+            })->count(),
+            'high' => (clone $query)->whereHas('qualification', function ($q) {
+                $q->where('risk_level', 'high');
+            })->count(),
         ];
 
         $applications = $query->paginate(10)->withQueryString();
@@ -192,8 +198,6 @@ class VendorQualificationController extends Controller
                 VendorApplication::STATUS_RISK_ASSESSED,
                 'risk_assessment_completed',
                 [
-                    'risk_level' => $qualification->risk_level,
-                    'risk_rpn' => $qualification->total_score,
                     'approved_by' => null,
                     'approved_at' => null,
                     'valid_until' => null,
