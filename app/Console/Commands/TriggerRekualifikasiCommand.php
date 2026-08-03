@@ -45,6 +45,9 @@ class TriggerRekualifikasiCommand extends Command
             $app->update([
                 'requalification_reason' => VendorApplication::REASON_EXPIRED_PERIOD,
             ]);
+            if ($app->qualification) {
+                $app->qualification()->delete();
+            }
 
             // Log activity
             VendorApplicationActivityLog::create([

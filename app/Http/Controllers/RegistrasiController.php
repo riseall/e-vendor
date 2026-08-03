@@ -256,6 +256,9 @@ class RegistrasiController extends Controller
             if ($isRequalificationSubmit) {
                 $updatePayload['type'] = VendorApplication::TYPE_REKUALIFIKASI;
                 $updatePayload['requalification_reason'] = $application->requalification_reason ?: VendorApplication::REASON_VENDOR_INITIATIVE;
+                if ($application->qualification) {
+                    $application->qualification()->delete();
+                }
             }
 
             $workflowService->transition(

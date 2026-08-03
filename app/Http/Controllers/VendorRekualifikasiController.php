@@ -46,6 +46,9 @@ class VendorRekualifikasiController extends Controller
         $application->update([
             'requalification_reason' => $reason,
         ]);
+        if ($application->qualification) {
+            $application->qualification()->delete();
+        }
 
         VendorApplicationActivityLog::create([
             'application_id' => $application->id,
