@@ -223,6 +223,10 @@ class VendorApplication extends Model
      */
     public function getRiskLevelAttribute()
     {
+        if (in_array($this->status, [self::STATUS_DRAFT, self::STATUS_SUBMITTED, self::STATUS_NEED_REVISION, self::STATUS_VERIFIED], true)) {
+            return null;
+        }
+
         return $this->qualification ? $this->qualification->risk_level : null;
     }
 
@@ -231,6 +235,10 @@ class VendorApplication extends Model
      */
     public function getTotalScoreAttribute()
     {
+        if (in_array($this->status, [self::STATUS_DRAFT, self::STATUS_SUBMITTED, self::STATUS_NEED_REVISION, self::STATUS_VERIFIED], true)) {
+            return null;
+        }
+
         return $this->qualification ? $this->qualification->total_score : null;
     }
 
