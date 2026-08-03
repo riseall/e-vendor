@@ -18,6 +18,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('vendor-applications:auto-verify')->dailyAt('08:00');
         $schedule->command('vendor-applications:remind-verification')->dailyAt('08:00');
         $schedule->command('vendor-applications:clean-drafts')->weeklyOn(1, '00:00');
+        $schedule->command('vendor-applications:trigger-rekualifikasi')->cron('0 8 1 11 *');
+        $schedule->command('vendor-applications:check-cdob-expiry')->dailyAt('08:00');
+        $schedule->command('vendor-applications:remind-rekualifikasi')->dailyAt('08:00');
     }
 
     /**

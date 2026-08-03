@@ -12,6 +12,9 @@ class VendorApplication extends Model
 
     protected $fillable = [
         'user_id',
+        'type',
+        'parent_id',
+        'requalification_reason',
         'application_number',
         'status',
         'current_step',
@@ -40,6 +43,26 @@ class VendorApplication extends Model
         'risk_rpn' => 'integer',
         'approved_at' => 'datetime',
         'valid_until' => 'date',
+        'parent_id' => 'integer',
+    ];
+
+    // Type constants
+    const TYPE_INITIAL       = 'initial';
+    const TYPE_REKUALIFIKASI = 'rekualifikasi';
+
+    // Requalification Reason constants
+    const REASON_VENDOR_INITIATIVE = 'vendor_initiative';
+    const REASON_EXPIRED_PERIOD    = 'expired_period';
+    const REASON_CDOB_EXPIRY       = 'cdob_expiry';
+    const REASON_EVALUATION_DROP   = 'eval_score_drop';
+    const REASON_QA_TRIGGER        = 'qa_trigger';
+
+    const REASON_LABELS = [
+        self::REASON_VENDOR_INITIATIVE => 'Inisiatif Vendor (Edit Profil)',
+        self::REASON_EXPIRED_PERIOD    => 'Masa Berlaku Kadaluarsa (<= 60 Hari)',
+        self::REASON_CDOB_EXPIRY       => 'Masa Berlaku Sertifikat CDOB Kadaluarsa',
+        self::REASON_EVALUATION_DROP   => 'Penurunan Skor Evaluasi Kinerja',
+        self::REASON_QA_TRIGGER        => 'Permintaan Tim Pengadaan / QA',
     ];
 
     // Status constants
@@ -69,6 +92,16 @@ class VendorApplication extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(VendorApplication::class, 'parent_id');
+    }
+
+    public function rekualifikasiChildren()
+    {
+        return $this->hasMany(VendorApplication::class, 'parent_id');
     }
 
     public function verifier()
@@ -128,11 +161,20 @@ class VendorApplication extends Model
         return $this->hasMany(VendorApplicationFile::class, 'application_id');
     }
 
-
     // Helpers
     public function isDraft(): bool
     {
         return $this->status === self::STATUS_DRAFT;
+    }
+
+    public function isRekualifikasi(): bool
+    {
+        return $this->type === self::TYPE_REKUALIFIKASI;
+    }
+
+    public function isInitial(): bool
+    {
+        return $this->type === self::TYPE_INITIAL;
     }
 
     public function getCategoryIds(): array
@@ -145,10 +187,7 @@ class VendorApplication extends Model
         return $this->documents->firstWhere('field_name', $fieldName);
     }
 
-
     // Relasi dengan specific table
-    // Di dalam class VendorApplication
-
     public function specBaku()
     {
         return $this->hasOne(VendorAppSpecBaku::class, 'application_id');

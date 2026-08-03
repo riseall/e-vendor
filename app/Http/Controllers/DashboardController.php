@@ -22,7 +22,7 @@ class DashboardController extends Controller
         'findings_recorded'         => ['In Progress', 'vnd-status--in-progress'],
         'capa_in_progress'          => ['In Progress', 'vnd-status--in-progress'],
         'completed'                 => ['Completed',  'vnd-status--completed'],
-        'rejected'                  => ['Overdue',    'vnd-status--rejected'],
+        'rejected'                  => ['Rejected',    'vnd-status--rejected'],
     ];
 
     /** Document expiry status → [label, css class] */
@@ -94,6 +94,9 @@ class DashboardController extends Controller
         $today = Carbon::now();
 
         $documents = VendorAppSpecBaku::with('application.general', 'application.user')
+            ->whereHas('application', function ($q) {
+                $q->where('status', VendorApplication::STATUS_APPROVED);
+            })
             ->where(function ($q) use ($today) {
                 $q->whereNotNull('q5_valid_until')
                     ->orWhereNotNull('q6_valid_until');

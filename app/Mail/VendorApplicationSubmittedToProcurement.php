@@ -30,7 +30,10 @@ class VendorApplicationSubmittedToProcurement extends Mailable implements Should
 
     public function build()
     {
-        return $this->subject('Permohonan Vendor Baru: ' . $this->applicationNumber)
+        $isRekualifikasi = $this->application->isRekualifikasi();
+        $subject = ($isRekualifikasi ? 'Permohonan Rekualifikasi Vendor: ' : 'Permohonan Vendor Baru: ') . $this->applicationNumber;
+
+        return $this->subject($subject)
             ->view('emails.vendor-application-submitted-procurement');
     }
 }
