@@ -34,7 +34,7 @@ class VendorQuestionnaireController extends Controller
         $payload = $audit->questionnaire_payload ?? [];
         $revisionNotes = $audit->questionnaire_revision_notes ?? [];
 
-        return view('admin.questionnaire.questionnaire', [
+        return view('vendor.questionaire.questionnaire', [
             'audit'         => $audit,
             'application'   => $application,
             'questions'     => $questions,
