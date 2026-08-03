@@ -37,7 +37,7 @@ class VendorRekualifikasiController extends Controller
     {
         $application = VendorApplication::findOrFail($applicationId);
 
-        if ($application->status !== VendorApplication::STATUS_APPROVED) {
+        if (strtolower((string)$application->status) !== strtolower(VendorApplication::STATUS_APPROVED)) {
             return redirect()->back()
                 ->with('error', __('Rekualifikasi hanya dapat dipicu untuk permohonan berstatus Approved.'));
         }
