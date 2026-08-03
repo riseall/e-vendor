@@ -3,6 +3,14 @@
         scroll-behavior: smooth;
     }
 
+    /* Memastikan semua form readonly atau disabled selalu berbackground abu-abu konsisten */
+    .form-control[readonly],
+    .form-control[disabled],
+    .form-control.form-control-solid {
+        background-color: #F3F6F9 !important;
+        opacity: 1 !important;
+    }
+
     .vendor-profile-header {
         display: flex;
         align-items: flex-start;

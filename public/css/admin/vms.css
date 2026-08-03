@@ -294,10 +294,19 @@
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    transition: background 0.15s;
+    transition:
+        color 0.15s ease-in-out,
+        background-color 0.15s ease-in-out,
+        border-color 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out,
+        transform 0.15s ease-in-out;
 }
 .vnd-btn-filter:hover {
     background: #004f9e;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(0, 93, 182, 0.25);
+    transform: translateY(-1px);
+    text-decoration: none;
 }
 .vnd-btn-reset {
     height: 34px;
@@ -312,10 +321,20 @@
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
+    transition:
+        color 0.15s ease-in-out,
+        background-color 0.15s ease-in-out,
+        border-color 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out,
+        transform 0.15s ease-in-out;
 }
 .vnd-btn-reset:hover {
-    background: var(--vnd-surface);
-    color: var(--vnd-ink);
+    background: var(--vnd-blue) !important;
+    border-color: var(--vnd-blue) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(0, 93, 182, 0.25);
+    transform: translateY(-1px);
+    text-decoration: none;
 }
 
 /* ── 4. BADGES, TAGS & TYPOGRAPHY ───────────────── */
@@ -372,54 +391,7 @@
     color: #5e6278;
 }
 
-.vnd-status {
-    display: inline-block;
-    padding: 0.25rem 0.65rem;
-    border-radius: 1rem;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-}
-.vnd-status--scheduled {
-    background: rgba(54, 153, 255, 0.12);
-    color: #3699ff;
-}
-.vnd-status--waiting {
-    background: rgba(8, 145, 178, 0.12);
-    color: var(--vnd-cyan);
-}
-.vnd-status--verified {
-    background: rgba(46, 125, 50, 0.12);
-    color: var(--vnd-green);
-}
-.vnd-status--questionnaire {
-    background: rgba(124, 58, 237, 0.12);
-    color: var(--vnd-purple);
-}
-.vnd-status--on-desk {
-    background: rgba(124, 58, 237, 0.12);
-    color: var(--vnd-purple);
-}
-.vnd-status--audit-required {
-    background: rgba(180, 83, 9, 0.12);
-    color: var(--vnd-amber);
-}
-.vnd-status--on-site {
-    background: rgba(246, 78, 96, 0.12);
-    color: #f64e60;
-}
-.vnd-status--revision {
-    background: rgba(255, 168, 0, 0.15);
-    color: #ee9d01;
-}
-.vnd-status--completed {
-    background: rgba(27, 197, 189, 0.12);
-    color: #1bc5bd;
-}
-.vnd-status--rejected {
-    background: rgba(246, 78, 96, 0.12);
-    color: #f64e60;
-}
+
 
 .vnd-cell-muted {
     color: var(--vnd-muted);
@@ -674,8 +646,10 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
 
 /* ── Unified Status Badge & Tags ──────────────── */
 .vnd-status {
-    display: inline-block;
-    border-radius: 20px; /* Diubah melingkar elegan ala Metronic modern */
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 20px;
     padding: 0.25rem 0.75rem;
     font-size: 0.68rem;
     font-weight: 700;
@@ -687,8 +661,11 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     border: 1px solid var(--vnd-border);
 }
 
-/* Varian Warna Status Berdasarkan Alur Kerja */
+/* Standard Status Variants & Workflow Aliases */
+.vnd-status--primary,
 .vnd-status--submitted,
+.vnd-status--verified,
+.vnd-status--approved,
 .vnd-status--scheduled,
 .vnd-status--schedule_confirmed,
 .vnd-status--questionnaire_submitted,
@@ -697,25 +674,39 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     color: var(--vnd-blue);
     border: 1px solid var(--vnd-blue-bd);
 }
-.vnd-status--revision,
-.vnd-status--need_revision,
-.vnd-status--open {
-    background: var(--vnd-amber-lt);
-    color: var(--vnd-amber);
-    border: 1px solid var(--vnd-amber-bd);
-}
-.vnd-status--verified,
+
+.vnd-status--success,
 .vnd-status--completed,
 .vnd-status--closed,
-.vnd-status--approved,
 .vnd-status--done {
     background: var(--vnd-green-lt);
     color: var(--vnd-green);
     border: 1px solid var(--vnd-green-bd);
 }
+
+.vnd-status--warning,
+.vnd-status--revision,
+.vnd-status--need_revision,
+.vnd-status--open,
+.vnd-status--audit-required {
+    background: var(--vnd-amber-lt);
+    color: var(--vnd-amber);
+    border: 1px solid var(--vnd-amber-bd);
+}
+
+.vnd-status--danger,
+.vnd-status--rejected,
+.vnd-status--on-site {
+    background: var(--vnd-red-lt);
+    color: var(--vnd-red);
+    border: 1px solid var(--vnd-red-bd);
+}
+
+.vnd-status--info,
 .vnd-status--in-progress,
 .vnd-status--in_progress,
 .vnd-status--questionnaire_in_progress,
+.vnd-status--waiting,
 .vnd-status--schedule_proposed,
 .vnd-status--capa_in_progress,
 .vnd-status--capa_submitted,
@@ -725,23 +716,124 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     color: var(--vnd-cyan);
     border: 1px solid var(--vnd-cyan-bd);
 }
-.vnd-status--rejected {
-    background: var(--vnd-red-lt);
-    color: var(--vnd-red);
-    border: 1px solid var(--vnd-red-bd);
-}
-.vnd-status--on-desk {
+
+.vnd-status--purple,
+.vnd-status--on-desk,
+.vnd-status--questionnaire {
     background: var(--vnd-purple-lt);
     color: var(--vnd-purple);
     border: 1px solid var(--vnd-purple-bd);
 }
-.vnd-status--on-site {
-    background: var(--vnd-red-lt);
-    color: var(--vnd-red);
-    border: 1px solid var(--vnd-red-bd);
+
+.vnd-status--secondary,
+.vnd-status--muted {
+    background: var(--vnd-surface);
+    color: var(--vnd-muted);
+    border: 1px solid var(--vnd-border);
 }
 
-/* ── Action Buttons ───────────────────────────── */
+/* ── Action Buttons & Hover Effects (Matching style.bundle.css) ───── */
+.btn,
+.vnd-btn-detail,
+.vnd-btn-filter,
+.vnd-btn-reset {
+    transition:
+        color 0.15s ease-in-out,
+        background-color 0.15s ease-in-out,
+        border-color 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out,
+        transform 0.15s ease-in-out;
+}
+
+/* Synchronize icon transition & color with text for ALL buttons */
+.btn i,
+.btn svg,
+.btn .svg-icon,
+.btn [class*="flaticon-"],
+.btn [class*="fa-"],
+.vnd-btn-filter i,
+.vnd-btn-filter svg,
+.vnd-btn-filter [class*="flaticon-"],
+.vnd-btn-filter [class*="fa-"],
+.vnd-btn-reset i,
+.vnd-btn-reset svg,
+.vnd-btn-reset [class*="flaticon-"],
+.vnd-btn-reset [class*="fa-"],
+.vnd-btn-detail i,
+.vnd-btn-detail svg,
+.vnd-btn-detail [class*="flaticon-"],
+.vnd-btn-detail [class*="fa-"] {
+    transition:
+        color 0.15s ease-in-out,
+        fill 0.15s ease-in-out;
+}
+
+.btn:hover,
+.vnd-btn-detail:hover {
+    text-decoration: none !important;
+    transform: translateY(-1px);
+}
+
+.btn:hover i,
+.btn:hover svg,
+.btn:hover .svg-icon,
+.btn:hover [class*="flaticon-"],
+.btn:hover [class*="fa-"],
+.btn:hover [class*="text-"],
+.vnd-btn-filter:hover i,
+.vnd-btn-filter:hover svg,
+.vnd-btn-filter:hover [class*="flaticon-"],
+.vnd-btn-filter:hover [class*="fa-"],
+.vnd-btn-filter:hover [class*="text-"],
+.vnd-btn-reset:hover i,
+.vnd-btn-reset:hover svg,
+.vnd-btn-reset:hover [class*="flaticon-"],
+.vnd-btn-reset:hover [class*="fa-"],
+.vnd-btn-reset:hover [class*="text-"],
+.vnd-btn-detail:hover i,
+.vnd-btn-detail:hover svg,
+.vnd-btn-detail:hover .svg-icon,
+.vnd-btn-detail:hover [class*="flaticon-"],
+.vnd-btn-detail:hover [class*="fa-"],
+.vnd-btn-detail:hover [class*="text-"] {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+/* Metronic Light Button Hover Styles */
+.btn.btn-light-primary:hover,
+.btn-light-primary:hover {
+    color: #ffffff !important;
+    background-color: var(--vnd-blue) !important;
+    border-color: var(--vnd-blue) !important;
+    box-shadow: 0 4px 12px rgba(0, 93, 182, 0.3) !important;
+}
+.btn-light-success:hover {
+    color: #ffffff !important;
+    background-color: var(--vnd-green) !important;
+    border-color: var(--vnd-green) !important;
+    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.25) !important;
+}
+.btn-light-warning:hover {
+    color: #ffffff !important;
+    background-color: var(--vnd-amber) !important;
+    border-color: var(--vnd-amber) !important;
+    box-shadow: 0 4px 10px rgba(180, 83, 9, 0.25) !important;
+}
+.btn-light-danger:hover {
+    color: #ffffff !important;
+    background-color: var(--vnd-red) !important;
+    border-color: var(--vnd-red) !important;
+    box-shadow: 0 4px 10px rgba(198, 40, 40, 0.25) !important;
+}
+.btn-light-info:hover {
+    color: #ffffff !important;
+    background-color: var(--vnd-purple) !important;
+    border-color: var(--vnd-purple) !important;
+    box-shadow: 0 4px 10px rgba(8, 145, 178, 0.25) !important;
+}
+
+/* Action Detail Buttons */
 .vnd-btn-detail {
     display: inline-flex;
     align-items: center;
@@ -755,19 +847,55 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     border: 1.5px solid #c2d9f5;
     text-decoration: none;
     white-space: nowrap;
-    transition:
-        background 0.15s,
-        box-shadow 0.15s;
 }
+.vnd-btn-detail:hover {
+    background: var(--vnd-blue) !important;
+    border-color: var(--vnd-blue) !important;
+    box-shadow: 0 4px 12px rgba(0, 93, 182, 0.3) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+/* Variant Non-Hover Icon Color Alignment */
+.vnd-btn-detail--primary i,
+.vnd-btn-detail--primary svg {
+    color: #ffffff;
+}
+.vnd-btn-detail--secondary i,
+.vnd-btn-detail--secondary svg {
+    color: var(--vnd-blue);
+}
+.vnd-btn-detail--muted i,
+.vnd-btn-detail--muted svg {
+    color: var(--vnd-muted);
+}
+.vnd-btn-detail--success i,
+.vnd-btn-detail--success svg {
+    color: var(--vnd-green);
+}
+.vnd-btn-detail--warning i,
+.vnd-btn-detail--warning svg {
+    color: var(--vnd-amber);
+}
+.vnd-btn-detail--danger i,
+.vnd-btn-detail--danger svg {
+    color: var(--vnd-red);
+}
+.vnd-btn-detail--info i,
+.vnd-btn-detail--info svg {
+    color: var(--vnd-purple);
+}
+
 .vnd-btn-detail--primary {
     background: var(--vnd-blue);
     color: #ffffff;
 }
 .vnd-btn-detail--primary:hover {
-    background: #004f9e;
-    box-shadow: 0 3px 8px rgba(0, 93, 182, 0.25);
-    color: #ffffff;
-    text-decoration: none;
+    background: #004f9e !important;
+    border-color: #003f7d !important;
+    box-shadow: 0 4px 10px rgba(0, 93, 182, 0.3) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
 }
 .vnd-btn-detail--secondary {
     background: var(--vnd-blue-lt);
@@ -775,10 +903,11 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     border: 1.5px solid var(--vnd-blue-bd) !important;
 }
 .vnd-btn-detail--secondary:hover {
-    background: #d4e8fb;
-    box-shadow: 0 2px 8px rgba(0, 93, 182, 0.18);
-    color: var(--vnd-blue);
-    text-decoration: none;
+    background: var(--vnd-blue) !important;
+    border-color: var(--vnd-blue) !important;
+    box-shadow: 0 4px 10px rgba(0, 93, 182, 0.25) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
 }
 .vnd-btn-detail--muted {
     background: var(--vnd-surface);
@@ -786,10 +915,59 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     border: 1.5px solid var(--vnd-border) !important;
 }
 .vnd-btn-detail--muted:hover {
-    background: #eef2ff;
+    background: var(--vnd-blue) !important;
     border-color: var(--vnd-blue) !important;
-    color: var(--vnd-blue);
-    text-decoration: none;
+    color: #ffffff !important;
+    box-shadow: 0 3px 8px rgba(0, 93, 182, 0.2) !important;
+    text-decoration: none !important;
+}
+.vnd-btn-detail--success {
+    background: var(--vnd-green-lt);
+    color: var(--vnd-green);
+    border: 1.5px solid var(--vnd-green-bd) !important;
+}
+.vnd-btn-detail--success:hover {
+    background: var(--vnd-green) !important;
+    border-color: var(--vnd-green) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.25) !important;
+    text-decoration: none !important;
+}
+.vnd-btn-detail--warning {
+    background: var(--vnd-amber-lt);
+    color: var(--vnd-amber);
+    border: 1.5px solid var(--vnd-amber-bd) !important;
+}
+.vnd-btn-detail--warning:hover {
+    background: var(--vnd-amber) !important;
+    border-color: var(--vnd-amber) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(180, 83, 9, 0.25) !important;
+    text-decoration: none !important;
+}
+.vnd-btn-detail--danger {
+    background: var(--vnd-red-lt);
+    color: var(--vnd-red);
+    border: 1.5px solid var(--vnd-red-bd) !important;
+}
+.vnd-btn-detail--danger:hover {
+    background: var(--vnd-red) !important;
+    border-color: var(--vnd-red) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(198, 40, 40, 0.25) !important;
+    text-decoration: none !important;
+}
+.vnd-btn-detail--info {
+    background: var(--vnd-purple-lt);
+    color: var(--vnd-purple);
+    border: 1.5px solid var(--vnd-purple-bd) !important;
+}
+.vnd-btn-detail--info:hover {
+    background: var(--vnd-purple) !important;
+    border-color: var(--vnd-purple) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(8, 145, 178, 0.25) !important;
+    text-decoration: none !important;
 }
 
 /* ── Cell Typography Helpers ──────────────────── */
