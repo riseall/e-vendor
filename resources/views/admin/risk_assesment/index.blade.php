@@ -14,7 +14,7 @@
 
     // Risk level → css class & icon, single source of truth.
     $riskMap = [
-        'low' => ['class' => 'vnd-status--submitted', 'icon' => 'flaticon2-check-mark text-success'],
+        'low' => ['class' => 'vnd-status--success', 'icon' => 'flaticon2-check-mark text-success'],
         'medium' => ['class' => 'vnd-status--revision', 'icon' => 'flaticon-warning text-warning'],
         'high' => ['class' => 'vnd-status--rejected', 'icon' => 'flaticon-danger text-danger'],
     ];
@@ -27,17 +27,10 @@
 
     {{-- ══════ Stat Cards ══════ --}}
     <div class="row mb-6">
-        @foreach ([['key' => 'primary', 'num' => $countTotal, 'lbl' => 'Total Vendor', 'icon' => 'flaticon2-layers-1 text-white'], ['key' => 'success', 'num' => $countLow, 'lbl' => 'Low Risk', 'icon' => 'flaticon2-check-mark text-white'], ['key' => 'warning', 'num' => $countMedium, 'lbl' => 'Medium Risk', 'icon' => 'flaticon-warning text-white'], ['key' => 'danger', 'num' => $countHigh, 'lbl' => 'High Risk', 'icon' => 'flaticon-danger text-white']] as $stat)
-            <div class="col-6 col-sm-3 mb-3 mb-sm-0">
-                <div class="vnd-stat vnd-stat--{{ $stat['key'] }}">
-                    <div class="vnd-stat-icon"><i class="{{ $stat['icon'] }}"></i></div>
-                    <div>
-                        <div class="vnd-stat-num">{{ $stat['num'] }}</div>
-                        <div class="vnd-stat-lbl">{{ $stat['lbl'] }}</div>
-                    </div>
-                </div>
-            </div>
-        @endforeach
+        <x-dash-card :value="$countTotal" label="Total Vendor" icon="flaticon2-layers-1" type="primary" />
+        <x-dash-card :value="$countLow" label="Low Risk" icon="flaticon2-check-mark" type="success" />
+        <x-dash-card :value="$countMedium" label="Medium Risk" icon="flaticon-warning" type="warning" />
+        <x-dash-card :value="$countHigh" label="High Risk" icon="flaticon-danger" type="danger" />
     </div>
 
     {{-- ══════ Main Card ══════ --}}
@@ -119,13 +112,18 @@
                                     \App\Models\VendorAudit::STATUS_REJECTED,
                                 ])
                                 ->isNotEmpty();
-                            $canCreateAudit = $isAssessed
-                                && in_array($application->risk_level, ['medium', 'high'], true)
-                                && ! $hasActiveAudit
-                                && in_array($application->status, [
-                                    \App\Models\VendorApplication::STATUS_AUDIT_REQUIRED,
-                                    \App\Models\VendorApplication::STATUS_RISK_ASSESSED,
-                                ], true);
+                            $canCreateAudit =
+                                $isAssessed &&
+                                in_array($application->risk_level, ['medium', 'high'], true) &&
+                                !$hasActiveAudit &&
+                                in_array(
+                                    $application->status,
+                                    [
+                                        \App\Models\VendorApplication::STATUS_AUDIT_REQUIRED,
+                                        \App\Models\VendorApplication::STATUS_RISK_ASSESSED,
+                                    ],
+                                    true,
+                                );
                         @endphp
                         <tr>
                             <td class="vnd-cell-muted">
@@ -151,7 +149,16 @@
                                 @endforelse
                             </td>
                             <td>
-                                <span class="vnd-status vnd-status--in-progress">
+                                @php
+                                    $statusClassMap = [
+                                        'verified' => 'vnd-status--primary',
+                                        'approved' => 'vnd-status--success',
+                                    ];
+                                    $stClass =
+                                        $statusClassMap[$application->status] ??
+                                        'vnd-status--' . str_replace('_', '-', strtolower($application->status));
+                                @endphp
+                                <span class="vnd-status {{ $stClass }}">
                                     {{ str_replace('_', ' ', strtoupper($application->status)) }}
                                 </span>
                             </td>
@@ -180,9 +187,11 @@
                                     <a href="{{ route('qa.risk-assessment.create', $application->id) }}"
                                         class="vnd-btn-detail {{ $isAssessed ? 'vnd-btn-detail' : 'vnd-btn-detail--primary' }}">
                                         @if ($isAssessed)
-                                            <i class="flaticon-eye icon-sm text-primary" style="font-size:.7rem;"></i> Detail
+                                            <i class="flaticon-eye icon-sm text-primary" style="font-size:.7rem;"></i>
+                                            Detail
                                         @else
-                                            <i class="flaticon2-add-1 icon-sm" style="font-size:.7rem;"></i> Mulai Assessment
+                                            <i class="flaticon2-add-1 icon-sm" style="font-size:.7rem;"></i> Mulai
+                                            Assessment
                                         @endif
                                     </a>
                                 </div>
