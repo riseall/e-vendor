@@ -25,42 +25,10 @@
 
     {{-- Stat Cards --}}
     <div class="row mb-6">
-        <div class="col-6 col-sm-3 mb-3">
-            <div class="vnd-stat vnd-stat--primary">
-                <div class="vnd-stat-icon"><i class="flaticon2-hourglass text-white"></i></div>
-                <div>
-                    <div class="vnd-stat-num">{{ $countByStatus['scheduled'] ?? 0 }}</div>
-                    <div class="vnd-stat-lbl">Baru Terjadwal</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-sm-3 mb-3">
-            <div class="vnd-stat vnd-stat--info">
-                <div class="vnd-stat-icon"><i class="flaticon2-refresh text-white"></i></div>
-                <div>
-                    <div class="vnd-stat-num">{{ $countByStatus['in_progress'] ?? 0 }}</div>
-                    <div class="vnd-stat-lbl">Berjalan</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-sm-3 mb-3">
-            <div class="vnd-stat vnd-stat--warning">
-                <div class="vnd-stat-icon"><i class="flaticon-warning text-white"></i></div>
-                <div>
-                    <div class="vnd-stat-num">{{ $countByStatus['need_revision'] ?? 0 }}</div>
-                    <div class="vnd-stat-lbl">Perlu Revisi</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-sm-3 mb-3">
-            <div class="vnd-stat vnd-stat--success">
-                <div class="vnd-stat-icon"><i class="flaticon2-check-mark text-white"></i></div>
-                <div>
-                    <div class="vnd-stat-num">{{ $countByStatus['completed'] ?? 0 }}</div>
-                    <div class="vnd-stat-lbl">Selesai</div>
-                </div>
-            </div>
-        </div>
+        <x-dash-card :value="$countByStatus['scheduled'] ?? 0" label="Baru Terjadwal" icon="flaticon2-hourglass" type="primary" />
+        <x-dash-card :value="$countByStatus['in_progress'] ?? 0" label="Berjalan" icon="flaticon2-refresh" type="info" />
+        <x-dash-card :value="$countByStatus['need_revision'] ?? 0" label="Perlu Revisi" icon="flaticon-warning" type="warning" />
+        <x-dash-card :value="$countByStatus['completed'] ?? 0" label="Selesai" icon="flaticon2-check-mark" type="success" />
     </div>
 
     {{-- Main Card --}}

@@ -101,7 +101,7 @@
                                                             @if ($val)
                                                                 @foreach ((array) $val as $docPath)
                                                                     <x-preview-doc-button :url="Storage::url($docPath)"
-                                                                        label="Lihat Dokumen" />
+                                                                        label="Lihat" />
                                                                 @endforeach
                                                             @else
                                                                 <span class="text-muted font-italic">Tidak ada
