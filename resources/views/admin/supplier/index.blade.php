@@ -3,7 +3,7 @@
 @section('breadcrumb', 'Pengadaan / QA')
 @section('step', 'Supplier Terekomendasi')
 @section('page_title', 'Daftar Supplier Terekomendasi')
-@section('page_desc', 'Daftar seluruh vendor/supplier yang telah disetujui (Approved) & aktif di sistem.')
+@section('page_desc', 'Direktori seluruh vendor/supplier yang telah disetujui (Approved) & aktif di sistem e-Vendor.')
 
 @section('content')
     {{-- Flash container untuk SweetAlert --}}
@@ -16,29 +16,16 @@
     {{-- Main Card --}}
     <div class="vnd-card">
         {{-- Card Head --}}
-        <div class="vnd-card-head">
-            <div>
+        <div class="vnd-card-head flex-wrap">
+            <div class="mb-2 mb-md-0">
                 <div class="vnd-card-title">
                     <span class="vnd-card-title-dot"></span>
-                    Supplier Terekomendasi
+                    Direktori Supplier Terekomendasi
                 </div>
                 <div class="text-muted font-size-sm mt-1">
-                    Daftar vendor aktif berstatus Approved dengan opsi pemicuan Rekualifikasi QA.
+                    Daftar vendor aktif berstatus Approved, status validitas sertifikat, dan pemicuan Rekualifikasi QA.
                 </div>
             </div>
-
-            <form method="GET" action="{{ route('pengadaan.supplier.index') }}" class="vnd-filter">
-                <div class="form-input" style="width:240px;">
-                    <input type="text" name="q" value="{{ $search }}" class="form-control form-control-sm"
-                        placeholder="Cari nama, email, no. permohonan...">
-                </div>
-                <button type="submit" class="vnd-btn-filter">
-                    <i class="flaticon-search" style="font-size:.65rem;"></i> Filter
-                </button>
-                @if ($search !== '')
-                    <a href="{{ route('pengadaan.supplier.index') }}" class="vnd-btn-reset">Reset</a>
-                @endif
-            </form>
         </div>
 
         {{-- Table Content --}}
@@ -48,12 +35,11 @@
                     <thead>
                         <tr>
                             <th style="width:40px;">No</th>
-                            <th style="min-width:140px;">No Permohonan</th>
-                            <th style="min-width:200px;">Vendor / Perusahaan</th>
-                            <th style="min-width:130px;">Kategori</th>
-                            <th style="min-width:130px;">Risk Level</th>
-                            <th style="min-width:140px;">Tgl Approved & Validitas</th>
-                            <th class="text-right no-sort" style="min-width:170px;">Aksi</th>
+                            <th style="min-width:240px;">Vendor & Legalitas</th>
+                            <th style="min-width:160px;">Kategori Komoditas</th>
+                            <th style="min-width:140px;">Kualifikasi & Risk</th>
+                            <th style="min-width:170px;">Masa Berlaku & Status</th>
+                            <th class="text-right no-sort" style="min-width:215px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -61,29 +47,20 @@
                             @include('admin.supplier.partials.supplier-row', ['app' => $app])
                         @empty
                             <tr>
-                                <td colspan="7">
+                                <td colspan="6">
                                     <div class="vnd-empty">
                                         <div class="vnd-empty-icon">
                                             <i class="flaticon2-search-1"></i>
                                         </div>
                                         <div class="vnd-empty-title">Belum Ada Supplier Terekomendasi</div>
-                                        <div class="vnd-empty-sub">Tidak ditemukan vendor yang telah disetujui (Approved) sesuai kriteria pencarian.</div>
+                                        <div class="vnd-empty-sub">Tidak ditemukan vendor yang telah disetujui (Approved)
+                                            sesuai kriteria pencarian.</div>
                                     </div>
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
-            </div>
-
-            {{-- Footer Pagination --}}
-            <div class="d-flex justify-content-between align-items-center flex-wrap px-2 py-3 border-top mt-3">
-                <div class="text-muted font-size-sm mb-2 mb-sm-0">
-                    Menampilkan <strong>{{ $suppliers->firstItem() ?? 0 }}</strong> &ndash; <strong>{{ $suppliers->lastItem() ?? 0 }}</strong> dari <strong>{{ $suppliers->total() }}</strong> supplier
-                </div>
-                <div>
-                    {{ $suppliers->links() }}
-                </div>
             </div>
         </div>
     </div>
@@ -92,16 +69,43 @@
 @push('scripts')
     <script>
         $(function() {
+            /* Inisialisasi DataTable untuk Supplier Terekomendasi */
+            var table = $('#tbl_approved_suppliers').DataTable({
+                scrollY: '60vh',
+                scrollCollapse: true,
+                scrollX: true
+            });
+
+            /* Sinkron filter status & kategori ke server */
+            $('select[name="validity"], select[name="category"]').on('change', function() {
+                $(this).closest('form').submit();
+            });
+
             /* Tampilkan flash session via SweetAlert Toast */
             (function() {
                 var $el = $('#vnd-flash');
                 if (!$el.length || typeof Swal === 'undefined') return;
 
-                var messages = [
-                    { key: 'success', icon: 'success', title: 'Sukses' },
-                    { key: 'error', icon: 'error', title: 'Gagal' },
-                    { key: 'warning', icon: 'warning', title: 'Peringatan' },
-                    { key: 'info', icon: 'info', title: 'Informasi' },
+                var messages = [{
+                        key: 'success',
+                        icon: 'success',
+                        title: 'Sukses'
+                    },
+                    {
+                        key: 'error',
+                        icon: 'error',
+                        title: 'Gagal'
+                    },
+                    {
+                        key: 'warning',
+                        icon: 'warning',
+                        title: 'Peringatan'
+                    },
+                    {
+                        key: 'info',
+                        icon: 'info',
+                        title: 'Informasi'
+                    },
                 ];
 
                 messages.forEach(function(m) {
@@ -137,13 +141,20 @@
             /* Konfirmasi Picu Rekualifikasi via SweetAlert Modal */
             $(document).on('click', '.btn-trigger-rekualifikasi', function(e) {
                 e.preventDefault();
-                var form = $(this).closest('form');
-                var vendorName = $(this).data('vendor-name') || 'vendor ini';
+                var $btn = $(this);
+                var form = $btn.closest('form');
+                var vendorName = $btn.data('vendor-name') || 'vendor ini';
+
+                if (!form || !form.length) {
+                    console.error('Form trigger rekualifikasi tidak ditemukan.');
+                    return;
+                }
 
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         title: 'Picu Rekualifikasi?',
-                        text: 'Apakah Anda yakin ingin memicu permohonan rekualifikasi manual untuk ' + vendorName + '?',
+                        text: 'Apakah Anda yakin ingin memicu permohonan rekualifikasi manual untuk ' +
+                            vendorName + '?',
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#b45309',
@@ -157,12 +168,12 @@
                         }
                     }).then(function(result) {
                         if (result.isConfirmed) {
-                            form.submit();
+                            form.get(0).submit();
                         }
                     });
                 } else {
                     if (confirm('Picu rekualifikasi manual untuk ' + vendorName + '?')) {
-                        form.submit();
+                        form.get(0).submit();
                     }
                 }
             });
