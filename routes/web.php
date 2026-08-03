@@ -8,6 +8,7 @@ use App\Http\Controllers\VendorAuditController;
 use App\Http\Controllers\VendorCapaController;
 use App\Http\Controllers\VendorQualificationController;
 use App\Http\Controllers\VendorQuestionnaireController;
+use App\Http\Controllers\VendorRekualifikasiController;
 use App\Http\Controllers\VendorUploadController;
 use App\Http\Controllers\QuestionnaireFormController;
 use Illuminate\Support\Facades\Route;
@@ -106,6 +107,10 @@ Route::group(
                     ->name('items.reject');
             });
 
+            // Supplier Terekomendasi
+            Route::get('/supplier', [VendorRekualifikasiController::class, 'supplierIndex'])
+                ->name('supplier.index');
+
             // QA - Risk Assessment
             Route::prefix('qa/risk-assessment')->name('qa.risk-assessment.')->group(function () {
                 Route::get('/', [VendorQualificationController::class, 'index'])
@@ -141,7 +146,6 @@ Route::group(
 
                 // Temuan audit
                 Route::post('/{auditId}/result', [VendorAuditController::class, 'storeResult'])->name('store-result');
-
             });
 
             // Vendor - Audit (Stage 5)
@@ -157,6 +161,13 @@ Route::group(
                     ->name('questionnaire.submit');
             });
 
+            // Rekualifikasi Vendor & Admin Trigger
+            Route::prefix('rekualifikasi')->name('rekualifikasi.')->group(function () {
+                Route::get('/', [VendorRekualifikasiController::class, 'index'])->name('index');
+                Route::post('/initiate', [VendorRekualifikasiController::class, 'initiate'])->name('initiate');
+                Route::post('/{applicationId}/trigger', [VendorRekualifikasiController::class, 'triggerByAdmin'])->name('trigger');
+            });
+
             // Users
             Route::resource('user', UserController::class)->only('index', 'store', 'update', 'destroy');
             Route::get('/user/data', [UserController::class, 'getUser'])->name('user.data');
@@ -169,7 +180,6 @@ Route::group(
             Route::post('/questionnaire-form/{form}/questions/import', [QuestionnaireFormController::class, 'importQuestions'])->name('questionnaire-form.questions.import');
             Route::put('/questionnaire-form/{form}/questions/{question}', [QuestionnaireFormController::class, 'updateQuestion'])->name('questionnaire-form.questions.update');
             Route::delete('/questionnaire-form/{form}/questions/{question}', [QuestionnaireFormController::class, 'destroyQuestion'])->name('questionnaire-form.questions.destroy');
-
         });
     }
 );
