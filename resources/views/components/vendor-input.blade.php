@@ -28,15 +28,15 @@
     <div class="input-group">
         @if ($type === 'textarea')
             <textarea name="{{ $name }}" rows="3"
-                {{ $attributes->merge(['class' => 'form-control ' . ($errors->has($name) ? 'is-invalid' : '')]) }}
+                {{ $attributes->merge(['class' => 'form-control ' . ($errors->has($name) ? 'is-invalid' : '') . ($readonly ? ' form-control-solid' : '')]) }}
                 placeholder="{{ $placeholder }}" {{ $readonly ? 'readonly disabled' : '' }}>{{ old($name, $value) }}</textarea>
         @elseif ($type === 'file')
             @if (!$readonly)
                 <div class="custom-file w-100">
                     <input type="{{ $type }}" data-field="{{ $name }}"
                         class="custom-file-input ajax-file-upload {{ $errors->has($name) ? 'is-invalid' : '' }}"
-                        id="{{ $name }}" accept=".pdf,.jpg,.jpeg,.png"
-                        placeholder="{{ $placeholder }}" {{ $required && !$value ? 'required' : '' }}>
+                        id="{{ $name }}" accept=".pdf,.jpg,.jpeg,.png" placeholder="{{ $placeholder }}"
+                        {{ $required && !$value ? 'required' : '' }}>
                     <label class="custom-file-label font-size-xs" for="{{ $name }}">
                         {{ $value ? 'Ganti file...' : ($placeholder ?: 'Upload File...') }}
                     </label>
@@ -54,7 +54,7 @@
                         Tersimpan</span>
                     <button type="button"
                         data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $value) }}"
-                        class="btn btn-xs btn-success btn-icon btn-preview-doc" title="Lihat Dokumen">
+                        class="btn btn-xs btn-success btn-icon btn-preview-doc" title="Lihat">
                         <i class="flaticon-eye"></i>
                     </button>
                 </div>
@@ -62,10 +62,11 @@
                 <button type="button"
                     data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $value) }}"
                     class="btn btn-sm btn-light-primary btn-preview-doc w-100">
-                    <i class="flaticon-eye mr-2"></i> Lihat Dokumen
+                    <i class="flaticon-eye mr-2"></i> Lihat
                 </button>
             @elseif(!$value && $readonly)
-                <input type="text" class="form-control form-control-solid font-size-sm text-muted" readonly disabled value="Tidak ada dokumen">
+                <input type="text" class="form-control form-control-solid font-size-sm text-muted" readonly disabled
+                    value="Tidak ada dokumen">
             @endif
         @else
             @if ($leftIcon)
@@ -79,7 +80,7 @@
                 $finalPlaceholder = $placeholder ?: $defaultPlaceholder;
             @endphp
             <input type="{{ $type }}" name="{{ $name }}" value="{{ old($name, $value) }}"
-                {{ $attributes->merge(['class' => 'form-control ' . ($errors->has($name) ? 'is-invalid' : '')]) }}
+                {{ $attributes->merge(['class' => 'form-control ' . ($errors->has($name) ? 'is-invalid' : '') . ($readonly ? ' form-control-solid' : '')]) }}
                 placeholder="{{ $finalPlaceholder }}" {{ $readonly ? 'readonly disabled' : '' }}>
             @if ($rightIcon)
                 <div class="input-group-append">

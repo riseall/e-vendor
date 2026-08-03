@@ -8,6 +8,7 @@
     'placeholder' => 'Pilih...',
     'wrapperClass' => 'mb-4',
     'isSimple' => false,
+    'plainText' => false,
 ])
 
 @php $hasRevision = isset($revisionNotes) && isset($revisionNotes[$name]); @endphp
@@ -35,8 +36,13 @@
             if (!$selectedText && $isSimple) $selectedText = $placeholder;
             if (!$selectedText) $selectedText = '-';
         @endphp
-        <input type="text" class="form-control form-control-solid" value="{{ $selectedText }}" readonly disabled>
-        <input type="hidden" name="{{ $name }}" value="{{ old($name, $selected) }}">
+        @if ($plainText)
+            <div class="font-weight-bolder text-dark mb-1 font-size-sm">{{ $selectedText }}</div>
+            <input type="hidden" name="{{ $name }}" value="{{ old($name, $selected) }}">
+        @else
+            <input type="text" class="form-control form-control-solid" value="{{ $selectedText }}" readonly disabled>
+            <input type="hidden" name="{{ $name }}" value="{{ old($name, $selected) }}">
+        @endif
     @else
         <select name="{{ $name }}" id="{{ $name }}_select"
             {{ $attributes->merge(['class' => 'form-control ' . ($isSimple ? 'custom-select' : 'selectpicker ')]) }}

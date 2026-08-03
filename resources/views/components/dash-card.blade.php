@@ -1,15 +1,37 @@
-@props(['value' => 0, 'label', 'icon', 'color' => 'text-dark'])
+@props([
+    'value' => 0,
+    'label' => '',
+    'icon' => 'flaticon2-layers-1',
+    'type' => 'primary',
+    'color' => null,
+    'col' => 'col-6 col-sm mb-3 mb-sm-0',
+])
 
-<div class="col-xl col-lg-4 col-md-4 col-sm-6 col-6">
-    <div class="card card-custom bgi-no-repeat card-stretch gutter-b">
-        <div class="card-body py-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="card-title font-weight-bolder text-dark-75 font-size-h2 mb-0 d-block">
-                    {{ $value }}
-                </span>
-                <i class="fas {{ $icon }} {{ $color }} icon-lg"></i>
-            </div>
-            <span class="font-weight-bold text-muted font-size-sm">{{ $label }}</span>
+@php
+    $statType = $type;
+    if ($color && $type === 'primary') {
+        if (strpos($color, 'success') !== false) {
+            $statType = 'success';
+        } elseif (strpos($color, 'warning') !== false) {
+            $statType = 'warning';
+        } elseif (strpos($color, 'danger') !== false) {
+            $statType = 'danger';
+        } elseif (strpos($color, 'info') !== false) {
+            $statType = 'info';
+        }
+    }
+
+    $iconClass = strpos($icon, 'text-') === false ? $icon . ' text-white' : $icon;
+@endphp
+
+<div class="{{ $col }}">
+    <div class="vnd-stat vnd-stat--{{ $statType }}">
+        <div class="vnd-stat-icon">
+            <i class="{{ $iconClass }}"></i>
+        </div>
+        <div>
+            <div class="vnd-stat-num">{{ $value }}</div>
+            <div class="vnd-stat-lbl">{{ $label }}</div>
         </div>
     </div>
 </div>
