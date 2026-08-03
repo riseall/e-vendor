@@ -1,9 +1,20 @@
+@php
+    $isRekualifikasi = $application->isRekualifikasi();
+    $title = $isRekualifikasi ? 'Permohonan Rekualifikasi Diterima' : 'Permohonan Vendor Diterima';
+    $subtitle = $isRekualifikasi
+        ? 'Yth. ' .
+            (optional($application->user)->name ?? 'Vendor') .
+            ', permohonan pembaruan data profil Anda telah berhasil dikirim dan sedang dalam proses verifikasi.'
+        : 'Yth. ' .
+            (optional($application->user)->name ?? 'Vendor') .
+            ', permohonan registrasi vendor Anda telah berhasil dikirim dan menunggu verifikasi tim pengadaan.';
+@endphp
 <!DOCTYPE html>
 <html>
 
 <head>
     <meta charset="utf-8">
-    <title>Konfirmasi Permohonan Vendor</title>
+    <title>{{ $title }}</title>
 </head>
 
 <body style="margin:0; padding:0; background:#ffffff; font-family:Arial, Helvetica, sans-serif; color:#1f2933;">
@@ -23,15 +34,14 @@
                         </td>
                     </tr>
                     <tr>
-                        <td align="center" style="font-size:20px; color:#1f2933; padding-bottom:14px;">
-                            Permohonan Vendor Diterima
+                        <td align="center" style="font-size:20px; font-weight:700; color:#1f2933; padding-bottom:14px;">
+                            {{ $title }}
                         </td>
                     </tr>
                     <tr>
                         <td align="center"
                             style="font-size:15px; line-height:22px; color:#5f4b4b; padding:0 12px 20px;">
-                            Yth. {{ optional($application->user)->name ?? 'Vendor' }}, permohonan registrasi vendor
-                            Anda telah berhasil dikirim dan menunggu verifikasi tim pengadaan.
+                            {{ $subtitle }}
                         </td>
                     </tr>
                     <tr>

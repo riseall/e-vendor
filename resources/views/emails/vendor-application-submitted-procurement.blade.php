@@ -1,9 +1,16 @@
+@php
+    $isRekualifikasi = $application->isRekualifikasi();
+    $title = $isRekualifikasi ? 'Permohonan Rekualifikasi Vendor' : 'Permohonan Vendor Baru';
+    $subtitle = $isRekualifikasi
+        ? 'Tim Pengadaan & QA, terdapat permohonan pembaruan data profil vendor yang telah dikirim dan menunggu pemeriksaan.'
+        : 'Tim Pengadaan, terdapat permohonan vendor baru yang telah dikirim dan menunggu pemeriksaan kelengkapan data.';
+@endphp
 <!DOCTYPE html>
 <html>
 
 <head>
     <meta charset="utf-8">
-    <title>Permohonan Vendor Baru</title>
+    <title>{{ $title }}</title>
 </head>
 
 <body style="margin:0; padding:0; background:#ffffff; font-family:Arial, Helvetica, sans-serif; color:#1f2933;">
@@ -23,21 +30,33 @@
                         </td>
                     </tr>
                     <tr>
-                        <td align="center" style="font-size:20px; color:#1f2933; padding-bottom:14px;">
-                            Permohonan Vendor Baru
+                        <td align="center" style="font-size:20px; font-weight:700; color:#1f2933; padding-bottom:14px;">
+                            {{ $title }}
                         </td>
                     </tr>
                     <tr>
                         <td align="center"
                             style="font-size:15px; line-height:22px; color:#5f4b4b; padding:0 12px 20px;">
-                            Tim Pengadaan, terdapat permohonan vendor baru yang telah dikirim dan menunggu
-                            pemeriksaan kelengkapan data.
+                            {{ $subtitle }}
                         </td>
                     </tr>
                     <tr>
                         <td align="center" style="padding-bottom:20px;">
                             <table role="presentation" cellpadding="0" cellspacing="0"
                                 style="margin:0 auto; font-size:14px; color:#384150; text-align:left;">
+                                <tr>
+                                    <td style="padding:4px 10px; color:#6b7280;">Tipe</td>
+                                    <td style="padding:4px 10px;">
+                                        @if ($isRekualifikasi)
+                                            <span
+                                                style="display:inline-block; background:#fff7ed; color:#c2410c; border:1px solid #ffedd5; font-weight:700; font-size:12px; padding:2px 8px; border-radius:4px;">Rekualifikasi</span>
+                                        @else
+                                            <span
+                                                style="display:inline-block; background:#eff6ff; color:#1d4ed8; border:1px solid #dbeafe; font-weight:700; font-size:12px; padding:2px 8px; border-radius:4px;">Vendor
+                                                Baru</span>
+                                        @endif
+                                    </td>
+                                </tr>
                                 <tr>
                                     <td style="padding:4px 10px; color:#6b7280;">Nomor</td>
                                     <td style="padding:4px 10px; font-weight:700;">{{ $applicationNumber }}</td>
