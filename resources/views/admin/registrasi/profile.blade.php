@@ -21,16 +21,43 @@
         </div>
 
         <div class="vendor-profile-status">
-            <span class="label label-light-{{ $statusPresentation['class'] }} label-inline font-weight-bold">
+            <span class="label label-{{ $statusPresentation['class'] }} label-inline font-weight-bold">
                 {{ $statusPresentation['label'] }}
             </span>
             <div class="text-muted font-size-sm mt-2">{{ $statusPresentation['description'] }}</div>
-            <a href="{{ route('registrasi.tracking', $application->application_number) }}"
-                class="btn btn-light-primary btn-sm font-weight-bold mt-3">
-                <i class="flaticon2-search-1"></i> Lihat Tracking
-            </a>
+            <div class="d-flex align-items-center justify-content-end flex-wrap mt-3" style="gap: 8px;">
+                <a href="{{ route('registrasi.tracking', $application->application_number) }}"
+                    class="btn btn-light-primary btn-sm font-weight-bold">
+                    <i class="flaticon2-search-1"></i> Lihat Tracking
+                </a>
+
+                @if ($application->status === \App\Models\VendorApplication::STATUS_APPROVED)
+                    @if (!empty($isEditMode))
+                        <a href="{{ route('registrasi.index') }}" class="btn btn-danger btn-sm font-weight-bold">
+                            <i class="fas fa-angle-left"></i> Kembali
+                        </a>
+                    @else
+                        <a href="{{ route('registrasi.index', ['edit' => 1]) }}"
+                            class="btn btn-warning btn-sm font-weight-bold">
+                            <i class="fas fa-edit"></i> Ubah Data
+                        </a>
+                    @endif
+                @endif
+            </div>
         </div>
     </div>
+
+    @if (!empty($isEditMode))
+        <div class="alert alert-custom alert-light-primary mb-6" role="alert">
+            <div class="alert-icon"><i class="fas fa-edit text-primary"></i></div>
+            <div class="alert-text">
+                <div class="font-weight-bold text-dark mb-1">Mode Edit Profil (Rekualifikasi) Aktif</div>
+                Seluruh data profil Anda terbuka untuk diubah. Silakan perbarui data atau dokumen yang
+                diperlukan, lalu klik <strong>"Kirim Rekualifikasi"</strong> di bagian bawah. Jika tidak ingin mengubah
+                data, klik <strong>"Kembali"</strong> di bagian atas.
+            </div>
+        </div>
+    @endif
 
     @if ($isRevisionMode)
         <div class="alert alert-custom alert-light-warning mb-6" role="alert">
@@ -42,8 +69,7 @@
                 @if (!empty($draft['admin_note']))
                     <div class="mt-2"><strong>Catatan umum:</strong> {{ $draft['admin_note'] }}</div>
                 @endif
-                <button type="button" id="btn-first-revision"
-                    class="btn btn-sm btn-warning font-weight-bold mt-3">
+                <button type="button" id="btn-first-revision" class="btn btn-sm btn-warning font-weight-bold mt-3">
                     <i class="flaticon2-arrow-down"></i> Lihat Revisi Pertama
                 </button>
             </div>
@@ -118,10 +144,22 @@
                     <div class="vendor-profile-submit">
                         <div>
                             <div class="font-weight-bold text-dark">Selesai memperbaiki data?</div>
-                            <div class="text-muted font-size-sm">Pastikan seluruh catatan revisi sudah ditindaklanjuti.</div>
+                            <div class="text-muted font-size-sm">Pastikan seluruh catatan revisi sudah ditindaklanjuti.
+                            </div>
                         </div>
                         <button type="button" id="btn-submit-revision" class="btn btn-primary font-weight-bold">
                             <i class="flaticon2-paper-plane"></i> Kirim Ulang Revisi
+                        </button>
+                    </div>
+                @elseif (!empty($isEditMode))
+                    <div class="vendor-profile-submit">
+                        <div class="flex-grow-1">
+                            <div class="font-weight-bold text-dark">Selesai memperbarui data?</div>
+                            <div class="text-muted font-size-sm">Klik Simpan Perubahan untuk menyimpan perubahan data.
+                            </div>
+                        </div>
+                        <button type="button" id="btn-submit-rekualifikasi" class="btn btn-primary font-weight-bold">
+                            <i class="flaticon2-paper-plane"></i> Simpan Perubahan
                         </button>
                     </div>
                 @endif

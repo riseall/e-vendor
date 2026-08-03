@@ -36,6 +36,7 @@ class VendorRegistrationService
             if (!in_array($application->status, [
                 VendorApplication::STATUS_DRAFT,
                 VendorApplication::STATUS_NEED_REVISION,
+                VendorApplication::STATUS_APPROVED,
             ])) {
                 throw ValidationException::withMessages([
                     'application_id' => 'Permohonan yang sudah dikirim tidak dapat diubah.',

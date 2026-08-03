@@ -62,6 +62,7 @@ class RegistrasiController extends Controller
                 ->whereIn('status', [
                     VendorApplication::STATUS_DRAFT,
                     VendorApplication::STATUS_NEED_REVISION,
+                    VendorApplication::STATUS_APPROVED,
                 ])
                 ->latest()
                 ->first();
@@ -218,6 +219,7 @@ class RegistrasiController extends Controller
         if (!in_array($application->status, [
             VendorApplication::STATUS_DRAFT,
             VendorApplication::STATUS_NEED_REVISION,
+            VendorApplication::STATUS_APPROVED,
         ])) {
             throw ValidationException::withMessages([
                 'application_id' => 'Permohonan ini tidak dapat dikirim dari status saat ini.',
@@ -226,39 +228,57 @@ class RegistrasiController extends Controller
 
         $this->validateFinalSubmission($application);
         $isRevisionSubmit = $application->status === VendorApplication::STATUS_NEED_REVISION;
+        $isRequalificationSubmit = $application->status === VendorApplication::STATUS_APPROVED;
         $revisionNotesSnapshot = $application->revision_notes;
 
         DB::transaction(function () use (
             $application,
             $isRevisionSubmit,
+            $isRequalificationSubmit,
             $revisionNotesSnapshot,
             $workflowService
         ) {
             $submittedAt = now();
+            $action = $isRevisionSubmit ? 'revision_submitted' : ($isRequalificationSubmit ? 'rekualifikasi_submitted' : 'application_submitted');
+
+            $updatePayload = [
+                'application_number' => $application->application_number ?: $this->generateApplicationNumber($application, $submittedAt),
+                'submitted_at' => $submittedAt,
+                'revision_submitted_at' => $isRevisionSubmit ? $submittedAt : $application->revision_submitted_at,
+                'revision_count' => $isRevisionSubmit ? ((int) $application->revision_count + 1) : $application->revision_count,
+                'verified_at' => null,
+                'verified_by' => null,
+                'admin_note' => null,
+                'revision_notes' => null,
+                'auto_verified' => false,
+            ];
+
+            if ($isRequalificationSubmit) {
+                $updatePayload['type'] = VendorApplication::TYPE_REKUALIFIKASI;
+                $updatePayload['requalification_reason'] = $application->requalification_reason ?: VendorApplication::REASON_VENDOR_INITIATIVE;
+            }
 
             $workflowService->transition(
                 $application,
                 VendorApplication::STATUS_SUBMITTED,
-                $isRevisionSubmit ? 'revision_submitted' : 'application_submitted',
-                [
-                    'application_number' => $application->application_number ?: $this->generateApplicationNumber($application, $submittedAt),
-                    'submitted_at' => $submittedAt,
-                    'revision_submitted_at' => $isRevisionSubmit ? $submittedAt : $application->revision_submitted_at,
-                    'revision_count' => $isRevisionSubmit ? ((int) $application->revision_count + 1) : $application->revision_count,
-                    'verified_at' => null,
-                    'verified_by' => null,
-                    'admin_note' => null,
-                    'revision_notes' => null,
-                    'auto_verified' => false,
-                ],
+                $action,
+                $updatePayload,
                 Auth::user(),
                 [
                     'revision_count' => $isRevisionSubmit ? ((int) $application->revision_count + 1) : 0,
                     'resolved_revision_notes' => $isRevisionSubmit ? $revisionNotesSnapshot : null,
+                    'is_rekualifikasi' => $isRequalificationSubmit,
                 ]
             );
 
-            if ($isRevisionSubmit) {
+            if ($isRequalificationSubmit) {
+                $application->verificationItems()
+                    ->update([
+                        'status' => 'pending',
+                        'verified_by' => null,
+                        'verified_at' => null,
+                    ]);
+            } elseif ($isRevisionSubmit) {
                 $application->verificationItems()
                     ->where('status', 'rejected')
                     ->update([

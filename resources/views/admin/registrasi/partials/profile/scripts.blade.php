@@ -1,7 +1,7 @@
 <script>
     $(function() {
         const form = document.getElementById('kt_form');
-        const submitButton = $('#btn-submit-revision');
+        const submitButton = $('#btn-submit-revision, #btn-submit-rekualifikasi');
         const isRevisionMode = @json($isRevisionMode);
 
         function revisionContainer(marker) {
@@ -106,7 +106,7 @@
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal',
-                text: xhr.responseJSON?.message || 'Data revisi gagal dikirim.'
+                text: xhr.responseJSON?.message || 'Data gagal dikirim.'
             });
         }
 
@@ -126,11 +126,12 @@
         submitButton.on('click', function() {
             const button = $(this);
             const originalHtml = button.html();
+            const isRekualifikasi = button.attr('id') === 'btn-submit-rekualifikasi';
 
             Swal.fire({
                 icon: 'question',
-                title: 'Kirim ulang revisi?',
-                text: 'Data akan dikirim kembali ke tim pengadaan untuk diverifikasi.',
+                title: isRekualifikasi ? 'Kirim Rekualifikasi?' : 'Kirim ulang revisi?',
+                text: isRekualifikasi ? 'Data rekualifikasi akan dikirim ke tim pengadaan & QA untuk diverifikasi.' : 'Data akan dikirim kembali ke tim pengadaan untuk diverifikasi.',
                 showCancelButton: true,
                 confirmButtonText: 'Ya, Kirim',
                 cancelButtonText: 'Batal'
@@ -139,53 +140,50 @@
                     button.prop('disabled', true).html(
                         '<span class="spinner-border spinner-border-sm mr-2"></span> Memproses...'
                     );
-                }
 
-                form.querySelectorAll('.is-invalid').forEach(element => element.classList
-                    .remove('is-invalid'));
+                    form.querySelectorAll('.is-invalid').forEach(element => element.classList
+                        .remove('is-invalid'));
 
-                if (typeof window.prepareProductRowsForSubmit === 'function') {
-                    window.prepareProductRowsForSubmit();
-                }
+                    if (typeof window.prepareProductRowsForSubmit === 'function') {
+                        window.prepareProductRowsForSubmit();
+                    }
 
-                const formData = new FormData(form);
+                    const formData = new FormData(form);
 
-                if (typeof window.restoreProductRowsAfterSubmit === 'function') {
-                    window.restoreProductRowsAfterSubmit();
-                }
+                    if (typeof window.restoreProductRowsAfterSubmit === 'function') {
+                        window.restoreProductRowsAfterSubmit();
+                    }
 
-                formData.set('action', 'submit');
-                formData.set('application_id', $('#application_id').val());
-                button.prop('disabled', true).html(
-                    '<span class="spinner-border spinner-border-sm mr-2"></span> Memproses...'
-                );
+                    formData.set('action', 'submit');
+                    formData.set('application_id', $('#application_id').val());
 
-                request(@json(route('registrasi.save-umum')), formData)
-                    .then(function(response) {
-                        formData.set('application_id', response.application_id);
-                        return request(@json(route('registrasi.save-specific')), formData);
-                    })
-                    .then(function(response) {
-                        const finalData = new FormData();
-                        finalData.set('_token', $('input[name="_token"]').val());
-                        finalData.set('application_id', response.application_id || $(
-                            '#application_id').val());
+                    request(@json(route('registrasi.save-umum')), formData)
+                        .then(function(response) {
+                            formData.set('application_id', response.application_id);
+                            return request(@json(route('registrasi.save-specific')), formData);
+                        })
+                        .then(function(response) {
+                            const finalData = new FormData();
+                            finalData.set('_token', $('input[name="_token"]').val());
+                            finalData.set('application_id', response.application_id || $(
+                                '#application_id').val());
 
-                        return request(@json(route('registrasi.submit')), finalData);
-                    })
-                    .then(function(response) {
-                        return Swal.fire({
-                            icon: 'success',
-                            title: 'Revisi Terkirim',
-                            text: response.message
-                        }).then(function() {
-                            window.location.href = response.redirect;
+                            return request(@json(route('registrasi.submit')), finalData);
+                        })
+                        .then(function(response) {
+                            return Swal.fire({
+                                icon: 'success',
+                                title: isRekualifikasi ? 'Rekualifikasi Terkirim' : 'Revisi Terkirim',
+                                text: response.message
+                            }).then(function() {
+                                window.location.href = response.redirect;
+                            });
+                        })
+                        .fail(showErrors)
+                        .always(function() {
+                            button.prop('disabled', false).html(originalHtml);
                         });
-                    })
-                    .fail(showErrors)
-                    .always(function() {
-                        button.prop('disabled', false).html(originalHtml);
-                    });
+                }
             });
         });
 

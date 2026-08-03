@@ -77,6 +77,8 @@ class VendorRegistrationViewService
         $revisionNotes = $this->revisionNotes($application);
         $selectedCategories = $application ? $application->getCategoryIds() : [];
 
+        $isEditMode = request()->boolean('edit') && $status === VendorApplication::STATUS_APPROVED;
+
         return [
             'application' => $application,
             'hasDraft' => (bool) $application,
@@ -84,6 +86,7 @@ class VendorRegistrationViewService
             'applicationId' => optional($application)->id,
             'applicationStatus' => $status,
             'isProfileMode' => $application && $status !== VendorApplication::STATUS_DRAFT,
+            'isEditMode' => $isEditMode,
             'isReadOnly' => in_array($status, [
                 VendorApplication::STATUS_SUBMITTED,
                 VendorApplication::STATUS_VERIFIED,
@@ -92,7 +95,7 @@ class VendorRegistrationViewService
                 VendorApplication::STATUS_ON_HOLD,
                 VendorApplication::STATUS_APPROVED,
                 VendorApplication::STATUS_REJECTED,
-            ], true),
+            ], true) && !$isEditMode,
             'isRevisionMode' => $status === VendorApplication::STATUS_NEED_REVISION,
             'draft' => $this->draftData($application),
             'uploadedDocs' => $this->uploadedDocuments($application),
