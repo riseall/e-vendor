@@ -13,6 +13,7 @@ use App\Mail\VendorApplicationVerificationReminder;
 use App\Mail\VendorRiskAssessmentHighRisk;
 use App\Mail\VendorRiskAssessmentLowRisk;
 use App\Mail\VendorRiskAssessmentMediumRisk;
+use App\Mail\VendorRequalificationTriggered;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\VendorApplication;
@@ -274,6 +275,26 @@ class VendorApplicationNotificationService
             new \App\Mail\VendorAuditResultNotification($application, $audit, $number),
             $application,
             'audit_onsite_result_qa'
+        );
+    }
+
+    public function requalificationTriggered(
+        VendorApplication $application,
+        string $reason
+    ): void {
+        $application->loadMissing(['user', 'general']);
+        $reasonLabel = VendorApplication::REASON_LABELS[$reason] ?? $reason;
+
+        $recipients = array_filter([
+            optional($application->user)->email,
+            optional($application->general)->email_perusahaan,
+        ]);
+
+        $this->queue(
+            $recipients,
+            new VendorRequalificationTriggered($application, $this->applicationNumber($application), $reasonLabel),
+            $application,
+            'requalification_triggered'
         );
     }
 

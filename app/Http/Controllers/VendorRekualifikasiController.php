@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\VendorApplication;
 use App\Models\VendorApplicationActivityLog;
+use App\Services\VendorApplicationNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -67,6 +68,8 @@ class VendorRekualifikasiController extends Controller
                 'reason' => $reason,
             ],
         ]);
+
+        app(VendorApplicationNotificationService::class)->requalificationTriggered($application, $reason);
 
         return redirect()->back()
             ->with('success', __('Permintaan Rekualifikasi berhasil dikirimkan ke Vendor. Vendor dapat mengubah profil melalui halaman Registrasi/Profil.'));
