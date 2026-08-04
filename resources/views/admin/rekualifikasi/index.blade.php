@@ -36,24 +36,8 @@
                     Riwayat & Manajemen Rekualifikasi
                 </div>
                 <div class="text-muted font-size-sm mt-1">
-                    Daftar rekualifikasi mandiri vendor dan trigger otomatis oleh Pengadaan / QA.
+                    Daftar permohonan evaluasi ulang / rekualifikasi vendor mandiri dan pemicuan QA.
                 </div>
-            </div>
-
-            <div class="d-flex align-items-center" style="gap:.6rem;">
-                @if (auth()->user()->role === 'supplier')
-                    <form action="{{ route('rekualifikasi.initiate') }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-warning font-weight-bolder px-4 py-2">
-                            <i class="flaticon2-reload mr-1" style="font-size:0.8rem;"></i> Picu Rekualifikasi Mandiri
-                        </button>
-                    </form>
-                @else
-                    <button type="button" class="btn btn-warning font-weight-bolder px-4 py-2" data-toggle="modal"
-                        data-target="#modalTriggerRekualifikasiAdmin">
-                        <i class="flaticon2-reload mr-1" style="font-size:0.8rem;"></i> Picu Rekualifikasi Vendor
-                    </button>
-                @endif
             </div>
         </div>
 
@@ -103,43 +87,11 @@
             </div>
         </div>
     </div>
-
-    {{-- Admin Trigger Modal Partial --}}
-    @include('admin.rekualifikasi.partials.trigger-modal')
 @endsection
 
 @push('scripts')
     <script>
         $(function() {
-            var routeTemplate = "{{ route('rekualifikasi.trigger', ':id') }}";
-
-            /* Live-search selectpicker vendor handler */
-            $('#select_vendor_trigger').on('change', function() {
-                var val = $(this).val();
-                if (val) {
-                    var actionUrl = routeTemplate.replace(':id', val);
-                    $('#formTriggerRekualifikasiModal').attr('action', actionUrl);
-                } else {
-                    $('#formTriggerRekualifikasiModal').attr('action', '');
-                }
-            });
-
-            /* Form trigger validation */
-            $('#formTriggerRekualifikasiModal').on('submit', function(e) {
-                var action = $(this).attr('action');
-                if (!action || action === '') {
-                    e.preventDefault();
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Pilih Vendor',
-                            text: 'Silakan pilih vendor berstatus Approved terlebih dahulu.'
-                        });
-                    } else {
-                        alert('Silakan pilih vendor terlebih dahulu.');
-                    }
-                }
-            });
 
             /* Flash Notifications via SweetAlert Toast */
             (function() {

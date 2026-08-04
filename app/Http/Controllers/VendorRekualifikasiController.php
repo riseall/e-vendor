@@ -80,14 +80,7 @@ class VendorRekualifikasiController extends Controller
 
         $applications = $query->latest()->paginate(15);
 
-        $approvedVendors = collect();
-        if (Auth::user()->role !== 'supplier') {
-            $approvedVendors = VendorApplication::where('status', VendorApplication::STATUS_APPROVED)
-                ->with(['general', 'user'])
-                ->get();
-        }
-
-        return view('admin.rekualifikasi.index', compact('applications', 'approvedVendors'));
+        return view('admin.rekualifikasi.index', compact('applications'));
     }
 
     /**
