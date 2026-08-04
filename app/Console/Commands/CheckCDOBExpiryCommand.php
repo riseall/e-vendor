@@ -59,6 +59,7 @@ class CheckCDOBExpiryCommand extends Command
 
             if ($isCdobExpiring) {
                 $parentApp->update([
+                    'type'                   => VendorApplication::TYPE_REKUALIFIKASI,
                     'requalification_reason' => VendorApplication::REASON_CDOB_EXPIRY,
                 ]);
 

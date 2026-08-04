@@ -43,6 +43,7 @@ class TriggerRekualifikasiCommand extends Command
 
         foreach ($expiringApplications as $app) {
             $app->update([
+                'type'                   => VendorApplication::TYPE_REKUALIFIKASI,
                 'requalification_reason' => VendorApplication::REASON_EXPIRED_PERIOD,
             ]);
             if ($app->qualification) {

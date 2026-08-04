@@ -26,6 +26,11 @@ class VendorRekualifikasiController extends Controller
                 ->with('error', __('Pembaruan profil/rekualifikasi hanya dapat dilakukan jika Anda sudah memiliki permohonan yang disetujui (Approved).'));
         }
 
+        $latestApproved->update([
+            'type'                   => VendorApplication::TYPE_REKUALIFIKASI,
+            'requalification_reason' => VendorApplication::REASON_VENDOR_INITIATIVE,
+        ]);
+
         return redirect()->route('registrasi.index', ['edit' => 1])
             ->with('info', __('Anda memasuki mode Edit Profil (Rekualifikasi). Silakan ubah data yang diperlukan lalu klik Kirim Rekualifikasi, atau klik Batal jika tidak ada perubahan.'));
     }
@@ -44,6 +49,7 @@ class VendorRekualifikasiController extends Controller
 
         $reason = $request->input('reason', VendorApplication::REASON_QA_TRIGGER);
         $application->update([
+            'type'                   => VendorApplication::TYPE_REKUALIFIKASI,
             'requalification_reason' => $reason,
         ]);
         if ($application->qualification) {
