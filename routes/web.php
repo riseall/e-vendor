@@ -9,6 +9,7 @@ use App\Http\Controllers\VendorCapaController;
 use App\Http\Controllers\VendorQualificationController;
 use App\Http\Controllers\VendorQuestionnaireController;
 use App\Http\Controllers\VendorRekualifikasiController;
+use App\Http\Controllers\VendorSupplierController;
 use App\Http\Controllers\VendorUploadController;
 use App\Http\Controllers\QuestionnaireFormController;
 use Illuminate\Support\Facades\Route;
@@ -108,7 +109,7 @@ Route::group(
             });
 
             // Supplier Terekomendasi
-            Route::get('/supplier', [VendorRekualifikasiController::class, 'supplierIndex'])
+            Route::get('/supplier', [VendorSupplierController::class, 'index'])
                 ->name('supplier.index');
 
             // QA - Risk Assessment
