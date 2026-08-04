@@ -141,15 +141,11 @@
     </td>
     <td class="text-right" style="white-space:nowrap;">
         <div class="d-inline-flex align-items-center justify-content-end flex-nowrap" style="gap:.35rem;">
-            <form action="{{ route('rekualifikasi.trigger', $app->id) }}" method="POST"
-                class="d-inline form-trigger-rekualifikasi m-0">
-                @csrf
-                <input type="hidden" name="reason" value="qa_trigger">
-                <button type="button" class="vnd-btn-detail vnd-btn-detail--warning btn-trigger-rekualifikasi"
-                    data-vendor-name="{{ $vendorName }}" title="Picu Rekualifikasi Manual Vendor">
-                    <i class="flaticon2-reload icon-sm" style="font-size:.7rem;"></i> Picu Rekualifikasi
-                </button>
-            </form>
+            <button type="button" class="vnd-btn-detail vnd-btn-detail--warning btn-trigger-rekualifikasi"
+                data-url="{{ route('rekualifikasi.trigger', $app->id) }}"
+                data-vendor-name="{{ $vendorName }}" title="Picu Rekualifikasi Manual Vendor">
+                <i class="fas fa-redo icon-sm" style="font-size:.7rem;"></i> Picu Rekualifikasi
+            </button>
 
             <a href="{{ route('verifikasi.show', $app->id) }}" class="vnd-btn-detail"
                 title="Lihat Profil / Permohonan">

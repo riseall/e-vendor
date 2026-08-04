@@ -64,6 +64,54 @@
             </div>
         </div>
     </div>
+
+    {{-- Modal Alasan Rekualifikasi --}}
+    <div class="modal fade" id="modalTriggerRekualifikasi" data-backdrop="static" tabindex="-1" role="dialog"
+        aria-labelledby="modalTriggerRekualifikasiTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow-lg border-0" style="border-radius:12px;">
+                <form id="formTriggerRekualifikasi" action="" method="POST">
+                    @csrf
+                    <div class="modal-header border-bottom py-4 px-6">
+                        <h5 class="modal-title font-weight-bolder text-dark" id="modalTriggerRekualifikasiTitle">
+                            <i class="fas fa-redo text-warning mr-2" style="font-size:1rem;"></i> Picu Rekualifikasi Vendor
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <i aria-hidden="true" class="ki ki-close"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <div class="alert alert-custom alert-light-warning fade show mb-4 p-4" role="alert">
+                            <div class="alert-icon"><i class="fas fa-exclamation-triangle text-warning"></i></div>
+                            <div class="alert-text font-size-sm">
+                                Anda akan memicu permohonan rekualifikasi manual untuk <strong
+                                    id="modalVendorNameTarget">-</strong>.
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <label class="font-weight-bolder text-dark">Alasan / Pemicu Rekualifikasi: <span
+                                    class="text-danger">*</span></label>
+                            <select name="reason" id="select_rekualifikasi_reason" class="form-control selectpicker"
+                                required>
+                                <option value="qa_trigger">Permintaan Tim Pengadaan / QA (QA Trigger)</option>
+                                <option value="expired_period">Masa Berlaku Kadaluarsa (&le; 60 Hari)</option>
+                                <option value="cdob_expiry">Masa Berlaku Sertifikat CDOB Kadaluarsa</option>
+                                <option value="eval_score_drop">Penurunan Skor Evaluasi Kinerja</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top py-3 px-6">
+                        <button type="button" class="btn btn-light-danger font-weight-bold" data-dismiss="modal"><i
+                                class="fas fa-times mr-1"></i> Batal</button>
+                        <button type="submit" class="btn btn-warning font-weight-bold px-6">
+                            <i class="fas fa-paper-plane mr-1"></i> Picu Rekualifikasi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -138,44 +186,16 @@
                 });
             })();
 
-            /* Konfirmasi Picu Rekualifikasi via SweetAlert Modal */
+            /* Modal Alasan Rekualifikasi Handler */
             $(document).on('click', '.btn-trigger-rekualifikasi', function(e) {
                 e.preventDefault();
                 var $btn = $(this);
-                var form = $btn.closest('form');
+                var actionUrl = $btn.data('url');
                 var vendorName = $btn.data('vendor-name') || 'vendor ini';
 
-                if (!form || !form.length) {
-                    console.error('Form trigger rekualifikasi tidak ditemukan.');
-                    return;
-                }
-
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        title: 'Picu Rekualifikasi?',
-                        text: 'Apakah Anda yakin ingin memicu permohonan rekualifikasi manual untuk ' +
-                            vendorName + '?',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#b45309',
-                        cancelButtonColor: '#6b7a96',
-                        confirmButtonText: 'Ya, Picu Rekualifikasi',
-                        cancelButtonText: 'Batal',
-                        reverseButtons: true,
-                        customClass: {
-                            confirmButton: 'btn btn-warning font-weight-bold mr-2',
-                            cancelButton: 'btn btn-secondary font-weight-bold'
-                        }
-                    }).then(function(result) {
-                        if (result.isConfirmed) {
-                            form.get(0).submit();
-                        }
-                    });
-                } else {
-                    if (confirm('Picu rekualifikasi manual untuk ' + vendorName + '?')) {
-                        form.get(0).submit();
-                    }
-                }
+                $('#modalVendorNameTarget').text(vendorName);
+                $('#formTriggerRekualifikasi').attr('action', actionUrl);
+                $('#modalTriggerRekualifikasi').modal('show');
             });
         });
     </script>
