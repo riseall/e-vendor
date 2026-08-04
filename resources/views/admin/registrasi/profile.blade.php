@@ -47,6 +47,27 @@
         </div>
     </div>
 
+    @if ($application->status === \App\Models\VendorApplication::STATUS_APPROVED && $application->requalification_reason && empty($isEditMode))
+        @php
+            $reasonText = \App\Models\VendorApplication::REASON_LABELS[$application->requalification_reason] ?? $application->requalification_reason;
+        @endphp
+        <div class="alert alert-custom alert-light-warning mb-6 shadow-sm" role="alert" style="border-left: 4px solid #f59e0b;">
+            <div class="alert-icon"><i class="fas fa-exclamation-triangle text-warning" style="font-size:1.5rem;"></i></div>
+            <div class="alert-text">
+                <div class="font-weight-bolder text-dark font-size-h6 mb-1">
+                    <i class="fas fa-redo text-warning mr-1"></i> Permintaan Rekualifikasi / Perbaikan Data Profil
+                </div>
+                <div class="text-dark-75 mb-2">
+                    Tim Pengadaan / QA telah meminta Anda untuk melakukan pembaruan profil / rekualifikasi dengan alasan:
+                    <strong class="text-warning font-weight-bold">{{ $reasonText }}</strong>.
+                </div>
+                <a href="{{ route('registrasi.index', ['edit' => 1]) }}" class="btn btn-warning font-weight-bold btn-sm px-4">
+                    <i class="fas fa-edit mr-1"></i> Mulai Perbarui Data (Rekualifikasi)
+                </a>
+            </div>
+        </div>
+    @endif
+
     @if (!empty($isEditMode))
         <div class="alert alert-custom alert-light-primary mb-6" role="alert">
             <div class="alert-icon"><i class="fas fa-edit text-primary"></i></div>
