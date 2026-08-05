@@ -6,7 +6,7 @@
     $statusCompany = optional($app->general)->status_perusahaan;
     $initial = strtoupper(substr(strip_tags($vendorName), 0, 1));
 
-    $level = strtolower($app->risk_level ?: 'low');
+    $level = $app->risk_level ? strtolower($app->risk_level) : null;
     $riskMap = [
         'low' => [
             'class' => 'vnd-status--success',
@@ -20,7 +20,7 @@
         ],
         'high' => ['class' => 'vnd-status--rejected', 'icon' => 'flaticon-danger text-danger', 'label' => 'HIGH RISK'],
     ];
-    $riskInfo = $riskMap[$level] ?? $riskMap['low'];
+    $riskInfo = $level && isset($riskMap[$level]) ? $riskMap[$level] : null;
 
     $cats = isset($app->categories)
         ? $app->categories
@@ -74,13 +74,8 @@
                 <div class="vnd-vendor-email">{{ $vendorEmail }}</div>
                 <div class="d-flex align-items-center flex-wrap mt-1"
                     style="gap:6px; font-size:.72rem; color:var(--vnd-muted);">
-                    <span><i class="flaticon2-document icon-xs text-muted"></i>
-                        {{ $app->application_number ?: '-' }}</span>
-                    @if ($vendorNpwp)
-                        <span>&bull; NPWP: {{ $vendorNpwp }}</span>
-                    @endif
                     @if ($vendorPhone)
-                        <span>&bull; {{ $vendorPhone }}</span>
+                        <span>{{ $vendorPhone }}</span>
                     @endif
                 </div>
             </div>
@@ -102,10 +97,16 @@
             @else
                 <span class="vnd-cell-muted" style="font-size:.75rem;">Skor &mdash;</span>
             @endif
-            <span class="vnd-status {{ $riskInfo['class'] }}" style="padding:2px 8px; font-size:.68rem;">
-                <i class="{{ $riskInfo['icon'] }}" style="font-size:.55rem;"></i>
-                {{ $riskInfo['label'] }}
-            </span>
+            @if ($riskInfo)
+                <span class="vnd-status {{ $riskInfo['class'] }}" style="padding:2px 8px; font-size:.68rem;">
+                    <i class="{{ $riskInfo['icon'] }}" style="font-size:.55rem;"></i>
+                    {{ $riskInfo['label'] }}
+                </span>
+            @else
+                <span class="vnd-status vnd-status--info" style="padding:2px 8px; font-size:.68rem;">
+                    Belum Evaluasi Risk
+                </span>
+            @endif
         </div>
     </td>
     <td>
@@ -118,38 +119,46 @@
         <div>
             @if ($app->requalification_reason)
                 <span class="badge badge-light-warning font-weight-bolder text-uppercase"
-                    style="font-size:0.62rem; padding:2px 6px;">
-                    <i class="flaticon2-reload mr-1" style="font-size:0.55rem;"></i> Rekualifikasi Dipicu
+                    style="font-size:0.62rem; padding:3px 8px;">
+                    <i class="fas fa-redo text-warning mr-1" style="font-size:0.55rem;"></i> Rekualifikasi Dipicu
                 </span>
             @elseif ($isExpired)
                 <span class="badge badge-light-danger font-weight-bolder text-uppercase"
-                    style="font-size:0.62rem; padding:2px 6px;">
-                    <i class="flaticon-danger mr-1" style="font-size:0.55rem;"></i> Kadaluarsa
+                    style="font-size:0.62rem; padding:3px 8px;">
+                    <i class="fas fa-exclamation-circle text-danger mr-1" style="font-size:0.55rem;"></i> Kadaluarsa
                 </span>
             @elseif ($isExpiring)
                 <span class="badge badge-light-warning font-weight-bolder text-uppercase"
-                    style="font-size:0.62rem; padding:2px 6px;">
-                    <i class="flaticon-warning mr-1" style="font-size:0.55rem;"></i> Expire ({{ $daysRemaining }} hr)
+                    style="font-size:0.62rem; padding:3px 8px;">
+                    <i class="fas fa-exclamation-triangle text-warning mr-1" style="font-size:0.55rem;"></i> Expire ({{ $daysRemaining }} hr)
                 </span>
             @else
                 <span class="badge badge-light-success font-weight-bolder text-uppercase"
-                    style="font-size:0.62rem; padding:2px 6px;">
-                    <i class="flaticon2-check-mark mr-1" style="font-size:0.55rem;"></i> Valid & Aktif
+                    style="font-size:0.62rem; padding:3px 8px;">
+                    <i class="fas fa-check text-success mr-1" style="font-size:0.55rem;"></i> Valid & Aktif
                 </span>
             @endif
         </div>
     </td>
     <td class="text-right" style="white-space:nowrap;">
         <div class="d-inline-flex align-items-center justify-content-end flex-nowrap" style="gap:.35rem;">
-            <button type="button" class="vnd-btn-detail vnd-btn-detail--warning btn-trigger-rekualifikasi"
-                data-url="{{ route('rekualifikasi.trigger', $app->id) }}"
-                data-vendor-name="{{ $vendorName }}" title="Picu Rekualifikasi Manual Vendor">
-                <i class="fas fa-redo icon-sm" style="font-size:.7rem;"></i> Picu Rekualifikasi
-            </button>
+            @if ($app->requalification_reason)
+                <button type="button" class="vnd-btn-detail vnd-btn-detail--warning btn-trigger-rekualifikasi"
+                    data-url="{{ route('rekualifikasi.trigger', $app->id) }}" data-vendor-name="{{ $vendorName }}"
+                    title="Rekualifikasi sedang dipicu/berjalan. Klik untuk mengubah alasan.">
+                    <i class="fas fa-redo icon-sm" style="font-size:.7rem;"></i> Rekualifikasi Dipicu
+                </button>
+            @else
+                <button type="button" class="vnd-btn-detail vnd-btn-detail--warning btn-trigger-rekualifikasi"
+                    data-url="{{ route('rekualifikasi.trigger', $app->id) }}" data-vendor-name="{{ $vendorName }}"
+                    title="Picu Rekualifikasi Manual Vendor">
+                    <i class="fas fa-redo icon-sm" style="font-size:.7rem;"></i> Picu Rekualifikasi
+                </button>
+            @endif
 
             <a href="{{ route('verifikasi.show', $app->id) }}" class="vnd-btn-detail"
                 title="Lihat Profil / Permohonan">
-                <i class="flaticon-eye icon-sm text-primary" style="font-size:.7rem;"></i> Detail
+                <i class="fas fa-eye icon-sm text-primary" style="font-size:.7rem;"></i> Detail
             </a>
         </div>
     </td>
