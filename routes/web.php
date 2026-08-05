@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProcurementVerificationController;
 use App\Http\Controllers\RegistrasiController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorAuditController;
 use App\Http\Controllers\VendorCapaController;
@@ -93,7 +94,7 @@ Route::group(
             // Product Search
             Route::get('/search-products', [RegistrasiController::class, 'searchProducts'])->name('search-products');
 
-            Route::prefix('verification')->name('verifikasi.')->group(function () {
+            Route::prefix('verification')->name('verifikasi.')->middleware('can:verifikasi-list')->group(function () {
                 Route::get('/', [ProcurementVerificationController::class, 'index'])
                     ->name('index');
                 Route::get('/{application}', [ProcurementVerificationController::class, 'show'])
@@ -113,7 +114,7 @@ Route::group(
                 ->name('supplier.index');
 
             // QA - Risk Assessment
-            Route::prefix('qa/risk-assessment')->name('qa.risk-assessment.')->group(function () {
+            Route::prefix('qa/risk-assessment')->name('qa.risk-assessment.')->middleware('can:qa-risk-list')->group(function () {
                 Route::get('/', [VendorQualificationController::class, 'index'])
                     ->name('index');
 
@@ -125,7 +126,7 @@ Route::group(
             });
 
             // QA - Audit (Stage 5)
-            Route::prefix('qa/audit')->name('qa.audit.')->group(function () {
+            Route::prefix('qa/audit')->name('qa.audit.')->middleware('can:audit-list')->group(function () {
                 Route::get('/', [VendorAuditController::class, 'index'])->name('index');
                 Route::get('/{applicationId}/create', [VendorAuditController::class, 'create'])->name('create');
                 Route::post('/{applicationId}/store', [VendorAuditController::class, 'store'])->name('store');
@@ -163,16 +164,27 @@ Route::group(
             });
 
             // Rekualifikasi Vendor & Admin Trigger
-            Route::prefix('rekualifikasi')->name('rekualifikasi.')->group(function () {
+            Route::prefix('rekualifikasi')->name('rekualifikasi.')->middleware('can:rekualifikasi-list')->group(function () {
                 Route::get('/', [VendorRekualifikasiController::class, 'index'])->name('index');
                 Route::post('/initiate', [VendorRekualifikasiController::class, 'initiate'])->name('initiate');
                 Route::post('/{applicationId}/trigger', [VendorRekualifikasiController::class, 'triggerByAdmin'])->name('trigger');
             });
 
             // Users
-            Route::resource('user', UserController::class)->only('index', 'store', 'update', 'destroy');
-            Route::get('/user/data', [UserController::class, 'getUser'])->name('user.data');
-            Route::get('/user/search', [UserController::class, 'searchInternalUser'])->name('user.search');
+            Route::middleware('can:user-list')->group(function () {
+                Route::resource('user', UserController::class)->only('index', 'store', 'update', 'destroy');
+                Route::get('/user/data', [UserController::class, 'getUser'])->name('user.data');
+                Route::get('/user/search', [UserController::class, 'searchInternalUser'])->name('user.search');
+            });
+
+            // Master Role & Permission
+            Route::prefix('role')->name('role.')->middleware('can:role-list')->group(function () {
+                Route::get('/', [RoleController::class, 'index'])->name('index');
+                Route::post('/', [RoleController::class, 'store'])->name('store');
+                Route::delete('/{role}', [RoleController::class, 'destroy'])->name('destroy');
+                Route::get('/{role}/permissions', [RoleController::class, 'getPermissions'])->name('permissions.get');
+                Route::post('/{role}/permissions', [RoleController::class, 'updatePermissions'])->name('permissions.update');
+            });
 
             // Master Questionnaire
             Route::resource('questionnaire-form', QuestionnaireFormController::class);
