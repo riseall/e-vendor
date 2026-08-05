@@ -117,12 +117,14 @@ class VendorRegistrationViewService
                 })
                 ->values()
                 ->all(),
-            'statusPresentation' => $this->statusPresentation($status),
+            'statusPresentation' => $this->statusPresentation($application),
         ];
     }
 
-    private function statusPresentation(?string $status): array
+    private function statusPresentation(?VendorApplication $application): array
     {
+        $status = optional($application)->status;
+
         switch ($status) {
             case VendorApplication::STATUS_SUBMITTED:
                 return [
@@ -161,6 +163,13 @@ class VendorRegistrationViewService
                     'description' => 'Permohonan ditunda menunggu tindak lanjut atau evaluasi dari tim QA.',
                 ];
             case VendorApplication::STATUS_APPROVED:
+                if ($application && $application->requalification_reason && !$application->qualification) {
+                    return [
+                        'label' => 'Rekualifikasi Dipicu',
+                        'class' => 'warning',
+                        'description' => 'Permintaan rekualifikasi telah dipicu. Silakan perbarui data profil Anda.',
+                    ];
+                }
                 return [
                     'label' => 'Terekomendasi',
                     'class' => 'success',

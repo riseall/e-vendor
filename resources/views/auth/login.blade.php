@@ -46,7 +46,7 @@
                         <div class="form-group mb-5">
                             <input
                                 class="form-control h-auto form-control-solid py-4 px-8 @error('username') is-invalid @enderror"
-                                type="text" placeholder="Username" name="username" autocomplete="off"
+                                type="text" placeholder="Email / Username" name="username" autocomplete="off"
                                 value="{{ old('username') }}" />
                             @error('username')
                                 <div class="invalid-feedback text-left">{{ $message }}</div>
@@ -77,7 +77,7 @@
                             <a href="javascript:;" id="kt_login_forgot" class="text-muted text-hover-primary">Forget
                                 Password ?</a>
                         </div>
-                        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div>
+                        {{-- <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div> --}}
 
                         @error('cf-turnstile-response')
                             <span class="text-danger" style="color: red; font-size: 0.875rem;">

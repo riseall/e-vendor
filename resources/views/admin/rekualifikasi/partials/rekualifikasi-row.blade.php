@@ -28,6 +28,14 @@
         'class' => 'vnd-status--info',
         'icon'  => 'flaticon2-information',
     ];
+
+    if ($app->status === 'approved' && $app->requalification_reason && !$app->qualification) {
+        $statusInfo = [
+            'label' => 'Rekualifikasi Dipicu',
+            'class' => 'vnd-status--warning',
+            'icon'  => 'flaticon2-reload text-warning',
+        ];
+    }
 @endphp
 
 <tr>

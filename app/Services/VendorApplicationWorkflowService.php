@@ -18,6 +18,10 @@ class VendorApplicationWorkflowService
     ): VendorApplication {
         $previousStatus = $application->status;
 
+        if ($status === VendorApplication::STATUS_APPROVED) {
+            $attributes['requalification_reason'] = null;
+        }
+
         $application->update(array_merge($attributes, ['status' => $status]));
 
         VendorApplicationActivityLog::create([
