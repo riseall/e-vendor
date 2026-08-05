@@ -161,6 +161,13 @@ class VendorRegistrationViewService
                     'description' => 'Permohonan ditunda menunggu tindak lanjut atau evaluasi dari tim QA.',
                 ];
             case VendorApplication::STATUS_APPROVED:
+                if ($application && $application->requalification_reason) {
+                    return [
+                        'label' => 'Rekualifikasi Dipicu',
+                        'class' => 'warning',
+                        'description' => 'Permintaan rekualifikasi telah dipicu. Silakan perbarui data profil Anda.',
+                    ];
+                }
                 return [
                     'label' => 'Terekomendasi',
                     'class' => 'success',
