@@ -60,24 +60,27 @@ class FortifyServiceProvider extends ServiceProvider
 
 
         Fortify::authenticateUsing(function (Request $request) {
-            $turnstileResponse = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-                'secret' => config('services.turnstile.secret'),
-                'response' => $request->input('cf-turnstile-response'),
-                'remoteip' => $request->ip(),
-            ]);
+            // $turnstileResponse = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+            //     'secret' => config('services.turnstile.secret'),
+            //     'response' => $request->input('cf-turnstile-response'),
+            //     'remoteip' => $request->ip(),
+            // ]);
 
-            if ($turnstileResponse->failed()) {
-                throw ValidationException::withMessages([
-                    'username' => [__('auth.captcha_failed')],
-                ]);
-            }
+            // if ($turnstileResponse->failed()) {
+            //     throw ValidationException::withMessages([
+            //         'username' => [__('auth.captcha_failed')],
+            //     ]);
+            // }
 
             $inputUsername = $request->username;
             $inputPassword = $request->password;
 
             $spkUser = DB::connection('db_master')
                 ->table('mst_anggota')
-                ->where('nik', $inputUsername)
+                ->where(function ($query) use ($inputUsername) {
+                    $query->where('nik', $inputUsername)
+                          ->orWhere('email', $inputUsername);
+                })
                 ->first();
 
             if ($spkUser && Hash::check($inputPassword, $spkUser->password_hash)) {
@@ -115,6 +118,8 @@ class FortifyServiceProvider extends ServiceProvider
                 }
 
                 session(['spk_jabatan' => $spkUser->ref_nama_jabatan]);
+                session(['spk_departemen' => $spkUser-> ref_nama_departemen]);
+                session(['spk_divisi' => $spkUser->ref_nama_divisi]);
                 return $localUser;
             }
 
@@ -131,7 +136,7 @@ class FortifyServiceProvider extends ServiceProvider
                     ]);
                 }
 
-                session()->forget(['spk_jabatan']);
+                session()->forget(['spk_jabatan', 'spk_departemen', 'spk_divisi']);
 
                 return $externalUser;
             }

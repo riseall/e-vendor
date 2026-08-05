@@ -117,7 +117,7 @@
             Valid s/d: {{ $app->valid_until ? $app->valid_until->format('d/m/Y') : 'Tanpa Batas' }}
         </div>
         <div>
-            @if ($app->requalification_reason)
+            @if ($app->requalification_reason && !$app->qualification)
                 <span class="badge badge-light-warning font-weight-bolder text-uppercase"
                     style="font-size:0.62rem; padding:3px 8px;">
                     <i class="fas fa-redo text-warning mr-1" style="font-size:0.55rem;"></i> Rekualifikasi Dipicu
@@ -142,7 +142,7 @@
     </td>
     <td class="text-right" style="white-space:nowrap;">
         <div class="d-inline-flex align-items-center justify-content-end flex-nowrap" style="gap:.35rem;">
-            @if ($app->requalification_reason)
+            @if ($app->requalification_reason && !$app->qualification)
                 <button type="button" class="vnd-btn-detail vnd-btn-detail--warning btn-trigger-rekualifikasi"
                     data-url="{{ route('rekualifikasi.trigger', $app->id) }}" data-vendor-name="{{ $vendorName }}"
                     title="Rekualifikasi sedang dipicu/berjalan. Klik untuk mengubah alasan.">
