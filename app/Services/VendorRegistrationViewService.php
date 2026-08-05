@@ -117,12 +117,14 @@ class VendorRegistrationViewService
                 })
                 ->values()
                 ->all(),
-            'statusPresentation' => $this->statusPresentation($status),
+            'statusPresentation' => $this->statusPresentation($application),
         ];
     }
 
-    private function statusPresentation(?string $status): array
+    private function statusPresentation(?VendorApplication $application): array
     {
+        $status = optional($application)->status;
+
         switch ($status) {
             case VendorApplication::STATUS_SUBMITTED:
                 return [
