@@ -314,6 +314,28 @@
                             </a>
                         </li>
                     @endcan
+                    {{-- @can('evaluasi-list') --}}
+                    <li class="menu-item {{ request()->routeIs('admin.evaluasi.*') ? 'menu-item-active' : '' }}"
+                        aria-haspopup="true">
+                        <a href="{{ route('admin.evaluasi.index') }}" class="menu-link">
+                            <span class="svg-icon menu-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px"
+                                    height="24px">
+                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                        <rect x="0" y="0" width="24" height="24" />
+                                        <path
+                                            d="M5,19 L19,19 C19.5522847,19 20,19.4477153 20,20 C20,20.5522847 19.5522847,21 19,21 L5,21 C4.44771525,21 4,20.5522847 4,20 C4,19.4477153 4.44771525,19 5,19 Z"
+                                            fill="#000000" />
+                                        <path
+                                            d="M5.70710678,13.7071068 C5.31658249,13.3165825 5.31658249,12.6834175 5.70710678,12.2928932 L10.2928932,7.70710678 C10.6834175,7.31658249 11.3165825,7.31658249 11.7071068,7.70710678 L14.2928932,10.2928932 L18.2928932,6.29289322 C18.6834175,5.90236893 19.3165825,5.90236893 19.7071068,6.29289322 C20.0976311,6.68341751 20.0976311,7.31658249 19.7071068,7.70710678 L15,12.4142136 L12.4142136,9.82842712 L8.58578644,13.6568542 C8.19526215,14.0473785 7.56209718,14.0473785 7.17157288,13.6568542 L5.70710678,13.7071068 Z"
+                                            fill="#000000" opacity="0.3" />
+                                    </g>
+                                </svg>
+                            </span>
+                            <span class="menu-text">Evaluasi Vendor</span>
+                        </a>
+                    </li>
+                    {{-- @endcan --}}
                 @endcanany
 
                 @canany(['qa-risk-list', 'audit-list'])
