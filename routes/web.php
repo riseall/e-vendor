@@ -13,6 +13,8 @@ use App\Http\Controllers\VendorRekualifikasiController;
 use App\Http\Controllers\VendorSupplierController;
 use App\Http\Controllers\VendorUploadController;
 use App\Http\Controllers\QuestionnaireFormController;
+use App\Http\Controllers\Admin\EvaluasiVendorController;
+use App\Http\Controllers\Vendor\VendorEvaluasiDashboardController;
 use Illuminate\Support\Facades\Route;
 
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -193,6 +195,22 @@ Route::group(
             Route::post('/questionnaire-form/{form}/questions/import', [QuestionnaireFormController::class, 'importQuestions'])->name('questionnaire-form.questions.import');
             Route::put('/questionnaire-form/{form}/questions/{question}', [QuestionnaireFormController::class, 'updateQuestion'])->name('questionnaire-form.questions.update');
             Route::delete('/questionnaire-form/{form}/questions/{question}', [QuestionnaireFormController::class, 'destroyQuestion'])->name('questionnaire-form.questions.destroy');
+
+            // Evaluasi Vendor (Admin)
+            Route::prefix('admin/evaluasi-vendor')->name('admin.evaluasi.')->middleware('can:evaluasi-list')->group(function () {
+                Route::get('/', [EvaluasiVendorController::class, 'index'])->name('index');
+                Route::get('/fetch-qad', [EvaluasiVendorController::class, 'fetchQadData'])->name('fetch-qad');
+                Route::post('/monthly', [EvaluasiVendorController::class, 'storeMonthly'])->name('store-monthly');
+                Route::post('/batch-monthly', [EvaluasiVendorController::class, 'storeBatchMonthly'])->name('store-batch-monthly');
+                Route::post('/annual/generate', [EvaluasiVendorController::class, 'generateAnnual'])->name('annual.generate');
+                Route::post('/annual/{id}/approve', [EvaluasiVendorController::class, 'approveAnnual'])->name('annual.approve');
+                Route::post('/annual/{id}/trigger-action', [EvaluasiVendorController::class, 'triggerAction'])->name('annual.trigger-action');
+                Route::get('/settings', [EvaluasiVendorController::class, 'settings'])->name('settings')->middleware('can:evaluasi-settings');
+                Route::post('/settings', [EvaluasiVendorController::class, 'updateSettings'])->name('settings.update')->middleware('can:evaluasi-settings');
+            });
+
+            // Evaluasi Vendor (Vendor Dashboard)
+            Route::get('/vendor/evaluasi-kinerja', [VendorEvaluasiDashboardController::class, 'index'])->name('vendor.evaluasi.index');
         });
     }
 );

@@ -57,6 +57,12 @@ class PermissionSeeder extends Seeder
             'questionnaire-list',
             'questionnaire-create',
             'questionnaire-edit',
+
+            // Evaluasi Vendor
+            'evaluasi-list',
+            'evaluasi-create',
+            'evaluasi-approve',
+            'evaluasi-settings',
         ];
 
         foreach ($permissions as $perm) {
@@ -98,6 +104,8 @@ class PermissionSeeder extends Seeder
                 'audit-create',
                 'audit-verify',
                 'audit-result',
+                'evaluasi-list',
+                'evaluasi-create',
             ]);
         }
 
@@ -108,6 +116,9 @@ class PermissionSeeder extends Seeder
                 'verifikasi-detail',
                 'rekualifikasi-list',
                 'rekualifikasi-initiate',
+                'evaluasi-list',
+                'evaluasi-create',
+                'evaluasi-approve',
             ]);
         }
     }
