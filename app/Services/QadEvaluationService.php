@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models::User;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
 class QadEvaluationService
@@ -22,12 +22,17 @@ class QadEvaluationService
      */
     public function fetchQadScores($vendorId, $month, $year)
     {
-        // 1. Ambil data vendor
+        // 1. Ambil data vendor & application
         $vendor = User::find($vendorId);
+        $vendorApp = \App\Models\VendorApplication::where('user_id', $vendorId)
+            ->where('status', \App\Models\VendorApplication::STATUS_APPROVED)
+            ->latest('approved_at')
+            ->first();
+        $qadCode = $vendorApp ? ($vendorApp->qad_supplier_code ?: optional($vendorApp->general)->qad_supplier_code) : null;
 
         // 2. Cek jika ada koneksi langsung ke DB QAD / API QAD (Placeholder untuk live integration)
         if (config('services.qad.enabled', false)) {
-            return $this->fetchFromLiveQad($vendor, $month, $year);
+            return $this->fetchFromLiveQad($vendor, $qadCode, $month, $year);
         }
 
         // 3. Fallback / Mock Data Generator yang realistis berdasarkan ID vendor & periode
@@ -43,7 +48,7 @@ class QadEvaluationService
         mt_srand($seed);
 
         $totalArrivals = mt_rand(5, 25);
-        
+
         $onTime = mt_rand(ceil($totalArrivals * 0.8), $totalArrivals);
         $released = mt_rand(ceil($totalArrivals * 0.85), $totalArrivals);
         $correctQuantity = mt_rand(ceil($totalArrivals * 0.9), $totalArrivals);
@@ -70,13 +75,14 @@ class QadEvaluationService
     /**
      * Method stub untuk koneksi QAD sesungguhnya di kemudian hari.
      */
-    protected function fetchFromLiveQad($vendor, $month, $year)
+    protected function fetchFromLiveQad($vendor, $qadCode, $month, $year)
     {
         // Ponytail note: Upgrade path when QAD API/DB view is available
-        // Example: DB::connection('qad')->table('po_receipts')->...
-        Log::info("Fetching live QAD data for Vendor: {$vendor->name}, Periode: {$month}-{$year}");
+        // Example: DB::connection('qad')->table('po_receipts')->where('supplier_code', $qadCode)...
+        Log::info("Fetching live QAD data for Vendor: " . ($vendor ? $vendor->name : '-') . " (QAD Code: {$qadCode}), Periode: {$month}-{$year}");
 
         return [
+            'qad_supplier_code' => $qadCode,
             'delivery_score' => 100.00,
             'quality_score'  => 100.00,
             'quantity_score' => 100.00,

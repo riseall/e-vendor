@@ -1,417 +1,439 @@
 @extends('layouts.app', ['title' => 'Evaluasi Vendor'])
 
+@section('breadcrumb', 'Quality Assurance')
+@section('step', 'Kinerja & Rapor')
+@section('page_title', 'Kinerja & Rapor Vendor')
+@section('page_desc', 'Manajemen Progress Berjalan & Pengesahan Rapor Kinerja Vendor.')
+
 @section('content')
-<div class="container-fluid">
-    {{-- Header / Breadcrumb --}}
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
-                <i class="fas fa-chart-line text-primary mr-2"></i>Evaluasi Kinerja Vendor
-            </h1>
-            <p class="text-muted small mb-0">Manajemen Penilaian Berkala (Bulanan & Tahunan) Berdasarkan 6 Aspek Kinerja</p>
-        </div>
-        <div>
-            @can('evaluasi-settings')
-                <a href="{{ route('admin.evaluasi.settings') }}" class="btn btn-outline-secondary btn-sm mr-2 font-weight-bold">
-                    <i class="fas fa-cog mr-1"></i>Pengaturan Bobot & Threshold
-                </a>
-            @endcan
-            <form action="{{ route('admin.evaluasi.annual.generate') }}" method="POST" class="d-inline">
-                @csrf
-                <input type="hidden" name="year" value="{{ $year }}">
-                <button type="submit" class="btn btn-success btn-sm font-weight-bold" onclick="return confirm('Generate / kalkulasi evaluasi tahunan {{ $year }} untuk semua vendor?')">
-                    <i class="fas fa-sync-alt mr-1"></i>Generate Evaluasi Tahunan {{ $year }}
-                </button>
-            </form>
-        </div>
-    </div>
+    {{-- Flash container untuk SweetAlert Toast --}}
+    <div id="vnd-flash" data-success="{{ session('success') }}" data-error="{{ session('error') }}"
+        data-warning="{{ session('warning') }}" data-info="{{ session('info') }}" hidden></div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle mr-1"></i>{{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle mr-1"></i>{{ session('error') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-    @endif
-    @if(session('warning'))
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle mr-1"></i>{{ session('warning') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-    @endif
+    @php
+        $months = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
+    @endphp
 
-    {{-- Filter Periode Card --}}
-    <div class="card card-custom mb-4 shadow-sm">
-        <div class="card-body py-3">
-            <form method="GET" action="{{ route('admin.evaluasi.index') }}" class="form-inline justify-content-between">
-                <input type="hidden" name="tab" value="{{ $activeTab }}">
-                <div class="d-flex align-items-center">
-                    <label class="font-weight-bold mr-2"><i class="fas fa-filter text-muted mr-1"></i>Filter Periode:</label>
-                    
-                    <select name="year" class="form-control form-control-sm mr-2 font-weight-bold">
-                        @for($y = date('Y'); $y >= 2024; $y--)
-                            <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>Tahun {{ $y }}</option>
-                        @endfor
-                    </select>
+    {{-- Executive Summary Stat Cards --}}
+    @include('admin.evaluasi.partials.stats')
 
-                    <select name="month" class="form-control form-control-sm mr-2 font-weight-bold">
-                        @php
-                            $months = [1=>'Januari', 2=>'Februari', 3=>'Maret', 4=>'April', 5=>'Mei', 6=>'Juni', 7=>'Juli', 8=>'Agustus', 9=>'September', 10=>'Oktober', 11=>'November', 12=>'Desember'];
-                        @endphp
-                        @foreach($months as $num => $name)
-                            <option value="{{ $num }}" {{ $month == $num ? 'selected' : '' }}>{{ $name }}</option>
-                        @endforeach
-                    </select>
-
-                    <button type="submit" class="btn btn-primary btn-sm font-weight-bold">
-                        <i class="fas fa-search mr-1"></i>Tampilkan
-                    </button>
-                </div>
-
-                <div class="text-right text-muted small">
-                    <span class="badge badge-light-primary px-3 py-2">
-                        <i class="fas fa-balance-scale mr-1"></i>Bobot Aspek: QAD (60%) + QA Manual (40%)
-                    </span>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- Main Tabs --}}
-    <div class="card card-custom card-stretch shadow-sm">
-        <div class="card-header card-header-tabs-line">
-            <div class="card-toolbar">
-                <ul class="nav nav-tabs nav-bold nav-tabs-line" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link {{ $activeTab == 'monthly' ? 'active' : '' }}" href="{{ route('admin.evaluasi.index', ['year' => $year, 'month' => $month, 'tab' => 'monthly']) }}">
-                            <i class="fas fa-calendar-alt mr-2"></i>Evaluasi Bulanan (Monitoring Internal)
+    {{-- Main Card Container --}}
+    <div class="card card-custom shadow-sm border-0 mb-8" style="border-radius: 12px; overflow: hidden;">
+        {{-- Card Header & Filter Bar --}}
+        <div class="card-header border-0 pt-6 pb-6 bg-white d-flex align-items-center justify-content-between flex-wrap"
+            style="min-height: auto;">
+            <div class="d-flex align-items-center flex-wrap mr-2 mb-2 mb-md-0">
+                <h3 class="card-title align-items-start flex-column mb-0 mr-8">
+                    <span class="card-label font-weight-bolder text-dark" style="font-size:1.3rem;">Kinerja & Rapor
+                        Vendor</span>
+                </h3>
+                <ul class="nav nav-pills nav-light-primary nav-bold" role="tablist">
+                    <li class="nav-item mr-2">
+                        <a class="nav-link px-4 {{ $activeTab == 'monthly' ? 'active' : '' }}"
+                            href="{{ route('admin.evaluasi.index', ['year' => $year, 'month' => $month, 'tab' => 'monthly']) }}"
+                            style="border-radius: 8px;">
+                            <span class="nav-icon"><i class="fas fa-calendar-check mr-2"></i></span>
+                            <span class="nav-text">Progress Berjalan</span>
+                            <span
+                                class="badge badge-sm {{ $activeTab == 'monthly' ? 'badge-white text-primary' : 'badge-light-primary text-primary' }} ml-2">{{ $monthlyEvaluations->count() }}</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ $activeTab == 'annual' ? 'active' : '' }}" href="{{ route('admin.evaluasi.index', ['year' => $year, 'month' => $month, 'tab' => 'annual']) }}">
-                            <i class="fas fa-award mr-2"></i>Evaluasi Tahunan (Laporan Final)
+                        <a class="nav-link px-4 {{ $activeTab == 'annual' ? 'active' : '' }}"
+                            href="{{ route('admin.evaluasi.index', ['year' => $year, 'month' => $month, 'tab' => 'annual']) }}"
+                            style="border-radius: 8px;">
+                            <span class="nav-icon"><i class="fas fa-award mr-2"></i></span>
+                            <span class="nav-text">Pengesahan Rapor</span>
+                            <span
+                                class="badge badge-sm {{ $activeTab == 'annual' ? 'badge-white text-primary' : 'badge-light-primary text-primary' }} ml-2">{{ $annualEvaluations->count() }}</span>
                         </a>
                     </li>
                 </ul>
             </div>
-        </div>
 
-        <div class="card-body">
-            @if($activeTab == 'monthly')
-                {{-- TAB EVALUASI BULANAN --}}
-                <form action="{{ route('admin.evaluasi.store-batch-monthly') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="year" value="{{ $year }}">
-                    <input type="hidden" name="month" value="{{ $month }}">
+            <div class="d-flex align-items-center flex-wrap py-1">
+                <form method="GET" action="{{ route('admin.evaluasi.index') }}"
+                    class="d-flex align-items-center mr-2 mb-1 mb-md-0">
+                    <input type="hidden" name="tab" value="{{ $activeTab }}">
 
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div>
-                            <h5 class="font-weight-bold mb-0 text-dark">
-                                Periode: {{ $months[$month] }} {{ $year }}
-                            </h5>
-                            <span class="text-muted small">Skor QAD (Delivery, Quality, Quantity) ditarik otomatis, Skor QA (Complain, Incoming, Safety) diinput manual.</span>
-                        </div>
-                        <div>
-                            <button type="button" class="btn btn-sm btn-outline-info font-weight-bold mr-2" id="btnSyncAllQad">
-                                <i class="fas fa-cloud-download-alt mr-1"></i>Fetch QAD Semua Vendor
-                            </button>
-                            <button type="submit" class="btn btn-sm btn-primary font-weight-bold">
-                                <i class="fas fa-save mr-1"></i>Simpan Batch Evaluasi Bulanan
-                            </button>
-                        </div>
+                    <div class="d-flex align-items-center mr-2">
+                        <select name="year" class="form-control form-control-sm font-weight-bolder bg-light border-0"
+                            style="width: 110px; height: 36px; border-radius: 8px;" onchange="this.form.submit()">
+                            @for ($y = date('Y'); $y >= 2024; $y--)
+                                <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>Tahun
+                                    {{ $y }}</option>
+                            @endfor
+                        </select>
                     </div>
 
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-head-custom table-hover" id="tableMonthly">
-                            <thead class="bg-light">
-                                <tr class="text-uppercase text-dark small font-weight-bold">
-                                    <th width="30">#</th>
-                                    <th>Nama Vendor / Supplier</th>
-                                    <th width="110" class="text-center bg-light-primary">Delivery<br><span class="text-muted">(20% QAD)</span></th>
-                                    <th width="110" class="text-center bg-light-primary">Quality<br><span class="text-muted">(20% QAD)</span></th>
-                                    <th width="110" class="text-center bg-light-primary">Quantity<br><span class="text-muted">(20% QAD)</span></th>
-                                    <th width="110" class="text-center bg-light-warning">Complain<br><span class="text-muted">(15% QA)</span></th>
-                                    <th width="110" class="text-center bg-light-warning">Incoming<br><span class="text-muted">(15% QA)</span></th>
-                                    <th width="110" class="text-center bg-light-warning">Safety/Env<br><span class="text-muted">(10% QA)</span></th>
-                                    <th width="100" class="text-center">Total Skor</th>
-                                    <th width="100" class="text-center">Kategori</th>
-                                    <th width="100" class="text-center">Aksi QAD</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($vendors as $index => $v)
-                                    @php
-                                        $eval = $monthlyEvaluations->get($v->id);
-                                        $dScore = $eval ? $eval->delivery_score : 0;
-                                        $qScore = $eval ? $eval->quality_score : 0;
-                                        $qtyScore = $eval ? $eval->quantity_score : 0;
-                                        $compScore = $eval ? $eval->complain_score : 100;
-                                        $incScore = $eval ? $eval->incoming_material_score : 100;
-                                        $safeScore = $eval ? $eval->safety_environment_score : 100;
-                                        $totScore = $eval ? $eval->total_score : 0;
-                                        $cat = $eval ? $eval->category : '-';
-                                    @endphp
-                                    <tr data-vendor-id="{{ $v->id }}">
-                                        <td class="text-center">
-                                            <input type="checkbox" name="evaluations[{{ $v->id }}][enabled]" value="1" {{ $eval ? 'checked' : '' }}>
-                                        </td>
-                                        <td>
-                                            <div class="font-weight-bold text-dark">{{ $v->name }}</div>
-                                            <span class="text-muted small">{{ $v->email }}</span>
-                                        </td>
-
-                                        {{-- Skor QAD (Delivery, Quality, Quantity) --}}
-                                        <td class="bg-light-primary">
-                                            <input type="number" step="0.01" min="0" max="100" name="evaluations[{{ $v->id }}][delivery_score]" 
-                                                   class="form-control form-control-sm text-center font-weight-bold delivery-input" value="{{ $dScore }}">
-                                        </td>
-                                        <td class="bg-light-primary">
-                                            <input type="number" step="0.01" min="0" max="100" name="evaluations[{{ $v->id }}][quality_score]" 
-                                                   class="form-control form-control-sm text-center font-weight-bold quality-input" value="{{ $qScore }}">
-                                        </td>
-                                        <td class="bg-light-primary">
-                                            <input type="number" step="0.01" min="0" max="100" name="evaluations[{{ $v->id }}][quantity_score]" 
-                                                   class="form-control form-control-sm text-center font-weight-bold quantity-input" value="{{ $qtyScore }}">
-                                        </td>
-
-                                        {{-- Skor QA Manual (Complain, Incoming, Safety) --}}
-                                        <td class="bg-light-warning">
-                                            <input type="number" step="0.01" min="0" max="100" name="evaluations[{{ $v->id }}][complain_score]" 
-                                                   class="form-control form-control-sm text-center font-weight-bold complain-input" value="{{ $compScore }}">
-                                        </td>
-                                        <td class="bg-light-warning">
-                                            <input type="number" step="0.01" min="0" max="100" name="evaluations[{{ $v->id }}][incoming_material_score]" 
-                                                   class="form-control form-control-sm text-center font-weight-bold incoming-input" value="{{ $incScore }}">
-                                        </td>
-                                        <td class="bg-light-warning">
-                                            <input type="number" step="0.01" min="0" max="100" name="evaluations[{{ $v->id }}][safety_environment_score]" 
-                                                   class="form-control form-control-sm text-center font-weight-bold safety-input" value="{{ $safeScore }}">
-                                        </td>
-
-                                        <td class="text-center font-weight-bold text-primary total-score-cell">
-                                            {{ number_format($totScore, 2) }}
-                                        </td>
-                                        <td class="text-center category-cell">
-                                            @if($cat == 'BAIK')
-                                                <span class="badge badge-success px-2 py-1">BAIK</span>
-                                            @elseif($cat == 'CUKUP')
-                                                <span class="badge badge-warning px-2 py-1">CUKUP</span>
-                                            @elseif($cat == 'KURANG')
-                                                <span class="badge badge-danger px-2 py-1">KURANG</span>
-                                            @else
-                                                <span class="badge badge-secondary px-2 py-1">-</span>
-                                            @endif
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-xs btn-outline-primary btn-fetch-single-qad" data-vendor-id="{{ $v->id }}">
-                                                <i class="fas fa-sync-alt"></i> Fetch QAD
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="11" class="text-center py-4 text-muted">Belum ada vendor dengan status approved untuk dievaluasi.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                    @if ($activeTab == 'monthly')
+                        <div class="d-flex align-items-center mr-2">
+                            <select name="month" class="form-control form-control-sm font-weight-bolder bg-light border-0"
+                                style="width: 125px; height: 36px; border-radius: 8px;" onchange="this.form.submit()">
+                                @foreach ($months as $num => $name)
+                                    <option value="{{ $num }}" {{ $month == $num ? 'selected' : '' }}>
+                                        {{ $name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
                 </form>
 
+                <div class="d-flex align-items-center pl-2 border-left" style="gap: 0.5rem; height: 36px;">
+                    @can('evaluasi-settings')
+                        <a href="{{ route('admin.evaluasi.settings') }}" class="btn btn-sm btn-icon btn-instagram"
+                            style="width: 36px; height: 36px; border-radius: 8px;" title="Pengaturan Bobot & Threshold">
+                            <i class="fas fa-cog fa-spin" style="animation-duration: 6s;"></i>
+                        </a>
+                    @endcan
+
+                    @if ($activeTab == 'annual')
+                        <form action="{{ route('admin.evaluasi.annual.generate') }}" method="POST" class="d-inline mb-0">
+                            @csrf
+                            <input type="hidden" name="year" value="{{ $year }}">
+                            <button type="submit"
+                                class="btn btn-sm btn-light-success font-weight-bold d-flex align-items-center"
+                                style="height: 36px; border-radius: 8px;"
+                                onclick="return confirm('Generate / kalkulasi evaluasi tahunan {{ $year }} untuk semua vendor?')">
+                                <i class="fas fa-sync-alt mr-2"></i> Generate Rapor {{ $year }}
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Informational Banner: Threshold & Aspect Weight Info Bar --}}
+        <div class="px-6 py-4 bg-light d-flex align-items-center justify-content-between flex-wrap"
+            style="border-top: 1px dashed #e4e6ef; border-bottom: 1px dashed #e4e6ef;">
+            {{-- <div class="d-flex align-items-center flex-wrap mr-4">
+                <span class="font-weight-bolder text-dark-75 mr-3"><i class="fas fa-balance-scale text-primary mr-2"></i>Bobot Aspek:</span>
+                <span class="label label-light-primary label-inline font-weight-bold mr-2 px-3 py-1">QAD ({{ number_format($settings->weight_delivery + $settings->weight_quality + $settings->weight_quantity, 0) }}%)</span>
+                <span class="label label-light-warning label-inline font-weight-bold px-3 py-1">QA Manual ({{ number_format($settings->weight_complain + $settings->weight_incoming_material + $settings->weight_safety_environment, 0) }}%)</span>
+            </div> --}}
+            <div class="d-flex align-items-center flex-wrap mt-2 mt-md-0">
+                <span class="font-weight-bolder text-dark-75 mr-3">Threshold Kategori:</span>
+                <span class="label label-success label-inline font-weight-bold mr-2 px-3 py-1">BAIK &ge;
+                    {{ number_format($settings->threshold_baik, 0) }}</span>
+                <span class="label label-warning label-inline font-weight-bold mr-2 px-3 py-1 text-white">CUKUP &ge;
+                    {{ number_format($settings->threshold_cukup, 0) }}</span>
+                <span class="label label-danger label-inline font-weight-bold px-3 py-1">KURANG &lt;
+                    {{ number_format($settings->threshold_cukup, 0) }}</span>
+            </div>
+        </div>
+
+        {{-- Content Area --}}
+        <div class="card-body p-4 p-lg-6">
+            @if ($activeTab == 'monthly')
+                @include('admin.evaluasi.partials.monthly-tab')
             @else
-                {{-- TAB EVALUASI TAHUNAN --}}
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h5 class="font-weight-bold mb-0 text-dark">
-                        Ringkasan Evaluasi Tahunan Vendor (Tahun {{ $year }})
-                    </h5>
-                    <span class="text-muted small">Laporan evaluasi tahunan hanya dipublish ke vendor setelah berstatus APPROVED.</span>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-bordered table-head-custom table-hover">
-                        <thead class="bg-light">
-                            <tr class="text-uppercase text-dark small font-weight-bold">
-                                <th>Nama Vendor</th>
-                                <th class="text-center">Rata2 QAD (Del/Qual/Qty)</th>
-                                <th class="text-center">Rata2 QA (Comp/Mat/Safe)</th>
-                                <th class="text-center">Skor Akhir Tahunan</th>
-                                <th class="text-center">Kategori</th>
-                                <th class="text-center">Status Approval</th>
-                                <th class="text-center">Alert Peringatan</th>
-                                <th class="text-center" width="180">Aksi Management</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($annualEvaluations as $ann)
-                                <tr>
-                                    <td>
-                                        <div class="font-weight-bold text-dark">{{ $ann->vendor ? $ann->vendor->name : '-' }}</div>
-                                        <span class="text-muted small">{{ $ann->vendor ? $ann->vendor->email : '-' }}</span>
-                                    </td>
-                                    <td class="text-center small">
-                                        Del: <b>{{ $ann->delivery_score_avg }}</b> | Qual: <b>{{ $ann->quality_score_avg }}</b> | Qty: <b>{{ $ann->quantity_score_avg }}</b>
-                                    </td>
-                                    <td class="text-center small">
-                                        Comp: <b>{{ $ann->complain_score_avg }}</b> | Inc: <b>{{ $ann->incoming_material_score_avg }}</b> | Safe: <b>{{ $ann->safety_environment_score_avg }}</b>
-                                    </td>
-                                    <td class="text-center font-weight-bold h6 mb-0 text-primary">
-                                        {{ number_format($ann->final_score, 2) }}
-                                    </td>
-                                    <td class="text-center">
-                                        @if($ann->category == 'BAIK')
-                                            <span class="badge badge-success font-weight-bold px-3 py-1">BAIK</span>
-                                        @elseif($ann->category == 'CUKUP')
-                                            <span class="badge badge-warning font-weight-bold px-3 py-1">CUKUP</span>
-                                        @else
-                                            <span class="badge badge-danger font-weight-bold px-3 py-1">KURANG</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if($ann->status == 'approved')
-                                            <span class="badge badge-light-success font-weight-bold">
-                                                <i class="fas fa-check-circle text-success mr-1"></i>APPROVED
-                                            </span>
-                                            <div class="small text-muted mt-1">{{ $ann->approved_at ? $ann->approved_at->format('d/m/Y H:i') : '' }}</div>
-                                        @else
-                                            <span class="badge badge-light-warning font-weight-bold">DRAFT / WAITING</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if($ann->has_score_drop_alert)
-                                            <span class="badge badge-danger font-weight-bold mb-1 d-block" title="Skor turun >= 20% dari tahun lalu">
-                                                <i class="fas fa-arrow-down mr-1"></i>DROP SKOR &ge; 20%
-                                            </span>
-                                        @endif
-                                        @if($ann->has_consecutive_low_alert)
-                                            <span class="badge badge-dark font-weight-bold d-block" title="Predikat KURANG 2 tahun berturut-turut">
-                                                <i class="fas fa-exclamation-triangle text-warning mr-1"></i>2 THN KURANG
-                                            </span>
-                                        @endif
-                                        @if(!$ann->has_score_drop_alert && !$ann->has_consecutive_low_alert)
-                                            <span class="text-muted small"><i class="fas fa-check text-success mr-1"></i>Normal</span>
-                                        @endif
-
-                                        @if($ann->decision_status != 'none')
-                                            <div class="mt-1">
-                                                <span class="badge badge-info">Aksi: {{ strtoupper(str_replace('_', ' ', $ann->decision_status)) }}</span>
-                                            </div>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if($ann->status != 'approved')
-                                            <form action="{{ route('admin.evaluasi.annual.approve', $ann->id) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-xs btn-success font-weight-bold mb-1" onclick="return confirm('Approve evaluasi tahunan vendor ini?')">
-                                                    <i class="fas fa-check"></i> Approve
-                                                </button>
-                                            </form>
-                                        @endif
-
-                                        @if($ann->has_score_drop_alert || $ann->has_consecutive_low_alert)
-                                            <button type="button" class="btn btn-xs btn-outline-danger font-weight-bold" data-toggle="modal" data-target="#modalActionAlert{{ $ann->id }}">
-                                                <i class="fas fa-cog"></i> Tindakan
-                                            </button>
-                                        @endif
-
-                                        {{-- Modal Action Alert --}}
-                                        <div class="modal fade text-left" id="modalActionAlert{{ $ann->id }}" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modalActionAlertLabel{{ $ann->id }}" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header bg-light">
-                                                        <h5 class="modal-title font-weight-bold" id="modalActionAlertLabel{{ $ann->id }}">
-                                                            <i class="fas fa-exclamation-triangle text-danger mr-2"></i>Tindakan Peringatan Vendor
-                                                        </h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <form action="{{ route('admin.evaluasi.annual.trigger-action', $ann->id) }}" method="POST">
-                                                        @csrf
-                                                        <div class="modal-body">
-                                                            <p>Pilih tindakan khusus yang akan diberikan kepada vendor <strong>{{ $ann->vendor ? $ann->vendor->name : '' }}</strong> (Skor Tahunan: {{ $ann->final_score }}):</p>
-                                                            
-                                                            <div class="form-group">
-                                                                <label class="font-weight-bold">Jenis Aksi Management:</label>
-                                                                <select name="action_type" class="form-control" required>
-                                                                    <option value="rekualifikasi">1. Trigger Process Rekualifikasi (Form Rekualifikasi Baru)</option>
-                                                                    <option value="terminated">2. Terminated (Berhentikan Kerjasama)</option>
-                                                                    <option value="suspended">3. Suspended (Bekukan Sementara)</option>
-                                                                    <option value="qualified_with_notes">4. Qualified Dengan Catatan (Pemantauan Ketat)</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                                            <button type="submit" class="btn btn-danger font-weight-bold">Eksekusi Tindakan</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @forelse
-                                <tr>
-                                    <td colspan="8" class="text-center py-4 text-muted">Belum ada data evaluasi tahunan. Klik tombol <strong>Generate Evaluasi Tahunan</strong> di atas untuk memproses data.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                @include('admin.evaluasi.partials.annual-tab')
             @endif
         </div>
     </div>
-</div>
+
+    {{-- Reusable Single Action Alert Modal --}}
+    @include('admin.evaluasi.partials.modal-action')
 @endsection
 
 @push('scripts')
-<script>
-$(document).ready(function() {
-    // Single Fetch QAD via AJAX
-    $('.btn-fetch-single-qad').on('click', function() {
-        let btn = $(this);
-        let vendorId = btn.data('vendor-id');
-        let row = btn.closest('tr');
+    <script>
+        $(document).ready(function() {
+            // Helper: Toast alert matching admin/audit (vnd-swal-toast style)
+            function showToast(icon, title, message) {
+                if (typeof Swal === 'undefined') return;
 
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Loading...');
+                var iconMap = {
+                    'success': {
+                        class: 'btn-outline-success',
+                        iconClass: 'flaticon2-check-mark'
+                    },
+                    'error': {
+                        class: 'btn-outline-danger',
+                        iconClass: 'flaticon2-cross'
+                    },
+                    'warning': {
+                        class: 'btn-outline-warning',
+                        iconClass: 'flaticon-warning-1'
+                    },
+                    'info': {
+                        class: 'btn-outline-info',
+                        iconClass: 'flaticon-information'
+                    }
+                };
+                var iconCfg = iconMap[icon] || iconMap['info'];
 
-        $.ajax({
-            url: "{{ route('admin.evaluasi.fetch-qad') }}",
-            type: "GET",
-            data: {
-                vendor_id: vendorId,
-                month: "{{ $month }}",
-                year: "{{ $year }}"
-            },
-            success: function(response) {
-                if (response.success) {
-                    row.find('.delivery-input').val(response.scores.delivery_score);
-                    row.find('.quality-input').val(response.scores.quality_score);
-                    row.find('.quantity-input').val(response.scores.quantity_score);
-                    row.find('input[type="checkbox"]').prop('checked', true);
-                    toastr.success('Data QAD berhasil ditarik');
-                }
-            },
-            error: function() {
-                toastr.error('Gagal menarik data QAD');
-            },
-            complete: function() {
-                btn.prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Fetch QAD');
+                Swal.fire({
+                    html: '<div class="vnd-swal-toast-body">' +
+                        '<div class="btn btn-icon ' + iconCfg.class + ' btn-circle btn-sm m-0">' +
+                        '<i class="' + iconCfg.iconClass + '" style="font-size:1rem;"></i>' +
+                        '</div>' +
+                        '<div class="vnd-swal-toast-content">' +
+                        '<div class="vnd-swal-toast__title">' + (title || 'Notifikasi') + '</div>' +
+                        '<div class="vnd-swal-toast__text">' + message + '</div>' +
+                        '</div>' +
+                        '</div>',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    timer: 3500,
+                    timerProgressBar: true,
+                    width: 360,
+                    padding: '0',
+                    customClass: {
+                        popup: 'vnd-swal-toast shadow-sm',
+                        closeButton: 'vnd-swal-toast__close',
+                    },
+                });
             }
-        });
-    });
 
-    // Fetch All QAD
-    $('#btnSyncAllQad').on('click', function() {
-        $('.btn-fetch-single-qad').each(function() {
-            $(this).trigger('click');
+            // Flash toast matching admin/audit
+            (function() {
+                var $el = $('#vnd-flash');
+                if (!$el.length || typeof Swal === 'undefined') return;
+                var msgs = [{
+                        key: 'success',
+                        icon: 'success',
+                        title: 'Sukses'
+                    },
+                    {
+                        key: 'error',
+                        icon: 'error',
+                        title: 'Gagal'
+                    },
+                    {
+                        key: 'warning',
+                        icon: 'warning',
+                        title: 'Peringatan'
+                    },
+                    {
+                        key: 'info',
+                        icon: 'info',
+                        title: 'Informasi'
+                    },
+                ];
+                msgs.forEach(function(m) {
+                    var v = $el.data(m.key);
+                    if (v) {
+                        showToast(m.icon, m.title, v);
+                    }
+                });
+            })();
+
+
+            /* 2. Initialize DataTables */
+            var dtMonthly = null;
+            if ($('#tableMonthly').length && $('#tableMonthly tbody tr').find('.vnd-empty').length === 0) {
+                dtMonthly = $('#tableMonthly').DataTable({
+                    scrollX: true,
+                    paging: true,
+                    pageLength: 25,
+                    lengthMenu: [
+                        [10, 25, 50, 100, -1],
+                        [10, 25, 50, 100, "Semua"]
+                    ],
+                    order: [
+                        [1, 'asc']
+                    ], // Sort by Vendor Name
+                    columnDefs: [{
+                            targets: [0, -1],
+                            orderable: false
+                        } // Checkbox & Aksi QAD
+                    ],
+                    dom: '<"d-flex justify-content-between align-items-center mb-4 flex-wrap"lf>rtip',
+                });
+            }
+
+            var dtAnnual = null;
+            if ($('#tableAnnual').length && $('#tableAnnual tbody tr').find('.vnd-empty').length === 0) {
+                dtAnnual = $('#tableAnnual').DataTable({
+                    scrollX: true,
+                    paging: true,
+                    pageLength: 25,
+                    lengthMenu: [
+                        [10, 25, 50, 100, -1],
+                        [10, 25, 50, 100, "Semua"]
+                    ],
+                    order: [
+                        [1, 'asc']
+                    ], // Sort by Vendor Name
+                    columnDefs: [{
+                            targets: [0, -1],
+                            orderable: false
+                        } // No & Aksi Management
+                    ],
+                    dom: '<"d-flex justify-content-between align-items-center mb-4 flex-wrap"lf>rtip',
+                });
+            }
+
+            /* 3. Realtime score recalculation */
+            let table = $('#tableMonthly');
+
+            function updateRowScore(row) {
+                if (!table.length) return;
+                let wDel = parseFloat(table.data('w-del')) || 20;
+                let wQual = parseFloat(table.data('w-qual')) || 20;
+                let wQty = parseFloat(table.data('w-qty')) || 20;
+                let wComp = parseFloat(table.data('w-comp')) || 15;
+                let wInc = parseFloat(table.data('w-inc')) || 15;
+                let wSafe = parseFloat(table.data('w-safe')) || 10;
+                let thBaik = parseFloat(table.data('th-baik')) || 80;
+                let thCukup = parseFloat(table.data('th-cukup')) || 60;
+
+                let d = parseFloat(row.find('.delivery-input').val()) || 0;
+                let q = parseFloat(row.find('.quality-input').val()) || 0;
+                let qty = parseFloat(row.find('.quantity-input').val()) || 0;
+                let comp = parseFloat(row.find('.complain-input').val()) || 0;
+                let inc = parseFloat(row.find('.incoming-input').val()) || 0;
+                let safe = parseFloat(row.find('.safety-input').val()) || 0;
+
+                let total = ((d * wDel) + (q * wQual) + (qty * wQty) + (comp * wComp) + (inc * wInc) + (safe *
+                    wSafe)) / 100;
+                row.find('.total-score-cell').text(total.toFixed(2));
+
+                let catCell = row.find('.category-cell');
+                if (total >= thBaik) {
+                    catCell.html('<span class="vnd-status vnd-status--success">BAIK</span>');
+                } else if (total >= thCukup) {
+                    catCell.html('<span class="vnd-status vnd-status--warning">CUKUP</span>');
+                } else {
+                    catCell.html('<span class="vnd-status vnd-status--danger">KURANG</span>');
+                }
+            }
+
+            // Score Input Live Recalculation (Event delegation for DataTables pages)
+            $(document).on('input change', '.score-input', function() {
+                let row = $(this).closest('tr');
+                updateRowScore(row);
+            });
+
+            // Submit handler: ensure inputs from all DataTables pages are submitted
+            $('#formBatchMonthly').on('submit', function(e) {
+                if (dtMonthly) {
+                    var form = this;
+                    var serializedData = dtMonthly.$('input, select').serializeArray();
+                    $.each(serializedData, function(i, item) {
+                        if (!$.contains(document, form[item.name])) {
+                            $(form).append(
+                                $('<input>').attr('type', 'hidden').attr('name', item.name).val(
+                                    item.value)
+                            );
+                        }
+                    });
+                }
+            });
+
+            // Single Fetch QAD via AJAX
+            $(document).on('click', '.btn-fetch-single-qad', function() {
+                let btn = $(this);
+                let vendorId = btn.data('vendor-id');
+                let row = btn.closest('tr');
+
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Syncing...');
+
+                $.ajax({
+                    url: "{{ route('admin.evaluasi.fetch-qad') }}",
+                    type: "GET",
+                    data: {
+                        vendor_id: vendorId,
+                        month: "{{ $month }}",
+                        year: "{{ $year }}"
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            row.find('.delivery-input').val(response.scores.delivery_score);
+                            row.find('.quality-input').val(response.scores.quality_score);
+                            row.find('.quantity-input').val(response.scores.quantity_score);
+
+                            updateRowScore(row);
+                            showToast('success', 'Sukses', 'Data QAD vendor berhasil ditarik');
+                        }
+                    },
+                    error: function() {
+                        showToast('error', 'Gagal', 'Gagal menarik data QAD vendor');
+                    },
+                    complete: function() {
+                        btn.prop('disabled', false).html(
+                            '<i class="fas fa-sync-alt mr-1"></i> Fetch QAD');
+                    }
+                });
+            });
+
+            // Fetch All QAD (handles all vendors across DataTables pages)
+            $('#btnSyncAllQad').on('click', function() {
+                let btns = dtMonthly ? dtMonthly.$('.btn-fetch-single-qad') : $('.btn-fetch-single-qad');
+                if (btns.length === 0) return;
+
+                let btnAll = $(this);
+                btnAll.prop('disabled', true).html(
+                    '<i class="fas fa-spinner fa-spin mr-1"></i> Fetching All...');
+
+                let completed = 0;
+                btns.each(function() {
+                    let singleBtn = $(this);
+                    let vendorId = singleBtn.data('vendor-id');
+                    let row = singleBtn.closest('tr');
+
+                    $.ajax({
+                        url: "{{ route('admin.evaluasi.fetch-qad') }}",
+                        type: "GET",
+                        data: {
+                            vendor_id: vendorId,
+                            month: "{{ $month }}",
+                            year: "{{ $year }}"
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                row.find('.delivery-input').val(response.scores
+                                    .delivery_score);
+                                row.find('.quality-input').val(response.scores
+                                    .quality_score);
+                                row.find('.quantity-input').val(response.scores
+                                    .quantity_score);
+                                updateRowScore(row);
+                            }
+                        },
+                        complete: function() {
+                            completed++;
+                            if (completed === btns.length) {
+                                btnAll.prop('disabled', false).html(
+                                    '<i class="fas fa-cloud-download-alt mr-1"></i>Fetch QAD Massal'
+                                );
+                                showToast('success', 'Sukses',
+                                    'Selesai sinkronisasi QAD seluruh vendor');
+                            }
+                        }
+                    });
+                });
+            });
+
+            // Modal Dynamic Action Handler (Single Modal Event Delegation)
+            $(document).on('click', '.btn-open-action-modal', function() {
+                let btn = $(this);
+                let name = btn.data('name');
+                let score = btn.data('score');
+                let actionUrl = btn.data('action-url');
+
+                $('#modalVendorNameTarget').text(name);
+                $('#modalVendorScoreTarget').text(score);
+                $('#formTriggerAction').attr('action', actionUrl);
+                $('#modalActionAlert').modal('show');
+            });
         });
-    });
-});
-</script>
+    </script>
 @endpush

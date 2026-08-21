@@ -31,12 +31,21 @@ class EvaluasiVendorController extends Controller
         $month = (int) $request->get('month', date('n'));
         $activeTab = $request->get('tab', 'monthly');
 
-        // Ambil daftar vendor yang sudah approved
-        $approvedVendorUserIds = VendorApplication::where('status', VendorApplication::STATUS_APPROVED)
-            ->pluck('user_id')
-            ->unique();
+        // Ambil daftar vendor yang sudah approved beserta QAD supplier code
+        $approvedApplications = VendorApplication::where('status', VendorApplication::STATUS_APPROVED)
+            ->with('general')
+            ->latest('approved_at')
+            ->get()
+            ->keyBy('user_id');
 
-        $vendors = User::whereIn('id', $approvedVendorUserIds)->get();
+        $vendors = User::whereIn('id', $approvedApplications->keys())
+            ->orderBy('name')
+            ->get()
+            ->map(function ($user) use ($approvedApplications) {
+                $app = $approvedApplications->get($user->id);
+                $user->qad_supplier_code = $app ? ($app->qad_supplier_code ?: optional($app->general)->qad_supplier_code) : null;
+                return $user;
+            });
 
         // Data Evaluasi Bulanan
         $monthlyEvaluations = VendorEvaluation::where('year', $year)
