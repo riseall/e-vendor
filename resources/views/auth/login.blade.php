@@ -79,6 +79,7 @@
                         </div>
                         {{-- <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div> --}}
 
+
                         @error('cf-turnstile-response')
                             <span class="text-danger" style="color: red; font-size: 0.875rem;">
                                 {{ $message }}

@@ -72,6 +72,7 @@ class FortifyServiceProvider extends ServiceProvider
             //     ]);
             // }
 
+
             $inputUsername = $request->username;
             $inputPassword = $request->password;
 
@@ -79,7 +80,7 @@ class FortifyServiceProvider extends ServiceProvider
                 ->table('mst_anggota')
                 ->where(function ($query) use ($inputUsername) {
                     $query->where('nik', $inputUsername)
-                          ->orWhere('email', $inputUsername);
+                        ->orWhere('email', $inputUsername);
                 })
                 ->first();
 
@@ -118,7 +119,7 @@ class FortifyServiceProvider extends ServiceProvider
                 }
 
                 session(['spk_jabatan' => $spkUser->ref_nama_jabatan]);
-                session(['spk_departemen' => $spkUser-> ref_nama_departemen]);
+                session(['spk_departemen' => $spkUser->ref_nama_departemen]);
                 session(['spk_divisi' => $spkUser->ref_nama_divisi]);
                 return $localUser;
             }

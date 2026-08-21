@@ -27,15 +27,19 @@ class RoleSeeder extends Seeder
         ];
 
         foreach ($roles as $role) {
-            Role::create(['name' => $role]);
+            Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 
-        $adminIT = User::create([
-            'name' => 'RIZAL NUGROHO',
-            'username' => '03130',
-            'email' => 'rizal.nugroho@phapros.co.id',
-            'password' => bcrypt('12345678'),
-        ]);
-        $adminIT->assignRole('Admin IT');
+        $adminIT = User::firstOrCreate(
+            ['username' => '03130'],
+            [
+                'name' => 'RIZAL NUGROHO',
+                'email' => 'rizal.nugroho@phapros.co.id',
+                'password' => bcrypt('12345678'),
+            ]
+        );
+        if (!$adminIT->hasRole('Admin IT')) {
+            $adminIT->assignRole('Admin IT');
+        }
     }
 }
