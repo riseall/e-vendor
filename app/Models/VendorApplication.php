@@ -29,6 +29,9 @@ class VendorApplication extends Model
         'approved_by',
         'approved_at',
         'valid_until',
+        'qad_supplier_code',
+        'supplier_type',
+        'currency',
     ];
 
     protected $casts = [

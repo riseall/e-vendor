@@ -35,4 +35,35 @@ class VendorSupplierController extends Controller
 
         return view('admin.supplier.index', compact('suppliers', 'search'));
     }
+
+    /**
+     * Update Data Master QAD (Kode Supplier, Supplier Type, Currency) untuk Supplier Approved.
+     */
+    public function updateQadCode(Request $request, $id)
+    {
+        $request->validate([
+            'qad_supplier_code' => 'required|string|max:100',
+            'supplier_type'     => 'nullable|string|max:100',
+            'currency'          => 'nullable|string|max:10',
+        ]);
+
+        $app = VendorApplication::findOrFail($id);
+        $qadCode = trim($request->input('qad_supplier_code'));
+        $supplierType = $request->input('supplier_type') ? trim($request->input('supplier_type')) : null;
+        $currency = $request->input('currency') ? trim($request->input('currency')) : 'IDR';
+
+        $dataToUpdate = [
+            'qad_supplier_code' => $qadCode,
+            'supplier_type'     => $supplierType,
+            'currency'          => $currency,
+        ];
+
+        $app->update($dataToUpdate);
+
+        if ($app->general) {
+            $app->general->update($dataToUpdate);
+        }
+
+        return redirect()->back()->with('success', "Data QAD Supplier ({$qadCode}) berhasil disimpan.");
+    }
 }

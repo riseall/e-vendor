@@ -54,6 +54,9 @@
     } else {
         $isValid = true;
     }
+    $qadCode = $app->qad_supplier_code ?: (optional($app->general)->qad_supplier_code ?: '');
+    $supplierType = $app->supplier_type ?: (optional($app->general)->supplier_type ?: '');
+    $currency = $app->currency ?: (optional($app->general)->currency ?: 'IDR');
 @endphp
 
 <tr>
@@ -76,6 +79,25 @@
                     style="gap:6px; font-size:.72rem; color:var(--vnd-muted);">
                     @if ($vendorPhone)
                         <span>{{ $vendorPhone }}</span>
+                    @endif
+                    @if ($qadCode)
+                        <span class="badge badge-light-primary font-weight-bold" style="font-size:0.68rem; padding:2px 6px;" title="Kode Supplier QAD">
+                            <i class="fas fa-barcode text-primary mr-1"></i>QAD: {{ $qadCode }}
+                        </span>
+                    @else
+                        <span class="badge badge-light-warning font-weight-bold" style="font-size:0.68rem; padding:2px 6px;">
+                            <i class="fas fa-exclamation-triangle text-warning mr-1"></i>Belum Ada Kode QAD
+                        </span>
+                    @endif
+                    @if ($supplierType)
+                        <span class="badge badge-light-info font-weight-bold" style="font-size:0.68rem; padding:2px 6px;" title="Supplier Type">
+                            <i class="fas fa-tag text-info mr-1"></i>{{ $supplierType }}
+                        </span>
+                    @endif
+                    @if ($currency)
+                        <span class="badge badge-light-success font-weight-bold" style="font-size:0.68rem; padding:2px 6px;" title="Currency Transaksi">
+                            <i class="fas fa-money-bill-wave text-success mr-1"></i>{{ $currency }}
+                        </span>
                     @endif
                 </div>
             </div>
@@ -156,10 +178,107 @@
                 </button>
             @endif
 
+            <button type="button" class="vnd-btn-detail btn-input-qad-code" data-toggle="modal"
+                data-target="#modalInputQad{{ $app->id }}" title="Input / Edit Kode Supplier QAD">
+                <i class="fas fa-barcode icon-sm text-info" style="font-size:.7rem;"></i> Kode QAD
+            </button>
+
             <a href="{{ route('verifikasi.show', $app->id) }}" class="vnd-btn-detail"
                 title="Lihat Profil / Permohonan">
                 <i class="fas fa-eye icon-sm text-primary" style="font-size:.7rem;"></i> Detail
             </a>
+        </div>
+
+        {{-- Modal Input Data Master Supplier QAD --}}
+        <div class="modal fade text-left" id="modalInputQad{{ $app->id }}" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modalInputQadLabel{{ $app->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content shadow-lg border-0" style="border-radius:12px;">
+                    <form action="{{ route('supplier.update-qad', $app->id) }}" method="POST">
+                        @csrf
+                        <div class="modal-header border-bottom py-3 px-5 bg-light">
+                            <h6 class="modal-title font-weight-bolder text-dark mb-0" id="modalInputQadLabel{{ $app->id }}">
+                                <i class="fas fa-barcode text-primary mr-2"></i>Data Master Supplier QAD
+                            </h6>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <i aria-hidden="true" class="ki ki-close"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body p-5">
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bolder text-dark small mb-1">
+                                    Kode Supplier (QAD): <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white"><i class="fas fa-barcode text-primary"></i></span>
+                                    </div>
+                                    <input type="text" name="qad_supplier_code" class="form-control font-weight-bold" value="{{ $qadCode }}" placeholder="Contoh: V-00123 / 100234" required>
+                                </div>
+                                <span class="form-text text-muted small mt-1">Kode supplier resmi yang terdaftar di QAD ERP.</span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bolder text-dark small mb-1">
+                                    Supplier Type:
+                                </label>
+                                <select name="supplier_type" class="form-control form-control-sm font-weight-bold">
+                                    <option value="">-- Pilih Supplier Type --</option>
+                                    @php
+                                        $types = [
+                                            'Bahan Baku (API)',
+                                            'Eksipien',
+                                            'Bahan Kemas',
+                                            'Produk Jadi Farmasi & Alkes',
+                                            'Varia Teknik & Umum',
+                                            'Reagen & Barang Investasi',
+                                            'Jasa Transporter / Forwarder / PPJK',
+                                            'Jasa Kontraktor & Perbaikan',
+                                            'Jasa Pengujian & Kalibrasi',
+                                            'Jasa Facility Service',
+                                            'Jasa Konsultan & Pelatihan',
+                                            'Jasa Agency Advertising',
+                                            'Lainnya'
+                                        ];
+                                    @endphp
+                                    @foreach($types as $t)
+                                        <option value="{{ $t }}" {{ $supplierType == $t ? 'selected' : '' }}>{{ $t }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group mb-0">
+                                <label class="font-weight-bolder text-dark small mb-1">
+                                    Currency (Mata Uang Transaksi):
+                                </label>
+                                <select name="currency" class="form-control form-control-sm font-weight-bold">
+                                    @php
+                                        $currencies = [
+                                            'IDR' => 'IDR - Indonesian Rupiah (Rp)',
+                                            'USD' => 'USD - US Dollar ($)',
+                                            'EUR' => 'EUR - Euro (€)',
+                                            'SGD' => 'SGD - Singapore Dollar (S$)',
+                                            'JPY' => 'JPY - Japanese Yen (¥)',
+                                            'GBP' => 'GBP - British Pound (£)',
+                                            'CNY' => 'CNY - Chinese Yuan (¥)',
+                                            'AUD' => 'AUD - Australian Dollar (A$)',
+                                            'CHF' => 'CHF - Swiss Franc (CHF)',
+                                        ];
+                                    @endphp
+                                    @foreach($currencies as $code => $label)
+                                        <option value="{{ $code }}" {{ $currency == $code ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer py-2 px-5 border-top bg-light">
+                            <button type="button" class="btn btn-sm btn-secondary font-weight-bold" data-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-sm btn-primary font-weight-bold">
+                                <i class="fas fa-save mr-1"></i>Simpan Data QAD
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </td>
 </tr>

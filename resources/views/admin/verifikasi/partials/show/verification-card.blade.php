@@ -7,7 +7,13 @@
             </span>
             <h5 class="card-label font-weight-bolder d-flex align-items-center flex-wrap"
                 style="color:var(--text-primary); gap:8px;">
-                <span>{{ $application->isRekualifikasi() ? 'Verifikasi Data Rekualifikasi Vendor' : 'Verifikasi Data Calon Penyedia' }}</span>
+                <span>
+                    @if ($application->status === \App\Models\VendorApplication::STATUS_APPROVED)
+                        {{ $application->isRekualifikasi() ? 'Data Rekualifikasi Vendor (Disetujui)' : 'Data Calon Penyedia (Disetujui)' }}
+                    @else
+                        {{ $application->isRekualifikasi() ? 'Verifikasi Data Rekualifikasi Vendor' : 'Verifikasi Data Calon Penyedia' }}
+                    @endif
+                </span>
                 @if ($application->isRekualifikasi())
                     <span class="badge badge-warning font-weight-bold" style="font-size:0.75rem;">Rekualifikasi</span>
                 @else

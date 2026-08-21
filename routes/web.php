@@ -114,6 +114,8 @@ Route::group(
             // Supplier Terekomendasi
             Route::get('/supplier', [VendorSupplierController::class, 'index'])
                 ->name('supplier.index');
+            Route::post('/supplier/{id}/update-qad', [VendorSupplierController::class, 'updateQadCode'])
+                ->name('supplier.update-qad');
 
             // QA - Risk Assessment
             Route::prefix('qa/risk-assessment')->name('qa.risk-assessment.')->middleware('can:qa-risk-list')->group(function () {

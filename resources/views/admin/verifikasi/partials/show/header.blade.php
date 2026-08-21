@@ -114,14 +114,23 @@
         </div>
 
         @if ($application->isRekualifikasi())
-            <div class="alert alert-custom alert-light-warning mb-0 mt-4 py-3 px-4" role="alert">
-                <div class="alert-icon"><i class="fas fa-sync-alt text-warning"></i></div>
-                <div class="alert-text font-size-sm">
-                    <strong class="text-dark">Permohonan Rekualifikasi (Pembaruan Profil):</strong> Vendor telah
-                    memperbarui data profilnya. Seluruh bagian verifikasi telah dikembalikan ke status <strong>Menunggu
-                        Verifikasi Ulang</strong> agar dapat Anda periksa kembali.
+            @if ($application->status === \App\Models\VendorApplication::STATUS_APPROVED)
+                <div class="alert alert-custom alert-light-success mb-0 mt-4 py-3 px-4" role="alert">
+                    <div class="alert-icon"><i class="fas fa-check-circle text-success"></i></div>
+                    <div class="alert-text font-size-sm">
+                        <strong class="text-dark">Rekualifikasi Selesai:</strong> Seluruh bagian data pembaruan profil vendor telah diverifikasi dan disetujui (Approved).
+                    </div>
                 </div>
-            </div>
+            @else
+                <div class="alert alert-custom alert-light-warning mb-0 mt-4 py-3 px-4" role="alert">
+                    <div class="alert-icon"><i class="fas fa-sync-alt text-warning"></i></div>
+                    <div class="alert-text font-size-sm">
+                        <strong class="text-dark">Permohonan Rekualifikasi (Pembaruan Profil):</strong> Vendor telah
+                        memperbarui data profilnya. Seluruh bagian verifikasi telah dikembalikan ke status <strong>Menunggu
+                            Verifikasi Ulang</strong> agar dapat Anda periksa kembali.
+                    </div>
+                </div>
+            @endif
         @endif
     </div>
 </div>
