@@ -22,7 +22,7 @@
     <link href="{{ asset('css/aside/dark.css') }}" rel="stylesheet" type="text/css" />
     <!--end::Layout Themes-->
     <!--begin::Page Vendors Styles(used by this page)-->
-    <link href="{{ asset('css/admin/vms.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('css/admin/vms.css') }}?v={{ filemtime(public_path('css/admin/vms.css')) }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('plugins/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
     <!--end::Page Vendors Styles-->
     <!-- Favicon icon -->

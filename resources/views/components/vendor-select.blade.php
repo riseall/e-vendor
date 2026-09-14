@@ -9,6 +9,8 @@
     'wrapperClass' => 'mb-4',
     'isSimple' => false,
     'plainText' => false,
+    'labelClass' => 'question-label d-block mb-2',
+    'id' => null,
 ])
 
 @php $hasRevision = isset($revisionNotes) && isset($revisionNotes[$name]); @endphp
@@ -16,7 +18,7 @@
 <div class="form-group {{ $wrapperClass }} {{ $hasRevision ? 'has-revision' : '' }}"
     data-field-name="{{ $name }}">
     @if ($label)
-        <label class="question-label d-block mb-2">
+        <label class="{{ $labelClass }} d-block">
             {!! $label !!}
             @if ($required && !$readonly)
                 <span class="text-danger">*</span>
@@ -44,11 +46,11 @@
             <input type="hidden" name="{{ $name }}" value="{{ old($name, $selected) }}">
         @endif
     @else
-        <select name="{{ $name }}" id="{{ $name }}_select"
-            {{ $attributes->merge(['class' => 'form-control ' . ($isSimple ? 'custom-select' : 'selectpicker ')]) }}
-            {{ $required ? 'required' : '' }} data-size="7" data-live-search="true" title="{{ $placeholder }}" width="100%">
+        <select name="{{ $name }}" id="{{ $id ?? ($name . '_select') }}"
+            {{ $attributes->merge(['class' => 'form-control ' . ($isSimple ? 'custom-select w-100' : 'selectpicker')]) }}
+            {{ $required ? 'required' : '' }} data-size="7" data-dropup-auto="false" data-width="100%" title="{{ $placeholder }}">
 
-            @if ($isSimple)
+            @if ($isSimple && !empty($placeholder))
                 <option value="">{{ $placeholder }}</option>
             @endif
 
