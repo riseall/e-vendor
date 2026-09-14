@@ -43,8 +43,13 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $currencyList = isset($currencies) && count($currencies) > 0
+                                ? $currencies
+                                : \App\Models\Currency::orderBy('code')->get();
+                        @endphp
                         @forelse ($suppliers as $app)
-                            @include('admin.supplier.partials.supplier-row', ['app' => $app])
+                            @include('admin.supplier.partials.supplier-row', ['app' => $app, 'currencies' => $currencyList])
                         @empty
                             <tr>
                                 <td colspan="6">
@@ -106,6 +111,66 @@
                                 class="fas fa-times mr-1"></i> Batal</button>
                         <button type="submit" class="btn btn-warning font-weight-bold px-6">
                             <i class="fas fa-paper-plane mr-1"></i> Picu Rekualifikasi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Input Data Master Supplier QAD (Single Reusable Modal) --}}
+    @php
+        $currencyOptions = [];
+        if (isset($currencies) && count($currencies) > 0) {
+            foreach ($currencies as $curr) {
+                $currencyOptions[$curr->code] = $curr->code . ' - ' . $curr->description;
+            }
+        }
+    @endphp
+    <div class="modal fade text-left" id="modalInputQad" data-backdrop="static" tabindex="-1" role="dialog"
+        aria-labelledby="modalInputQadLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow-lg border-0" style="border-radius:12px;">
+                <form id="formInputQad" action="" method="POST">
+                    @csrf
+                    <div class="modal-header border-bottom py-3 px-5 bg-light">
+                        <h6 class="modal-title font-weight-bolder text-dark mb-0" id="modalInputQadLabel">
+                            <i class="fas fa-barcode text-primary mr-2"></i>Data Master Supplier QAD
+                        </h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <i aria-hidden="true" class="ki ki-close"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body p-5">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bolder text-dark small mb-1">
+                                Kode Supplier (QAD): <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-white"><i
+                                            class="fas fa-barcode text-primary"></i></span>
+                                </div>
+                                <input type="text" name="qad_supplier_code" id="modal_qad_supplier_code"
+                                    class="form-control font-weight-bold" placeholder="Contoh: 100234" required>
+                            </div>
+                            <span class="form-text text-muted small mt-1">Kode supplier resmi yang terdaftar di QAD
+                                ERP.</span>
+                        </div>
+
+                        <x-vendor-input name="supplier_type" id="modal_supplier_type" label="Supplier Type:"
+                            labelClass="font-weight-bolder text-dark small mb-1" placeholder="Contoh: A123"
+                            class="font-weight-bold form-control-sm" />
+
+                        <x-vendor-select name="currency" id="modal_currency" label="Currency (Mata Uang Transaksi):"
+                            labelClass="font-weight-bolder text-dark small mb-1" :options="$currencyOptions"
+                            wrapperClass="mb-0" />
+                    </div>
+                    <div class="modal-footer py-2 px-5 border-top bg-light">
+                        <button type="button" class="btn btn-sm btn-secondary font-weight-bold"
+                            data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-sm btn-primary font-weight-bold">
+                            <i class="fas fa-save mr-1"></i>Simpan Data QAD
                         </button>
                     </div>
                 </form>
@@ -196,6 +261,27 @@
                 $('#modalVendorNameTarget').text(vendorName);
                 $('#formTriggerRekualifikasi').attr('action', actionUrl);
                 $('#modalTriggerRekualifikasi').modal('show');
+            });
+
+            /* Modal Input Data Master QAD Handler */
+            $(document).on('click', '.btn-input-qad-code', function(e) {
+                e.preventDefault();
+                var $btn = $(this);
+                var actionUrl = $btn.data('url');
+                var qadCode = $btn.data('qad-code') || '';
+                var supplierType = $btn.data('supplier-type') || '';
+                var currency = $btn.data('currency') || 'IDR';
+
+                $('#formInputQad').attr('action', actionUrl);
+                $('#modal_qad_supplier_code').val(qadCode);
+                $('#modal_supplier_type').val(supplierType);
+                $('#modal_currency').val(currency).selectpicker('refresh');
+                $('#modalInputQad').modal('show');
+            });
+
+            /* Render ulang selectpicker ketika modal dibuka */
+            $(document).on('shown.bs.modal', function() {
+                $(this).find('.selectpicker').selectpicker('render');
             });
         });
     </script>
