@@ -181,7 +181,25 @@
     <!--begin::Global Theme Bundle(used by all pages)-->
     <script src="{{ asset('plugins/plugins.bundle.js') }}"></script>
     <script src="{{ asset('js/scripts.bundle.js') }}"></script>
-    <script src="{{ asset('plugins/datatables/datatables.bundle.js') }}"></script>
+    <script src="{{ asset('plugins/datatables/datatables.bundle.js') }}?v={{ filemtime(public_path('plugins/datatables/datatables.bundle.js')) }}"></script>
+    <script>
+        // Global Bootstrap-Select configuration
+        if (window.jQuery && $.fn.selectpicker) {
+            $.fn.selectpicker.Constructor.DEFAULTS.container = 'body';
+            $.fn.selectpicker.Constructor.DEFAULTS.display = 'static';
+            $.fn.selectpicker.Constructor.DEFAULTS.dropupAuto = false;
+            if ($.fn.selectpicker.defaults) {
+                $.fn.selectpicker.defaults.container = 'body';
+                $.fn.selectpicker.defaults.display = 'static';
+                $.fn.selectpicker.defaults.dropupAuto = false;
+            }
+        }
+
+        // Tutup selectpicker ketika tabel di-scroll horizontal agar tidak mengambang terpisah
+        $(document).on('scroll', '.dataTables_scrollBody', function() {
+            $('.selectpicker').selectpicker('hide');
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const MAX_BYTES = 5 * 1024 * 1024; // 5 MB, mirrors server

@@ -46,7 +46,7 @@
             'Thailand' => 'Thailand',
             'Vietnam' => 'Vietnam',
         ]" :selected="old('products.' . $id . '.negara', $data['negara'] ?? '')"
-            :readonly="$isReadOnly" :isSimple="true" :plainText="true" required wrapperClass="" />
+            :readonly="$isReadOnly" :plainText="true" required wrapperClass="" />
     </td>
 
     {{-- Kolom: Rantai Pasok --}}
@@ -58,7 +58,7 @@
             'Trader' => 'Trader',
             'Repacker' => 'Repacker',
         ]" :selected="old('products.' . $id . '.rantai_pasok', $data['rantai_pasok'] ?? '')"
-            :readonly="$isReadOnly" :isSimple="true" :plainText="true" required wrapperClass="" />
+            :readonly="$isReadOnly" :plainText="true" required wrapperClass="" />
     </td>
 
     {{-- Kolom: Surat Keagenan --}}
@@ -81,7 +81,7 @@
             @endif
         @else
             <x-vendor-select name="products[{{ $id }}][has_tkdn]" :options="['no' => 'Tidak', 'yes' => 'Ya']" :selected="$hasTkdn"
-                :readonly="false" :isSimple="true" wrapperClass="" class="product-cert-toggle"
+                :readonly="false" wrapperClass="" class="product-cert-toggle"
                 data-target=".detail-tkdn-{{ $id }}" />
 
             <div class="detail-tkdn-{{ $id }} mt-2" style="{{ $hasTkdn === 'yes' ? '' : 'display:none' }}">
@@ -105,7 +105,7 @@
             @endif
         @else
             <x-vendor-select name="products[{{ $id }}][has_sni]" :options="['no' => 'Tidak', 'yes' => 'Ya']" :selected="$hasSni"
-                :readonly="false" :isSimple="true" wrapperClass="" class="product-cert-toggle"
+                :readonly="false" wrapperClass="" class="product-cert-toggle"
                 data-target=".detail-sni-{{ $id }}" />
 
             <div class="detail-sni-{{ $id }} mt-2" style="{{ $hasSni === 'yes' ? '' : 'display:none' }}">
@@ -129,7 +129,7 @@
             @endif
         @else
             <x-vendor-select name="products[{{ $id }}][has_halal]" :options="['no' => 'Tidak', 'yes' => 'Ya']" :selected="$hasHalal"
-                :readonly="false" :isSimple="true" wrapperClass="" class="product-cert-toggle"
+                :readonly="false" wrapperClass="" class="product-cert-toggle"
                 data-target=".detail-halal-{{ $id }}" />
 
             <div class="detail-halal-{{ $id }} mt-2"
@@ -154,7 +154,7 @@
             @endif
         @else
             <x-vendor-select name="products[{{ $id }}][has_bse_tse]" :options="['no' => 'Tidak', 'yes' => 'Ya']" :selected="$hasBseTse"
-                :readonly="false" :isSimple="true" wrapperClass="" class="product-cert-toggle"
+                :readonly="false" wrapperClass="" class="product-cert-toggle"
                 data-target=".detail-bse-tse-{{ $id }}" />
 
             <div class="detail-bse-tse-{{ $id }} mt-2"

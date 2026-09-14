@@ -11,6 +11,7 @@
     'plainText' => false,
     'labelClass' => 'question-label d-block mb-2',
     'id' => null,
+    'container' => 'body',
 ])
 
 @php $hasRevision = isset($revisionNotes) && isset($revisionNotes[$name]); @endphp
@@ -48,7 +49,9 @@
     @else
         <select name="{{ $name }}" id="{{ $id ?? ($name . '_select') }}"
             {{ $attributes->merge(['class' => 'form-control ' . ($isSimple ? 'custom-select w-100' : 'selectpicker')]) }}
-            {{ $required ? 'required' : '' }} data-size="7" data-dropup-auto="false" data-width="100%" title="{{ $placeholder }}">
+            {{ $required ? 'required' : '' }} data-size="7" data-dropup-auto="false" data-display="static"
+            @if(!empty($container) && $container !== 'false') data-container="{{ $container }}" @endif
+            data-width="100%" title="{{ $placeholder }}">
 
             @if ($isSimple && !empty($placeholder))
                 <option value="">{{ $placeholder }}</option>

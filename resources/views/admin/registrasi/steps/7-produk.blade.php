@@ -2,6 +2,11 @@
     <style>
         #selectedProductsTable td {
             vertical-align: top;
+            position: relative;
+        }
+
+        #selectedProductsContainer .table-responsive {
+            min-height: 320px;
         }
 
         #selectedProductsTable .custom-file-label {
@@ -249,6 +254,18 @@
                     return exists;
                 }
 
+                function addProductRow(id, name) {
+                    let html = $('#template-product-card').html()
+                        .replace(/__PRODUCT_ID__/g, id)
+                        .replace(/__PRODUCT_NAME__/g, name);
+                    let rowNode = productTable.row.add($(html)[0]).draw(false).node();
+                    $(rowNode).find('.selectpicker').selectpicker();
+                    window.refreshProductTable();
+                }
+
+                // Inisialisasi awal untuk row yang sudah ada di tabel
+                $('#selectedProductsTable .selectpicker').selectpicker();
+
                 // 1. Select2 untuk cari produk (QAD)
                 $('#erpProductSelect').select2({
                     placeholder: "Cari Produk...",
@@ -273,11 +290,7 @@
                             icon: 'warning'
                         });
                     } else {
-                        let html = $('#template-product-card').html()
-                            .replace(/__PRODUCT_ID__/g, p.id)
-                            .replace(/__PRODUCT_NAME__/g, p.product_name);
-                        productTable.row.add($(html)[0]).draw(false);
-                        window.refreshProductTable();
+                        addProductRow(p.id, p.product_name);
                     }
                     $(this).val(null).trigger('change');
                 });
@@ -299,11 +312,7 @@
                             icon: 'warning'
                         });
                     } else {
-                        let html = $('#template-product-card').html()
-                            .replace(/__PRODUCT_ID__/g, id)
-                            .replace(/__PRODUCT_NAME__/g, name);
-                        productTable.row.add($(html)[0]).draw(false);
-                        window.refreshProductTable();
+                        addProductRow(id, name);
                     }
                     $(this).val(null).trigger('change');
                 });
@@ -316,12 +325,7 @@
                     // Generate pseudo-ID based on timestamp to ensure uniqueness
                     const id = 'CUSTOM-' + Date.now();
 
-                    let html = $('#template-product-card').html()
-                        .replace(/__PRODUCT_ID__/g, id)
-                        .replace(/__PRODUCT_NAME__/g, name);
-
-                    productTable.row.add($(html)[0]).draw(false);
-                    window.refreshProductTable();
+                    addProductRow(id, name);
 
                     $('#customProductName').val(''); // reset input
                 });

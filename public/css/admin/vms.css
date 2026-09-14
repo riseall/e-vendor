@@ -1221,3 +1221,53 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     background: linear-gradient(90deg, var(--vnd-green), #66bb6a);
 }
 
+/* ── GLOBAL BOOTSTRAP-SELECT POSITIONING FIX ─────────────────────── */
+.bootstrap-select:not(.bs-container),
+.dropdown.bootstrap-select:not(.bs-container) {
+    position: relative !important;
+    display: inline-block !important;
+    width: 100% !important;
+}
+
+.bootstrap-select.show {
+    z-index: 1050 !important;
+}
+
+.bootstrap-select:not(.bs-container) > .dropdown-menu {
+    top: 100% !important;
+    left: 0 !important;
+    right: auto !important;
+    transform: none !important;
+    min-width: 100% !important;
+    z-index: 1051 !important;
+}
+
+.bootstrap-select:not(.bs-container).dropup > .dropdown-menu {
+    top: auto !important;
+    bottom: 100% !important;
+    transform: none !important;
+}
+
+/* When appended to body (container: 'body') - floats freely over tables & scrollbars */
+.bootstrap-select.bs-container {
+    position: absolute !important;
+    height: 0 !important;
+    padding: 0 !important;
+    z-index: 1065 !important;
+}
+
+.bootstrap-select.bs-container > .dropdown-menu {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    transform: none !important;
+    min-width: 100% !important;
+    z-index: 1066 !important;
+}
+
+/* Ensure DataTables with scrollX has sufficient vertical height for dropdowns */
+.dataTables_wrapper .dataTables_scrollBody {
+    min-height: 280px;
+}
+
