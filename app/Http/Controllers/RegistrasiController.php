@@ -326,12 +326,21 @@ class RegistrasiController extends Controller
 
     public function tracking(?string $applicationNumber = null)
     {
-        $query = VendorApplication::where('user_id', Auth::id())
-            ->where('status', '!=', VendorApplication::STATUS_DRAFT)
-            ->with(['user', 'general', 'categories', 'activityLogs', 'audits']);
+        $user = Auth::user();
+        $isInternalStaff = $user && $user->hasAnyRole(['Super Admin', 'Admin IT', 'Procurement', 'Verifikator', 'Quality Assurance']);
+
+        $query = VendorApplication::query()
+            ->with(['user', 'general', 'categories', 'activityLogs.user', 'audits', 'parent.general']);
+
+        if (!$isInternalStaff) {
+            $query->where('user_id', $user->id);
+        }
 
         if ($applicationNumber) {
-            $application = $query->where('application_number', $applicationNumber)->firstOrFail();
+            $application = $query->where(function ($q) use ($applicationNumber) {
+                $q->where('application_number', $applicationNumber)
+                    ->orWhere('id', $applicationNumber);
+            })->firstOrFail();
         } else {
             $application = $query->latest('submitted_at')
                 ->latest()
@@ -343,7 +352,9 @@ class RegistrasiController extends Controller
             'applicationNumber' => $this->applicationNumber($application),
             'statusSteps' => $this->trackingStatusSteps($application),
             'categoryLabels' => $application->categories
-                ->map->category_label
+                ->map(function ($c) {
+                    return $c->category_label;
+                })
                 ->filter()
                 ->values(),
         ]);

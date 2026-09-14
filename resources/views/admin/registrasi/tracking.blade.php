@@ -1,9 +1,14 @@
-@extends('layouts.app', ['title' => 'Tracking Permohonan'])
+@php
+    $isRekualifikasi = $application->type === \App\Models\VendorApplication::TYPE_REKUALIFIKASI;
+@endphp
 
-@section('breadcrumb', 'Registrasi')
-@section('step', 'Pra Kualifikasi')
-@section('page_title', 'Tracking Permohonan')
-@section('page_desc', 'Pantau status permohonan vendor Anda secara ringkas dan aman.')
+@extends('layouts.app', ['title' => $isRekualifikasi ? 'Tracking Rekualifikasi Vendor' : 'Tracking Permohonan'])
+
+@section('breadcrumb', $isRekualifikasi ? 'Rekualifikasi' : 'Registrasi')
+@section('step', $isRekualifikasi ? 'Evaluasi Ulang' : 'Pra Kualifikasi')
+@section('page_title', $isRekualifikasi ? 'Tracking Rekualifikasi Vendor' : 'Tracking Permohonan')
+@section('page_desc', $isRekualifikasi ? 'Pantau progres evaluasi ulang dan pembaruan data vendor secara transparan.' :
+    'Pantau status permohonan vendor Anda secara ringkas dan aman.')
 
 @section('content')
     @php
@@ -364,9 +369,22 @@
 
     {{-- Header card --}}
     <div class="trk-header">
-        <div class="trk-nomor-label">Nomor Permohonan</div>
-        <div class="trk-nomor">{{ $applicationNumber }}</div>
-        <div class="trk-perusahaan">{{ optional($application->general)->nama_perusahaan ?? '-' }}</div>
+        <div class="d-flex justify-content-between align-items-start flex-wrap">
+            <div>
+                <div class="trk-nomor-label">{{ $isRekualifikasi ? 'Nomor Permohonan Rekualifikasi' : 'Nomor Permohonan' }}
+                </div>
+                <div class="trk-nomor">{{ $applicationNumber ?: 'ID #' . $application->id }}</div>
+                <div class="trk-perusahaan">{{ optional($application->general)->nama_perusahaan ?? '-' }}</div>
+            </div>
+            @if ($isRekualifikasi)
+                <div class="mt-2 mt-sm-0">
+                    <span class="badge badge-warning font-weight-bolder px-3 py-2"
+                        style="border-radius: 8px; font-size: 0.8rem; color: #1e1e2d; background: #fff8e7; border: 1.5px solid #ffa800;">
+                        <i class="fas fa-redo mr-1 text-warning"></i> REKUALIFIKASI VENDOR
+                    </span>
+                </div>
+            @endif
+        </div>
 
         <div class="trk-status-badge">
             <div class="trk-status-dot" style="background: {{ $statusLabel['dot'] }};"></div>
@@ -384,6 +402,59 @@
             </div>
         </div>
     </div>
+
+    {{-- Banner Pemicu Rekualifikasi (jika bertipe Rekualifikasi) --}}
+    @if ($isRekualifikasi && $application->requalification_reason)
+        @php
+            $reasonMap = [
+                'vendor_initiative' => [
+                    'label' => 'Inisiatif Vendor (Edit Profil)',
+                    'icon' => 'fas fa-user-edit',
+                    'desc' => 'Vendor melakukan inisiatif pembaruan data profil secara mandiri.',
+                ],
+                'expired_period' => [
+                    'label' => 'Masa Berlaku Kadaluarsa (<= 60 Hari)',
+                    'icon' => 'fas fa-calendar-times',
+                    'desc' => 'Masa berlaku kualifikasi vendor mendekati batas waktu atau telah berakhir.',
+                ],
+                'cdob_expiry' => [
+                    'label' => 'Sertifikat CDOB Expired',
+                    'icon' => 'fas fa-certificate',
+                    'desc' => 'Sertifikasi CDOB telah berakhir masa berlakunya dan memerlukan pembaruan dokumen.',
+                ],
+                'eval_score_drop' => [
+                    'label' => 'Penurunan Skor Evaluasi',
+                    'icon' => 'fas fa-chart-line',
+                    'desc' => 'Terjadi penurunan skor evaluasi berkala sehingga diperlukan evaluasi ulang.',
+                ],
+                'qa_trigger' => [
+                    'label' => 'Permintaan Pengadaan / QA',
+                    'icon' => 'fas fa-shield-alt',
+                    'desc' => 'Dipicu oleh tim Pengadaan atau QA Phapros untuk penyesuaian kualifikasi vendor.',
+                ],
+            ];
+            $rInfo = $reasonMap[$application->requalification_reason] ?? [
+                'label' => ucwords(str_replace('_', ' ', $application->requalification_reason)),
+                'icon' => 'fas fa-info-circle',
+                'desc' => 'Permohonan evaluasi ulang kualifikasi vendor.',
+            ];
+        @endphp
+        <div class="card mb-5 border-0 shadow-xs"
+            style="border-radius: 14px; background: #fff8e7; border-left: 4px solid #f6c000 !important;">
+            <div class="card-body p-4 d-flex align-items-center">
+                <div class="btn btn-icon btn-light-warning btn-circle mr-4 flex-shrink-0"
+                    style="width: 44px; height: 44px;">
+                    <i class="{{ $rInfo['icon'] }} text-warning" style="font-size: 1.2rem;"></i>
+                </div>
+                <div>
+                    <div class="font-size-xs text-uppercase font-weight-bolder text-warning letter-spacing-05">Pemicu /
+                        Alasan Rekualifikasi</div>
+                    <div class="font-size-h6 font-weight-bold text-dark mt-1">{{ $rInfo['label'] }}</div>
+                    <div class="text-muted font-size-sm mt-1">{{ $rInfo['desc'] }}</div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     {{-- Info cards --}}
     <div class="trk-info-row">
@@ -405,10 +476,10 @@
         </div>
         <div class="trk-info-card">
             <div class="trk-info-icon trk-icon-teal">
-                <i class="fas fa-building"></i>
+                <i class="{{ $isRekualifikasi ? 'fas fa-redo' : 'fas fa-building' }}"></i>
             </div>
             <div class="trk-info-label">Jenis Permohonan</div>
-            <div class="trk-info-val">Pra Kualifikasi</div>
+            <div class="trk-info-val">{{ $isRekualifikasi ? 'Rekualifikasi Vendor' : 'Pra Kualifikasi' }}</div>
         </div>
     </div>
 
@@ -512,14 +583,21 @@
             @endif
 
             {{-- Hasil Audit Notice --}}
-            @if ($latestAudit && ($latestAudit->audit_result_path || in_array($latestAudit->status, [\App\Models\VendorAudit::STATUS_COMPLETED, \App\Models\VendorAudit::STATUS_REJECTED])))
+            @if (
+                $latestAudit &&
+                    ($latestAudit->audit_result_path ||
+                        in_array($latestAudit->status, [
+                            \App\Models\VendorAudit::STATUS_COMPLETED,
+                            \App\Models\VendorAudit::STATUS_REJECTED,
+                        ])))
                 <div class="trk-revision mt-5" style="background:#E8F5E9;border-color:#2E7D32;">
                     <div class="trk-revision-title" style="color:#2E7D32;">
                         <i class="fas fa-file-invoice"></i>
                         Hasil Audit Tersedia
                     </div>
                     <div class="trk-revision-note" style="color:#1B5E20; font-size:12px;">
-                        Hasil evaluasi audit permohonan Anda telah dirilis. Silakan buka halaman <strong>Hasil Audit</strong> untuk melihat dokumen dan detail rekomendasi resmi.
+                        Hasil evaluasi audit permohonan Anda telah dirilis. Silakan buka halaman <strong>Hasil
+                            Audit</strong> untuk melihat dokumen dan detail rekomendasi resmi.
                     </div>
                     <div class="mt-3">
                         <a href="{{ route('vendor.audit.results') }}" class="btn btn-sm btn-success font-weight-bold">
@@ -529,16 +607,30 @@
                 </div>
             @endif
 
-            <div class="mt-8">
-                <a href="{{ route('registrasi.index') }}" class="btn btn-light-primary font-weight-bold mr-2">
-                    @if ($application->status === \App\Models\VendorApplication::STATUS_NEED_REVISION)
-                        <i class="fas fa-edit"></i> Perbaiki Form
-                    @else
-                        <i class="far fa-eye"></i> Lihat Form
+            <div class="mt-8 d-flex align-items-center flex-wrap" style="gap: 8px;">
+                @if (auth()->user()->role === 'supplier')
+                    <a href="{{ route('registrasi.index') }}" class="btn btn-light-primary font-weight-bold">
+                        @if ($application->status === \App\Models\VendorApplication::STATUS_NEED_REVISION)
+                            <i class="fas fa-edit mr-1"></i> Perbaiki Form
+                        @else
+                            <i class="fas fa-eye mr-1"></i> Lihat Form
+                        @endif
+                    </a>
+                @else
+                    {{-- Internal Staff Navigation --}}
+                    @if ($isRekualifikasi)
+                        <a href="{{ route('rekualifikasi.index') }}" class="btn btn-light-danger font-weight-bold">
+                            <i class="fas fa-arrow-left mr-1"></i> Kembali ke Rekualifikasi
+                        </a>
                     @endif
-                </a>
-                <a href="{{ route('dashboard') }}" class="btn btn-primary font-weight-bold">
-                    <i class="fas fa-tachometer-alt"></i> Ke Dashboard
+                    @canany(['verifikasi-list', 'verifikasi-detail'])
+                        <a href="{{ route('verifikasi.show', $application->id) }}" class="btn btn-primary font-weight-bold">
+                            <i class="fas fa-clipboard-check mr-1"></i> Verifikasi Berkas
+                        </a>
+                    @endcanany
+                @endif
+                <a href="{{ route('dashboard') }}" class="btn btn-light-primary font-weight-bold">
+                    <i class="fas fa-tachometer-alt mr-1"></i> Ke Dashboard
                 </a>
             </div>
         </div>

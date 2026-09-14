@@ -81,13 +81,14 @@ class VendorRekualifikasiController extends Controller
     public function index(Request $request)
     {
         $query = VendorApplication::where('type', VendorApplication::TYPE_REKUALIFIKASI)
-            ->with(['user', 'parent', 'general']);
+            ->with(['user', 'parent.general', 'general', 'qualification']);
 
         if (Auth::user()->role === 'supplier') {
             $query->where('user_id', Auth::id());
         }
 
-        $applications = $query->latest()->paginate(15);
+        // ponytail: client-side collection with get() is optimal for current volume; ceiling ~1000 rows, upgrade path to Yajra / serverSide: true
+        $applications = $query->latest()->get();
 
         return view('admin.rekualifikasi.index', compact('applications'));
     }
