@@ -19,9 +19,9 @@
     --vnd-cyan-bd: #a5e7f0;
 
     /* Purple - Tertiary (Alternative States, Risk Medium) */
-    --vnd-purple: #7c3aed;
-    --vnd-purple-lt: #f3e8ff;
-    --vnd-purple-bd: #d8b4fe;
+    --vnd-purple: #4f46e5;
+    --vnd-purple-lt: #e0e7ff;
+    --vnd-purple-bd: #c7d2fe;
 
     /* Green - Success (Verified, Approved, Low Risk) */
     --vnd-green: #2e7d32;
@@ -1220,3 +1220,4 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
 .vnd-progress-fill--green {
     background: linear-gradient(90deg, var(--vnd-green), #66bb6a);
 }
+
