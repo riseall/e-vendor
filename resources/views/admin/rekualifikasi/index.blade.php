@@ -14,15 +14,21 @@
     @php
         $appsColl = collect($applications ?? []);
         $totalCount = $appsColl->count();
-        $submittedCount = $appsColl->filter(function ($a) {
-            return in_array($a->status, ['submitted', 'verified', 'in_progress']);
-        })->count();
-        $revisionCount = $appsColl->filter(function ($a) {
-            return in_array($a->status, ['need_revision', 'draft']);
-        })->count();
-        $approvedCount = $appsColl->filter(function ($a) {
-            return $a->status === 'approved';
-        })->count();
+        $submittedCount = $appsColl
+            ->filter(function ($a) {
+                return in_array($a->status, ['submitted', 'verified', 'in_progress']);
+            })
+            ->count();
+        $revisionCount = $appsColl
+            ->filter(function ($a) {
+                return in_array($a->status, ['need_revision', 'draft']);
+            })
+            ->count();
+        $approvedCount = $appsColl
+            ->filter(function ($a) {
+                return $a->status === 'approved';
+            })
+            ->count();
     @endphp
 
     <div class="row mb-6">
@@ -85,32 +91,44 @@
                 scrollCollapse: true,
                 scrollX: true,
                 paging: true,
-                order: [[5, 'desc']], // Sort descending by Tgl Dibuat
-                columnDefs: [
-                    { targets: 'no-sort', orderable: false, searchable: false },
-                    { targets: 0, orderable: false, searchable: false }
+                order: [
+                    [5, 'desc']
+                ], // Sort descending by Tgl Dibuat
+                columnDefs: [{
+                        targets: 'no-sort',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        targets: 0,
+                        orderable: false,
+                        searchable: false
+                    }
                 ],
                 dom: '<"d-flex justify-content-between align-items-center mb-4"lf>rtip',
-                language: {
-                    search: "_INPUT_",
-                    searchPlaceholder: "Cari nomor, vendor, pemicu...",
-                    lengthMenu: "Tampilkan _MENU_ data",
-                    info: "Menampilkan _START_ &ndash; _END_ dari _TOTAL_ permohonan",
-                    infoEmpty: "Menampilkan 0 data",
-                    infoFiltered: "(disaring dari _MAX_ total permohonan)",
-                    zeroRecords: "Tidak ditemukan data rekualifikasi yang sesuai",
-                    emptyTable: "Belum ada data rekualifikasi vendor",
-                    paginate: {
-                        previous: '<i class="fas fa-chevron-left font-size-xs"></i>',
-                        next: '<i class="fas fa-chevron-right font-size-xs"></i>'
-                    }
-                }
+                // language: {
+                //     search: "_INPUT_",
+                //     searchPlaceholder: "Cari nomor, vendor, pemicu...",
+                //     lengthMenu: "Tampilkan _MENU_ data",
+                //     info: "Menampilkan _START_ &ndash; _END_ dari _TOTAL_ permohonan",
+                //     infoEmpty: "Menampilkan 0 data",
+                //     infoFiltered: "(disaring dari _MAX_ total permohonan)",
+                //     zeroRecords: "Tidak ditemukan data rekualifikasi yang sesuai",
+                //     emptyTable: "Belum ada data rekualifikasi vendor",
+                //     paginate: {
+                //         previous: '<i class="fas fa-chevron-left font-size-xs"></i>',
+                //         next: '<i class="fas fa-chevron-right font-size-xs"></i>'
+                //     }
+                // }
             });
 
             /* Auto Update Nomor Urut Kolom No saat sorting / searching */
-            table.on('draw.dt', function () {
+            table.on('draw.dt', function() {
                 var info = table.page.info();
-                table.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+                table.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                }).nodes().each(function(cell, i) {
                     cell.innerHTML = info.start + i + 1;
                 });
             });
@@ -182,11 +200,26 @@
                 var $el = $('#vnd-flash');
                 if (!$el.length || typeof Swal === 'undefined') return;
 
-                var messages = [
-                    { key: 'success', icon: 'success', title: 'Sukses' },
-                    { key: 'error', icon: 'error', title: 'Gagal' },
-                    { key: 'warning', icon: 'warning', title: 'Peringatan' },
-                    { key: 'info', icon: 'info', title: 'Informasi' },
+                var messages = [{
+                        key: 'success',
+                        icon: 'success',
+                        title: 'Sukses'
+                    },
+                    {
+                        key: 'error',
+                        icon: 'error',
+                        title: 'Gagal'
+                    },
+                    {
+                        key: 'warning',
+                        icon: 'warning',
+                        title: 'Peringatan'
+                    },
+                    {
+                        key: 'info',
+                        icon: 'info',
+                        title: 'Informasi'
+                    },
                 ];
 
                 messages.forEach(function(m) {
