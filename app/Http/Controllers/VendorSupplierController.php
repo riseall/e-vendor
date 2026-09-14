@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Currency;
 use App\Models\VendorApplication;
 use Illuminate\Http\Request;
 
@@ -32,8 +33,9 @@ class VendorSupplierController extends Controller
         }
 
         $suppliers = $query->latest('approved_at')->paginate(15)->withQueryString();
+        $currencies = Currency::orderBy('code')->get();
 
-        return view('admin.supplier.index', compact('suppliers', 'search'));
+        return view('admin.supplier.index', compact('suppliers', 'search', 'currencies'));
     }
 
     /**
