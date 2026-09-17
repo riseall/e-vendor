@@ -32,7 +32,7 @@
                 </div> --}}
 
                 {{-- Status --}}
-                <select name="status" id="filterStatus" class="selectpicker" style="width:160px;">
+                <select name="status" id="filterStatus" class="selectpicker" data-width="160px">
                     @foreach ($statusOptions as $value => $label)
                         <option value="{{ $value }}" {{ $status === $value ? 'selected' : '' }}>
                             {{ $label }}
@@ -42,7 +42,7 @@
 
                 {{-- Aksi --}}
                 <button type="submit" class="vnd-btn-filter">
-                    <i class="flaticon-search" style="font-size:.7rem;"></i> Filter
+                    <i class="fas fa-filter mr-1" style="font-size:.7rem;"></i> Filter
                 </button>
                 <a href="{{ route('verifikasi.index') }}" class="vnd-btn-reset">
                     Reset

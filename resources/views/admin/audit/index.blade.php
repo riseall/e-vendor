@@ -50,20 +50,20 @@
                     <input type="text" name="q" value="{{ $search }}" class="form-control form-control-sm"
                         placeholder="No permohonan / vendor...">
                 </div> --}}
-                <select name="type" class="selectpicker" style="width:130px;">
+                <select name="type" class="selectpicker" data-width="130px">
                     @foreach ($typeOptions as $value => $label)
                         <option value="{{ $value }}" {{ $type === $value ? 'selected' : '' }}>{{ $label }}
                         </option>
                     @endforeach
                 </select>
-                <select name="status" class="selectpicker" style="width:160px;">
+                <select name="status" class="selectpicker" data-width="160px">
                     @foreach ($statusOptions as $value => $label)
                         <option value="{{ $value }}" {{ $status === $value ? 'selected' : '' }}>
                             {{ $label }}</option>
                     @endforeach
                 </select>
                 <button type="submit" class="vnd-btn-filter">
-                    <i class="flaticon-search" style="font-size:.65rem;"></i> Filter
+                    <i class="fas fa-filter mr-1" style="font-size:.7rem;"></i> Filter
                 </button>
                 <a href="{{ route('qa.audit.index') }}" class="vnd-btn-reset">Reset</a>
             </form>
