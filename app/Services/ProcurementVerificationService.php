@@ -181,11 +181,9 @@ class ProcurementVerificationService
                 })
                 ->orWhereHas('general', function ($generalQuery) use ($search) {
                     $generalQuery->where('nama_perusahaan', 'like', '%' . $search . '%')
-                        ->orWhere('npwp', 'like', '%' . $search . '%')
-                        ->orWhere('nib', 'like', '%' . $search . '%')
-                        ->orWhere('pic_nama', 'like', '%' . $search . '%')
-                        ->orWhere('pic_email', 'like', '%' . $search . '%')
-                        ->orWhere('pic_telepon', 'like', '%' . $search . '%');
+                        ->orWhere('pic_nama', 'like', '%' . $search . '%');
+                    // ponytail: encrypted fields (npwp, nib, pic_email, pic_telepon) cannot be searched via SQL LIKE.
+                    // If exact search is needed in the future, implement blind indexing (HMAC hash column).
                 });
         });
     }

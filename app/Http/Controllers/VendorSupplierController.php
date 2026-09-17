@@ -22,8 +22,8 @@ class VendorSupplierController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('application_number', 'like', "%{$search}%")
                     ->orWhereHas('general', function ($g) use ($search) {
-                        $g->where('nama_perusahaan', 'like', "%{$search}%")
-                            ->orWhere('email_perusahaan', 'like', "%{$search}%");
+                        $g->where('nama_perusahaan', 'like', "%{$search}%");
+                        // ponytail: email_perusahaan is encrypted, removed from SQL LIKE
                     })
                     ->orWhereHas('user', function ($u) use ($search) {
                         $u->where('name', 'like', "%{$search}%")

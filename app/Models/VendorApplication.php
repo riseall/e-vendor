@@ -44,6 +44,8 @@ class VendorApplication extends Model
         'approved_at' => 'datetime',
         'valid_until' => 'date',
         'parent_id' => 'integer',
+        'qad_supplier_code' => 'encrypted',
+        'supplier_type' => 'encrypted',
     ];
 
     // Type constants

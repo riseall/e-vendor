@@ -56,8 +56,8 @@ class VendorQualificationController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('application_number', 'like', "%{$search}%")
                     ->orWhereHas('general', function ($general) use ($search) {
-                        $general->where('nama_perusahaan', 'like', "%{$search}%")
-                            ->orWhere('email_perusahaan', 'like', "%{$search}%");
+                        $general->where('nama_perusahaan', 'like', "%{$search}%");
+                        // ponytail: email_perusahaan is encrypted, removed from SQL LIKE
                     })
                     ->orWhereHas('user', function ($user) use ($search) {
                         $user->where('name', 'like', "%{$search}%")
