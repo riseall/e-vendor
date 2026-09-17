@@ -137,6 +137,20 @@
                 cancelButtonText: 'Batal'
             }).then(function(result) {
                 if (result.isConfirmed || result.value) {
+                    Swal.fire({
+                        title: isRekualifikasi ? 'Mengirim Rekualifikasi...' : 'Mengirim Revisi...',
+                        text: 'Mohon tunggu, jangan menutup atau me-refresh halaman ini.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        onOpen: function() {
+                            Swal.showLoading();
+                        },
+                        didOpen: function() {
+                            Swal.showLoading();
+                        }
+                    });
+
                     button.prop('disabled', true).html(
                         '<span class="spinner-border spinner-border-sm mr-2"></span> Memproses...'
                     );

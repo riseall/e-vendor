@@ -388,6 +388,22 @@
                 });
             }
 
+            function showSubmitLoading(title, text) {
+                Swal.fire({
+                    title: title || 'Memproses Permohonan...',
+                    text: text || 'Mohon tunggu, sistem sedang memproses data Anda. Jangan menutup atau me-refresh halaman ini.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    onOpen: function() {
+                        Swal.showLoading();
+                    },
+                    didOpen: function() {
+                        Swal.showLoading();
+                    }
+                });
+            }
+
             function syncCategoryDraftBeforeContinue(actionType, btnElement) {
                 var selectedCategories = $('.category-checkbox:checked');
 
@@ -397,14 +413,20 @@
                 }
 
                 var originalBtnHtml = btnElement.data('original-html') || btnElement.html();
+                btnElement.data('original-html', originalBtnHtml);
                 var formData = new FormData();
                 formData.append('_token', $('input[name="_token"]').val());
                 selectedCategories.each(function() {
                     formData.append('categories[]', $(this).val());
                 });
 
-                btnElement.attr('disabled', true).html(
-                    '<span class="spinner-border spinner-border-sm"></span> Menyiapkan draft...');
+                if (actionType === 'submit') {
+                    showSubmitLoading('Menyiapkan Permohonan...', 'Sedang mempersiapkan data permohonan Anda...');
+                    btnElement.attr('disabled', true);
+                } else {
+                    btnElement.attr('disabled', true).html(
+                        '<span class="spinner-border spinner-border-sm"></span> Menyiapkan draft...');
+                }
 
                 $.ajax({
                     url: "{{ route('registrasi.save-draft') }}",
@@ -418,7 +440,9 @@
                     success: function(res) {
                         if (res.application_id) {
                             $('#application_id').val(res.application_id);
-                            btnElement.attr('disabled', false).html(originalBtnHtml);
+                            if (actionType !== 'submit') {
+                                btnElement.attr('disabled', false).html(originalBtnHtml);
+                            }
                             sendForm(actionType, btnElement, true);
                         }
                     },
@@ -435,7 +459,7 @@
                         }
                     },
                     complete: function() {
-                        if (!$('#application_id').val()) {
+                        if (!$('#application_id').val() || actionType !== 'submit') {
                             btnElement.attr('disabled', false).html(originalBtnHtml);
                         }
                     }
@@ -445,12 +469,12 @@
             function finalizeSubmit(applicationId, btnElement) {
                 if (!applicationId) {
                     Swal.fire('Error', 'Nomor draft permohonan tidak ditemukan.', 'error');
+                    btnElement.attr('disabled', false).html(btnElement.data('original-html') || btnElement.html());
                     return;
                 }
 
-                var originalBtnHtml = btnElement.data('original-html') || btnElement.html();
-                btnElement.attr('disabled', true).html(
-                    '<span class="spinner-border spinner-border-sm"></span> Mengirim permohonan...');
+                showSubmitLoading('Mengirim Permohonan...', 'Sedang memproses dan mengirimkan permohonan Anda. Mohon tunggu...');
+                btnElement.attr('disabled', true);
 
                 $.ajax({
                     url: "{{ route('registrasi.submit') }}",
@@ -483,7 +507,7 @@
                         }
                     },
                     complete: function() {
-                        btnElement.attr('disabled', false).html(originalBtnHtml);
+                        btnElement.attr('disabled', false).html(btnElement.data('original-html') || btnElement.html());
                     }
                 });
             }
@@ -524,10 +548,10 @@
                             icon: 'error',
                             title: 'Gagal',
                             text: xhr.responseJSON?.message ||
-                                'Gagal menyimpan revisi sebelum submit.'
+                                'Gagal menyimpan data sebelum submit.'
                         });
                     }
-                    btnElement.attr('disabled', false).html(btnElement.data('original-html'));
+                    btnElement.attr('disabled', false).html(btnElement.data('original-html') || btnElement.html());
                 });
             }
 
@@ -578,13 +602,16 @@
                 // 4. Animasi Loading
                 var originalBtnHtml = btnElement.html();
                 btnElement.data('original-html', originalBtnHtml);
-                btnElement.attr('disabled', true).html(
-                    '<span class="spinner-border spinner-border-sm"></span> Loading...');
 
                 if (actionType === 'submit') {
+                    showSubmitLoading('Mengirim Permohonan...', 'Sedang memproses dan mengirimkan permohonan Anda. Mohon tunggu...');
+                    btnElement.attr('disabled', true);
                     saveBeforeFinalSubmit(formData, btnElement);
                     return;
                 }
+
+                btnElement.attr('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm"></span> Loading...');
 
                 // 5. Eksekusi AJAX
                 $.ajax({
@@ -623,6 +650,11 @@
                     }
                 });
             }
+
+            // Prevent default form submit
+            $('#kt_form').on('submit', function(e) {
+                e.preventDefault();
+            });
 
             // Bind ke tombol
             // Gunakan class atau ID, pastikan tombol di Blade Bos sesuai

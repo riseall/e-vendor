@@ -91,21 +91,6 @@
                 scrollCollapse: true,
                 scrollX: true,
                 paging: true,
-                order: [
-                    [5, 'desc']
-                ], // Sort descending by Tgl Dibuat
-                columnDefs: [{
-                        targets: 'no-sort',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        targets: 0,
-                        orderable: false,
-                        searchable: false
-                    }
-                ],
-                dom: '<"d-flex justify-content-between align-items-center mb-4"lf>rtip',
                 // language: {
                 //     search: "_INPUT_",
                 //     searchPlaceholder: "Cari nomor, vendor, pemicu...",
@@ -157,7 +142,7 @@
                 var verificationUrl = btn.data('verification-url') || '#';
 
                 $('#dtl_appnum').text(appNum);
-                $('#dtl_app_id').text('ID: ' + appId);
+                // $('#dtl_app_id').text('ID: ' + appId);
                 $('#dtl_vendor_name').text(vendorName);
                 $('#dtl_vendor_email').text(vendorEmail);
                 $('#dtl_pic_name').text(picName);
