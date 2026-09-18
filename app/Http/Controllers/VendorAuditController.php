@@ -248,23 +248,6 @@ class VendorAuditController extends Controller
 
             $audit = VendorAudit::create($payload);
 
-            if ($auditType === VendorAudit::TYPE_ON_SITE) {
-                // Auto generate audit letter
-                $html = view('admin.audit.letter', [
-                    'audit'       => $audit,
-                    'application' => $application,
-                ])->render();
-
-                $filename = 'audit-letter-' . $audit->id . '-' . Str::slug((string) $application->application_number) . '.html';
-                $path = 'audit-letters/' . $filename;
-
-                Storage::disk('public')->put($path, $html);
-
-                $audit->update([
-                    'audit_letter_path'    => $path,
-                    'audit_letter_sent_at' => now(),
-                ]);
-            }
 
             $workflow->record(
                 $application,
@@ -376,15 +359,6 @@ class VendorAuditController extends Controller
 
 
 
-    public function downloadLetter(int $auditId)
-    {
-        $this->authorizeQaAccess();
-
-        $audit = VendorAudit::findOrFail($auditId);
-        abort_unless($audit->audit_letter_path && Storage::disk('public')->exists($audit->audit_letter_path), 404);
-
-        return Storage::disk('public')->download($audit->audit_letter_path);
-    }
 
     public function storeResult(Request $request, int $auditId, VendorApplicationWorkflowService $workflow, VendorApplicationNotificationService $notification)
     {

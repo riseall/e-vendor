@@ -86,11 +86,6 @@
                     <span class="verif-status-badge is-pending">
                         {{ strtoupper(str_replace('_', ' ', $audit->status)) }}
                     </span>
-                    @if ($audit->audit_letter_path)
-                        <a href="{{ route('qa.audit.letter.download', $audit->id) }}" class="btn btn-sm btn-light-primary">
-                            <i class="flaticon2-download"></i> Unduh Surat Audit
-                        </a>
-                    @endif
                 </div>
             </div>
 
