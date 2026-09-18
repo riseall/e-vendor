@@ -1,140 +1,23 @@
 @extends('layouts.app', ['title' => 'Users'])
 
 @section('content')
+    {{-- Flash container untuk SweetAlert --}}
+    <div id="vnd-flash" data-success="{{ session('success') }}" data-error="{{ session('error') }}"
+        data-warning="{{ session('warning') }}" data-info="{{ session('info') }}" hidden></div>
+
     <div class="card card-custom">
         <div class="card-header">
             <div class="card-title">
+                <span class="card-icon">
+                    <i class="fas fa-users text-primary"></i>
+                </span>
                 <h3 class="card-label">Master User</h3>
             </div>
             <div class="card-toolbar">
                 <button type="button" class="btn btn-primary font-weight-bolder" data-toggle="modal"
                     data-target="#modalTambahUser">
-                    <i class="la la-user-plus icon-xl"></i> User Baru
+                    <i class="fas fa-plus mr-1"></i> User Baru
                 </button>
-            </div>
-        </div>
-
-        <!-- Modal Tambah User -->
-        <div class="modal fade" id="modalTambahUser" data-backdrop="static" tabindex="-1" role="dialog"
-            aria-labelledby="modalTambahUserLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalTambahUserLabel">Tambah User Baru</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <i aria-hidden="true" class="ki ki-close"></i>
-                        </button>
-                    </div>
-                    <form id="formTambahUser">
-                        @csrf
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Nama Lengkap <span class="text-danger">*</span></label>
-                                <input type="text" name="name" class="form-control" placeholder="Nama User"
-                                    required />
-                            </div>
-
-                            <div class="form-group">
-                                <label class="font-weight-bold">Username <span class="text-danger">*</span></label>
-                                <input type="text" name="username" class="form-control" placeholder="Username / NIK"
-                                    required />
-                            </div>
-
-                            <div class="form-group">
-                                <label class="font-weight-bold">Email <span class="text-danger">*</span></label>
-                                <input type="email" name="email" class="form-control" placeholder="Email User"
-                                    required />
-                            </div>
-
-                            <div class="form-group">
-                                <label class="font-weight-bold">Password <span class="text-danger">*</span></label>
-                                <input type="password" name="password" class="form-control" placeholder="Password"
-                                    required />
-                            </div>
-
-                            <div class="form-group">
-                                <label class="font-weight-bold">Pilih Role</label>
-                                <select class="form-control select2" id="select_role" name="role" style="width: 100%">
-                                    <option value="">-- Pilih Role --</option>
-                                    @if (isset($roles))
-                                        @foreach ($roles as $r)
-                                            <option value="{{ $r->name }}">{{ $r->name }}</option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light-primary font-weight-bold"
-                                data-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-primary font-weight-bold" id="btnSimpan">Simpan
-                                User</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Edit User -->
-        <div class="modal fade" id="modalEditUser" data-backdrop="static" tabindex="-1" role="dialog"
-            aria-labelledby="modalEditUserLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalEditUserLabel">Edit Data User</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <i aria-hidden="true" class="ki ki-close"></i>
-                        </button>
-                    </div>
-                    <form id="formEditUser">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" id="edit_user_id" name="user_id" />
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Nama Lengkap <span class="text-danger">*</span></label>
-                                <input type="text" id="edit_name" name="name" class="form-control" required />
-                            </div>
-
-                            <div class="form-group">
-                                <label class="font-weight-bold">Username <span class="text-danger">*</span></label>
-                                <input type="text" id="edit_username" name="username" class="form-control"
-                                    required />
-                            </div>
-
-                            <div class="form-group">
-                                <label class="font-weight-bold">Email <span class="text-danger">*</span></label>
-                                <input type="email" id="edit_email" name="email" class="form-control" required />
-                            </div>
-
-                            <div class="form-group">
-                                <label class="font-weight-bold">Password Baru <span
-                                        class="text-muted font-size-xs">(Kosongkan jika tidak diubah)</span></label>
-                                <input type="password" id="edit_password" name="password" class="form-control"
-                                    placeholder="Password baru..." />
-                            </div>
-
-                            <div class="form-group">
-                                <label class="font-weight-bold">Pilih Role</label>
-                                <select class="form-control select2" id="edit_select_role" name="role"
-                                    style="width: 100%">
-                                    <option value="">-- Pilih Role --</option>
-                                    @if (isset($roles))
-                                        @foreach ($roles as $r)
-                                            <option value="{{ $r->name }}">{{ $r->name }}</option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light-primary font-weight-bold"
-                                data-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-primary font-weight-bold" id="btnUpdateUser">Simpan
-                                Perubahan</button>
-                        </div>
-                    </form>
-                </div>
             </div>
         </div>
 
@@ -154,12 +37,74 @@
             </table>
         </div>
     </div>
+
+    <!-- Modals Partial -->
+    @include('admin.user.partials.modal-create')
+    @include('admin.user.partials.modal-edit')
 @endsection
 
 @push('scripts')
     <script src="{{ asset('js/widgets/select2.js') }}"></script>
     <script>
+        // Shared toast notification helper standard vnd-swal-toast
+        function showToast(type, title, message) {
+            var iconClass = 'fa-check text-success';
+            var btnClass = 'btn-outline-success';
+            if (type === 'error') {
+                iconClass = 'fa-times text-danger';
+                btnClass = 'btn-outline-danger';
+            } else if (type === 'warning') {
+                iconClass = 'fa-exclamation text-warning';
+                btnClass = 'btn-outline-warning';
+            } else if (type === 'info') {
+                iconClass = 'fa-info text-info';
+                btnClass = 'btn-outline-info';
+            }
+
+            Swal.fire({
+                html: '<div class="vnd-swal-toast-body">' +
+                    '<div class="btn btn-icon ' + btnClass + ' btn-circle btn-sm m-0">' +
+                    '<i class="fas ' + iconClass + '" style="font-size:1rem;"></i>' +
+                    '</div>' +
+                    '<div class="vnd-swal-toast-content">' +
+                    '<div class="vnd-swal-toast__title">' + (title || 'Notifikasi') + '</div>' +
+                    '<div class="vnd-swal-toast__text">' + message + '</div>' +
+                    '</div>' +
+                    '</div>',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                showCloseButton: true,
+                timer: 3500,
+                timerProgressBar: true,
+                width: 360,
+                padding: '0',
+                customClass: {
+                    popup: 'vnd-swal-toast shadow-sm',
+                    closeButton: 'vnd-swal-toast__close',
+                },
+            });
+        }
+
         $(document).ready(function() {
+            // Flash Session helper jika ada redirect with flash message
+            (function() {
+                var $el = $('#vnd-flash');
+                if (!$el.length) return;
+                var messages = [
+                    { key: 'success', type: 'success', title: 'Sukses' },
+                    { key: 'error', type: 'error', title: 'Gagal' },
+                    { key: 'warning', type: 'warning', title: 'Peringatan' },
+                    { key: 'info', type: 'info', title: 'Informasi' },
+                ];
+                messages.forEach(function(m) {
+                    var msg = $el.data(m.key);
+                    if (msg) {
+                        showToast(m.type, m.title, msg);
+                    }
+                });
+            })();
+
             var table = $('#kt_datatable').DataTable({
                 responsive: true,
                 processing: false,
@@ -188,32 +133,32 @@
                             if (data && data.length > 0) {
                                 var badges = '';
                                 $.each(data, function(index, role) {
-                                    var color = 'label label-info';
+                                    var color = 'label-info';
                                     switch (role.name) {
                                         case 'Super Admin':
-                                            color = 'label label-danger';
+                                            color = 'label-danger';
                                             break;
                                         case 'Admin IT':
-                                            color = 'label label-dark';
+                                            color = 'label-dark';
                                             break;
                                         case 'Verifikator':
-                                            color = 'label label-danger';
+                                            color = 'label-danger';
                                             break;
                                         case 'Procurement':
-                                            color = 'label label-success';
+                                            color = 'label-success';
                                             break;
                                         case 'Quality Assurance':
-                                            color = 'label label-info';
+                                            color = 'label-info';
                                             break;
                                         case 'Apoteker':
-                                            color = 'label label-warning';
+                                            color = 'label-warning';
                                             break;
                                         case 'Supplier':
-                                            color = 'label label-primary';
+                                            color = 'label-primary';
                                             break;
                                     }
                                     badges +=
-                                        '<span class="label label-lg font-weight-bold label-' +
+                                        '<span class="label label-lg font-weight-bold ' +
                                         color + ' label-inline mr-1">' + role.name +
                                         '</span>';
                                 });
@@ -233,128 +178,37 @@
                     },
                     {
                         data: 'id',
-                        responsivePriority: -1
-                    },
-                ],
-                columnDefs: [{
-                    targets: -1,
-                    title: 'Actions',
-                    orderable: false,
-                    render: function(data, type, full) {
-                        var roleName = (full.roles && full.roles.length) ? full.roles[0].name :
-                            '';
-                        return `
-                            <div class="d-flex justify-content-center">
-                                <button class="btn btn-sm btn-icon btn-outline-warning mr-2 btn-edit-user" 
-                                    data-id="${data}" 
-                                    data-name="${full.name || ''}" 
-                                    data-username="${full.username || ''}" 
-                                    data-email="${full.email || ''}" 
-                                    data-role="${roleName}" 
-                                    title="Edit">
-                                    <i class="la la-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-icon btn-outline-danger btn-delete-user" 
-                                    data-id="${data}" 
-                                    data-name="${full.name || ''}" 
-                                    title="Delete">
-                                    <i class="la la-trash"></i>
-                                </button>
-                            </div>`;
-                    },
-                }],
-            });
-
-            // Handle Create User
-            $('#formTambahUser').on('submit', function(e) {
-                e.preventDefault();
-                let btn = $('#btnSimpan');
-                btn.addClass('spinner spinner-white spinner-right').attr('disabled', true);
-
-                $.ajax({
-                    url: "{{ route('user.store') }}",
-                    method: "POST",
-                    dataType: 'json',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    data: $(this).serialize(),
-                    success: function(res) {
-                        $('#modalTambahUser').modal('hide');
-                        $('#formTambahUser')[0].reset();
-                        Swal.fire("Berhasil!", "User telah ditambahkan.", "success");
-                        table.ajax.reload();
-                    },
-                    error: function(err) {
-                        let msg = "Terjadi kesalahan saat menyimpan.";
-                        if (err.responseJSON && err.responseJSON.message) {
-                            msg = err.responseJSON.message;
-                        }
-                        Swal.fire("Error!", msg, "error");
-                    },
-                    complete: function() {
-                        btn.removeClass('spinner spinner-white spinner-right').removeAttr(
-                            'disabled');
-                    }
-                });
-            });
-
-            // Open Edit Modal
-            $(document).on('click', '.btn-edit-user', function() {
-                let id = $(this).data('id');
-                let name = $(this).data('name');
-                let username = $(this).data('username');
-                let email = $(this).data('email');
-                let role = $(this).data('role');
-
-                $('#edit_user_id').val(id);
-                $('#edit_name').val(name);
-                $('#edit_username').val(username);
-                $('#edit_email').val(email);
-                $('#edit_password').val('');
-                $('#edit_select_role').val(role).trigger('change');
-
-                $('#modalEditUser').modal('show');
-            });
-
-            // Handle Update User
-            $('#formEditUser').on('submit', function(e) {
-                e.preventDefault();
-                let id = $('#edit_user_id').val();
-                let btn = $('#btnUpdateUser');
-                btn.addClass('spinner spinner-white spinner-right').attr('disabled', true);
-
-                $.ajax({
-                    url: "/user/" + id,
-                    method: "POST",
-                    dataType: 'json',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    data: $(this).serialize(),
-                    success: function(res) {
-                        $('#modalEditUser').modal('hide');
-                        Swal.fire("Berhasil!", "Data user telah diperbarui.", "success");
-                        table.ajax.reload();
-                    },
-                    error: function(err) {
-                        let msg = "Terjadi kesalahan saat memperbarui user.";
-                        if (err.responseJSON && err.responseJSON.message) {
-                            msg = err.responseJSON.message;
-                        }
-                        Swal.fire("Error!", msg, "error");
-                    },
-                    complete: function() {
-                        btn.removeClass('spinner spinner-white spinner-right').removeAttr(
-                            'disabled');
-                    }
-                });
+                        responsivePriority: -1,
+                        className: 'text-center',
+                        orderable: false,
+                        render: function(data, type, full) {
+                            var roleName = (full.roles && full.roles.length) ? full.roles[0].name : '';
+                            return `
+                                <div class="d-flex justify-content-center">
+                                    <button class="btn btn-sm btn-icon btn-outline-warning mr-2 btn-edit-user" 
+                                        data-id="${data}" 
+                                        data-name="${full.name || ''}" 
+                                        data-username="${full.username || ''}" 
+                                        data-email="${full.email || ''}" 
+                                        data-role="${roleName}" 
+                                        title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-icon btn-outline-danger btn-delete-user" 
+                                        data-id="${data}" 
+                                        data-name="${full.name || ''}" 
+                                        title="Delete">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>`;
+                        },
+                    }],
             });
 
             // Handle Delete User
             $(document).on('click', '.btn-delete-user', function() {
-                let id = $(this).data('id');
-                let name = $(this).data('name');
+                var id = $(this).data('id');
+                var name = $(this).data('name');
 
                 Swal.fire({
                     title: 'Hapus User?',
@@ -375,12 +229,11 @@
                                 _token: "{{ csrf_token() }}"
                             },
                             success: function(res) {
-                                Swal.fire('Terhapus!', res.message ||
-                                    'User berhasil dihapus.', 'success');
+                                showToast('success', 'Terhapus', res.message || 'User berhasil dihapus.');
                                 table.ajax.reload();
                             },
                             error: function() {
-                                Swal.fire('Error!', 'Gagal menghapus user.', 'error');
+                                showToast('error', 'Gagal', 'Gagal menghapus user.');
                             }
                         });
                     }
