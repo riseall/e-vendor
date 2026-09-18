@@ -5,8 +5,7 @@
             <div class="col-lg-12 text-center">
                 <div class="pages-heading title-heading">
                     <h2 class="text-white title-dark"> {{ $title }} </h2>
-                    <p class="text-white-50 para-desc mb-0 mx-auto">Start working with Landrick that can provide
-                        everything you need to generate awareness, drive traffic, connect.</p>
+                    <p class="text-white-50 para-desc mb-0 mx-auto">{{ $subtitle ?? 'Portal Resmi Mitra Rekanan PT Phapros Tbk - Sistem Kualifikasi & Manajemen Rekanan Terpadu.' }}</p>
                 </div>
             </div><!--end col-->
         </div><!--end row-->
