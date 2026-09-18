@@ -63,6 +63,10 @@ class PermissionSeeder extends Seeder
             'evaluasi-create',
             'evaluasi-approve',
             'evaluasi-settings',
+
+            // Supplier Terekomendasi
+            'supplier-list',
+            'supplier-edit-qad',
         ];
 
         foreach ($permissions as $perm) {
@@ -94,19 +98,33 @@ class PermissionSeeder extends Seeder
             ]);
         }
 
+        $qaPermissions = [
+            'qa-risk-list',
+            'qa-risk-create',
+            'qa-risk-store',
+            'audit-list',
+            'audit-create',
+            'audit-verify',
+            'audit-result',
+            'evaluasi-list',
+            'evaluasi-create',
+            'supplier-list',
+            'supplier-edit-qad',
+        ];
+
         $qa = Role::where('name', 'Quality Assurance')->first();
         if ($qa) {
-            $qa->syncPermissions([
-                'qa-risk-list',
-                'qa-risk-create',
-                'qa-risk-store',
-                'audit-list',
-                'audit-create',
-                'audit-verify',
-                'audit-result',
-                'evaluasi-list',
-                'evaluasi-create',
-            ]);
+            $qa->syncPermissions($qaPermissions);
+        }
+
+        $apoteker = Role::where('name', 'Apoteker')->first();
+        if ($apoteker) {
+            $apoteker->syncPermissions($qaPermissions);
+        }
+
+        $specialist = Role::where('name', 'Specialist')->first();
+        if ($specialist) {
+            $specialist->syncPermissions($qaPermissions);
         }
 
         $procurement = Role::where('name', 'Procurement')->first();
@@ -119,6 +137,8 @@ class PermissionSeeder extends Seeder
                 'evaluasi-list',
                 'evaluasi-create',
                 'evaluasi-approve',
+                'supplier-list',
+                'supplier-edit-qad',
             ]);
         }
     }

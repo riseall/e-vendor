@@ -17,7 +17,7 @@ class QuestionnaireFormController extends Controller
     private function authorizeAdmin(): void
     {
         $user = Auth::user();
-        abort_unless($user && $user->hasAnyRole(['Super Admin', 'Admin IT']), 403);
+        abort_unless($user && ($user->hasAnyRole(['Super Admin', 'Admin IT']) || $user->can('questionnaire-list')), 403);
     }
 
     public function index()

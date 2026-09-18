@@ -186,7 +186,7 @@
                     </li>
                 @endif
 
-                @canany(['user-list', 'questionnaire-list'])
+                @canany(['user-list', 'role-list', 'questionnaire-list'])
                     <li class="menu-section">
                         <h4 class="menu-text">Master</h4>
                         <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
@@ -259,9 +259,10 @@
                     @endcan
                 @endcanany
 
-                @canany(['verifikasi-list', 'rekualifikasi-list'])
+                @canany(['verifikasi-list', 'qa-risk-list', 'audit-list', 'supplier-list', 'rekualifikasi-list',
+                    'evaluasi-list'])
                     <li class="menu-section">
-                        <h4 class="menu-text">Procurement</h4>
+                        <h4 class="menu-text">Vendor Management</h4>
                         <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
                     </li>
                     @can('verifikasi-list')
@@ -295,7 +296,59 @@
                                 <span class="menu-text">Verifikasi Vendor</span>
                             </a>
                         </li>
-                        <li class="menu-item {{ request()->routeIs('pengadaan.supplier.*') ? 'menu-item-active' : '' }}"
+                    @endcan
+
+                    @canany(['qa-risk-list', 'audit-list'])
+                        @can('qa-risk-list')
+                            <li class="menu-item" aria-haspopup="true">
+                                <a href="{{ route('qa.risk-assessment.index') }}" class="menu-link">
+                                    <span class="svg-icon menu-icon">
+                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px"
+                                            height="24px">
+                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                                <rect x="0" y="0" width="24" height="24" />
+                                                <path
+                                                    d="M9.07117914,12.5710461 L13.8326627,12.5710461 C14.108805,12.5710461 14.3326627,12.3471885 14.3326627,12.0710461 L14.3326627,0.16733734 C14.3326627,-0.108805035 14.108805,-0.33266266 13.8326627,-0.33266266 C13.6282104,-0.33266266 13.444356,-0.208187188 13.3684243,-0.0183579985 L8.6069408,11.8853508 C8.50438409,12.1417426 8.62909204,12.4327278 8.8854838,12.5352845 C8.94454394,12.5589085 9.00756943,12.5710461 9.07117914,12.5710461 Z"
+                                                    fill="#000000" opacity="0.3"
+                                                    transform="translate(11.451854, 6.119192) rotate(-270.000000) translate(-11.451854, -6.119192) " />
+                                                <path
+                                                    d="M9.23851648,24.5 L14,24.5 C14.2761424,24.5 14.5,24.2761424 14.5,24 L14.5,12.0962912 C14.5,11.8201488 14.2761424,11.5962912 14,11.5962912 C13.7955477,11.5962912 13.6116933,11.7207667 13.5357617,11.9105959 L8.77427814,23.8143047 C8.67172143,24.0706964 8.79642938,24.3616816 9.05282114,24.4642383 C9.11188128,24.4878624 9.17490677,24.5 9.23851648,24.5 Z"
+                                                    fill="#000000"
+                                                    transform="translate(11.500000, 18.000000) scale(1, -1) rotate(-270.000000) translate(-11.500000, -18.000000) " />
+                                                <rect fill="#000000" opacity="0.3"
+                                                    transform="translate(12.000000, 12.000000) rotate(-270.000000) translate(-12.000000, -12.000000) "
+                                                    x="11" y="2" width="2" height="20" rx="1" />
+                                            </g>
+                                        </svg>
+                                    </span>
+                                    <span class="menu-text">Risk Assessment</span>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('audit-list')
+                            <li class="menu-item" aria-haspopup="true">
+                                <a href="{{ route('qa.audit.index') }}" class="menu-link">
+                                    <span class="svg-icon menu-icon">
+                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px"
+                                            height="24px">
+                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                                <rect x="0" y="0" width="24" height="24" />
+                                                <path
+                                                    d="M6.5,16 L7.5,16 C8.32842712,16 9,16.6715729 9,17.5 L9,19.5 C9,20.3284271 8.32842712,21 7.5,21 L6.5,21 C5.67157288,21 5,20.3284271 5,19.5 L5,17.5 C5,16.6715729 5.67157288,16 6.5,16 Z M16.5,16 L17.5,16 C18.3284271,16 19,16.6715729 19,17.5 L19,19.5 C19,20.3284271 18.3284271,21 17.5,21 L16.5,21 C15.6715729,21 15,20.3284271 15,19.5 L15,17.5 C15,16.6715729 15.6715729,16 16.5,16 Z"
+                                                    fill="#000000" opacity="0.3" />
+                                                <path
+                                                    d="M5,4 L19,4 C20.1045695,4 21,4.8954305 21,6 L21,17 C21,18.1045695 20.1045695,19 19,19 L5,19 C3.8954305,19 3,18.1045695 3,17 L3,6 C3,4.8954305 3.8954305,4 5,4 Z M15.5,15 C17.4329966,15 19,13.4329966 19,11.5 C19,9.56700338 17.4329966,8 15.5,8 C13.5670034,8 12,9.56700338 12,11.5 C12,13.4329966 13.5670034,15 15.5,15 Z M15.5,13 C16.3284271,13 17,12.3284271 17,11.5 C17,10.6715729 16.3284271,10 15.5,10 C14.6715729,10 14,10.6715729 14,11.5 C14,12.3284271 14.6715729,13 15.5,13 Z M7,8 L7,8 C7.55228475,8 8,8.44771525 8,9 L8,11 C8,11.5522847 7.55228475,12 7,12 L7,12 C6.44771525,12 6,11.5522847 6,11 L6,9 C6,8.44771525 6.44771525,8 7,8 Z"
+                                                    fill="#000000" />
+                                            </g>
+                                        </svg>
+                                    </span>
+                                    <span class="menu-text">Audit Vendor</span>
+                                </a>
+                            </li>
+                        @endcan
+                    @endcanany
+                    @can('supplier-list')
+                        <li class="menu-item {{ request()->routeIs('supplier.*') ? 'menu-item-active' : '' }}"
                             aria-haspopup="true">
                             <a href="{{ route('supplier.index') }}" class="menu-link">
                                 <span class="svg-icon menu-icon">
@@ -337,7 +390,7 @@
                                         </g>
                                     </svg>
                                 </span>
-                                <span class="menu-text">Rekualifikasi Vendor</span>
+                                <span class="menu-text">Riwayat Rekualifikasi</span>
                             </a>
                         </li>
                     @endcan
@@ -360,61 +413,6 @@
                                     </svg>
                                 </span>
                                 <span class="menu-text">Evaluasi Vendor</span>
-                            </a>
-                        </li>
-                    @endcan
-                @endcanany
-
-                @canany(['qa-risk-list', 'audit-list'])
-                    <li class="menu-section">
-                        <h4 class="menu-text">Quality Assurance</h4>
-                        <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
-                    </li>
-                    @can('qa-risk-list')
-                        <li class="menu-item" aria-haspopup="true">
-                            <a href="{{ route('qa.risk-assessment.index') }}" class="menu-link">
-                                <span class="svg-icon menu-icon">
-                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px"
-                                        height="24px">
-                                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                            <rect x="0" y="0" width="24" height="24" />
-                                            <path
-                                                d="M9.07117914,12.5710461 L13.8326627,12.5710461 C14.108805,12.5710461 14.3326627,12.3471885 14.3326627,12.0710461 L14.3326627,0.16733734 C14.3326627,-0.108805035 14.108805,-0.33266266 13.8326627,-0.33266266 C13.6282104,-0.33266266 13.444356,-0.208187188 13.3684243,-0.0183579985 L8.6069408,11.8853508 C8.50438409,12.1417426 8.62909204,12.4327278 8.8854838,12.5352845 C8.94454394,12.5589085 9.00756943,12.5710461 9.07117914,12.5710461 Z"
-                                                fill="#000000" opacity="0.3"
-                                                transform="translate(11.451854, 6.119192) rotate(-270.000000) translate(-11.451854, -6.119192) " />
-                                            <path
-                                                d="M9.23851648,24.5 L14,24.5 C14.2761424,24.5 14.5,24.2761424 14.5,24 L14.5,12.0962912 C14.5,11.8201488 14.2761424,11.5962912 14,11.5962912 C13.7955477,11.5962912 13.6116933,11.7207667 13.5357617,11.9105959 L8.77427814,23.8143047 C8.67172143,24.0706964 8.79642938,24.3616816 9.05282114,24.4642383 C9.11188128,24.4878624 9.17490677,24.5 9.23851648,24.5 Z"
-                                                fill="#000000"
-                                                transform="translate(11.500000, 18.000000) scale(1, -1) rotate(-270.000000) translate(-11.500000, -18.000000) " />
-                                            <rect fill="#000000" opacity="0.3"
-                                                transform="translate(12.000000, 12.000000) rotate(-270.000000) translate(-12.000000, -12.000000) "
-                                                x="11" y="2" width="2" height="20" rx="1" />
-                                        </g>
-                                    </svg>
-                                </span>
-                                <span class="menu-text">Risk Assessment</span>
-                            </a>
-                        </li>
-                    @endcan
-                    @can('audit-list')
-                        <li class="menu-item" aria-haspopup="true">
-                            <a href="{{ route('qa.audit.index') }}" class="menu-link">
-                                <span class="svg-icon menu-icon">
-                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px"
-                                        height="24px">
-                                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                            <rect x="0" y="0" width="24" height="24" />
-                                            <path
-                                                d="M6.5,16 L7.5,16 C8.32842712,16 9,16.6715729 9,17.5 L9,19.5 C9,20.3284271 8.32842712,21 7.5,21 L6.5,21 C5.67157288,21 5,20.3284271 5,19.5 L5,17.5 C5,16.6715729 5.67157288,16 6.5,16 Z M16.5,16 L17.5,16 C18.3284271,16 19,16.6715729 19,17.5 L19,19.5 C19,20.3284271 18.3284271,21 17.5,21 L16.5,21 C15.6715729,21 15,20.3284271 15,19.5 L15,17.5 C15,16.6715729 15.6715729,16 16.5,16 Z"
-                                                fill="#000000" opacity="0.3" />
-                                            <path
-                                                d="M5,4 L19,4 C20.1045695,4 21,4.8954305 21,6 L21,17 C21,18.1045695 20.1045695,19 19,19 L5,19 C3.8954305,19 3,18.1045695 3,17 L3,6 C3,4.8954305 3.8954305,4 5,4 Z M15.5,15 C17.4329966,15 19,13.4329966 19,11.5 C19,9.56700338 17.4329966,8 15.5,8 C13.5670034,8 12,9.56700338 12,11.5 C12,13.4329966 13.5670034,15 15.5,15 Z M15.5,13 C16.3284271,13 17,12.3284271 17,11.5 C17,10.6715729 16.3284271,10 15.5,10 C14.6715729,10 14,10.6715729 14,11.5 C14,12.3284271 14.6715729,13 15.5,13 Z M7,8 L7,8 C7.55228475,8 8,8.44771525 8,9 L8,11 C8,11.5522847 7.55228475,12 7,12 L7,12 C6.44771525,12 6,11.5522847 6,11 L6,9 C6,8.44771525 6.44771525,8 7,8 Z"
-                                                fill="#000000" />
-                                        </g>
-                                    </svg>
-                                </span>
-
-                                <span class="menu-text">Audit Vendor</span>
                             </a>
                         </li>
                     @endcan

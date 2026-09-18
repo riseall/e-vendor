@@ -137,34 +137,40 @@
     </td>
     <td class="text-right" style="white-space:nowrap;">
         <div class="d-inline-flex align-items-center justify-content-end flex-nowrap" style="gap:.35rem;">
-            @if ($app->requalification_reason && !$app->qualification)
-                <button type="button" class="vnd-btn-detail vnd-btn-detail--warning btn-trigger-rekualifikasi"
-                    data-url="{{ route('rekualifikasi.trigger', $app->id) }}" data-vendor-name="{{ $vendorName }}"
-                    title="Rekualifikasi sedang dipicu/berjalan. Klik untuk mengubah alasan.">
-                    <i class="fas fa-redo icon-sm" style="font-size:.7rem;"></i> Rekualifikasi Dipicu
-                </button>
-            @else
-                <button type="button" class="vnd-btn-detail vnd-btn-detail--warning btn-trigger-rekualifikasi"
-                    data-url="{{ route('rekualifikasi.trigger', $app->id) }}" data-vendor-name="{{ $vendorName }}"
-                    title="Picu Rekualifikasi Manual Vendor">
-                    <i class="fas fa-redo icon-sm" style="font-size:.7rem;"></i> Picu Rekualifikasi
-                </button>
-            @endif
+            @can('rekualifikasi-initiate')
+                @if ($app->requalification_reason && !$app->qualification)
+                    <button type="button" class="vnd-btn-detail vnd-btn-detail--warning btn-trigger-rekualifikasi"
+                        data-url="{{ route('rekualifikasi.trigger', $app->id) }}" data-vendor-name="{{ $vendorName }}"
+                        title="Rekualifikasi sedang dipicu/berjalan. Klik untuk mengubah alasan.">
+                        <i class="fas fa-redo icon-sm" style="font-size:.7rem;"></i> Rekualifikasi Dipicu
+                    </button>
+                @else
+                    <button type="button" class="vnd-btn-detail vnd-btn-detail--warning btn-trigger-rekualifikasi"
+                        data-url="{{ route('rekualifikasi.trigger', $app->id) }}" data-vendor-name="{{ $vendorName }}"
+                        title="Picu Rekualifikasi Manual Vendor">
+                        <i class="fas fa-redo icon-sm" style="font-size:.7rem;"></i> Picu Rekualifikasi
+                    </button>
+                @endif
+            @endcan
 
-            <button type="button" class="vnd-btn-detail vnd-btn-detail--info btn-input-qad-code"
-                data-url="{{ route('supplier.update-qad', $app->id) }}"
-                data-vendor-name="{{ $vendorName }}"
-                data-qad-code="{{ $qadCode }}"
-                data-supplier-type="{{ $supplierType }}"
-                data-currency="{{ $currency }}"
-                title="Input / Edit Data Master Supplier QAD">
-                <i class="fas fa-barcode icon-sm text-info" style="font-size:.7rem;"></i> Kode QAD
-            </button>
+            @can('supplier-edit-qad')
+                <button type="button" class="vnd-btn-detail vnd-btn-detail--info btn-input-qad-code"
+                    data-url="{{ route('supplier.update-qad', $app->id) }}"
+                    data-vendor-name="{{ $vendorName }}"
+                    data-qad-code="{{ $qadCode }}"
+                    data-supplier-type="{{ $supplierType }}"
+                    data-currency="{{ $currency }}"
+                    title="Input / Edit Data Master Supplier QAD">
+                    <i class="fas fa-barcode icon-sm text-info" style="font-size:.7rem;"></i> Kode QAD
+                </button>
+            @endcan
 
-            <a href="{{ route('verifikasi.show', $app->id) }}" class="vnd-btn-detail"
-                title="Lihat Profil / Permohonan">
-                <i class="fas fa-eye icon-sm text-primary" style="font-size:.7rem;"></i> Detail
-            </a>
+            @canany(['verifikasi-list', 'verifikasi-detail'])
+                <a href="{{ route('verifikasi.show', $app->id) }}" class="vnd-btn-detail"
+                    title="Lihat Profil / Permohonan">
+                    <i class="fas fa-eye icon-sm text-primary" style="font-size:.7rem;"></i> Detail
+                </a>
+            @endcanany
         </div>
     </td>
 </tr>
