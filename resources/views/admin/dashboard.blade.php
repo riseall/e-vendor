@@ -160,8 +160,8 @@
                                     <tr>
                                         <td><span class="vnd-vendor-name">{{ $doc->supplier }}</span></td>
                                         <td><span class="vnd-cell-muted">{{ $doc->doc_type }}</span></td>
-                                        <td><span class="vnd-cell-muted">{{ $doc->issue_date }}</span></td>
-                                        <td><span class="vnd-cell-muted">{{ $doc->expiry_date }}</span></td>
+                                        <td data-order="{{ $doc->issue_raw ?? '' }}"><span class="vnd-cell-muted">{{ $doc->issue_date }}</span></td>
+                                        <td data-order="{{ $doc->expiry_raw ?? '' }}"><span class="vnd-cell-muted">{{ $doc->expiry_date }}</span></td>
                                         <td>
                                             <span
                                                 class="vnd-status {{ $doc->status_cls }}">{{ $doc->status_label }}</span>
@@ -193,7 +193,7 @@
                         <span class="vnd-card-title-dot"></span>
                         Supplier Performance
                     </div>
-                    <a href="#" class="vnd-icon-link"><i class="fa fa-chart-line"></i></a>
+                    <a href="{{ route('admin.evaluasi.index') }}" class="vnd-icon-link" title="Lihat Evaluasi Vendor"><i class="fa fa-chart-line"></i></a>
                 </div>
                 <div class="card-body p-0 px-4 pt-5 pb-6">
                     @forelse ($topPerformers as $i => $perf)
@@ -202,17 +202,18 @@
                             <div class="flex-grow-1">
                                 <div class="d-flex justify-content-between mb-1">
                                     <span class="vnd-vendor-name">{{ $perf->name }}</span>
-                                    <span class="vnd-score vnd-score--blue">{{ $perf->pct }}%</span>
+                                    <span class="vnd-score vnd-score--{{ $perf->color }}">{{ $perf->pct }}%</span>
                                 </div>
                                 <div class="vnd-progress-track">
-                                    <div class="vnd-progress-fill" style="width: {{ $perf->pct }}%;"></div>
+                                    <div class="vnd-progress-fill vnd-progress-fill--{{ $perf->color }}" style="width: {{ $perf->pct }}%;"></div>
                                 </div>
                             </div>
                         </div>
                     @empty
                         <div class="vnd-empty">
-                            <div class="vnd-empty-icon"><i class="fa fa-chart-bar"></i></div>
-                            <div class="vnd-empty-title">Belum ada data performa</div>
+                            <div class="vnd-empty-icon"><i class="fa fa-award"></i></div>
+                            <div class="vnd-empty-title">Belum ada evaluasi tahunan</div>
+                            <div class="vnd-empty-sub">Data performa akan muncul setelah evaluasi tahunan tersedia.</div>
                         </div>
                     @endforelse
                 </div>
@@ -345,6 +346,7 @@
                 paging: true,
                 pageLength: 5,
                 lengthMenu: [5, 10, 25],
+                order: [[3, 'asc']],
             });
         });
     </script>

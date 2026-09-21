@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\VendorAnnualEvaluation;
 use App\Models\VendorApplication;
 use App\Models\VendorAppSpecBaku;
 use App\Models\VendorAudit;
+use App\Models\VendorEvaluation;
 use App\Models\VendorQualification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -132,25 +135,58 @@ class DashboardController extends Controller
                 }
                 return $out;
             })
-            ->sortBy('expiry_date') // soonest expiry first
+            ->sortBy('expiry_raw') // soonest expiry first
             ->take(5)
             ->values();
 
-        // ── 4. SUPPLIER PERFORMANCE (top 5) ─────────────────────────────
-        $topPerformers = VendorQualification::with('application.general')
-            ->whereNotNull('total_score')
-            ->orderByDesc('total_score')
-            ->take(5)
-            ->get()
-            ->map(function ($q) {
-                $pct = (int) round(min(100, max(0, $q->total_score)));
+        // ── 4. SUPPLIER PERFORMANCE (top 5 dari Evaluasi Tahunan) ────────
+        $latestAnnualYear = VendorAnnualEvaluation::where('final_score', '>', 0)
+            ->where('status', '!=', VendorAnnualEvaluation::STATUS_REJECTED)
+            ->max('year');
+
+        if ($latestAnnualYear) {
+            $topEvals = VendorAnnualEvaluation::where('year', $latestAnnualYear)
+                ->where('status', '!=', VendorAnnualEvaluation::STATUS_REJECTED)
+                ->where('final_score', '>', 0)
+                ->orderByDesc('final_score')
+                ->take(5)
+                ->get(['vendor_id', 'final_score', 'category']);
+
+            $vIds = $topEvals->pluck('vendor_id')->unique();
+            $users = User::whereIn('id', $vIds)->get()->keyBy('id');
+            $apps  = VendorApplication::whereIn('user_id', $vIds)
+                ->where('status', VendorApplication::STATUS_APPROVED)
+                ->with('general')
+                ->latest('approved_at')
+                ->get()
+                ->keyBy('user_id');
+
+            $topPerformers = $topEvals->map(function ($ev) use ($users, $apps) {
+                $app  = $apps->get($ev->vendor_id);
+                $user = $users->get($ev->vendor_id);
+                $name = ($app && $app->general && $app->general->nama_perusahaan)
+                    ? $app->general->nama_perusahaan
+                    : ($user ? $user->name : '-');
+
+                $pct = (int) round(min(100, max(0, $ev->final_score)));
+
+                if ($pct >= 80) {
+                    $color = 'green';
+                } elseif ($pct >= 60) {
+                    $color = 'amber';
+                } else {
+                    $color = 'red';
+                }
+
                 return (object) [
-                    'name' => $q->application && $q->application->general
-                        ? $q->application->general->nama_perusahaan
-                        : '-',
-                    'pct'  => $pct,
+                    'name'  => $name,
+                    'pct'   => $pct,
+                    'color' => $color,
                 ];
             });
+        } else {
+            $topPerformers = collect();
+        }
 
         // ── 5. SUPPLIER RISK ASSESSMENT (single-query rollup) ───────────
         $riskRows = DB::table('vendor_qualifications')
@@ -213,7 +249,9 @@ class DashboardController extends Controller
             'supplier'     => $supplier,
             'doc_type'     => $docType,
             'issue_date'   => $issueDate ? Carbon::parse($issueDate)->format('d M Y') : '',
+            'issue_raw'    => $issueDate ? Carbon::parse($issueDate)->format('Y-m-d') : '',
             'expiry_date'  => $expiry->format('d M Y'),
+            'expiry_raw'   => $expiry->format('Y-m-d'),
             'status_label' => $statusLabel,
             'status_cls'   => $statusCls,
         ];
