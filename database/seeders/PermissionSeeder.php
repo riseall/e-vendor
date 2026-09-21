@@ -62,6 +62,8 @@ class PermissionSeeder extends Seeder
             'evaluasi-list',
             'evaluasi-create',
             'evaluasi-approve',
+            'evaluasi-verify-manager',
+            'evaluasi-approve-gm',
             'evaluasi-settings',
 
             // Supplier Terekomendasi
@@ -137,6 +139,8 @@ class PermissionSeeder extends Seeder
                 'evaluasi-list',
                 'evaluasi-create',
                 'evaluasi-approve',
+                'evaluasi-verify-manager',
+                'evaluasi-approve-gm',
                 'supplier-list',
                 'supplier-edit-qad',
             ]);

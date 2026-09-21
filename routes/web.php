@@ -14,6 +14,9 @@ use App\Http\Controllers\VendorSupplierController;
 use App\Http\Controllers\VendorUploadController;
 use App\Http\Controllers\QuestionnaireFormController;
 use App\Http\Controllers\Admin\EvaluasiVendorController;
+use App\Http\Controllers\Admin\EvaluasiImportController;
+use App\Http\Controllers\Admin\EvaluasiAnnualController;
+use App\Http\Controllers\Admin\EvaluasiSettingController;
 use App\Http\Controllers\Vendor\VendorEvaluasiDashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +44,10 @@ Route::group(
         Route::get('/', function () {
             return view('welcome');
         })->name('welcome');
+
+        Route::get('/home', function () {
+            return redirect()->route(auth()->check() ? 'dashboard' : 'welcome');
+        })->name('home');
 
         // Tutorial
         Route::get('/tutorial', function () {
@@ -113,9 +120,11 @@ Route::group(
 
             // Supplier Terekomendasi
             Route::get('/supplier', [VendorSupplierController::class, 'index'])
-                ->name('supplier.index');
+                ->name('supplier.index')
+                ->middleware('can:supplier-list');
             Route::post('/supplier/{id}/update-qad', [VendorSupplierController::class, 'updateQadCode'])
-                ->name('supplier.update-qad');
+                ->name('supplier.update-qad')
+                ->middleware('can:supplier-edit-qad');
 
             // QA - Risk Assessment
             Route::prefix('qa/risk-assessment')->name('qa.risk-assessment.')->middleware('can:qa-risk-list')->group(function () {
@@ -144,11 +153,6 @@ Route::group(
                 Route::post('/{auditId}/schedule/confirm', [VendorAuditController::class, 'confirmSchedule'])
                     ->name('schedule.confirm');
 
-                // Surat audit
-                Route::post('/{auditId}/letter', [VendorAuditController::class, 'generateLetter'])
-                    ->name('letter.generate');
-                Route::get('/{auditId}/letter/download', [VendorAuditController::class, 'downloadLetter'])
-                    ->name('letter.download');
 
                 // Temuan audit
                 Route::post('/{auditId}/result', [VendorAuditController::class, 'storeResult'])->name('store-result');
@@ -191,24 +195,37 @@ Route::group(
             });
 
             // Master Questionnaire
-            Route::resource('questionnaire-form', QuestionnaireFormController::class);
-            Route::get('/questionnaire-form/{form}/questions', [QuestionnaireFormController::class, 'questions'])->name('questionnaire-form.questions');
-            Route::post('/questionnaire-form/{form}/questions', [QuestionnaireFormController::class, 'storeQuestion'])->name('questionnaire-form.questions.store');
-            Route::post('/questionnaire-form/{form}/questions/import', [QuestionnaireFormController::class, 'importQuestions'])->name('questionnaire-form.questions.import');
-            Route::put('/questionnaire-form/{form}/questions/{question}', [QuestionnaireFormController::class, 'updateQuestion'])->name('questionnaire-form.questions.update');
-            Route::delete('/questionnaire-form/{form}/questions/{question}', [QuestionnaireFormController::class, 'destroyQuestion'])->name('questionnaire-form.questions.destroy');
+            Route::middleware('can:questionnaire-list')->group(function () {
+                Route::resource('questionnaire-form', QuestionnaireFormController::class);
+                Route::get('/questionnaire-form/{form}/questions', [QuestionnaireFormController::class, 'questions'])->name('questionnaire-form.questions');
+                Route::post('/questionnaire-form/{form}/questions', [QuestionnaireFormController::class, 'storeQuestion'])->name('questionnaire-form.questions.store');
+                Route::post('/questionnaire-form/{form}/questions/import', [QuestionnaireFormController::class, 'importQuestions'])->name('questionnaire-form.questions.import');
+                Route::put('/questionnaire-form/{form}/questions/{question}', [QuestionnaireFormController::class, 'updateQuestion'])->name('questionnaire-form.questions.update');
+                Route::delete('/questionnaire-form/{form}/questions/{question}', [QuestionnaireFormController::class, 'destroyQuestion'])->name('questionnaire-form.questions.destroy');
+            });
 
             // Evaluasi Vendor (Admin)
-            Route::prefix('admin/evaluasi-vendor')->name('admin.evaluasi.')->middleware('can:evaluasi-list')->group(function () {
+            Route::prefix('evaluasi-vendor')->name('admin.evaluasi.')->middleware('can:evaluasi-list')->group(function () {
+                // Dashboard & Evaluasi Bulanan
                 Route::get('/', [EvaluasiVendorController::class, 'index'])->name('index');
                 Route::get('/fetch-qad', [EvaluasiVendorController::class, 'fetchQadData'])->name('fetch-qad');
                 Route::post('/monthly', [EvaluasiVendorController::class, 'storeMonthly'])->name('store-monthly');
                 Route::post('/batch-monthly', [EvaluasiVendorController::class, 'storeBatchMonthly'])->name('store-batch-monthly');
-                Route::post('/annual/generate', [EvaluasiVendorController::class, 'generateAnnual'])->name('annual.generate');
-                Route::post('/annual/{id}/approve', [EvaluasiVendorController::class, 'approveAnnual'])->name('annual.approve');
-                Route::post('/annual/{id}/trigger-action', [EvaluasiVendorController::class, 'triggerAction'])->name('annual.trigger-action');
-                Route::get('/settings', [EvaluasiVendorController::class, 'settings'])->name('settings')->middleware('can:evaluasi-settings');
-                Route::post('/settings', [EvaluasiVendorController::class, 'updateSettings'])->name('settings.update')->middleware('can:evaluasi-settings');
+
+                // Import & Template Excel QA
+                Route::get('/download-template-qa', [EvaluasiImportController::class, 'downloadTemplateQa'])->name('download-template-qa');
+                Route::post('/import-qa', [EvaluasiImportController::class, 'importQaExcel'])->name('import-qa');
+
+                // Evaluasi Tahunan & 2-Tier Approval (Manager -> GM Pengadaan)
+                Route::post('/annual/generate', [EvaluasiAnnualController::class, 'generateAnnual'])->name('annual.generate');
+                Route::post('/annual/{id}/verify-manager', [EvaluasiAnnualController::class, 'verifyManager'])->name('annual.verify-manager')->middleware('can:evaluasi-verify-manager');
+                Route::post('/annual/{id}/approve-gm', [EvaluasiAnnualController::class, 'approveGm'])->name('annual.approve-gm')->middleware('can:evaluasi-approve-gm');
+                Route::post('/annual/{id}/approve', [EvaluasiAnnualController::class, 'approveAnnual'])->name('annual.approve');
+                Route::post('/annual/{id}/trigger-action', [EvaluasiAnnualController::class, 'triggerAction'])->name('annual.trigger-action');
+
+                // Pengaturan Bobot & Batas Threshold
+                Route::get('/settings', [EvaluasiSettingController::class, 'settings'])->name('settings')->middleware('can:evaluasi-settings');
+                Route::post('/settings', [EvaluasiSettingController::class, 'updateSettings'])->name('settings.update')->middleware('can:evaluasi-settings');
             });
 
             // Evaluasi Vendor (Vendor Dashboard)

@@ -9,6 +9,11 @@ class VendorAnnualEvaluation extends Model
 {
     use HasFactory;
 
+    const STATUS_DRAFT            = 'draft';
+    const STATUS_VERIFIED_MANAGER  = 'verified_manager';
+    const STATUS_APPROVED          = 'approved';
+    const STATUS_REJECTED          = 'rejected';
+
     protected $fillable = [
         'vendor_id',
         'year',
@@ -24,6 +29,12 @@ class VendorAnnualEvaluation extends Model
         'approved_by',
         'approved_at',
         'notes',
+        'manager_approved_by',
+        'manager_approved_at',
+        'manager_notes',
+        'gm_approved_by',
+        'gm_approved_at',
+        'gm_notes',
         'has_score_drop_alert',
         'has_consecutive_low_alert',
         'decision_status',
@@ -40,6 +51,8 @@ class VendorAnnualEvaluation extends Model
         'has_score_drop_alert' => 'boolean',
         'has_consecutive_low_alert' => 'boolean',
         'approved_at' => 'datetime',
+        'manager_approved_at' => 'datetime',
+        'gm_approved_at' => 'datetime',
         'year' => 'integer',
     ];
 
@@ -51,5 +64,30 @@ class VendorAnnualEvaluation extends Model
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function managerApprover()
+    {
+        return $this->belongsTo(User::class, 'manager_approved_by');
+    }
+
+    public function gmApprover()
+    {
+        return $this->belongsTo(User::class, 'gm_approved_by');
+    }
+
+    public function isDraft(): bool
+    {
+        return empty($this->status) || $this->status === self::STATUS_DRAFT;
+    }
+
+    public function isVerifiedManager(): bool
+    {
+        return $this->status === self::STATUS_VERIFIED_MANAGER;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === self::STATUS_APPROVED;
     }
 }
