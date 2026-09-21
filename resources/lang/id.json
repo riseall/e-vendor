@@ -77,5 +77,27 @@
     "facility": "Facility",
     "training": "Pelatihan",
     "advertising": "Advertising",
-    "ok": "OK"
+    "ok": "OK",
+
+    "select_vendor_category": "Pilih Kategori Vendor",
+    "select_vendor_category_desc": "Pilih satu atau lebih kategori yang sesuai dengan jenis usaha Anda. Formulir khusus akan muncul sesuai kategori yang dipilih.",
+    "categories_selected": "kategori dipilih",
+    "select_min_one_category": "Pilih minimal 1 kategori untuk melanjutkan.",
+
+    "cat_title_1": "Bahan baku, bahan kemas, produk jadi farmasi dan alkes",
+    "cat_sub_1": "Bahan Baku & Farmasi",
+    "cat_title_2": "Varia teknik dan umum, reagen, barang investasi",
+    "cat_sub_2": "Varia Teknik & Umum",
+    "cat_title_3": "Jasa transporter, forwarder, PPJK",
+    "cat_sub_3": "Transporter & Forwarder",
+    "cat_title_4": "Jasa kontraktor, perbaikan, pemeliharaan",
+    "cat_sub_4": "Kontraktor & Perbaikan",
+    "cat_title_5": "Jasa pengujian laboratorium, kalibrasi, radiasi, sertifikasi",
+    "cat_sub_5": "Pengujian & Kalibrasi",
+    "cat_title_6": "Jasa facility service, sewa, security, katering, MCU",
+    "cat_sub_6": "Facility Service",
+    "cat_title_7": "Jasa pelatihan, konsultan, notaris, alih daya tenaga kerja",
+    "cat_sub_7": "Pelatihan & Konsultan",
+    "cat_title_8": "Jasa agency advertising",
+    "cat_sub_8": "Media & Promosi"
 }

@@ -77,5 +77,27 @@
     "facility": "设施服务",
     "training": "培训",
     "advertising": "广告宣传",
-    "ok": "确定"
+    "ok": "确定",
+
+    "select_vendor_category": "选择供应商类别",
+    "select_vendor_category_desc": "选择一个或多个符合您业务类型的类别。系统将根据所选类别显示特定表单。",
+    "categories_selected": "个类别已选",
+    "select_min_one_category": "请至少选择 1 个类别以继续。",
+
+    "cat_title_1": "原材料、包装材料、成品及医疗器械",
+    "cat_sub_1": "原材料与制药",
+    "cat_title_2": "工程与通用杂项、试剂、固定资产投资",
+    "cat_sub_2": "工程与通用杂项",
+    "cat_title_3": "运输商、货运代理及报关服务",
+    "cat_sub_3": "运输商与货运代理",
+    "cat_title_4": "承包商、维修与保养服务",
+    "cat_sub_4": "承包商与维护",
+    "cat_title_5": "实验室检测、校准、辐射与认证服务",
+    "cat_sub_5": "检测与校准",
+    "cat_title_6": "设施管理、租赁、安保、餐饮与体检服务",
+    "cat_sub_6": "设施服务",
+    "cat_title_7": "培训、咨询、公证与劳务外包服务",
+    "cat_sub_7": "培训与咨询",
+    "cat_title_8": "广告代理服务",
+    "cat_sub_8": "媒体与推广"
 }

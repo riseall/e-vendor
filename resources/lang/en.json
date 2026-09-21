@@ -77,5 +77,27 @@
     "facility": "Facility",
     "training": "Training",
     "advertising": "Advertising",
-    "ok": "OK"
+    "ok": "OK",
+
+    "select_vendor_category": "Select Vendor Category",
+    "select_vendor_category_desc": "Select one or more categories that match your business type. Specific forms will appear according to the selected categories.",
+    "categories_selected": "categories selected",
+    "select_min_one_category": "Select at least 1 category to continue.",
+
+    "cat_title_1": "Pharmaceutical raw material, packaging material, finished drug product, medical devices",
+    "cat_sub_1": "Raw Materials & Pharma",
+    "cat_title_2": "Various goods (general and technical), reagent",
+    "cat_sub_2": "Technical & General Varia",
+    "cat_title_3": "Transporter, forwarding agent, custom broker",
+    "cat_sub_3": "Transporter & Forwarder",
+    "cat_title_4": "Maintenance, repair and overhaul services",
+    "cat_sub_4": "Contractor & Maintenance",
+    "cat_title_5": "Laboratory, certification, calibration, radiation",
+    "cat_sub_5": "Testing & Calibration",
+    "cat_title_6": "Facility service, rental service, security, catering, MCU",
+    "cat_sub_6": "Facility Service",
+    "cat_title_7": "Training, consultant, labor outsourcing",
+    "cat_sub_7": "Training & Consultant",
+    "cat_title_8": "Advertising agency",
+    "cat_sub_8": "Media & Promotion"
 }

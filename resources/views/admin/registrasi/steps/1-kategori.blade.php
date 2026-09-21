@@ -1,57 +1,55 @@
-<h4 class="font-weight-bold text-dark mb-2">Pilih Kategori Vendor</h4>
-<p class="text-muted mb-8">Pilih satu atau lebih kategori
-    yang sesuai dengan jenis usaha Anda. Formulir khusus
-    akan muncul sesuai kategori yang dipilih.</p>
+<h4 class="font-weight-bold text-dark mb-2">{{ __('select_vendor_category') }}</h4>
+<p class="text-muted mb-8">{{ __('select_vendor_category_desc') }}</p>
 
 @php
     $categories = [
         [
             'id' => 1,
             'icon' => 'flaticon2-box-1',
-            'title' => 'Bahan Baku, Bahan Kemas, Produk Jadi & Alkes',
-            'sub' => 'Bahan Baku & Farmasi',
+            'title' => __('cat_title_1'),
+            'sub' => __('cat_sub_1'),
         ],
         [
             'id' => 2,
             'icon' => 'flaticon2-settings',
-            'title' => 'Varia Teknik dan Umum, Reagen, Barang Investasi',
-            'sub' => 'Varia Teknik & Umum',
+            'title' => __('cat_title_2'),
+            'sub' => __('cat_sub_2'),
         ],
         [
             'id' => 3,
             'icon' => 'fas fa-shipping-fast',
-            'title' => 'Jasa Transporter, Forwarder & PPJK',
-            'sub' => 'Transporter & Forwarder',
+            'title' => __('cat_title_3'),
+            'sub' => __('cat_sub_3'),
         ],
         [
             'id' => 4,
             'icon' => 'fas fa-city',
-            'title' => 'Jasa Kontraktor, Perbaikan & Pemeliharaan',
-            'sub' => 'Kontraktor & Perbaikan',
+            'title' => __('cat_title_4'),
+            'sub' => __('cat_sub_4'),
         ],
         [
             'id' => 5,
             'icon' => 'flaticon2-analytics',
-            'title' => 'Jasa Pengujian Laboratorium, Kalibrasi, Radiasi & Sertifikasi',
-            'sub' => 'Pengujian & Kalibrasi',
+            'title' => __('cat_title_5'),
+            'sub' => __('cat_sub_5'),
         ],
         [
             'id' => 6,
             'icon' => 'fas fa-clinic-medical',
-            'title' => 'Jasa Facility Service, Sewa, Security, Katering & MCU',
-            'sub' => 'Facility Service',
+            'title' => __('cat_title_6'),
+            'sub' => __('cat_sub_6'),
         ],
         [
             'id' => 7,
             'icon' => 'fas fa-people-carry',
-            'title' => 'Jasa Pelatihan,Konsultan, Notaris & Alih Daya Tenaga Kerja',
-            'sub' => 'Pelatihan & Konsultan',
+            'title' => __('cat_title_7'),
+            'sub' => __('cat_sub_7'),
         ],
         [
             'id' => 8,
             'icon' => 'fas fa-bullhorn',
-            'title' => 'Jasa Agency Advertising',
-            'sub' => 'Media & promosi',
+            'title' => __('cat_title_8'),
+            'sub' => __('cat_sub_8'),
         ],
     ];
     $selectedCategories = $draft['categories'] ?? [];
@@ -92,7 +90,7 @@
 {{-- Info bar kategori terpilih --}}
 <div class="selected-info-bar" id="selectedInfo">
     <i class="flaticon2-information text-success mr-2"></i>
-    <strong id="selCount">0</strong> kategori dipilih:
+    <strong id="selCount">0</strong> {{ __('categories_selected') }}:
     <span id="selTags" class="ml-1"></span>
 </div>
 
@@ -100,7 +98,7 @@
 <div id="errKategori" class="text-danger font-size-md mt-3 d-none">
     <div class="alert alert-custom alert-notice alert-light-danger fade show mb-5" role="alert">
         <div class="alert-icon"><i class="flaticon-warning icon-md"></i></div>
-        <div class="alert-text">Pilih minimal 1 kategori untuk melanjutkan.</div>
+        <div class="alert-text">{{ __('select_min_one_category') }}</div>
         <div class="alert-close">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true"><i class="ki ki-close"></i></span>
@@ -112,14 +110,14 @@
 @push('scripts')
     <script>
         var categoryLabels = {
-            1: 'Bahan Baku & Farmasi',
-            2: 'Varia Teknik & Umum',
-            3: 'Transporter & Forwarder',
-            4: 'Kontraktor & Perbaikan',
-            5: 'Pengujian & Kalibrasi',
-            6: 'Facility Service',
-            7: 'Pelatihan & Konsultan',
-            8: 'Media & promosi',
+            1: __('cat_sub_1'),
+            2: __('cat_sub_2'),
+            3: __('cat_sub_3'),
+            4: __('cat_sub_4'),
+            5: __('cat_sub_5'),
+            6: __('cat_sub_6'),
+            7: __('cat_sub_7'),
+            8: __('cat_sub_8'),
         };
 
         // TOGGLE CATEGORY CARD
