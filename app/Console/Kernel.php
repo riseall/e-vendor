@@ -21,6 +21,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('vendor-applications:trigger-rekualifikasi')->cron('0 8 1 11 *');
         $schedule->command('vendor-applications:check-cdob-expiry')->dailyAt('08:00');
         $schedule->command('vendor-applications:remind-rekualifikasi')->dailyAt('08:00');
+        $schedule->command('evaluasi:generate-annual')->yearlyOn(1, 31, '01:00');
     }
 
     /**
