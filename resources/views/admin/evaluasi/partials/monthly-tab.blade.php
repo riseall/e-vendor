@@ -22,12 +22,15 @@
                 </span>
                 Progress Kinerja: {{ $months[$month] }} {{ $year }}
             </h5>
-            <span class="text-muted font-size-sm">Data bulanan adalah progress kinerja berjalan. (Skor QAD ditarik
-                otomatis, QA diinput manual)</span>
+            <span class="text-muted font-size-sm">Data bulanan adalah progress kinerja berjalan.</span>
         </div>
-        <div class="d-flex align-items-center">
-            <button type="button" class="btn btn-sm btn-light-info font-weight-bolder mr-3" id="btnSyncAllQad">
+        <div class="d-flex align-items-center flex-wrap" style="gap: 0.5rem;">
+            <button type="button" class="btn btn-sm btn-light-info font-weight-bolder" id="btnSyncAllQad">
                 <i class="fas fa-cloud-download-alt mr-1"></i>Fetch QAD Massal
+            </button>
+            <button type="button" class="btn btn-sm btn-light-success font-weight-bolder" data-toggle="modal"
+                data-target="#modalImportQaExcel">
+                <i class="fas fa-file-excel mr-1"></i>Upload Nilai Manual
             </button>
             <button type="submit" class="btn btn-sm btn-primary font-weight-bolder px-6">
                 <i class="fas fa-save mr-1"></i>Simpan Progress
@@ -46,22 +49,22 @@
                 <tr>
                     <th width="50" class="text-center">No</th>
                     <th style="min-width: 220px;">Nama Vendor & Info</th>
-                    <th width="105" class="text-center bg-light-primary text-primary">
+                    <th width="105" class="text-center text-primary">
                         Delivery
                     </th>
-                    <th width="105" class="text-center bg-light-primary text-primary">
+                    <th width="105" class="text-center text-primary">
                         Quality
                     </th>
-                    <th width="105" class="text-center bg-light-primary text-primary">
+                    <th width="105" class="text-center text-primary">
                         Quantity
                     </th>
-                    <th width="105" class="text-center bg-light-warning text-warning">
+                    <th width="105" class="text-center text-warning">
                         Complain
                     </th>
-                    <th width="105" class="text-center bg-light-warning text-warning">
+                    <th width="105" class="text-center text-warning">
                         Incoming
                     </th>
-                    <th width="105" class="text-center bg-light-warning text-warning">
+                    <th width="105" class="text-center text-warning">
                         Safety/Env
                     </th>
                     <th width="100" class="text-center" style="min-width: 90px;">Total Skor</th>
@@ -76,9 +79,9 @@
                         $dScore = $eval ? $eval->delivery_score : 0;
                         $qScore = $eval ? $eval->quality_score : 0;
                         $qtyScore = $eval ? $eval->quantity_score : 0;
-                        $compScore = $eval ? $eval->complain_score : 100;
-                        $incScore = $eval ? $eval->incoming_material_score : 100;
-                        $safeScore = $eval ? $eval->safety_environment_score : 100;
+                        $compScore = $eval ? $eval->complain_score : 0;
+                        $incScore = $eval ? $eval->incoming_material_score : 0;
+                        $safeScore = $eval ? $eval->safety_environment_score : 0;
                         $totScore = $eval ? $eval->total_score : 0;
                         $cat = $eval ? $eval->category : '-';
                         $initials = collect(explode(' ', $v->name))
@@ -98,13 +101,10 @@
                                 <div class="vnd-avatar mr-3">{{ $initials }}</div>
                                 <div>
                                     <div class="vnd-vendor-name font-weight-bolder text-dark">{{ $v->name }}</div>
-                                    <div class="d-flex align-items-center flex-wrap" style="gap:4px;">
-                                        <span
-                                            class="vnd-vendor-email text-muted font-size-xs">{{ $v->email }}</span>
+                                    <div class="d-flex flex-wrap" style="gap:4px;">
                                         @if (!empty($v->qad_supplier_code))
-                                            <span class="badge badge-light-primary font-weight-bold"
-                                                style="font-size:0.65rem; padding:1px 5px;">
-                                                <i class="fas fa-barcode text-primary mr-1"></i>QAD:
+                                            <span class="vnd-vendor-email text-muted font-size-xs">
+                                                </i>Supplier Code:
                                                 {{ $v->qad_supplier_code }}
                                             </span>
                                         @endif
@@ -114,40 +114,40 @@
                         </td>
 
                         {{-- Skor QAD --}}
-                        <td class="bg-light-primary align-middle">
-                            <input type="number" step="0.01" min="0" max="100"
+                        <td class="align-middle">
+                            <input disabled type="text" step="0.01" min="0" max="100"
                                 name="evaluations[{{ $v->id }}][delivery_score]"
                                 class="form-control form-control-sm text-center font-weight-bold delivery-input score-input"
                                 value="{{ number_format($dScore, 2, '.', '') }}">
                         </td>
-                        <td class="bg-light-primary align-middle">
-                            <input type="number" step="0.01" min="0" max="100"
+                        <td class="align-middle">
+                            <input disabled type="text" step="0.01" min="0" max="100"
                                 name="evaluations[{{ $v->id }}][quality_score]"
                                 class="form-control form-control-sm text-center font-weight-bold quality-input score-input"
                                 value="{{ number_format($qScore, 2, '.', '') }}">
                         </td>
-                        <td class="bg-light-primary align-middle">
-                            <input type="number" step="0.01" min="0" max="100"
+                        <td class="align-middle">
+                            <input disabled type="text" step="0.01" min="0" max="100"
                                 name="evaluations[{{ $v->id }}][quantity_score]"
                                 class="form-control form-control-sm text-center font-weight-bold quantity-input score-input"
                                 value="{{ number_format($qtyScore, 2, '.', '') }}">
                         </td>
 
                         {{-- Skor QA Manual --}}
-                        <td class="bg-light-warning align-middle">
-                            <input type="number" step="0.01" min="0" max="100"
+                        <td class="align-middle">
+                            <input disabled type="text" step="0.01" min="0" max="100"
                                 name="evaluations[{{ $v->id }}][complain_score]"
                                 class="form-control form-control-sm text-center font-weight-bold complain-input score-input"
                                 value="{{ number_format($compScore, 2, '.', '') }}">
                         </td>
-                        <td class="bg-light-warning align-middle">
-                            <input type="number" step="0.01" min="0" max="100"
+                        <td class="align-middle">
+                            <input disabled type="text" step="0.01" min="0" max="100"
                                 name="evaluations[{{ $v->id }}][incoming_material_score]"
                                 class="form-control form-control-sm text-center font-weight-bold incoming-input score-input"
                                 value="{{ number_format($incScore, 2, '.', '') }}">
                         </td>
-                        <td class="bg-light-warning align-middle">
-                            <input type="number" step="0.01" min="0" max="100"
+                        <td class="align-middle">
+                            <input disabled type="text" step="0.01" min="0" max="100"
                                 name="evaluations[{{ $v->id }}][safety_environment_score]"
                                 class="form-control form-control-sm text-center font-weight-bold safety-input score-input"
                                 value="{{ number_format($safeScore, 2, '.', '') }}">
@@ -194,3 +194,187 @@
         </table>
     </div>
 </form>
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            /* 1. Initialize DataTables Monthly */
+            var dtMonthly = null;
+            if ($('#tableMonthly').length && $('#tableMonthly tbody tr').find('.vnd-empty').length === 0) {
+                dtMonthly = $('#tableMonthly').DataTable({
+                    autoWidth: false,
+                    responsive: true,
+                    paging: true,
+                    pageLength: 25,
+                    lengthMenu: [
+                        [10, 25, 50, 100, -1],
+                        [10, 25, 50, 100, "Semua"]
+                    ],
+                    order: [
+                        [1, 'asc']
+                    ], // Sort by Vendor Name
+                    columnDefs: [{
+                        targets: [0],
+                        orderable: false,
+                        width: '40px',
+                        className: 'text-center align-middle'
+                    }],
+                    dom: '<"d-flex justify-content-between align-items-center mb-4 flex-wrap"lf>rtip',
+                });
+            }
+
+            // Adjust columns on load
+            setTimeout(function() {
+                if (dtMonthly) dtMonthly.columns.adjust();
+            }, 100);
+
+            /* 2. Realtime score recalculation */
+            let table = $('#tableMonthly');
+
+            function updateRowScore(row) {
+                if (!table.length) return;
+                let wDel = parseFloat(table.data('w-del')) || 20;
+                let wQual = parseFloat(table.data('w-qual')) || 20;
+                let wQty = parseFloat(table.data('w-qty')) || 20;
+                let wComp = parseFloat(table.data('w-comp')) || 15;
+                let wInc = parseFloat(table.data('w-inc')) || 15;
+                let wSafe = parseFloat(table.data('w-safe')) || 10;
+                let thBaik = parseFloat(table.data('th-baik')) || 80;
+                let thCukup = parseFloat(table.data('th-cukup')) || 60;
+
+                let d = parseFloat(row.find('.delivery-input').val()) || 0;
+                let q = parseFloat(row.find('.quality-input').val()) || 0;
+                let qty = parseFloat(row.find('.quantity-input').val()) || 0;
+                let comp = parseFloat(row.find('.complain-input').val()) || 0;
+                let inc = parseFloat(row.find('.incoming-input').val()) || 0;
+                let safe = parseFloat(row.find('.safety-input').val()) || 0;
+
+                let total = ((d * wDel) + (q * wQual) + (qty * wQty) + (comp * wComp) + (inc * wInc) + (safe *
+                    wSafe)) / 100;
+                row.find('.total-score-cell').text(total.toFixed(2));
+
+                let catCell = row.find('.category-cell');
+                if (total >= thBaik) {
+                    catCell.html('<span class="vnd-status vnd-status--success">BAIK</span>');
+                } else if (total >= thCukup) {
+                    catCell.html('<span class="vnd-status vnd-status--warning">CUKUP</span>');
+                } else {
+                    catCell.html('<span class="vnd-status vnd-status--danger">KURANG</span>');
+                }
+            }
+
+            // Score Input Live Recalculation (Event delegation for DataTables pages)
+            $(document).on('input change', '.score-input', function() {
+                let row = $(this).closest('tr');
+                updateRowScore(row);
+            });
+
+            // Submit handler: ensure inputs from all DataTables pages are submitted
+            $('#formBatchMonthly').on('submit', function(e) {
+                if (dtMonthly) {
+                    var form = this;
+                    var serializedData = dtMonthly.$('input, select').serializeArray();
+                    $.each(serializedData, function(i, item) {
+                        if (!$.contains(document, form[item.name])) {
+                            $(form).append(
+                                $('<input>').attr('type', 'hidden').attr('name', item.name).val(
+                                    item.value)
+                            );
+                        }
+                    });
+                }
+            });
+
+            // Single Fetch QAD via AJAX
+            $(document).on('click', '.btn-fetch-single-qad', function() {
+                let btn = $(this);
+                let vendorId = btn.data('vendor-id');
+                let row = btn.closest('tr');
+
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Syncing...');
+
+                $.ajax({
+                    url: "{{ route('admin.evaluasi.fetch-qad') }}",
+                    type: "GET",
+                    data: {
+                        vendor_id: vendorId,
+                        month: "{{ $month }}",
+                        year: "{{ $year }}"
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            row.find('.delivery-input').val(response.scores.delivery_score);
+                            row.find('.quality-input').val(response.scores.quality_score);
+                            row.find('.quantity-input').val(response.scores.quantity_score);
+
+                            updateRowScore(row);
+                            if (typeof window.showToast === 'function') {
+                                window.showToast('success', 'Sukses',
+                                    'Data QAD vendor berhasil ditarik');
+                            }
+                        }
+                    },
+                    error: function() {
+                        if (typeof window.showToast === 'function') {
+                            window.showToast('error', 'Gagal', 'Gagal menarik data QAD vendor');
+                        }
+                    },
+                    complete: function() {
+                        btn.prop('disabled', false).html(
+                            '<i class="fas fa-sync-alt mr-1"></i> Fetch QAD');
+                    }
+                });
+            });
+
+            // Fetch All QAD (handles all vendors across DataTables pages)
+            $('#btnSyncAllQad').on('click', function() {
+                let btns = dtMonthly ? dtMonthly.$('.btn-fetch-single-qad') : $('.btn-fetch-single-qad');
+                if (btns.length === 0) return;
+
+                let btnAll = $(this);
+                btnAll.prop('disabled', true).html(
+                    '<i class="fas fa-spinner fa-spin mr-1"></i> Fetching All...');
+
+                let completed = 0;
+                btns.each(function() {
+                    let singleBtn = $(this);
+                    let vendorId = singleBtn.data('vendor-id');
+                    let row = singleBtn.closest('tr');
+
+                    $.ajax({
+                        url: "{{ route('admin.evaluasi.fetch-qad') }}",
+                        type: "GET",
+                        data: {
+                            vendor_id: vendorId,
+                            month: "{{ $month }}",
+                            year: "{{ $year }}"
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                row.find('.delivery-input').val(response.scores
+                                    .delivery_score);
+                                row.find('.quality-input').val(response.scores
+                                    .quality_score);
+                                row.find('.quantity-input').val(response.scores
+                                    .quantity_score);
+                                updateRowScore(row);
+                            }
+                        },
+                        complete: function() {
+                            completed++;
+                            if (completed === btns.length) {
+                                btnAll.prop('disabled', false).html(
+                                    '<i class="fas fa-cloud-download-alt mr-1"></i>Fetch QAD Massal'
+                                );
+                                if (typeof window.showToast === 'function') {
+                                    window.showToast('success', 'Sukses',
+                                        'Selesai sinkronisasi QAD seluruh vendor');
+                                }
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+@endpush

@@ -42,8 +42,7 @@
 
                             <div class="row align-items-center mb-3">
                                 <div class="col-sm-7">
-                                    <label class="font-weight-bold text-dark mb-0">1. Delivery (Ketepatan
-                                        Pengiriman)</label>
+                                    <label class="font-weight-bold text-dark mb-0">1. Delivery</label>
                                     <div class="text-muted font-size-xs">Ditarik otomatis dari PO Receipt QAD</div>
                                 </div>
                                 <div class="col-sm-5">
@@ -60,8 +59,7 @@
 
                             <div class="row align-items-center mb-3">
                                 <div class="col-sm-7">
-                                    <label class="font-weight-bold text-dark mb-0">2. Quality (Kualitas Mutu
-                                        Material)</label>
+                                    <label class="font-weight-bold text-dark mb-0">2. Quality</label>
                                     <div class="text-muted font-size-xs">Ditarik dari data Released / Reject QAD</div>
                                 </div>
                                 <div class="col-sm-5">
@@ -78,8 +76,7 @@
 
                             <div class="row align-items-center">
                                 <div class="col-sm-7">
-                                    <label class="font-weight-bold text-dark mb-0">3. Quantity (Kesesuaian Jumlah
-                                        PO)</label>
+                                    <label class="font-weight-bold text-dark mb-0">3. Quantity</label>
                                     <div class="text-muted font-size-xs">Ditarik dari kesesuaian order vs receipt QAD</div>
                                 </div>
                                 <div class="col-sm-5">
@@ -99,18 +96,18 @@
                         <div class="mb-5">
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <span class="text-uppercase font-weight-bolder font-size-xs text-warning letter-spacing-1">
-                                    <i class="fas fa-clipboard-check mr-1"></i> Aspek Manual Input QA / Pengadaan
+                                    <i class="fas fa-clipboard-check mr-1"></i> Aspek Input Manual
                                 </span>
                                 <span class="badge badge-light-warning font-weight-bold font-size-xs text-warning"
                                     id="badgeQaTotal">
-                                    Subtotal QA: 40%
+                                    Subtotal Manual: 40%
                                 </span>
                             </div>
 
                             <div class="row align-items-center mb-3">
                                 <div class="col-sm-7">
-                                    <label class="font-weight-bold text-dark mb-0">4. Complain (Rekap Komplain Mutu)</label>
-                                    <div class="text-muted font-size-xs">Diinput berkala oleh Tim Quality Assurance</div>
+                                    <label class="font-weight-bold text-dark mb-0">4. Complain</label>
+                                    <div class="text-muted font-size-xs">Diinput berkala</div>
                                 </div>
                                 <div class="col-sm-5">
                                     <div class="input-group input-group-sm">
@@ -126,9 +123,8 @@
 
                             <div class="row align-items-center mb-3">
                                 <div class="col-sm-7">
-                                    <label class="font-weight-bold text-dark mb-0">5. Incoming Material (Material
-                                        Masuk)</label>
-                                    <div class="text-muted font-size-xs">Diinput dari catatan penerimaan gudang/QA</div>
+                                    <label class="font-weight-bold text-dark mb-0">5. Incoming Material</label>
+                                    <div class="text-muted font-size-xs">Diinput berkala</div>
                                 </div>
                                 <div class="col-sm-5">
                                     <div class="input-group input-group-sm">
@@ -144,9 +140,8 @@
 
                             <div class="row align-items-center">
                                 <div class="col-sm-7">
-                                    <label class="font-weight-bold text-dark mb-0">6. Safety & Env (K3 &
-                                        Lingkungan)</label>
-                                    <div class="text-muted font-size-xs">Diinput dari logbook K3L & QA</div>
+                                    <label class="font-weight-bold text-dark mb-0">6. Safety & Env</label>
+                                    <div class="text-muted font-size-xs">Diinput berkala</div>
                                 </div>
                                 <div class="col-sm-5">
                                     <div class="input-group input-group-sm">
@@ -171,11 +166,11 @@
                                 <div class="progress-bar bg-primary" id="progressBarQad" role="progressbar"
                                     style="width: 60%" title="QAD ERP"></div>
                                 <div class="progress-bar bg-warning" id="progressBarQa" role="progressbar"
-                                    style="width: 40%" title="QA Manual"></div>
+                                    style="width: 40%" title="Manual Input"></div>
                             </div>
                             <div class="d-flex align-items-center justify-content-between mt-2 font-size-xs text-muted">
                                 <span><i class="fas fa-square text-primary mr-1"></i>QAD ERP</span>
-                                <span><i class="fas fa-square text-warning mr-1"></i>QA Manual</span>
+                                <span><i class="fas fa-square text-warning mr-1"></i>Manual Input</span>
                                 <span id="weightStatusText" class="font-weight-bold text-success"><i
                                         class="fas fa-check-circle mr-1"></i>Valid (Pas 100%)</span>
                             </div>
@@ -200,7 +195,7 @@
                             {{-- Visual Tier Reference --}}
                             <div class="mb-4 p-3 rounded" style="background-color: #f8f9fa; border: 1px dashed #e4e6ef;">
                                 <div class="font-weight-bolder font-size-xs text-muted text-uppercase mb-2">Klasifikasi
-                                    Rapor:</div>
+                                    Evaluasi:</div>
                                 <div class="d-flex align-items-center justify-content-between mb-1">
                                     <span class="badge badge-success font-weight-bold px-2 py-1">BAIK</span>
                                     <span class="font-size-sm font-weight-bold text-dark">&ge; <span
@@ -263,7 +258,7 @@
                                 <div class="alert-text font-size-xs">
                                     <strong>Catatan Sistem:</strong><br>
                                     Perubahan bobot & threshold berlaku otomatis pada kalkulasi evaluasi bulanan dan
-                                    pengesahan rapor selanjutnya.
+                                    pengesahan evaluasi tahunan selanjutnya.
                                 </div>
                             </div>
                         </div>
@@ -347,7 +342,7 @@
                 });
 
                 $('#badgeQadTotal').text('Subtotal QAD: ' + qadTotal.toFixed(1) + '%');
-                $('#badgeQaTotal').text('Subtotal QA: ' + qaTotal.toFixed(1) + '%');
+                $('#badgeQaTotal').text('Subtotal Manual: ' + qaTotal.toFixed(1) + '%');
                 $('#totalWeightBadge').text(total.toFixed(2) + '%');
                 $('#totalWeightTopBadge').text('Total: ' + total.toFixed(2) + '%');
 

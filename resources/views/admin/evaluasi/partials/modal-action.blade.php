@@ -46,3 +46,22 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            // Modal Dynamic Action Handler (Single Modal Event Delegation)
+            $(document).on('click', '.btn-open-action-modal', function() {
+                let btn = $(this);
+                let name = btn.data('name');
+                let score = btn.data('score');
+                let actionUrl = btn.data('action-url');
+
+                $('#modalVendorNameTarget').text(name);
+                $('#modalVendorScoreTarget').text(score);
+                $('#formTriggerAction').attr('action', actionUrl);
+                $('#modalActionAlert').modal('show');
+            });
+        });
+    </script>
+@endpush

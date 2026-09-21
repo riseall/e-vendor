@@ -51,13 +51,51 @@
                                 <i class="fas fa-file-alt mr-2"></i>Detail Evaluasi Tahunan {{ $selectedEvaluation->year }}
                             </h5>
                             <div>
-                                <span class="badge badge-light font-weight-bold text-primary px-3 py-2">
-                                    Approved
+                                <span class="badge badge-light font-weight-bold text-success px-3 py-2">
+                                    <i class="fas fa-check-circle text-success mr-1"></i>Disahkan oleh GM Pengadaan
                                 </span>
                             </div>
                         </div>
 
                         <div class="card-body">
+                            {{-- Alert Khusus Kategori CUKUP dan KURANG --}}
+                            @if($selectedEvaluation->category === 'CUKUP')
+                                <div class="alert alert-custom alert-light-warning fade show mb-5 p-4 border border-warning shadow-xs" role="alert" style="border-radius: 10px;">
+                                    <div class="alert-icon">
+                                        <i class="fas fa-exclamation-circle text-warning fa-2x mr-2"></i>
+                                    </div>
+                                    <div class="alert-text">
+                                        <h5 class="alert-heading font-weight-bolder text-warning mb-1">
+                                            <i class="fas fa-info-circle mr-1"></i>Himbauan Peningkatan Kinerja (Predikat: CUKUP)
+                                        </h5>
+                                        <div class="text-dark-75 font-size-sm">
+                                            Hasil penilaian kinerja tahunan perusahaan Anda untuk tahun <strong>{{ $selectedEvaluation->year }}</strong> berada pada kategori <strong>CUKUP</strong> (Skor: <strong>{{ number_format($selectedEvaluation->final_score, 2) }}</strong>).
+                                            Diharapkan pihak rekanan melakukan evaluasi internal serta meningkatkan keandalan pengiriman dan mutu material/layanan guna mempertahankan status kualifikasi kemitraan aktif di PT Phapros Tbk.
+                                        </div>
+                                    </div>
+                                </div>
+                            @elseif($selectedEvaluation->category === 'KURANG')
+                                <div class="alert alert-custom alert-light-danger fade show mb-5 p-4 border border-danger shadow-xs" role="alert" style="border-radius: 10px;">
+                                    <div class="alert-icon">
+                                        <i class="fas fa-exclamation-triangle text-danger fa-2x mr-2"></i>
+                                    </div>
+                                    <div class="alert-text">
+                                        <h5 class="alert-heading font-weight-bolder text-danger mb-1">
+                                            <i class="fas fa-radiation-alt mr-1"></i>Peringatan Khusus: Tindakan Perbaikan Wajib Dilakukan (Predikat: KURANG)
+                                        </h5>
+                                        <div class="text-dark-75 font-size-sm mb-2">
+                                            Hasil penilaian kinerja tahunan perusahaan Anda untuk tahun <strong>{{ $selectedEvaluation->year }}</strong> berada pada kategori <strong>KURANG</strong> (Skor: <strong>{{ number_format($selectedEvaluation->final_score, 2) }}</strong>).
+                                        </div>
+                                        <div class="p-3 bg-white border border-danger rounded text-danger font-size-sm">
+                                            <strong><i class="fas fa-bolt mr-1"></i>Instruksi Wajib:</strong> Anda diminta segera menyusun dan menyerahkan <strong>Rencana Tindakan Perbaikan (Corrective Action Plan / CAP)</strong> kepada Tim Pengadaan PT Phapros Tbk dalam kurun waktu 14 (empat belas) hari kalender.
+                                            <div class="text-muted font-size-xs mt-1">
+                                                *Penting: Rekanan yang mendapatkan kategori KURANG selama 2 tahun berturut-turut akan dievaluasi untuk tindakan sanksi suspensi (suspended) atau pemutusan kemitraan (terminated).
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             {{-- KPI Cards --}}
                             <div class="row mb-4">
                                 <div class="col-sm-6 col-lg-6 mb-3">

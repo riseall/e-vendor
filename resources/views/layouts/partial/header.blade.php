@@ -3,14 +3,14 @@
     <div class="container-fluid d-flex align-items-center justify-content-between">
         <!--begin::Header Menu Wrapper-->
         <div class="topbar header-menu-wrapper header-menu-wrapper-left" id="kt_header_menu_wrapper">
-            <div
+            {{-- <div
                 style="font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: #B5B5C3; text-transform: uppercase;">
                 {{ __('dashboard') }}
                 @hasSection('breadcrumb')
                     <span class="mx-1" style="color:#E4E6EF"><i class="fas fa-angle-right icon-sm"></i></span>
                     <span style="color:#7E8299">@yield('breadcrumb')</span>
                 @endif
-            </div>
+            </div> --}}
         </div>
         <!--end::Header Menu Wrapper-->
         <!--begin::Topbar-->
@@ -20,7 +20,7 @@
             <!--end::Languages-->
             <!--begin::User-->
             <div class="topbar-item">
-                <div class="btn btn-icon w-auto btn-clean d-flex align-items-center btn-lg px-2"
+                <div class="btn btn-icon w-auto btn-light d-flex align-items-center btn-lg px-2"
                     id="kt_quick_user_toggle">
                     {{-- <span class="text-muted font-weight-bold font-size-base d-none d-md-inline mr-1">Hi,</span> --}}
                     <span

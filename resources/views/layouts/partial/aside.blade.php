@@ -186,6 +186,27 @@
                     </li>
                 @endif
 
+                @php
+                    $hasApprovedEval = \App\Models\VendorAnnualEvaluation::where('vendor_id', Auth::id())
+                        ->where('status', \App\Models\VendorAnnualEvaluation::STATUS_APPROVED)
+                        ->exists();
+                @endphp
+                @if ($hasApprovedEval)
+                    <li class="menu-item {{ request()->routeIs('vendor.evaluasi.*') ? 'menu-item-active' : '' }}" aria-haspopup="true">
+                        <a href="{{ route('vendor.evaluasi.index') }}" class="menu-link">
+                            <span class="svg-icon menu-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px">
+                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                        <rect x="0" y="0" width="24" height="24" />
+                                        <path d="M12,2 C6.4771525,2 2,6.4771525 2,12 C2,17.5228475 6.4771525,22 12,22 C17.5228475,22 22,17.5228475 22,12 C22,6.4771525 17.5228475,2 12,2 Z M10.5,16.5 L6.5,12.5 L7.91421356,11.0857864 L10.5,13.6715729 L16.0857864,8.08578644 L17.5,9.5 L10.5,16.5 Z" fill="currentColor" />
+                                    </g>
+                                </svg>
+                            </span>
+                            <span class="menu-text">Evaluasi Kinerja</span>
+                        </a>
+                    </li>
+                @endif
+
                 @canany(['user-list', 'role-list', 'questionnaire-list'])
                     <li class="menu-section">
                         <h4 class="menu-text">Master</h4>

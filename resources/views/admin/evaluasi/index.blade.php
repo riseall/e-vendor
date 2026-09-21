@@ -1,9 +1,9 @@
 @extends('layouts.app', ['title' => 'Evaluasi Vendor'])
 
 @section('breadcrumb', 'Quality Assurance')
-@section('step', 'Kinerja & Rapor')
-@section('page_title', 'Kinerja & Rapor Vendor')
-@section('page_desc', 'Manajemen Progress Berjalan & Pengesahan Rapor Kinerja Vendor.')
+@section('step', 'Evaluasi Kinerja')
+@section('page_title', 'Evaluasi Kinerja Vendor')
+@section('page_desc', 'Manajemen Progress Berjalan & Pengesahan Evaluasi Tahunan Vendor.')
 
 @section('content')
     {{-- Flash container untuk SweetAlert Toast --}}
@@ -37,7 +37,7 @@
             style="min-height: auto;">
             <div class="d-flex align-items-center flex-wrap mr-2 mb-2 mb-md-0">
                 <h3 class="card-title align-items-start flex-column mb-0 mr-8">
-                    <span class="card-label font-weight-bolder text-dark" style="font-size:1.3rem;">Kinerja & Rapor
+                    <span class="card-label font-weight-bolder text-dark" style="font-size:1.3rem;">Evaluasi Kinerja
                         Vendor</span>
                 </h3>
                 <ul class="nav nav-pills nav-light-primary nav-bold" role="tablist">
@@ -56,7 +56,7 @@
                             href="{{ route('admin.evaluasi.index', ['year' => $year, 'month' => $month, 'tab' => 'annual']) }}"
                             style="border-radius: 8px;">
                             <span class="nav-icon"><i class="fas fa-award mr-2"></i></span>
-                            <span class="nav-text">Pengesahan Rapor</span>
+                            <span class="nav-text">Evaluasi Tahunan</span>
                             <span
                                 class="badge badge-sm {{ $activeTab == 'annual' ? 'badge-white text-primary' : 'badge-light-primary text-primary' }} ml-2">{{ $annualEvaluations->count() }}</span>
                         </a>
@@ -70,8 +70,7 @@
                     <input type="hidden" name="tab" value="{{ $activeTab }}">
 
                     <div class="d-flex align-items-center mr-2">
-                        <select name="year" class="form-control form-control-sm font-weight-bolder bg-light border-0"
-                            style="width: 110px; height: 36px; border-radius: 8px;" onchange="this.form.submit()">
+                        <select name="year" class="form-control border-0 selectpicker" onchange="this.form.submit()">
                             @for ($y = date('Y'); $y >= 2024; $y--)
                                 <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>Tahun
                                     {{ $y }}</option>
@@ -81,8 +80,8 @@
 
                     @if ($activeTab == 'monthly')
                         <div class="d-flex align-items-center mr-2">
-                            <select name="month" class="form-control form-control-sm font-weight-bolder bg-light border-0"
-                                style="width: 125px; height: 36px; border-radius: 8px;" onchange="this.form.submit()">
+                            <select name="month" class="form-control font-weight-bolder border-0 selectpicker"
+                                onchange="this.form.submit()">
                                 @foreach ($months as $num => $name)
                                     <option value="{{ $num }}" {{ $month == $num ? 'selected' : '' }}>
                                         {{ $name }}
@@ -95,7 +94,7 @@
 
                 <div class="d-flex align-items-center pl-2 border-left" style="gap: 0.5rem; height: 36px;">
                     @can('evaluasi-settings')
-                        <a href="{{ route('admin.evaluasi.settings') }}" class="btn btn-sm btn-icon btn-instagram"
+                        <a href="{{ route('admin.evaluasi.settings') }}" class="btn btn-sm btn-icon btn-facebook"
                             style="width: 36px; height: 36px; border-radius: 8px;" title="Pengaturan Bobot & Threshold">
                             <i class="fas fa-cog fa-spin" style="animation-duration: 6s;"></i>
                         </a>
@@ -109,7 +108,7 @@
                                 class="btn btn-sm btn-light-success font-weight-bold d-flex align-items-center"
                                 style="height: 36px; border-radius: 8px;"
                                 onclick="return confirm('Generate / kalkulasi evaluasi tahunan {{ $year }} untuk semua vendor?')">
-                                <i class="fas fa-sync-alt mr-2"></i> Generate Rapor {{ $year }}
+                                <i class="fas fa-sync-alt mr-2"></i> Generate Evaluasi {{ $year }}
                             </button>
                         </form>
                     @endif
@@ -146,8 +145,9 @@
         </div>
     </div>
 
-    {{-- Reusable Single Action Alert Modal --}}
+    {{-- Reusable Single Action Alert Modal & Import QA Modal --}}
     @include('admin.evaluasi.partials.modal-action')
+    @include('admin.evaluasi.partials.modal-import-qa')
 @endsection
 
 @push('scripts')
@@ -202,6 +202,9 @@
                 });
             }
 
+            // Expose showToast ke window agar dapat dipanggil dari partials
+            window.showToast = showToast;
+
             // Flash toast matching admin/audit
             (function() {
                 var $el = $('#vnd-flash');
@@ -234,206 +237,6 @@
                     }
                 });
             })();
-
-
-            /* 2. Initialize DataTables */
-            var dtMonthly = null;
-            if ($('#tableMonthly').length && $('#tableMonthly tbody tr').find('.vnd-empty').length === 0) {
-                dtMonthly = $('#tableMonthly').DataTable({
-                    scrollX: true,
-                    paging: true,
-                    pageLength: 25,
-                    lengthMenu: [
-                        [10, 25, 50, 100, -1],
-                        [10, 25, 50, 100, "Semua"]
-                    ],
-                    order: [
-                        [1, 'asc']
-                    ], // Sort by Vendor Name
-                    columnDefs: [{
-                            targets: [0, -1],
-                            orderable: false
-                        } // Checkbox & Aksi QAD
-                    ],
-                    dom: '<"d-flex justify-content-between align-items-center mb-4 flex-wrap"lf>rtip',
-                });
-            }
-
-            var dtAnnual = null;
-            if ($('#tableAnnual').length && $('#tableAnnual tbody tr').find('.vnd-empty').length === 0) {
-                dtAnnual = $('#tableAnnual').DataTable({
-                    scrollX: true,
-                    paging: true,
-                    pageLength: 25,
-                    lengthMenu: [
-                        [10, 25, 50, 100, -1],
-                        [10, 25, 50, 100, "Semua"]
-                    ],
-                    order: [
-                        [1, 'asc']
-                    ], // Sort by Vendor Name
-                    columnDefs: [{
-                            targets: [0, -1],
-                            orderable: false
-                        } // No & Aksi Management
-                    ],
-                    dom: '<"d-flex justify-content-between align-items-center mb-4 flex-wrap"lf>rtip',
-                });
-            }
-
-            /* 3. Realtime score recalculation */
-            let table = $('#tableMonthly');
-
-            function updateRowScore(row) {
-                if (!table.length) return;
-                let wDel = parseFloat(table.data('w-del')) || 20;
-                let wQual = parseFloat(table.data('w-qual')) || 20;
-                let wQty = parseFloat(table.data('w-qty')) || 20;
-                let wComp = parseFloat(table.data('w-comp')) || 15;
-                let wInc = parseFloat(table.data('w-inc')) || 15;
-                let wSafe = parseFloat(table.data('w-safe')) || 10;
-                let thBaik = parseFloat(table.data('th-baik')) || 80;
-                let thCukup = parseFloat(table.data('th-cukup')) || 60;
-
-                let d = parseFloat(row.find('.delivery-input').val()) || 0;
-                let q = parseFloat(row.find('.quality-input').val()) || 0;
-                let qty = parseFloat(row.find('.quantity-input').val()) || 0;
-                let comp = parseFloat(row.find('.complain-input').val()) || 0;
-                let inc = parseFloat(row.find('.incoming-input').val()) || 0;
-                let safe = parseFloat(row.find('.safety-input').val()) || 0;
-
-                let total = ((d * wDel) + (q * wQual) + (qty * wQty) + (comp * wComp) + (inc * wInc) + (safe *
-                    wSafe)) / 100;
-                row.find('.total-score-cell').text(total.toFixed(2));
-
-                let catCell = row.find('.category-cell');
-                if (total >= thBaik) {
-                    catCell.html('<span class="vnd-status vnd-status--success">BAIK</span>');
-                } else if (total >= thCukup) {
-                    catCell.html('<span class="vnd-status vnd-status--warning">CUKUP</span>');
-                } else {
-                    catCell.html('<span class="vnd-status vnd-status--danger">KURANG</span>');
-                }
-            }
-
-            // Score Input Live Recalculation (Event delegation for DataTables pages)
-            $(document).on('input change', '.score-input', function() {
-                let row = $(this).closest('tr');
-                updateRowScore(row);
-            });
-
-            // Submit handler: ensure inputs from all DataTables pages are submitted
-            $('#formBatchMonthly').on('submit', function(e) {
-                if (dtMonthly) {
-                    var form = this;
-                    var serializedData = dtMonthly.$('input, select').serializeArray();
-                    $.each(serializedData, function(i, item) {
-                        if (!$.contains(document, form[item.name])) {
-                            $(form).append(
-                                $('<input>').attr('type', 'hidden').attr('name', item.name).val(
-                                    item.value)
-                            );
-                        }
-                    });
-                }
-            });
-
-            // Single Fetch QAD via AJAX
-            $(document).on('click', '.btn-fetch-single-qad', function() {
-                let btn = $(this);
-                let vendorId = btn.data('vendor-id');
-                let row = btn.closest('tr');
-
-                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Syncing...');
-
-                $.ajax({
-                    url: "{{ route('admin.evaluasi.fetch-qad') }}",
-                    type: "GET",
-                    data: {
-                        vendor_id: vendorId,
-                        month: "{{ $month }}",
-                        year: "{{ $year }}"
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            row.find('.delivery-input').val(response.scores.delivery_score);
-                            row.find('.quality-input').val(response.scores.quality_score);
-                            row.find('.quantity-input').val(response.scores.quantity_score);
-
-                            updateRowScore(row);
-                            showToast('success', 'Sukses', 'Data QAD vendor berhasil ditarik');
-                        }
-                    },
-                    error: function() {
-                        showToast('error', 'Gagal', 'Gagal menarik data QAD vendor');
-                    },
-                    complete: function() {
-                        btn.prop('disabled', false).html(
-                            '<i class="fas fa-sync-alt mr-1"></i> Fetch QAD');
-                    }
-                });
-            });
-
-            // Fetch All QAD (handles all vendors across DataTables pages)
-            $('#btnSyncAllQad').on('click', function() {
-                let btns = dtMonthly ? dtMonthly.$('.btn-fetch-single-qad') : $('.btn-fetch-single-qad');
-                if (btns.length === 0) return;
-
-                let btnAll = $(this);
-                btnAll.prop('disabled', true).html(
-                    '<i class="fas fa-spinner fa-spin mr-1"></i> Fetching All...');
-
-                let completed = 0;
-                btns.each(function() {
-                    let singleBtn = $(this);
-                    let vendorId = singleBtn.data('vendor-id');
-                    let row = singleBtn.closest('tr');
-
-                    $.ajax({
-                        url: "{{ route('admin.evaluasi.fetch-qad') }}",
-                        type: "GET",
-                        data: {
-                            vendor_id: vendorId,
-                            month: "{{ $month }}",
-                            year: "{{ $year }}"
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                row.find('.delivery-input').val(response.scores
-                                    .delivery_score);
-                                row.find('.quality-input').val(response.scores
-                                    .quality_score);
-                                row.find('.quantity-input').val(response.scores
-                                    .quantity_score);
-                                updateRowScore(row);
-                            }
-                        },
-                        complete: function() {
-                            completed++;
-                            if (completed === btns.length) {
-                                btnAll.prop('disabled', false).html(
-                                    '<i class="fas fa-cloud-download-alt mr-1"></i>Fetch QAD Massal'
-                                );
-                                showToast('success', 'Sukses',
-                                    'Selesai sinkronisasi QAD seluruh vendor');
-                            }
-                        }
-                    });
-                });
-            });
-
-            // Modal Dynamic Action Handler (Single Modal Event Delegation)
-            $(document).on('click', '.btn-open-action-modal', function() {
-                let btn = $(this);
-                let name = btn.data('name');
-                let score = btn.data('score');
-                let actionUrl = btn.data('action-url');
-
-                $('#modalVendorNameTarget').text(name);
-                $('#modalVendorScoreTarget').text(score);
-                $('#formTriggerAction').attr('action', actionUrl);
-                $('#modalActionAlert').modal('show');
-            });
         });
     </script>
 @endpush
