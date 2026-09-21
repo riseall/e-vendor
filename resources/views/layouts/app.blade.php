@@ -178,6 +178,22 @@
         };
     </script>
     <!--end::Global Config-->
+    <!--begin::Localization Config-->
+    <script>
+        window.i18n = @json(
+            file_exists(resource_path('lang/' . app()->getLocale() . '.json'))
+                ? json_decode(file_get_contents(resource_path('lang/' . app()->getLocale() . '.json')), true)
+                : []
+        );
+        window.__ = function (key, replace = {}) {
+            let text = (window.i18n && window.i18n[key]) ? window.i18n[key] : key;
+            for (const [k, v] of Object.entries(replace)) {
+                text = text.replace(':' + k, v);
+            }
+            return text;
+        };
+    </script>
+    <!--end::Localization Config-->
     <!--begin::Global Theme Bundle(used by all pages)-->
     <script src="{{ asset('plugins/plugins.bundle.js') }}"></script>
     <script src="{{ asset('js/scripts.bundle.js') }}"></script>

@@ -244,6 +244,14 @@
     <script src="{{ asset('js/dashboard/wizard-nav.js') }}"></script>
     <script src="{{ asset('js/dashboard/vendor-form.js') }}"></script>
     <script>
+        var __ = window.__ || function (key, replace = {}) {
+            let text = (window.i18n && window.i18n[key]) ? window.i18n[key] : key;
+            for (const [k, v] of Object.entries(replace)) {
+                text = text.replace(':' + k, v);
+            }
+            return text;
+        };
+
         $(document).ready(function() {
 
             function showValidationErrors(errors) {
@@ -334,7 +342,7 @@
                     if (genericErrors) {
                         Swal.fire({
                             icon: 'error',
-                            title: @json(__('validation_failed')),
+                            title: __('validation_failed'),
                             html: '<ul class="text-left mb-0 text-danger" style="font-size:0.9rem;">' + genericErrors + '</ul>'
                         });
                     }
@@ -351,47 +359,44 @@
 
                 // Label step yang ramah dibaca user
                 var stepLabels = {
-                    'step-1': @json(__('category')),
-                    'step-2': @json(__('general_info')),
-                    'step-3': @json(__('payment')),
-                    'step-4': @json(__('commitment')),
-                    'step-5': @json(__('other_info')),
-                    'step-6': @json(__('local_vendor_special')),
-                    'step-7': @json(__('product')),
-                    'step-8': @json(__('document')),
-                    'cat-1': @json(__('raw_material')),
-                    'cat-2': @json(__('technical_varia')),
-                    'cat-3': @json(__('transporter')),
-                    'cat-4': @json(__('contractor')),
-                    'cat-5': @json(__('testing')),
-                    'cat-6': @json(__('facility')),
-                    'cat-7': @json(__('training')),
-                    'cat-8': @json(__('advertising'))
+                    'step-1': __('category'),
+                    'step-2': __('general_info'),
+                    'step-3': __('payment'),
+                    'step-4': __('commitment'),
+                    'step-5': __('other_info'),
+                    'step-6': __('local_vendor_special'),
+                    'step-7': __('product'),
+                    'step-8': __('document'),
+                    'cat-1': __('raw_material'),
+                    'cat-2': __('technical_varia'),
+                    'cat-3': __('transporter'),
+                    'cat-4': __('contractor'),
+                    'cat-5': __('testing'),
+                    'cat-6': __('facility'),
+                    'cat-7': __('training'),
+                    'cat-8': __('advertising')
                 };
 
                 // Ringkasan: nama step + jumlah error (bukan daftar pesan lengkap)
-                var fieldsNeedCorrectionText = @json(__('fields_need_correction'));
-                var errorsFoundText = @json(__('errors_found_in_steps'));
-
                 var list = '<ul class="text-left mb-0">';
                 Object.keys(perStep).forEach(function(stepId) {
                     var label = stepLabels[stepId] || stepId;
-                    var itemText = fieldsNeedCorrectionText.replace(':count', perStep[stepId]);
+                    var itemText = __('fields_need_correction', { count: perStep[stepId] });
                     list += '<li><b>' + label + '</b> &mdash; ' + itemText + '</li>';
                 });
                 list += '</ul>';
 
                 Swal.fire({
                     icon: 'error',
-                    title: @json(__('validation_failed')),
-                    html: '<p class="mb-2">' + errorsFoundText.replace(':count', errorCount) + '</p>' + list
+                    title: __('validation_failed'),
+                    html: '<p class="mb-2">' + __('errors_found_in_steps', { count: errorCount }) + '</p>' + list
                 });
             }
 
             function showSubmitLoading(title, text) {
                 Swal.fire({
-                    title: title || @json(__('processing_application')),
-                    text: text || @json(__('processing_please_wait')),
+                    title: title || __('processing_application'),
+                    text: text || __('processing_please_wait'),
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     showConfirmButton: false,
@@ -408,7 +413,7 @@
                 var selectedCategories = $('.category-checkbox:checked');
 
                 if (selectedCategories.length === 0) {
-                    Swal.fire(@json(__('select_category')), @json(__('select_at_least_one_category')), 'warning');
+                    Swal.fire(__('select_category'), __('select_at_least_one_category'), 'warning');
                     return;
                 }
 
@@ -421,11 +426,11 @@
                 });
 
                 if (actionType === 'submit') {
-                    showSubmitLoading(@json(__('preparing_application')), @json(__('preparing_application_desc')));
+                    showSubmitLoading(__('preparing_application'), __('preparing_application_desc'));
                     btnElement.attr('disabled', true);
                 } else {
                     btnElement.attr('disabled', true).html(
-                        '<span class="spinner-border spinner-border-sm"></span> ' + @json(__('preparing_draft')));
+                        '<span class="spinner-border spinner-border-sm"></span> ' + __('preparing_draft'));
                 }
 
                 $.ajax({
@@ -452,9 +457,9 @@
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: @json(__('failed')),
+                                title: __('failed'),
                                 text: xhr.responseJSON?.message ||
-                                    @json(__('failed_create_category_draft'))
+                                    __('failed_create_category_draft')
                             });
                         }
                     },
@@ -468,12 +473,12 @@
 
             function finalizeSubmit(applicationId, btnElement) {
                 if (!applicationId) {
-                    Swal.fire(@json(__('error')), @json(__('draft_number_not_found')), 'error');
+                    Swal.fire(__('error'), __('draft_number_not_found'), 'error');
                     btnElement.attr('disabled', false).html(btnElement.data('original-html') || btnElement.html());
                     return;
                 }
 
-                showSubmitLoading(@json(__('submitting_application')), @json(__('submitting_application_desc')));
+                showSubmitLoading(__('submitting_application'), __('submitting_application_desc'));
                 btnElement.attr('disabled', true);
 
                 $.ajax({
@@ -489,7 +494,7 @@
                     success: function(res) {
                         Swal.fire({
                             icon: 'success',
-                            title: @json(__('application_submitted')),
+                            title: __('application_submitted'),
                             text: res.message,
                         }).then(() => {
                             window.location.href = res.redirect;
@@ -501,8 +506,8 @@
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: @json(__('failed')),
-                                text: xhr.responseJSON?.message || @json(__('failed_submit_application'))
+                                title: __('failed'),
+                                text: xhr.responseJSON?.message || __('failed_submit_application')
                             });
                         }
                     },
@@ -546,9 +551,9 @@
                     } else {
                         Swal.fire({
                             icon: 'error',
-                            title: @json(__('failed')),
+                            title: __('failed'),
                             text: xhr.responseJSON?.message ||
-                                @json(__('failed_save_before_submit'))
+                                __('failed_save_before_submit')
                         });
                     }
                     btnElement.attr('disabled', false).html(btnElement.data('original-html') || btnElement.html());
@@ -574,7 +579,7 @@
 
                 // Validasi jika step tidak terdeteksi (safety catch)
                 if (!targetUrl) {
-                    Swal.fire(@json(__('error')), @json(__('form_step_unrecognized')), 'error');
+                    Swal.fire(__('error'), __('form_step_unrecognized'), 'error');
                     return;
                 }
 
@@ -604,14 +609,14 @@
                 btnElement.data('original-html', originalBtnHtml);
 
                 if (actionType === 'submit') {
-                    showSubmitLoading(@json(__('submitting_application')), @json(__('submitting_application_desc')));
+                    showSubmitLoading(__('submitting_application'), __('submitting_application_desc'));
                     btnElement.attr('disabled', true);
                     saveBeforeFinalSubmit(formData, btnElement);
                     return;
                 }
 
                 btnElement.attr('disabled', true).html(
-                    '<span class="spinner-border spinner-border-sm"></span> ' + @json(__('loading')));
+                    '<span class="spinner-border spinner-border-sm"></span> ' + __('loading'));
 
                 // 5. Eksekusi AJAX
                 $.ajax({
@@ -630,7 +635,7 @@
 
                         Swal.fire({
                             icon: 'success',
-                            title: @json(__('success')),
+                            title: __('success'),
                             text: res.message,
                         });
                     },
@@ -640,8 +645,8 @@
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: @json(__('failed')),
-                                text: xhr.responseJSON.message || @json(__('system_error'))
+                                title: __('failed'),
+                                text: xhr.responseJSON.message || __('system_error')
                             });
                         }
                     },

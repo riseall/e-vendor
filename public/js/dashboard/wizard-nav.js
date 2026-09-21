@@ -1,43 +1,45 @@
+var __ = window.__ || function (key) { return key; };
+
 var fixedStepsBefore = [
     {
         id: "step-1",
         icon: "fas fa-th-large",
-        title: "Kategori",
+        title: __("category"),
     },
     {
         id: "step-2",
         icon: "fas fa-building",
-        title: "Info Umum",
+        title: __("general_info"),
     },
     {
         id: "step-3",
         icon: "fas fa-wallet",
-        title: "Pembayaran",
+        title: __("payment"),
     },
     {
         id: "step-4",
         icon: "fas fa-award",
-        title: "Komitmen",
+        title: __("commitment"),
     },
     {
         id: "step-5",
         icon: "fas fa-clipboard-list",
-        title: "Info Lain",
+        title: __("other_info"),
     },
     {
         id: "step-6",
         icon: "fas fa-map-marker-alt",
-        title: "Khusus Vendor Lokal",
+        title: __("local_vendor_special"),
     },
     {
         id: "step-7",
         icon: "fas fa-boxes",
-        title: "Produk",
+        title: __("product"),
     },
     {
         id: "step-8",
         icon: "fas fa-file-upload",
-        title: "Dokumen",
+        title: __("document"),
     },
 ];
 
@@ -46,49 +48,49 @@ var categorySteps = {
     1: {
         id: "cat-1",
         icon: "flaticon2-box-1",
-        title: "Bahan Baku",
+        title: __("raw_material"),
         dynamic: true,
     },
     2: {
         id: "cat-2",
         icon: "flaticon2-settings",
-        title: "Varia Teknik",
+        title: __("technical_varia"),
         dynamic: true,
     },
     3: {
         id: "cat-3",
         icon: "fas fa-shipping-fast",
-        title: "Transporter",
+        title: __("transporter"),
         dynamic: true,
     },
     4: {
         id: "cat-4",
         icon: "fas fa-city",
-        title: "Kontraktor",
+        title: __("contractor"),
         dynamic: true,
     },
     5: {
         id: "cat-5",
         icon: "flaticon2-analytics",
-        title: "Pengujian",
+        title: __("testing"),
         dynamic: true,
     },
     6: {
         id: "cat-6",
         icon: "fas fa-clinic-medical",
-        title: "Facility",
+        title: __("facility"),
         dynamic: true,
     },
     7: {
         id: "cat-7",
         icon: "fas fa-people-carry",
-        title: "Pelatihan",
+        title: __("training"),
         dynamic: true,
     },
     8: {
         id: "cat-8",
         icon: "fas fa-bullhorn",
-        title: "Advertising",
+        title: __("advertising"),
         dynamic: true,
     },
 };
@@ -207,10 +209,10 @@ $("#wzNav").on("click", ".wz-nav-item", function () {
         // Cek apakah kategori sudah dipilih
         if ($(".category-checkbox:checked").length === 0) {
             Swal.fire({
-                title: "Pilih Kategori",
-                text: "Silakan pilih kategori terlebih dahulu.",
+                title: __("select_category"),
+                text: __("select_at_least_one_category"),
                 icon: "warning",
-                confirmButtonText: "OK",
+                confirmButtonText: __("ok"),
             });
             return;
         }
@@ -232,10 +234,10 @@ $("#btnNext").on("click", function () {
     if (activeSteps[currentIndex].id === "step-1") {
         if ($(".category-checkbox:checked").length === 0) {
             Swal.fire({
-                title: "Pilih Kategori",
-                text: "Silakan pilih kategori terlebih dahulu.",
+                title: __("select_category"),
+                text: __("select_at_least_one_category"),
                 icon: "warning",
-                confirmButtonText: "OK",
+                confirmButtonText: __("ok"),
             });
             return;
         }
