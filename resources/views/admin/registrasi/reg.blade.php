@@ -1,15 +1,13 @@
-@extends('layouts.app', ['title' => 'Vendor Registration'])
+@extends('layouts.app', ['title' => __('vendor_registration')])
 
 @push('style')
     <link href="{{ asset('css/wizard-4.css') }}" rel="stylesheet" type="text/css" />
 @endpush
 
-@section('breadcrumb', 'Registrasi')
-@section('step', 'Pra Kualifikasi')
-@section('page_title', 'Vendor Registration')
-@section('page_desc',
-    'Lengkapi profil perusahaan Anda untuk memulai proses kualifikasi vendor. Fase ini memastikan
-    kepatuhan terhadap standar perusahaan kami.')
+@section('breadcrumb', __('registration'))
+@section('step', __('pre_qualification'))
+@section('page_title', __('vendor_registration'))
+@section('page_desc', __('reg_page_desc'))
 
 @section('content')
 
@@ -17,8 +15,8 @@
         <div class="alert alert-custom alert-light-primary fade show mb-5" role="alert">
             <div class="alert-icon"><i class="flaticon2-check-mark text-primary icon-md"></i></div>
             <div class="alert-text">
-                <span class="font-weight-bold text-dark-75">Permohonan Anda sudah dikirim.</span>
-                Form ini tampil dalam mode read-only sambil menunggu verifikasi.
+                <span class="font-weight-bold text-dark-75">{{ __('app_already_submitted') }}</span>
+                {{ __('form_readonly_verification') }}
             </div>
             <div class="alert-close">
                 <button type="button" class="close" data-dismiss="alert">
@@ -30,11 +28,11 @@
         <div class="alert alert-custom alert-light-warning fade show mb-5" role="alert">
             <div class="alert-icon"><i class="flaticon-warning text-warning icon-md"></i></div>
             <div class="alert-text">
-                <span class="font-weight-bold text-dark-75">Permohonan perlu revisi.</span>
-                Silakan perbaiki data sesuai catatan pengadaan lalu submit ulang.
+                <span class="font-weight-bold text-dark-75">{{ __('app_need_revision') }}</span>
+                {{ __('app_need_revision_desc') }}
                 @if (!empty($draft['admin_note'] ?? null))
                     <div class="mt-2 text-dark-75">
-                        <span class="font-weight-bold">Catatan:</span> {{ $draft['admin_note'] }}
+                        <span class="font-weight-bold">{{ __('note') }}:</span> {{ $draft['admin_note'] }}
                     </div>
                 @endif
                 @if (!empty($draft['revision_notes'] ?? null))
@@ -42,7 +40,7 @@
                         @foreach ($draft['revision_notes'] as $revision)
                             <div>
                                 <span
-                                    class="font-weight-bold">{{ $revision['label'] ?? ($revision['field'] ?? 'Umum') }}:</span>
+                                    class="font-weight-bold">{{ $revision['label'] ?? ($revision['field'] ?? __('general')) }}:</span>
                                 {{ $revision['note'] ?? '-' }}
                             </div>
                         @endforeach
@@ -59,7 +57,7 @@
         <div class="alert alert-custom alert-light-warning fade show mb-5" role="alert">
             <div class="alert-icon"><i class="fas fa-exclamation-triangle text-warning icon-md"></i></div>
             <div class="alert-text">
-                <span class="font-weight-bold text-dark-75">Anda memiliki permohonan yang belum selesai.</span>
+                <span class="font-weight-bold text-dark-75">{{ __('app_unfinished_draft') }}</span>
                 {{-- Data tersimpan hingga step <strong>{{ $draftStep ?? 1 }} --}}</strong>
             </div>
             <div class="alert-close">
@@ -200,26 +198,26 @@
                                             <button type="button" id="btnPrev"
                                                 class="btn btn-light-primary font-weight-bold text-uppercase px-9 py-4"
                                                 style="display:none">
-                                                <i class="ki ki-arrow-back mr-1"></i> Sebelumnya
+                                                <i class="ki ki-arrow-back mr-1"></i> {{ __('previous') }}
                                             </button>
                                         </div>
                                         <div>
                                             @if (!$isReadOnly)
                                                 <button type="button" id="btnSaveDraft"
                                                     class="btn btn-light-primary font-weight-bold text-uppercase px-9 py-4 mr-3">
-                                                    <i class="flaticon2-fax mr-1"></i> Simpan Draft
+                                                    <i class="flaticon2-fax mr-1"></i> {{ __('save_draft') }}
                                                 </button>
                                             @endif
                                             <button type="button" id="btnNext"
                                                 class="btn btn-primary font-weight-bold text-uppercase px-9 py-4">
-                                                Lanjutkan
+                                                {{ __('continue') }}
                                                 <i class="fas fa-arrow-up icon-md" style="transform: rotate(45deg);"></i>
                                             </button>
                                             @if (!$isReadOnly)
                                                 <button type="submit" id="btnSubmit"
                                                     class="btn btn-primary font-weight-bold text-uppercase px-9 py-4"
                                                     style="display:none">
-                                                    <i class="flaticon2-check-mark mr-1"></i> Submit
+                                                    <i class="flaticon2-check-mark mr-1"></i> {{ __('submit') }}
                                                 </button>
                                             @endif
                                         </div>
@@ -336,7 +334,7 @@
                     if (genericErrors) {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Validasi Gagal',
+                            title: @json(__('validation_failed')),
                             html: '<ul class="text-left mb-0 text-danger" style="font-size:0.9rem;">' + genericErrors + '</ul>'
                         });
                     }
@@ -353,45 +351,47 @@
 
                 // Label step yang ramah dibaca user
                 var stepLabels = {
-                    'step-1': 'Kategori',
-                    'step-2': 'Info Umum',
-                    'step-3': 'Pembayaran',
-                    'step-4': 'Komitmen',
-                    'step-5': 'Info Lain',
-                    'step-6': 'Khusus Vendor Lokal',
-                    'step-7': 'Produk',
-                    'step-8': 'Dokumen',
-                    'cat-1': 'Bahan Baku',
-                    'cat-2': 'Varia Teknik',
-                    'cat-3': 'Transporter',
-                    'cat-4': 'Kontraktor',
-                    'cat-5': 'Pengujian',
-                    'cat-6': 'Facility',
-                    'cat-7': 'Pelatihan',
-                    'cat-8': 'Advertising'
+                    'step-1': @json(__('category')),
+                    'step-2': @json(__('general_info')),
+                    'step-3': @json(__('payment')),
+                    'step-4': @json(__('commitment')),
+                    'step-5': @json(__('other_info')),
+                    'step-6': @json(__('local_vendor_special')),
+                    'step-7': @json(__('product')),
+                    'step-8': @json(__('document')),
+                    'cat-1': @json(__('raw_material')),
+                    'cat-2': @json(__('technical_varia')),
+                    'cat-3': @json(__('transporter')),
+                    'cat-4': @json(__('contractor')),
+                    'cat-5': @json(__('testing')),
+                    'cat-6': @json(__('facility')),
+                    'cat-7': @json(__('training')),
+                    'cat-8': @json(__('advertising'))
                 };
 
                 // Ringkasan: nama step + jumlah error (bukan daftar pesan lengkap)
+                var fieldsNeedCorrectionText = @json(__('fields_need_correction'));
+                var errorsFoundText = @json(__('errors_found_in_steps'));
+
                 var list = '<ul class="text-left mb-0">';
                 Object.keys(perStep).forEach(function(stepId) {
                     var label = stepLabels[stepId] || stepId;
-                    list += '<li><b>' + label + '</b> &mdash; ' + perStep[stepId] +
-                        ' isian perlu diperbaiki</li>';
+                    var itemText = fieldsNeedCorrectionText.replace(':count', perStep[stepId]);
+                    list += '<li><b>' + label + '</b> &mdash; ' + itemText + '</li>';
                 });
                 list += '</ul>';
 
                 Swal.fire({
                     icon: 'error',
-                    title: 'Validasi Gagal',
-                    html: '<p class="mb-2">Terdapat <b>' + errorCount +
-                        '</b> isian yang perlu diperbaiki pada:</p>' + list
+                    title: @json(__('validation_failed')),
+                    html: '<p class="mb-2">' + errorsFoundText.replace(':count', errorCount) + '</p>' + list
                 });
             }
 
             function showSubmitLoading(title, text) {
                 Swal.fire({
-                    title: title || 'Memproses Permohonan...',
-                    text: text || 'Mohon tunggu, sistem sedang memproses data Anda. Jangan menutup atau me-refresh halaman ini.',
+                    title: title || @json(__('processing_application')),
+                    text: text || @json(__('processing_please_wait')),
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     showConfirmButton: false,
@@ -408,7 +408,7 @@
                 var selectedCategories = $('.category-checkbox:checked');
 
                 if (selectedCategories.length === 0) {
-                    Swal.fire('Pilih Kategori', 'Silakan pilih minimal satu kategori terlebih dahulu.', 'warning');
+                    Swal.fire(@json(__('select_category')), @json(__('select_at_least_one_category')), 'warning');
                     return;
                 }
 
@@ -421,11 +421,11 @@
                 });
 
                 if (actionType === 'submit') {
-                    showSubmitLoading('Menyiapkan Permohonan...', 'Sedang mempersiapkan data permohonan Anda...');
+                    showSubmitLoading(@json(__('preparing_application')), @json(__('preparing_application_desc')));
                     btnElement.attr('disabled', true);
                 } else {
                     btnElement.attr('disabled', true).html(
-                        '<span class="spinner-border spinner-border-sm"></span> Menyiapkan draft...');
+                        '<span class="spinner-border spinner-border-sm"></span> ' + @json(__('preparing_draft')));
                 }
 
                 $.ajax({
@@ -452,9 +452,9 @@
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Gagal',
+                                title: @json(__('failed')),
                                 text: xhr.responseJSON?.message ||
-                                    'Gagal membuat draft kategori.'
+                                    @json(__('failed_create_category_draft'))
                             });
                         }
                     },
@@ -468,12 +468,12 @@
 
             function finalizeSubmit(applicationId, btnElement) {
                 if (!applicationId) {
-                    Swal.fire('Error', 'Nomor draft permohonan tidak ditemukan.', 'error');
+                    Swal.fire(@json(__('error')), @json(__('draft_number_not_found')), 'error');
                     btnElement.attr('disabled', false).html(btnElement.data('original-html') || btnElement.html());
                     return;
                 }
 
-                showSubmitLoading('Mengirim Permohonan...', 'Sedang memproses dan mengirimkan permohonan Anda. Mohon tunggu...');
+                showSubmitLoading(@json(__('submitting_application')), @json(__('submitting_application_desc')));
                 btnElement.attr('disabled', true);
 
                 $.ajax({
@@ -489,7 +489,7 @@
                     success: function(res) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Permohonan Terkirim',
+                            title: @json(__('application_submitted')),
                             text: res.message,
                         }).then(() => {
                             window.location.href = res.redirect;
@@ -501,8 +501,8 @@
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Gagal',
-                                text: xhr.responseJSON?.message || 'Gagal mengirim permohonan.'
+                                title: @json(__('failed')),
+                                text: xhr.responseJSON?.message || @json(__('failed_submit_application'))
                             });
                         }
                     },
@@ -546,9 +546,9 @@
                     } else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Gagal',
+                            title: @json(__('failed')),
                             text: xhr.responseJSON?.message ||
-                                'Gagal menyimpan data sebelum submit.'
+                                @json(__('failed_save_before_submit'))
                         });
                     }
                     btnElement.attr('disabled', false).html(btnElement.data('original-html') || btnElement.html());
@@ -574,7 +574,7 @@
 
                 // Validasi jika step tidak terdeteksi (safety catch)
                 if (!targetUrl) {
-                    Swal.fire('Error', 'Sistem tidak mengenali posisi form saat ini.', 'error');
+                    Swal.fire(@json(__('error')), @json(__('form_step_unrecognized')), 'error');
                     return;
                 }
 
@@ -604,14 +604,14 @@
                 btnElement.data('original-html', originalBtnHtml);
 
                 if (actionType === 'submit') {
-                    showSubmitLoading('Mengirim Permohonan...', 'Sedang memproses dan mengirimkan permohonan Anda. Mohon tunggu...');
+                    showSubmitLoading(@json(__('submitting_application')), @json(__('submitting_application_desc')));
                     btnElement.attr('disabled', true);
                     saveBeforeFinalSubmit(formData, btnElement);
                     return;
                 }
 
                 btnElement.attr('disabled', true).html(
-                    '<span class="spinner-border spinner-border-sm"></span> Loading...');
+                    '<span class="spinner-border spinner-border-sm"></span> ' + @json(__('loading')));
 
                 // 5. Eksekusi AJAX
                 $.ajax({
@@ -630,7 +630,7 @@
 
                         Swal.fire({
                             icon: 'success',
-                            title: 'Berhasil',
+                            title: @json(__('success')),
                             text: res.message,
                         });
                     },
@@ -640,8 +640,8 @@
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Gagal',
-                                text: xhr.responseJSON.message || 'Terjadi kesalahan sistem.'
+                                title: @json(__('failed')),
+                                text: xhr.responseJSON.message || @json(__('system_error'))
                             });
                         }
                     },
