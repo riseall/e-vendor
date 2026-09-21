@@ -9,12 +9,18 @@
     "users": "Pengguna",
     "welcome": "Selamat Datang",
 
-    "_comment": "Komentar",
-    "company_name": "Nama Perusahaan",
-    "company_address": "Alamat Perusahaan",
-    "company_phone": "Nomor Telepon Perusahaan",
-    "company_email": "Email Perusahaan",
-    "company_website": "Situs Resmi Perusahaan",
-    "company_contact_person": "Company Contact Person",
-    "company_contact_person_position": "Company Contact Person Position"
+    "profile": "Profil",
+    "registration": "Registrasi",
+    "questionnaire": "Kuesioner",
+    "audit_results": "Hasil Audit",
+    "performance_evaluation": "Evaluasi Kinerja",
+    "master": "Master",
+    "role_permission": "Peran & Izin",
+    "vendor_management": "Manajemen Vendor",
+    "vendor_verification": "Verifikasi Vendor",
+    "risk_assessment": "Penilaian Risiko",
+    "vendor_audit": "Audit Vendor",
+    "recommended_supplier": "Supplier Terekomendasi",
+    "requalification_history": "Riwayat Rekualifikasi",
+    "vendor_evaluation": "Evaluasi Vendor"
 }

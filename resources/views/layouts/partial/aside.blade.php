@@ -93,7 +93,7 @@
                             </svg>
                         </span>
                         <span
-                            class="menu-text">{{ in_array($status, ['approved', 'verified']) ? 'Profil' : 'Registrasi' }}</span>
+                            class="menu-text">{{ in_array($status, ['approved', 'verified']) ? __('profile') : __('registration') }}</span>
                     </a>
                 </li>
 
@@ -157,7 +157,7 @@
                                 </svg>
                             </span>
                             <span class="menu-text">
-                                Questionnaire
+                                {{ __('questionnaire') }}
                             </span>
                         </a>
                     </li>
@@ -181,7 +181,7 @@
                                     </g>
                                 </svg>
                             </span>
-                            <span class="menu-text">Hasil Audit</span>
+                            <span class="menu-text">{{ __('audit_results') }}</span>
                         </a>
                     </li>
                 @endif
@@ -202,14 +202,14 @@
                                     </g>
                                 </svg>
                             </span>
-                            <span class="menu-text">Evaluasi Kinerja</span>
+                            <span class="menu-text">{{ __('performance_evaluation') }}</span>
                         </a>
                     </li>
                 @endif
 
                 @canany(['user-list', 'role-list', 'questionnaire-list'])
                     <li class="menu-section">
-                        <h4 class="menu-text">Master</h4>
+                        <h4 class="menu-text">{{ __('master') }}</h4>
                         <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
                     </li>
                     @can('user-list')
@@ -229,7 +229,7 @@
                                         </g>
                                     </svg><!--end::Svg Icon-->
                                 </span>
-                                <span class="menu-text">User</span>
+                                <span class="menu-text">{{ __('users') }}</span>
                             </a>
                         </li>
                     @endcan
@@ -253,7 +253,7 @@
                                         </g>
                                     </svg>
                                 </span>
-                                <span class="menu-text">Role & Permission</span>
+                                <span class="menu-text">{{ __('role_permission') }}</span>
                             </a>
                         </li>
                     @endcan
@@ -274,7 +274,7 @@
                                         </g>
                                     </svg>
                                 </span>
-                                <span class="menu-text">Questionnaire</span>
+                                <span class="menu-text">{{ __('questionnaire') }}</span>
                             </a>
                         </li>
                     @endcan
@@ -283,7 +283,7 @@
                 @canany(['verifikasi-list', 'qa-risk-list', 'audit-list', 'supplier-list', 'rekualifikasi-list',
                     'evaluasi-list'])
                     <li class="menu-section">
-                        <h4 class="menu-text">Vendor Management</h4>
+                        <h4 class="menu-text">{{ __('vendor_management') }}</h4>
                         <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
                     </li>
                     @can('verifikasi-list')
@@ -314,7 +314,7 @@
                                         </g>
                                     </svg>
                                 </span>
-                                <span class="menu-text">Verifikasi Vendor</span>
+                                <span class="menu-text">{{ __('vendor_verification') }}</span>
                             </a>
                         </li>
                     @endcan
@@ -342,7 +342,7 @@
                                             </g>
                                         </svg>
                                     </span>
-                                    <span class="menu-text">Risk Assessment</span>
+                                    <span class="menu-text">{{ __('risk_assessment') }}</span>
                                 </a>
                             </li>
                         @endcan
@@ -363,7 +363,7 @@
                                             </g>
                                         </svg>
                                     </span>
-                                    <span class="menu-text">Audit Vendor</span>
+                                    <span class="menu-text">{{ __('vendor_audit') }}</span>
                                 </a>
                             </li>
                         @endcan
@@ -386,7 +386,7 @@
                                         </g>
                                     </svg>
                                 </span>
-                                <span class="menu-text">Supplier Terekomendasi</span>
+                                <span class="menu-text">{{ __('recommended_supplier') }}</span>
                             </a>
                         </li>
                     @endcan
@@ -411,7 +411,7 @@
                                         </g>
                                     </svg>
                                 </span>
-                                <span class="menu-text">Riwayat Rekualifikasi</span>
+                                <span class="menu-text">{{ __('requalification_history') }}</span>
                             </a>
                         </li>
                     @endcan
@@ -433,7 +433,7 @@
                                         </g>
                                     </svg>
                                 </span>
-                                <span class="menu-text">Evaluasi Vendor</span>
+                                <span class="menu-text">{{ __('vendor_evaluation') }}</span>
                             </a>
                         </li>
                     @endcan

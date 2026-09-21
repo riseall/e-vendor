@@ -7,5 +7,20 @@
     "register": "登记",
     "tutorial": "教程",
     "users": "用户",
-    "welcome": "欢迎"
+    "welcome": "欢迎",
+
+    "profile": "个人资料",
+    "registration": "注册",
+    "questionnaire": "调查问卷",
+    "audit_results": "审核结果",
+    "performance_evaluation": "绩效评估",
+    "master": "主数据",
+    "role_permission": "角色与权限",
+    "vendor_management": "供应商管理",
+    "vendor_verification": "供应商验证",
+    "risk_assessment": "风险评估",
+    "vendor_audit": "供应商审核",
+    "recommended_supplier": "推荐供应商",
+    "requalification_history": "重新评定历史",
+    "vendor_evaluation": "供应商评估"
 }

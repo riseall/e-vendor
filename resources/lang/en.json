@@ -9,12 +9,18 @@
     "users": "Users",
     "welcome": "Welcome",
 
-    "_comment": "Form",
-    "company_name": "Company Name",
-    "company_address": "Company Address",
-    "company_phone": "Company Phone Number",
-    "company_email": "Company Email",
-    "company_website": "Official website",
-    "company_contact_person": "Company Contact Person",
-    "company_contact_person_position": "Company Contact Person Position"
+    "profile": "Profile",
+    "registration": "Registration",
+    "questionnaire": "Questionnaire",
+    "audit_results": "Audit Results",
+    "performance_evaluation": "Performance Evaluation",
+    "master": "Master",
+    "role_permission": "Role & Permission",
+    "vendor_management": "Vendor Management",
+    "vendor_verification": "Vendor Verification",
+    "risk_assessment": "Risk Assessment",
+    "vendor_audit": "Vendor Audit",
+    "recommended_supplier": "Recommended Supplier",
+    "requalification_history": "Requalification History",
+    "vendor_evaluation": "Vendor Evaluation"
 }
