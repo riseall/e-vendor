@@ -212,10 +212,13 @@
             }
         }
 
-        // Tutup selectpicker ketika tabel di-scroll horizontal agar tidak mengambang terpisah
-        $(document).on('scroll', '.dataTables_scrollBody', function() {
-            $('.selectpicker').selectpicker('hide');
-        });
+        // ponytail: tutup dropdown saat scroll container (tabel/window) agar posisi tidak melayang/bergeser
+        window.addEventListener('scroll', function(e) {
+            if (e.target && e.target.closest && e.target.closest('.dropdown-menu')) return;
+            if (window.jQuery) {
+                $('.bootstrap-select.show [data-toggle="dropdown"]').dropdown('toggle');
+            }
+        }, true);
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
