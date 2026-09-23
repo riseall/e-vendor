@@ -110,14 +110,14 @@
 @push('scripts')
     <script>
         var categoryLabels = {
-            1: __('cat_sub_1'),
-            2: __('cat_sub_2'),
-            3: __('cat_sub_3'),
-            4: __('cat_sub_4'),
-            5: __('cat_sub_5'),
-            6: __('cat_sub_6'),
-            7: __('cat_sub_7'),
-            8: __('cat_sub_8'),
+            1: "{{ __('cat_sub_1') }}",
+            2: "{{ __('cat_sub_2') }}",
+            3: "{{ __('cat_sub_3') }}",
+            4: "{{ __('cat_sub_4') }}",
+            5: "{{ __('cat_sub_5') }}",
+            6: "{{ __('cat_sub_6') }}",
+            7: "{{ __('cat_sub_7') }}",
+            8: "{{ __('cat_sub_8') }}",
         };
 
         // TOGGLE CATEGORY CARD

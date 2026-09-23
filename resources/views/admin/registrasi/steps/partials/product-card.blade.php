@@ -26,7 +26,7 @@
             @endif
         @else
             <x-vendor-input name="products[{{ $id }}][manufaktur]" :value="old('products.' . $id . '.manufaktur', $data['manufaktur'] ?? '')"
-                placeholder="Manufaktur / Asal" :readonly="false" required />
+                :placeholder="__('manufacturer_origin')" :readonly="false" required />
 
             <label class="font-weight-bold text-dark d-block mt-2" style="font-size:0.75rem;">GMP</label>
             <x-vendor-input type="file" name="products[{{ $id }}][gmp_file]"
@@ -38,13 +38,13 @@
     {{-- Kolom: Negara --}}
     <td class="align-top" style="min-width:175px; padding:14px 12px;">
         <x-vendor-select name="products[{{ $id }}][negara]" :options="[
-            'Indonesia' => 'Indonesia',
-            'China' => 'China',
-            'Japan' => 'Japan',
-            'Korea' => 'Korea',
-            'Malaysia' => 'Malaysia',
-            'Thailand' => 'Thailand',
-            'Vietnam' => 'Vietnam',
+            'Indonesia' => __('indonesia'),
+            'China' => __('china'),
+            'Japan' => __('japan'),
+            'Korea' => __('korea'),
+            'Malaysia' => __('malaysia'),
+            'Thailand' => __('thailand'),
+            'Vietnam' => __('vietnam'),
         ]" :selected="old('products.' . $id . '.negara', $data['negara'] ?? '')"
             :readonly="$isReadOnly" :plainText="true" required wrapperClass="" />
     </td>
@@ -52,11 +52,11 @@
     {{-- Kolom: Rantai Pasok --}}
     <td class="align-top" style="min-width:175px; padding:14px 12px;">
         <x-vendor-select name="products[{{ $id }}][rantai_pasok]" :options="[
-            'Manufaktur' => 'Manufaktur',
-            'Distributor Pertama' => 'Distributor Pertama',
-            'Distributor Kedua' => 'Distributor Kedua',
-            'Trader' => 'Trader',
-            'Repacker' => 'Repacker',
+            'Manufaktur' => __('manufacturer'),
+            'Distributor Pertama' => __('first_distributor'),
+            'Distributor Kedua' => __('second_distributor'),
+            'Trader' => __('trader'),
+            'Repacker' => __('repacker'),
         ]" :selected="old('products.' . $id . '.rantai_pasok', $data['rantai_pasok'] ?? '')"
             :readonly="$isReadOnly" :plainText="true" required wrapperClass="" />
     </td>
@@ -77,10 +77,10 @@
                     existingName="products[{{ $id }}][existing_tkdn_file]" :value="$data['tkdn_file_path']"
                     :application="$application" :readonly="true" />
             @else
-                <span class="text-muted font-weight-bold font-size-sm">Tidak</span>
+                <span class="text-muted font-weight-bold font-size-sm">{{ __('no') }}</span>
             @endif
         @else
-            <x-vendor-select name="products[{{ $id }}][has_tkdn]" :options="['no' => 'Tidak', 'yes' => 'Ya']" :selected="$hasTkdn"
+            <x-vendor-select name="products[{{ $id }}][has_tkdn]" :options="['no' => __('no'), 'yes' => __('yes')]" :selected="$hasTkdn"
                 :readonly="false" wrapperClass="" class="product-cert-toggle"
                 data-target=".detail-tkdn-{{ $id }}" />
 
@@ -101,10 +101,10 @@
                     existingName="products[{{ $id }}][existing_sni_file]" :value="$data['sni_file_path']"
                     :application="$application" :readonly="true" />
             @else
-                <span class="text-muted font-weight-bold font-size-sm">Tidak</span>
+                <span class="text-muted font-weight-bold font-size-sm">{{ __('no') }}</span>
             @endif
         @else
-            <x-vendor-select name="products[{{ $id }}][has_sni]" :options="['no' => 'Tidak', 'yes' => 'Ya']" :selected="$hasSni"
+            <x-vendor-select name="products[{{ $id }}][has_sni]" :options="['no' => __('no'), 'yes' => __('yes')]" :selected="$hasSni"
                 :readonly="false" wrapperClass="" class="product-cert-toggle"
                 data-target=".detail-sni-{{ $id }}" />
 
@@ -125,10 +125,10 @@
                     existingName="products[{{ $id }}][existing_halal_file]" :value="$data['halal_file_path']"
                     :application="$application" :readonly="true" />
             @else
-                <span class="text-muted font-weight-bold font-size-sm">Tidak</span>
+                <span class="text-muted font-weight-bold font-size-sm">{{ __('no') }}</span>
             @endif
         @else
-            <x-vendor-select name="products[{{ $id }}][has_halal]" :options="['no' => 'Tidak', 'yes' => 'Ya']" :selected="$hasHalal"
+            <x-vendor-select name="products[{{ $id }}][has_halal]" :options="['no' => __('no'), 'yes' => __('yes')]" :selected="$hasHalal"
                 :readonly="false" wrapperClass="" class="product-cert-toggle"
                 data-target=".detail-halal-{{ $id }}" />
 
@@ -150,10 +150,10 @@
                     existingName="products[{{ $id }}][existing_bse_tse_file]" :value="$data['bse_tse_file_path']"
                     :application="$application" :readonly="true" />
             @else
-                <span class="text-muted font-weight-bold font-size-sm">Tidak</span>
+                <span class="text-muted font-weight-bold font-size-sm">{{ __('no') }}</span>
             @endif
         @else
-            <x-vendor-select name="products[{{ $id }}][has_bse_tse]" :options="['no' => 'Tidak', 'yes' => 'Ya']" :selected="$hasBseTse"
+            <x-vendor-select name="products[{{ $id }}][has_bse_tse]" :options="['no' => __('no'), 'yes' => __('yes')]" :selected="$hasBseTse"
                 :readonly="false" wrapperClass="" class="product-cert-toggle"
                 data-target=".detail-bse-tse-{{ $id }}" />
 
@@ -170,7 +170,7 @@
     @if (!$isReadOnly)
         <td class="align-top text-center" style="min-width:56px; padding:14px 8px;">
             <button type="button" class="btn btn-icon btn-sm btn-danger btn-hapus-produk"
-                data-id="{{ $id }}" title="Hapus produk">
+                data-id="{{ $id }}" title="{{ __('delete_product') }}">
                 <i class="fas fa-trash-alt"></i>
             </button>
         </td>

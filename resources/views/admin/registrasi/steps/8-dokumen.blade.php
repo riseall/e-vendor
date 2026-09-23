@@ -1,30 +1,30 @@
 @php
     $dokumenList = [
-        ['name' => 'dok_nib', 'label' => 'NIB (Nomor Induk Berusaha)', 'type' => 'General'],
-        ['name' => 'dok_npwp', 'label' => 'NPWP Perusahaan', 'type' => 'General'],
-        ['name' => 'dok_company_profile', 'label' => 'Company Profile', 'type' => 'General'],
-        ['name' => 'dok_struktur_org', 'label' => 'Struktur Organisasi', 'type' => 'General'],
-        ['name' => 'dok_sertifikat_halal', 'label' => 'Sertifikat Halal PBF', 'type' => 'General'],
+        ['name' => 'dok_nib', 'label' => __('doc_nib'), 'type' => 'General'],
+        ['name' => 'dok_npwp', 'label' => __('doc_npwp'), 'type' => 'General'],
+        ['name' => 'dok_company_profile', 'label' => __('doc_company_profile'), 'type' => 'General'],
+        ['name' => 'dok_struktur_org', 'label' => __('doc_struktur_org'), 'type' => 'General'],
+        ['name' => 'dok_sertifikat_halal', 'label' => __('doc_sertifikat_halal'), 'type' => 'General'],
         // Khusus Lokal
-        ['name' => 'dok_akte_pendirian', 'label' => 'Akte Pendirian', 'type' => 'Local Vendor Only'],
-        ['name' => 'dok_akte_direksi', 'label' => 'Akte Pengangkatan Direksi', 'type' => 'Local Vendor Only'],
-        ['name' => 'dok_sppkp', 'label' => 'Surat Pengukuhan PKP (SPPKP)', 'type' => 'Local Vendor Only'],
-        ['name' => 'dok_ktp_pj', 'label' => 'KTP Penanggung Jawab Perusahaan ', 'type' => 'Local Vendor Only'],
+        ['name' => 'dok_akte_pendirian', 'label' => __('doc_akte_pendirian'), 'type' => 'Local Vendor Only'],
+        ['name' => 'dok_akte_direksi', 'label' => __('doc_akte_direksi'), 'type' => 'Local Vendor Only'],
+        ['name' => 'dok_sppkp', 'label' => __('doc_sppkp'), 'type' => 'Local Vendor Only'],
+        ['name' => 'dok_ktp_pj', 'label' => __('doc_ktp_pj'), 'type' => 'Local Vendor Only'],
         [
             'name' => 'dok_pernyataan_keaslian',
-            'label' => 'Surat Pernyataan Keaslian Dokumen',
+            'label' => __('doc_pernyataan_keaslian'),
             'type' => 'Local Vendor Only',
             'template' => 'Surat pernyataan Keaslian Dokumen.docx',
         ],
         [
             'name' => 'dok_pakta_integritas',
-            'label' => 'Pakta Integritas',
+            'label' => __('doc_pakta_integritas'),
             'type' => 'Local Vendor Only',
             'template' => 'Pakta Integritas.docx',
         ],
         [
             'name' => 'dok_bebas_perkara',
-            'label' => 'Surat Pernyataan Tidak Dalam Pengawasan Pengadilan dan atau Tidak Masuk Dalam Daftar Hitam',
+            'label' => __('doc_bebas_perkara'),
             'type' => 'Local Vendor Only',
             'template' =>
                 'Surat Pernyataan Tidak Dalam Pengawasan Pengadilan dan atau Tidak Masuk Dalam Daftar Hitam.docx',
@@ -32,14 +32,14 @@
     ];
 @endphp
 
-<div class="form-section-title mb-4">Lampiran Dokumen</div>
+<div class="form-section-title mb-4">{{ __('attached_documents') }}</div>
 <p class="text-muted mb-8">
-    Seluruh dokumen bersifat opsional. Jika diunggah, gunakan format PDF/Gambar dengan ukuran maksimal 5 MB.
+    {{ __('documents_optional_hint') }}
 </p>
 
 <div class="modern-doc-list">
     @foreach (collect($dokumenList)->groupBy('type') as $type => $items)
-        <h5 class="text-primary font-weight-bold mb-4 mt-6">{{ $type }} Documents</h5>
+        <h5 class="text-primary font-weight-bold mb-4 mt-6">{{ $type === 'General' ? __('general_documents') : __('local_vendor_documents') }}</h5>
         <div class="list-container mb-4">
             @foreach ($items as $dok)
                 @php
@@ -62,14 +62,14 @@
                                         <i class="ki ki-check-circle icon-nm"></i> {{ $docData['original_name'] }}
                                     </span>
                                 @else
-                                    <span class="text-muted file-name-text">Belum ada file terpilih</span>
+                                    <span class="text-muted file-name-text">{{ __('no_file_selected') }}</span>
                                 @endif
                                 <div class="upload-status mt-1"
                                     style="display:none; font-size:0.78rem; font-weight:600;"></div>
                                 @if ($revisionNote)
                                     <div class="revision-note-message text-danger font-weight-bold mt-1"
                                         data-revision-field="{{ $dok['name'] }}">
-                                        <i class="fas fa-exclamation-circle mr-1"></i> Revisi: {{ $revisionNote }}
+                                        <i class="fas fa-exclamation-circle mr-1"></i> {{ __('revision') }}: {{ $revisionNote }}
                                     </div>
                                 @endif
                             </div>
@@ -80,23 +80,23 @@
                         @if (!empty($dok['template']) && !$isReadOnly)
                             <a href="{{ Storage::url('templates/' . $dok['template']) }}" target="_blank"
                                 class="btn btn-light-warning btn-icon btn-sm mr-2 btn-download-template"
-                                title="Download Template {{ $dok['label'] }}">
+                                title="{{ __('download_template') }} {{ $dok['label'] }}">
                                 <i class="flaticon2-download icon-md"></i>
                             </a>
                         @endif
 
                         @if ($isUploaded)
                             <button type="button" data-url="{{ $docData['url'] ?? '' }}"
-                                data-title="Preview {{ $dok['label'] ?? 'Dokumen' }}"
+                                data-title="{{ __('preview') }} {{ $dok['label'] ?? __('document') }}"
                                 class="btn btn-light-success btn-icon btn-sm mr-2 btn-preview-doc"
-                                title="Klik untuk preview dokumen" @if (empty($docData['url'])) disabled @endif>
+                                title="{{ __('click_preview_document') }}" @if (empty($docData['url'])) disabled @endif>
                                 <i class="flaticon-eye icon-md"></i>
                             </button>
                         @endif
 
                         @if (!$isReadOnly)
                             <label class="btn btn-light-primary btn-sm font-weight-bold mb-0 btn-upload">
-                                <span>{{ $isUploaded ? 'Ganti' : 'Upload' }}</span>
+                                <span>{{ $isUploaded ? __('change') : __('upload') }}</span>
                                 <input type="file" data-field="{{ $dok['name'] }}" class="ajax-file-upload d-none"
                                     accept=".pdf,.jpg,.jpeg,.png">
                             </label>
@@ -120,9 +120,9 @@
                     const btnText = container.querySelector('.btn-upload span');
                     if (fileNameDisplay) {
                         fileNameDisplay.innerHTML =
-                            `<i class="flaticon-upload text-primary"></i> File dipilih: <strong>${this.files[0].name}</strong>`;
+                            `<i class="flaticon-upload text-primary"></i> {{ __('file_selected') }}: <strong>${this.files[0].name}</strong>`;
                     }
-                    if (btnText) btnText.textContent = 'Ganti';
+                    if (btnText) btnText.textContent = "{{ __('change') }}";
                 });
             });
         });

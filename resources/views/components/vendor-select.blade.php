@@ -5,7 +5,7 @@
     'selected' => '',
     'readonly' => false,
     'required' => false,
-    'placeholder' => 'Pilih...',
+    'placeholder' => null,
     'wrapperClass' => 'mb-4',
     'isSimple' => false,
     'plainText' => false,
@@ -14,7 +14,10 @@
     'container' => 'body',
 ])
 
-@php $hasRevision = isset($revisionNotes) && isset($revisionNotes[$name]); @endphp
+@php
+    $placeholder = $placeholder ?? __('select_placeholder');
+    $hasRevision = isset($revisionNotes) && isset($revisionNotes[$name]);
+@endphp
 
 <div class="form-group {{ $wrapperClass }} {{ $hasRevision ? 'has-revision' : '' }}"
     data-field-name="{{ $name }}">

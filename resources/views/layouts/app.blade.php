@@ -192,6 +192,7 @@
             }
             return text;
         };
+        var __ = window.__;
     </script>
     <!--end::Localization Config-->
     <!--begin::Global Theme Bundle(used by all pages)-->

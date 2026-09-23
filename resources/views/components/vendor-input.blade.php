@@ -38,7 +38,7 @@
                         id="{{ $name }}" accept=".pdf,.jpg,.jpeg,.png" placeholder="{{ $placeholder }}"
                         {{ $required && !$value ? 'required' : '' }}>
                     <label class="custom-file-label font-size-xs" for="{{ $name }}">
-                        {{ $value ? 'Ganti file...' : ($placeholder ?: 'Upload File...') }}
+                        {{ $value ? __('change_file') . '...' : ($placeholder ?: __('upload_file') . '...') }}
                     </label>
                 </div>
                 <span class="upload-status d-block mt-1 font-weight-bold" style="display:none;"></span>
@@ -50,11 +50,10 @@
 
             @if ($value && !$readonly)
                 <div class="mt-2 w-100 d-flex justify-content-between p-2 bg-light-success rounded">
-                    <span class="text-success font-size-xs font-weight-bold mr-3 align-self-center">File
-                        Tersimpan</span>
+                    <span class="text-success font-size-xs font-weight-bold mr-3 align-self-center">{{ __('file_saved') }}</span>
                     <button type="button"
                         data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $value) }}"
-                        class="btn btn-xs btn-success btn-icon btn-preview-doc" title="Lihat">
+                        class="btn btn-xs btn-success btn-icon btn-preview-doc" title="{{ __('view') }}">
                         <i class="flaticon-eye"></i>
                     </button>
                 </div>
@@ -62,11 +61,11 @@
                 <button type="button"
                     data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $value) }}"
                     class="btn btn-sm btn-light-primary btn-preview-doc w-100">
-                    <i class="flaticon-eye mr-2"></i> Lihat
+                    <i class="flaticon-eye mr-2"></i> {{ __('view') }}
                 </button>
             @elseif(!$value && $readonly)
                 <input type="text" class="form-control form-control-solid font-size-sm text-muted" readonly disabled
-                    value="Tidak ada dokumen">
+                    value="{{ __('no_document') }}">
             @endif
         @else
             @if ($leftIcon)
@@ -76,7 +75,7 @@
             @endif
             @php
                 $isDatepicker = strpos($attributes->get('class', ''), 'datepicker') !== false || $type === 'date';
-                $defaultPlaceholder = $isDatepicker ? 'Pilih Tanggal...' : '';
+                $defaultPlaceholder = $isDatepicker ? __('select_date') . '...' : '';
                 $finalPlaceholder = $placeholder ?: $defaultPlaceholder;
             @endphp
             <input type="{{ $type }}" name="{{ $name }}" value="{{ old($name, $value) }}"
@@ -94,7 +93,7 @@
         <div class="revision-note-message text-danger mt-1 font-size-xs font-weight-bold"
             data-revision-field="{{ $name }}">
             <i class="fas fa-exclamation-circle text-danger mr-1" style="font-size: 10px;"></i>
-            Revisi: {{ $revisionNotes[$name] }}
+            {{ __('revision') }}: {{ $revisionNotes[$name] }}
         </div>
     @endif
 </div>
