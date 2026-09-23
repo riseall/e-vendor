@@ -1,4 +1,4 @@
-<div class="form-section-title">Informasi Pembayaran</div>
+<div class="form-section-title">{{ __('payment_info') }}</div>
 
 {{-- 1. Termin Pembayaran --}}
 <div class="question-wrapper">
@@ -7,11 +7,11 @@
             ['value' => '14D', 'label' => '14D'],
             ['value' => '30D', 'label' => '30D'],
             ['value' => '60D', 'label' => '60D'],
-            ['value' => 'other', 'label' => 'Lainnya'],
+            ['value' => 'other', 'label' => __('other')],
         ];
     @endphp
 
-    <label class="question-label">Kesanggupan Termin Pembayaran @if (!$isReadOnly)
+    <label class="question-label">{{ __('preferred_payment_term') }} @if (!$isReadOnly)
             <span class="text-danger">*</span>
         @endif
     </label>
@@ -21,37 +21,37 @@
 
     {{-- Input text muncul jika pilih 'Lainnya' --}}
     <div id="paymentTermOther" style="{{ ($draft['general']->payment_term ?? '') === 'other' ? '' : 'display:none' }}">
-        <x-vendor-input name="payment_term_other" placeholder="example: 90D" :value="$draft['general']->payment_term_other ?? ''" :readonly="$isReadOnly" />
+        <x-vendor-input name="payment_term_other" :placeholder="__('example') . ': 90D'" :value="$draft['general']->payment_term_other ?? ''" :readonly="$isReadOnly" />
     </div>
 </div>
 
 {{-- 2. Data Rekening Bank --}}
 <div class="question-wrapper">
-    <label class="question-label">Data Rekening Bank @if (!$isReadOnly)
+    <label class="question-label">{{ __('bank_account_data') }} @if (!$isReadOnly)
             <span class="text-danger">*</span>
         @endif
     </label>
 
     <div class="row mt-3">
         <div class="col-md-6">
-            <x-vendor-input name="pemegang_rekening" label="Pemegang Rekening" :value="$draft['general']->pemegang_rekening ?? ''" :readonly="$isReadOnly"
+            <x-vendor-input name="pemegang_rekening" :label="__('account_holder')" :value="$draft['general']->pemegang_rekening ?? ''" :readonly="$isReadOnly"
                 required />
         </div>
         <div class="col-md-6">
-            <x-vendor-input name="nomor_rekening" label="Nomor Rekening" :value="$draft['general']->nomor_rekening ?? ''" :readonly="$isReadOnly" required />
+            <x-vendor-input name="nomor_rekening" :label="__('account_number')" :value="$draft['general']->nomor_rekening ?? ''" :readonly="$isReadOnly" required />
         </div>
         <div class="col-md-6">
-            <x-vendor-input name="nama_bank" label="Nama Bank" :value="$draft['general']->nama_bank ?? ''" :readonly="$isReadOnly" required />
+            <x-vendor-input name="nama_bank" :label="__('bank_name')" :value="$draft['general']->nama_bank ?? ''" :readonly="$isReadOnly" required />
         </div>
         <div class="col-md-6">
-            <x-vendor-input name="swift_code" label="SWIFT Code" placeholder="XXXXXXXX" :value="$draft['general']->swift_code ?? ''"
+            <x-vendor-input name="swift_code" :label="__('swift_code')" placeholder="XXXXXXXX" :value="$draft['general']->swift_code ?? ''"
                 :readonly="$isReadOnly" required />
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-12 mt-2">
-            <x-vendor-input type="textarea" name="alamat_bank" label="Alamat Bank" placeholder="Cabang & alamat bank..."
+            <x-vendor-input type="textarea" name="alamat_bank" :label="__('bank_address')" :placeholder="__('bank_address_placeholder')"
                 :value="$draft['general']->alamat_bank ?? ''" :readonly="$isReadOnly" required />
         </div>
     </div>

@@ -1,5 +1,5 @@
 <div class="form-section-title">
-    Komitmen Terhadap Standar
+    {{ __('commitment_to_standards') }}
 </div>
 
 {{-- 1. Sertifikat ISO (Menggunakan Komponen Checkbox & Slot) --}}
@@ -13,7 +13,7 @@
         $selectedIso = $draft['general']->iso_certificates ?? [];
     @endphp
 
-    <label class="question-label">Sertifikat ISO yang Dimiliki @if (!$isReadOnly)
+    <label class="question-label">{{ __('iso_certificate_owned') }} @if (!$isReadOnly)
             <span class="text-danger">*</span>
         @endif
     </label>
@@ -23,13 +23,13 @@
             <label class="checkbox checkbox-primary mr-3 mb-0 {{ $isReadOnly ? 'checkbox-disabled' : '' }}">
                 <input type="checkbox" name="iso_certificates[]" value="other" id="isoOtherCb"
                     {{ in_array('other', $selectedIso) ? 'checked' : '' }} {{ $isReadOnly ? 'disabled' : '' }}>
-                <span></span> Lainnya:
+                <span></span> {{ __('other') }}:
             </label>
 
             {{-- Container input dinamis --}}
             <div id="isoOtherContainer" style="flex: 1; {{ in_array('other', $selectedIso) ? '' : 'display: none;' }}">
                 <input type="text" name="iso_other" id="isoOtherInput" class="form-control form-control-sm"
-                    placeholder="Pisahkan dengan koma (contoh: ISO 27001, ISO 50001)"
+                    placeholder="{{ __('iso_other_placeholder') }}"
                     value="{{ $draft['general']->iso_other ?? '' }}"
                     {{ !in_array('other', $selectedIso) || $isReadOnly ? 'disabled' : '' }}
                     {{ $isReadOnly ? 'readonly' : '' }}>
@@ -40,9 +40,9 @@
     {{-- Upload Dokumen Sertifikat ISO (multi-file) --}}
     <div class="mt-4">
         <label class="question-label">
-            Dokumen Sertifikat ISO
+            {{ __('iso_certificate_document') }}
             @if (!$isReadOnly)
-                <span class="text-muted font-weight-normal">(boleh lebih dari satu file)</span>
+                <span class="text-muted font-weight-normal">({{ __('multiple_files_allowed') }})</span>
             @endif
         </label>
 
@@ -54,7 +54,7 @@
                     data-field="iso_files" multiple accept=".pdf,.jpg,.jpeg,.png">
                 <label class="custom-file-label text-truncate" for="isoFilesInput"
                     style="border-radius:6px; font-size:0.8rem;">
-                    Pilih File
+                    {{ __('choose_file') }}
                 </label>
 
                 <!-- Indikator loading (otomatis di-handle JS) -->
@@ -62,7 +62,7 @@
                 {{-- Hidden input akan auto-di-create oleh JS handler (name="iso_files[]") --}}
             </div>
 
-            <small class="text-muted">Format: PDF/JPG/PNG. Maks 5 MB per file.</small>
+            <small class="text-muted">{{ __('file_upload_limit_hint') }}</small>
 
             {{-- Hidden inputs untuk path file yang masih disimpan --}}
             <div id="isoExistingPaths">
@@ -84,7 +84,7 @@
                         </a>
                         @if (!$isReadOnly)
                             <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove"
-                                title="Hapus">
+                                title="{{ __('delete') }}">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         @endif
@@ -99,18 +99,18 @@
     {{-- 2. Komitmen Kualitas, Lingkungan & K3 --}}
     <div class="col-md-12">
         <div class="question-wrapper">
-            <label class="question-label">Komitmen Kualitas, Lingkungan & K3 (Selain ISO) @if (!$isReadOnly)
+            <label class="question-label">{{ __('company_commitment_qeohs') }} @if (!$isReadOnly)
                     {{-- <span class="text-danger">*</span> --}}
                 @endif
             </label>
 
-            <x-vendor-radio name="komitmen_kualitas" :options="[['value' => 'yes', 'label' => 'Ya, Punya'], ['value' => 'no', 'label' => 'Tidak']]" :selected="$draft['general']->komitmen_kualitas ?? 'no'" :readonly="$isReadOnly"
+            <x-vendor-radio name="komitmen_kualitas" :options="[['value' => 'yes', 'label' => __('yes_have')], ['value' => 'no', 'label' => __('no')]]" :selected="$draft['general']->komitmen_kualitas ?? 'no'" :readonly="$isReadOnly"
                 radioClass="komitmen-radio" />
 
             <div id="komitmenKualitasDetail"
                 style="{{ ($draft['general']->komitmen_kualitas ?? '') === 'yes' ? '' : 'display:none' }}">
                 <x-vendor-input name="komitmen_kualitas_detail" class="form-control form-control-sm"
-                    label="Sebutkan dokumen..." :value="$draft['general']->komitmen_kualitas_detail ?? ''" :readonly="$isReadOnly" />
+                    :label="__('mention_documents')" :value="$draft['general']->komitmen_kualitas_detail ?? ''" :readonly="$isReadOnly" />
             </div>
         </div>
     </div>
