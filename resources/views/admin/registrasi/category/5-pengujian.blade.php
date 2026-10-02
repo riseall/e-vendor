@@ -1,16 +1,16 @@
-<div class="form-section-title mt-10">Pemasok Jasa Pengujian Laboratorium, Kalibrasi, Radiasi, Sertifikasi</div>
+<div class="form-section-title mt-10">{{ __('testing_lab_vendor_header') }}</div>
 
 <div class="specific-container">
     {{-- 1. Layanan Jasa --}}
     <div class="row">
         <div class="col-md-12">
             <div class="question-wrapper">
-                <label class="question-label">Layanan jasa yang ditawarkan</label>
+                <label class="question-label">{{ __('q_services_offered') }}</label>
                 <x-vendor-checkbox name="l1_services" :options="[
-                    ['value' => 'klinik', 'label' => 'Uji Klinik'],
-                    ['value' => 'mikro', 'label' => 'Uji Mikrobiologi'],
-                    ['value' => 'fisika', 'label' => 'Uji Fisika Kimia'],
-                    ['value' => 'sertifikasi', 'label' => 'Sertifikasi'],
+                    ['value' => 'klinik', 'label' => __('clinical_trial')],
+                    ['value' => 'mikro', 'label' => __('microbiology_test')],
+                    ['value' => 'fisika', 'label' => __('physicochemical_test')],
+                    ['value' => 'sertifikasi', 'label' => __('certification')],
                 ]" :selected="$draft['l1_services'] ?? []" :readonly="$isReadOnly">
 
                     {{-- Opsi Kalibrasi dengan Toggle Input --}}
@@ -20,13 +20,13 @@
                                 data-target="#wrap_l1_kalibrasi"
                                 {{ in_array('kalibrasi', $draft['l1_services'] ?? []) ? 'checked' : '' }}
                                 {{ $isReadOnly ? 'disabled' : '' }}>
-                            <span></span> Uji kalibrasi, sebutkan ruang lingkup kalibrasinya:
+                            <span></span> {{ __('calibration_test_mention_scope') }}
                         </label>
 
                         <div id="wrap_l1_kalibrasi"
                             class="mt-2 {{ in_array('kalibrasi', $draft['l1_services'] ?? []) ? '' : 'd-none' }}">
                             <input type="text" name="l1_kalibrasi_scope" class="form-control form-control-sm"
-                                placeholder="Contoh: Suhu, Tekanan, Massa..."
+                                placeholder="{{ __('calibration_scope_placeholder') }}"
                                 value="{{ $draft['l1_kalibrasi_scope'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}>
                             <x-revision-note name="l1_kalibrasi_scope" :notes="$revisionNotes ?? []" />
                         </div>
@@ -40,15 +40,15 @@
     <div class="row mt-6">
         <div class="col-md-12">
             <div class="question-wrapper">
-                <label class="question-label">Sertifikasi yang dimiliki (Lampirkan sertifikat & masa berlaku)</label>
+                <label class="question-label">{{ __('q_certifications_owned_attach') }}</label>
 
                 @php
                     $certs = [
-                        'kan' => 'Akreditasi KAN',
-                        'cukb' => 'Sertifikat CUKB',
-                        'iso17025' => 'Sertifikat ISO 17025',
-                        'glp' => 'Sertifikat GLP',
-                        'bapeten' => 'Perijinan BAPETEN',
+                        'kan' => __('kan_accreditation'),
+                        'cukb' => __('cukb_certificate'),
+                        'iso17025' => __('iso17025_certificate'),
+                        'glp' => __('glp_certificate'),
+                        'bapeten' => __('bapeten_license'),
                     ];
                     $selectedCerts = $draft['l2_selected_certs'] ?? [];
                 @endphp
@@ -68,14 +68,14 @@
                             class="mt-2 pt-2 border-top {{ in_array($key, $selectedCerts) ? '' : 'd-none' }}">
                             <div class="form-row">
                                 <div class="col-md-4">
-                                    <label class="font-size-xs text-muted">Nomor Sertifikat:</label>
+                                    <label class="font-size-xs text-muted">{{ __('certificate_number_colon') }}</label>
                                     <input type="text" name="l2_{{ $key }}_no"
                                         class="form-control form-control-sm" value="{{ $draft["l2_{$key}_no"] ?? '' }}"
                                         {{ $isReadOnly ? 'readonly' : '' }}>
                                     <x-revision-note name="l2_{{ $key }}_no" :notes="$revisionNotes ?? []" />
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="font-size-xs text-muted">Masa Berlaku:</label>
+                                    <label class="font-size-xs text-muted">{{ __('validity_period_colon') }}</label>
                                     <div class="input-group input-group-sm">
                                         <input type="text" name="l2_{{ $key }}_date"
                                             class="form-control datepicker" autocomplete="off"
@@ -88,7 +88,7 @@
                                     <x-revision-note name="l2_{{ $key }}_date" :notes="$revisionNotes ?? []" />
                                 </div>
                                 <div class="col-md-5">
-                                    <x-vendor-input type="file" name="l2_{{ $key }}_file" label="Lampiran File:" :value="$draft['l2_' . $key . '_file'] ?? null" :application="$application" :readonly="$isReadOnly" />
+                                    <x-vendor-input type="file" name="l2_{{ $key }}_file" :label="__('file_attachment_colon')" :value="$draft['l2_' . $key . '_file'] ?? null" :application="$application" :readonly="$isReadOnly" />
                                 </div>
                             </div>
                         </div>
@@ -102,13 +102,13 @@
     <div class="row mt-6">
         <div class="col-md-12">
             <div class="question-wrapper">
-                <label class="question-label">Apakah merupakan authorized agent?</label>
-                <x-vendor-radio name="l3_is_agent" :options="[['value' => 'yes', 'label' => 'Ya'], ['value' => 'no', 'label' => 'Tidak']]" :selected="$draft['l3_is_agent'] ?? 'no'" class="toggle-input"
+                <label class="question-label">{{ __('q_is_authorized_agent') }}</label>
+                <x-vendor-radio name="l3_is_agent" :options="[['value' => 'yes', 'label' => __('yes')], ['value' => 'no', 'label' => __('no')]]" :selected="$draft['l3_is_agent'] ?? 'no'" class="toggle-input"
                     data-target="#wrap_l3" :readonly="$isReadOnly" />
 
                 <div id="wrap_l3"
                     class="mt-4 p-4 bg-light rounded border-left border-primary {{ ($draft['l3_is_agent'] ?? '') === 'yes' ? '' : 'd-none' }}">
-                    <x-vendor-input name="l3_principal_name" label="Nama Perusahaan Principalnya:" :value="$draft['l3_principal_name'] ?? ''"
+                    <x-vendor-input name="l3_principal_name" :label="__('principal_company_name')" :value="$draft['l3_principal_name'] ?? ''"
                         :readonly="$isReadOnly" />
                 </div>
             </div>

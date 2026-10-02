@@ -1,13 +1,12 @@
-<div class="form-section-title mt-10">Pemasok Jasa Pelatihan, Konsultan, Notaris, Alih Daya</div>
+<div class="form-section-title mt-10">{{ __('training_consultant_vendor_header') }}</div>
 
 <div class="specific-container">
     {{-- Umum: Keanggotaan Asosiasi --}}
     <div class="row">
         <div class="col-md-12">
             <div class="question-wrapper">
-                <label class="question-label">Keanggotaan asosiasi (Mohon sebutkan nama asosiasi dan status
-                    keanggotaan)</label>
-                <input type="text" name="g1_association" class="form-control" placeholder="Nama Asosiasi & Status..."
+                <label class="question-label">{{ __('association_membership_mention') }}</label>
+                <input type="text" name="g1_association" class="form-control" placeholder="{{ __('association_name_status_placeholder') }}"
                     value="{{ $draft['g1_association'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}>
                 <x-revision-note name="g1_association" :notes="$revisionNotes ?? []" />
             </div>
@@ -15,31 +14,31 @@
     </div>
 
     {{-- SUB-SECTION: JASA PELATIHAN --}}
-    <h6 class="font-weight-bolder mb-4 text-primary">UNTUK JASA PELATIHAN</h6>
+    <h6 class="font-weight-bolder mb-4 text-primary">{{ __('for_training_services') }}</h6>
 
     <div class="question-wrapper">
-        <label class="question-label">Jaminan Sertifikasi Trainer</label>
-        <x-vendor-radio name="g2_trainer_cert" :options="[['value' => 'yes', 'label' => 'Ada'], ['value' => 'no', 'label' => 'Tidak Ada']]" :selected="$draft['g2_trainer_cert'] ?? 'no'" class="toggle-input"
+        <label class="question-label">{{ __('q_trainer_certification_guarantee') }}</label>
+        <x-vendor-radio name="g2_trainer_cert" :options="[['value' => 'yes', 'label' => __('available')], ['value' => 'no', 'label' => __('not_available')]]" :selected="$draft['g2_trainer_cert'] ?? 'no'" class="toggle-input"
             data-target="#wrap_g2" :readonly="$isReadOnly" />
 
         <div id="wrap_g2" class="mt-4 {{ ($draft['g2_trainer_cert'] ?? '') === 'yes' ? '' : 'd-none' }}">
-            <x-vendor-input name="g2_cert_source" label="Sebutkan dari mana (lembaga penerbit):"
-                placeholder="Contoh: BNSP, Kemnaker, dll" :value="$draft['g2_cert_source'] ?? ''" :readonly="$isReadOnly" />
+            <x-vendor-input name="g2_cert_source" :label="__('specify_issuing_institution')"
+                :placeholder="__('issuing_institution_placeholder')" :value="$draft['g2_cert_source'] ?? ''" :readonly="$isReadOnly" />
         </div>
     </div>
 
     {{-- SUB-SECTION: JASA KONSULTAN DAN NOTARIS --}}
-    <h6 class="font-weight-bolder mb-4 text-primary">UNTUK JASA KONSULTAN DAN NOTARIS</h6>
+    <h6 class="font-weight-bolder mb-4 text-primary mt-6">{{ __('for_consultant_and_notary') }}</h6>
 
     <div class="row mt-6">
         <div class="col-12">
             <div class="question-wrapper">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <label class="question-label">Nomor ijin yang dimiliki dan masa berlaku</label>
+                    <label class="question-label">{{ __('permit_number_and_validity') }}</label>
                     @if (!$isReadOnly)
                         <button type="button" class="btn btn-sm btn-light-primary font-weight-bold btn-add-repeater"
                             data-target-tbody="#notarisBody" data-template="#tpl_notaris">
-                            <i class="flaticon2-plus icon-sm"></i> Tambah Ijin
+                            <i class="flaticon2-plus icon-sm"></i> {{ __('add_permit') }}
                         </button>
                     @endif
                 </div>
@@ -47,9 +46,9 @@
                     <table class="table table-borderless">
                         <thead class="thead-light">
                             <tr>
-                                <th>Jenis Ijin / Deskripsi</th>
-                                <th width="200px">Nomor Ijin</th>
-                                <th width="200px">Masa Berlaku</th>
+                                <th>{{ __('permit_type_description') }}</th>
+                                <th width="200px">{{ __('license_number') }}</th>
+                                <th width="200px">{{ __('valid_until') }}</th>
                                 @if (!$isReadOnly)
                                     <th width="50px"></th>
                                 @endif
@@ -62,13 +61,13 @@
                                     <td>
                                         <input type="text" name="g3_permits[{{ $index }}][desc]"
                                             class="form-control form-control-sm"
-                                            placeholder="Contoh: Ijin Notaris Kemenkumham"
+                                            placeholder="{{ __('permit_desc_placeholder') }}"
                                             value="{{ $item['desc'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}
                                             required>
                                     </td>
                                     <td>
                                         <input type="text" name="g3_permits[{{ $index }}][no]"
-                                            class="form-control form-control-sm" placeholder="Nomor Ijin"
+                                            class="form-control form-control-sm" placeholder="{{ __('license_number') }}"
                                             value="{{ $item['no'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}
                                             required>
                                     </td>
@@ -101,21 +100,20 @@
     </div>
 
     {{-- SUB-SECTION: JASA ALIH DAYA TENAGA KERJA --}}
-    <h6 class="font-weight-bolder mb-4 text-primary mt-6">UNTUK JASA ALIH DAYA TENAGA KERJA</h6>
+    <h6 class="font-weight-bolder mb-4 text-primary mt-6">{{ __('for_labor_outsourcing_services') }}</h6>
 
     <div class="row">
         <div class="col-md-12">
             <div class="question-wrapper">
-                <label class="question-label">Ijin operasional dari Kementerian Ketenagakerjaan</label>
-                <x-vendor-input name="g4_labor_permit" placeholder="Masukkan nomor ijin operasional..."
+                <label class="question-label">{{ __('operational_permit_kemnaker') }}</label>
+                <x-vendor-input name="g4_labor_permit" :placeholder="__('enter_operational_permit_placeholder')"
                     :value="$draft['g4_labor_permit'] ?? ''" :readonly="$isReadOnly" />
             </div>
         </div>
         <div class="col-md-12 mt-4">
             <div class="question-wrapper">
-                <label class="question-label">Apakah karyawan perusahaan Anda terdaftar sebagai peserta aktif di BPJS
-                    Ketenagakerjaan?</label>
-                <x-vendor-radio name="g5_bpjs" :options="[['value' => 'yes', 'label' => 'Ya'], ['value' => 'no', 'label' => 'Tidak']]" :selected="$draft['g5_bpjs'] ?? 'no'" :readonly="$isReadOnly" />
+                <label class="question-label">{{ __('q_bpjs_ketenagakerjaan_active_question') }}</label>
+                <x-vendor-radio name="g5_bpjs" :options="[['value' => 'yes', 'label' => __('yes')], ['value' => 'no', 'label' => __('no')]]" :selected="$draft['g5_bpjs'] ?? 'no'" :readonly="$isReadOnly" />
             </div>
         </div>
     </div>
@@ -125,8 +123,8 @@
 @if (!$isReadOnly)
     <script type="text/template" id="tpl_notaris">
     <tr>
-        <td><input type="text" name="g3_permits[__INDEX__][desc]" class="form-control form-control-sm" placeholder="Cth. Notaris: ijin dari Kemenkumham" required></td>
-        <td><input type="text" name="g3_permits[__INDEX__][no]" class="form-control form-control-sm" placeholder="Nomor Ijin" required></td>
+        <td><input type="text" name="g3_permits[__INDEX__][desc]" class="form-control form-control-sm" placeholder="{{ __('permit_desc_placeholder') }}" required></td>
+        <td><input type="text" name="g3_permits[__INDEX__][no]" class="form-control form-control-sm" placeholder="{{ __('license_number') }}" required></td>
         <td>
             <div class="input-group input-group-sm">
                 <input type="text" name="g3_permits[__INDEX__][date]" class="form-control datepicker" autocomplete="off" required>
