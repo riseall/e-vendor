@@ -62,6 +62,7 @@ Route::group(
         Route::middleware('auth')->group(function () {
             // Dashboard
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+            Route::get('/vendor/dashboard', [DashboardController::class, 'vendorIndex'])->name('vendor.dashboard');
 
             // Registrasi
             Route::prefix('registration')->name('registrasi.')->group(function () {

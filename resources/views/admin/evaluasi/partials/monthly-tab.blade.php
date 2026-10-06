@@ -25,16 +25,16 @@
             <span class="text-muted font-size-sm">Data bulanan adalah progress kinerja berjalan.</span>
         </div>
         <div class="d-flex align-items-center flex-wrap" style="gap: 0.5rem;">
-            <button type="button" class="btn btn-sm btn-light-info font-weight-bolder" id="btnSyncAllQad">
+            {{-- <button type="button" class="btn btn-sm btn-light-info font-weight-bolder" id="btnSyncAllQad">
                 <i class="fas fa-cloud-download-alt mr-1"></i>Fetch QAD Massal
-            </button>
+            </button> --}}
             <button type="button" class="btn btn-sm btn-light-success font-weight-bolder" data-toggle="modal"
                 data-target="#modalImportQaExcel">
                 <i class="fas fa-file-excel mr-1"></i>Upload Nilai Manual
             </button>
-            <button type="submit" class="btn btn-sm btn-primary font-weight-bolder px-6">
+            {{-- <button type="submit" class="btn btn-sm btn-primary font-weight-bolder px-6">
                 <i class="fas fa-save mr-1"></i>Simpan Progress
-            </button>
+            </button> --}}
         </div>
     </div>
 
