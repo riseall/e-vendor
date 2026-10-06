@@ -10,7 +10,14 @@
 @section('content')
     {{-- Welcome card --}}
     <div class="card welcome-card p-6 py-8 shadow-sm">
-        <p class="mb-1">{{ Auth::user()->roles->pluck('name')->implode(', ') }}</p>
+        <p class="mb-1">
+            {{ Auth::user()->roles->pluck('name')->implode(', ') }}
+            @if (session('simulated_role'))
+                <span class="label label-light-warning label-inline font-weight-bold ml-2" style="border: 1px solid #ffe79a;">
+                    Simulasi
+                </span>
+            @endif
+        </p>
         <h2 class="mb-1">{{ __('welcome') }}, <b>{{ ucwords(strtolower(Auth::user()->name)) }}!</b></h2>
         <p class="mb-0"><i class="far fa-calendar-alt mr-2 text-white"></i> {{ date('l') }}, {{ date('d F Y') }}</p>
     </div>

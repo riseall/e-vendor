@@ -145,6 +145,14 @@ class FortifyServiceProvider extends ServiceProvider
                     }
                 }
 
+                // ponytail: Simpan role simulasi ke session jika dipilih untuk testing (seperti pada aplikasi logsheet)
+                $simulatedRole = $request->input('level');
+                if ($simulatedRole) {
+                    session(['simulated_role' => $simulatedRole]);
+                } else {
+                    session()->forget('simulated_role');
+                }
+
                 session([
                     'spk_jabatan'    => $spkUser->ref_nama_jabatan ?? null,
                     'spk_departemen' => $spkUser->ref_nama_departemen ?? null,
@@ -171,6 +179,14 @@ class FortifyServiceProvider extends ServiceProvider
                         throw ValidationException::withMessages([
                             'username' => [__('auth.account_disabled')],
                         ]);
+                    }
+
+                    // ponytail: Simpan role simulasi ke session jika dipilih untuk testing (seperti pada aplikasi logsheet)
+                    $simulatedRole = $request->input('level');
+                    if ($simulatedRole) {
+                        session(['simulated_role' => $simulatedRole]);
+                    } else {
+                        session()->forget('simulated_role');
                     }
 
                     session()->forget(['spk_jabatan', 'spk_departemen', 'spk_divisi']);

@@ -22,7 +22,12 @@
             <div class="topbar-item">
                 <div class="btn btn-icon w-auto btn-clean d-flex align-items-center btn-lg px-2"
                     id="kt_quick_user_toggle">
-                    {{-- <span class="text-muted font-weight-bold font-size-base d-none d-md-inline mr-1">Hi,</span> --}}
+                    @if (session('simulated_role'))
+                        <span class="label label-inline font-weight-bold mr-2 d-none d-sm-inline"
+                            style="background-color: #fff8dd; color: #b58105; border: 1px solid #ffe79a; font-size: 11px;">
+                            <i class="fas fa-flask font-size-xs mr-1" style="color: #b58105;"></i>{{ session('simulated_role') }} (Simulasi)
+                        </span>
+                    @endif
                     <span
                         class="text-dark-75 font-weight-bolder font-size-base d-none d-md-inline mr-3">{{ Auth::user()->name }}</span>
                     <span class="symbol symbol-35 symbol-success">

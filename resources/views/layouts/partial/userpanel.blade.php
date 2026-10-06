@@ -21,7 +21,16 @@
             <div class="d-flex flex-column">
                 <a href="#"
                     class="font-weight-bold font-size-h5 text-dark-75 text-hover-primary">{{ Auth::user()->name }}</a>
-                <div class="text-dark-50 font-weight-bold mt-1">{{ session('spk_jabatan') }}</div>
+                <div class="mt-1">
+                    @if (session('simulated_role'))
+                        <span class="label label-inline font-weight-bold"
+                            style="background-color: #fff8dd; color: #b58105; border: 1px solid #ffe79a; font-size: 11px;">
+                            <i class="fas fa-flask font-size-xs mr-1" style="color: #b58105;"></i>{{ session('simulated_role') }} (Simulasi)
+                        </span>
+                    @else
+                        <span class="text-dark-50 font-weight-bold">{{ session('spk_jabatan') ?: Auth::user()->roles->pluck('name')->implode(', ') }}</span>
+                    @endif
+                </div>
                 <div class="navi mt-2">
                     <a href="#" class="navi-item">
                         <span class="navi-link p-0 pb-2">
@@ -59,6 +68,35 @@
         <!--end::Header-->
         <div class="separator separator-dashed mt-8 mb-5"></div>
         <!--end::Separator-->
+
+        <!--begin::Role Simulation Switcher-->
+        <div class="card card-custom gutter-b border-0 p-4 rounded-xl" style="background-color: #fffbf0; border: 1px solid #ffe79a !important;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="font-size-xs font-weight-bolder text-uppercase" style="color: #b58105;">
+                    <i class="fas fa-flask font-size-xs mr-1" style="color: #b58105;"></i> Level Akses (Simulasi)
+                </span>
+                @if (session('simulated_role'))
+                    <a href="{{ route('simulation.reset') }}" class="btn btn-xs btn-outline-warning font-weight-bolder py-1 px-2" style="font-size: 10px;">
+                        Reset
+                    </a>
+                @endif
+            </div>
+            <form action="{{ route('simulation.switch') }}" method="POST" class="d-flex align-items-center">
+                @csrf
+                <select name="level" class="form-control form-control-sm form-control-solid mr-2 font-size-xs cursor-pointer" onchange="this.form.submit()">
+                    <option value="">-- Sesuai Akun (Default) --</option>
+                    @foreach (\Spatie\Permission\Models\Role::orderBy('name')->pluck('name') as $roleItem)
+                        <option value="{{ $roleItem }}" {{ session('simulated_role') === $roleItem ? 'selected' : '' }}>
+                            {{ $roleItem }}
+                        </option>
+                    @endforeach
+                </select>
+                <button type="submit" class="btn btn-sm btn-warning font-weight-bolder px-3 py-2">
+                    Pilih
+                </button>
+            </form>
+        </div>
+        <!--end::Role Simulation Switcher-->
     </div>
     <!--end::Content-->
 </div>

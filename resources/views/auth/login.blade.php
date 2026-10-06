@@ -69,6 +69,31 @@
                                 @enderror
                             </div>
                         </div>
+
+                        <!-- Level / Role (Simulasi) Input -->
+                        <div class="form-group mb-5 text-left">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label for="level" class="font-size-xs font-weight-bolder text-muted text-uppercase mb-0">
+                                    LEVEL AKSES (SIMULASI)
+                                </label>
+                                <span class="label label-light-warning label-inline font-weight-bold"
+                                    style="border: 1px solid #ffe79a; font-size: 0.7rem; border-radius: 9999px;">
+                                    Simulasi
+                                </span>
+                            </div>
+                            <div class="input-group">
+                                <select name="level" id="level" class="form-control form-control-solid h-auto py-4 px-8 cursor-pointer font-size-sm">
+                                    <option value="">-- Sesuai Akun (Default) --</option>
+                                    @php
+                                        $simulationRoles = \Spatie\Permission\Models\Role::orderBy('name')->pluck('name');
+                                    @endphp
+                                    @foreach ($simulationRoles as $roleOption)
+                                        <option value="{{ $roleOption }}">{{ $roleOption }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
                         <div class="form-group d-flex flex-wrap justify-content-between align-items-center">
                             <label class="checkbox m-0 text-muted">
                                 <input type="checkbox" name="remember" />Remember me
@@ -88,7 +113,10 @@
 
                         <div class="form-group d-flex flex-wrap flex-center">
                             <button id="kt_login_signin_submit"
-                                class="btn btn-primary font-weight-bold px-9 py-4 my-3 mx-2">{{ __('login') }}</button>
+                                class="btn btn-primary font-weight-bold px-9 py-4 my-3 mx-2">
+                                <span>Masuk ke Dashboard</span>
+                                <i class="fas fa-arrow-right ml-1 font-size-xs"></i>
+                            </button>
                             <a href="{{ route('welcome') }}"
                                 class="btn btn-info font-weight-bold px-9 py-4 my-3 mx-2">{{ __('home') }}</a>
                         </div>

@@ -64,6 +64,22 @@ Route::group(
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
             Route::get('/vendor/dashboard', [DashboardController::class, 'vendorIndex'])->name('vendor.dashboard');
 
+            // Role Simulation Switcher (Testing)
+            Route::post('/simulation/switch', function (\Illuminate\Http\Request $request) {
+                $role = $request->input('level');
+                if ($role) {
+                    session(['simulated_role' => $role]);
+                } else {
+                    session()->forget('simulated_role');
+                }
+                return redirect()->route('dashboard');
+            })->name('simulation.switch');
+
+            Route::get('/simulation/reset', function () {
+                session()->forget('simulated_role');
+                return redirect()->route('dashboard');
+            })->name('simulation.reset');
+
             // Registrasi
             Route::prefix('registration')->name('registrasi.')->group(function () {
 
