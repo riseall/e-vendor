@@ -19,24 +19,24 @@ class DashboardController extends Controller
 {
     /** Audit status → [label, css class] */
     private static $auditStatusMap = [
-        'scheduled'                 => ['Scheduled',  'vnd-status--scheduled'],
-        'schedule_proposed'         => ['Scheduled',  'vnd-status--scheduled'],
-        'schedule_confirmed'        => ['Scheduled',  'vnd-status--scheduled'],
-        'in_progress'               => ['In Progress', 'vnd-status--in-progress'],
-        'questionnaire_in_progress' => ['In Progress', 'vnd-status--in-progress'],
-        'questionnaire_submitted'   => ['Submitted',   'vnd-status--in-progress'],
-        'findings_recorded'         => ['In Progress', 'vnd-status--in-progress'],
-        'capa_in_progress'          => ['In Progress', 'vnd-status--in-progress'],
-        'need_revision'             => ['Need Revision', 'vnd-status--revision'],
-        'completed'                 => ['Completed',  'vnd-status--completed'],
-        'rejected'                  => ['Rejected',    'vnd-status--rejected'],
+        'scheduled'                 => ['audit_status_scheduled',     'vnd-status--scheduled'],
+        'schedule_proposed'         => ['audit_status_scheduled',     'vnd-status--scheduled'],
+        'schedule_confirmed'        => ['audit_status_scheduled',     'vnd-status--scheduled'],
+        'in_progress'               => ['audit_status_in_progress',   'vnd-status--in-progress'],
+        'questionnaire_in_progress' => ['audit_status_in_progress',   'vnd-status--in-progress'],
+        'questionnaire_submitted'   => ['audit_status_submitted',     'vnd-status--in-progress'],
+        'findings_recorded'         => ['audit_status_in_progress',   'vnd-status--in-progress'],
+        'capa_in_progress'          => ['audit_status_in_progress',   'vnd-status--in-progress'],
+        'need_revision'             => ['audit_status_need_revision', 'vnd-status--revision'],
+        'completed'                 => ['audit_status_completed',     'vnd-status--completed'],
+        'rejected'                  => ['audit_status_rejected',      'vnd-status--rejected'],
     ];
 
     /** Document expiry status → [label, css class] */
     private static $docStatusMap = [
-        'valid'         => ['Valid',         'vnd-status--verified'],
-        'expiring_soon' => ['Expiring Soon', 'vnd-status--revision'],
-        'expired'       => ['Expired',       'vnd-status--rejected'],
+        'valid'         => ['doc_status_valid',         'vnd-status--verified'],
+        'expiring_soon' => ['doc_status_expiring_soon', 'vnd-status--revision'],
+        'expired'       => ['doc_status_expired',       'vnd-status--rejected'],
     ];
 
     public function index(): View
@@ -94,6 +94,11 @@ class DashboardController extends Controller
                 $vendor = $gen ? $gen->nama_perusahaan : ($app && $app->user ? $app->user->name : '—');
                 $cats   = $app ? $app->categories->pluck('category_id')
                     ->map(function ($id) {
+                        $key = 'cat_title_' . $id;
+                        $trans = __($key);
+                        if ($trans !== $key) {
+                            return $trans;
+                        }
                         return isset(VendorApplication::CATEGORY_LABELS[$id]) ? VendorApplication::CATEGORY_LABELS[$id] : null;
                     })
                     ->filter()
@@ -277,84 +282,84 @@ class DashboardController extends Controller
         // Status metadata
         $statusInfoMap = [
             'not_registered' => [
-                'label'       => 'Belum Mendaftar',
-                'short_label' => 'Belum Daftar',
+                'label'       => __('status_not_registered'),
+                'short_label' => __('status_short_not_registered'),
                 'badge_class' => 'label-light-secondary',
                 'stat_type'   => 'info',
                 'color'       => 'secondary',
-                'desc'        => 'Anda belum mengisi formulir pendaftaran rekanan. Klik Mulai Pendaftaran untuk melengkapi data perusahaan Anda.',
+                'desc'        => __('status_desc_not_registered'),
             ],
             VendorApplication::STATUS_DRAFT => [
-                'label'       => 'Draft Permohonan',
-                'short_label' => 'Draf',
+                'label'       => __('status_draft_application'),
+                'short_label' => __('status_short_draft'),
                 'badge_class' => 'label-light-warning',
                 'stat_type'   => 'warning',
                 'color'       => 'warning',
-                'desc'        => 'Formulir pendaftaran masih berstatus draf. Silakan lengkapi seluruh isian dan dokumen lalu klik Kirim Permohonan.',
+                'desc'        => __('status_desc_draft'),
             ],
             VendorApplication::STATUS_SUBMITTED => [
-                'label'       => 'Menunggu Verifikasi',
-                'short_label' => 'Verifikasi',
+                'label'       => __('status_awaiting_verification'),
+                'short_label' => __('status_short_verification'),
                 'badge_class' => 'label-light-primary',
                 'stat_type'   => 'primary',
                 'color'       => 'primary',
-                'desc'        => 'Permohonan pendaftaran telah dikirimkan dan sedang dalam proses verifikasi dokumen oleh Tim Pengadaan PT Phapros Tbk.',
+                'desc'        => __('status_desc_submitted'),
             ],
             VendorApplication::STATUS_NEED_REVISION => [
-                'label'       => 'Perlu Revisi Dokumen',
-                'short_label' => 'Perlu Revisi',
+                'label'       => __('status_need_doc_revision'),
+                'short_label' => __('status_short_need_revision'),
                 'badge_class' => 'label-light-danger',
                 'stat_type'   => 'danger',
                 'color'       => 'danger',
-                'desc'        => 'Terdapat catatan perbaikan dokumen dari Tim Verifikator. Mohon segera periksa catatan dan lakukan revisi perbaikan.',
+                'desc'        => __('status_desc_need_revision'),
             ],
             VendorApplication::STATUS_VERIFIED => [
-                'label'       => 'Terverifikasi Pengadaan',
-                'short_label' => 'Terverifikasi',
+                'label'       => __('status_procurement_verified'),
+                'short_label' => __('status_short_verified'),
                 'badge_class' => 'label-light-info',
                 'stat_type'   => 'info',
                 'color'       => 'info',
-                'desc'        => 'Dokumen administratif telah diverifikasi oleh Tim Pengadaan. Proses selanjutnya adalah Penilaian Risiko oleh Tim QA.',
+                'desc'        => __('status_desc_verified'),
             ],
             VendorApplication::STATUS_RISK_ASSESSED => [
-                'label'       => 'Penilaian Risiko Selesai',
-                'short_label' => 'Risk Assessed',
+                'label'       => __('status_risk_assessment_completed'),
+                'short_label' => __('status_short_risk_assessed'),
                 'badge_class' => 'label-light-info',
                 'stat_type'   => 'info',
                 'color'       => 'info',
-                'desc'        => 'Penilaian risiko mutu dan kapabilitas telah dinilai oleh Tim QA. Menunggu tahapan penetapan rekanan atau audit.',
+                'desc'        => __('status_desc_risk_assessed'),
             ],
             VendorApplication::STATUS_AUDIT_REQUIRED => [
-                'label'       => 'Audit Diperlukan',
-                'short_label' => 'Audit',
+                'label'       => __('status_audit_required'),
+                'short_label' => __('status_short_audit'),
                 'badge_class' => 'label-light-warning',
                 'stat_type'   => 'warning',
                 'color'       => 'warning',
-                'desc'        => 'Permohonan memerlukan tahap audit vendor (On-Desk / On-Site) sebelum dapat disahkan sebagai rekanan approved.',
+                'desc'        => __('status_desc_audit_required'),
             ],
             VendorApplication::STATUS_ON_HOLD => [
-                'label'       => 'Ditangguhkan (On Hold)',
-                'short_label' => 'On Hold',
+                'label'       => __('status_on_hold'),
+                'short_label' => __('status_short_on_hold'),
                 'badge_class' => 'label-light-dark',
                 'stat_type'   => 'warning',
                 'color'       => 'dark',
-                'desc'        => 'Proses permohonan kemitraan sedang ditangguhkan sementara waktu oleh Tim Evaluator PT Phapros Tbk.',
+                'desc'        => __('status_desc_on_hold'),
             ],
             VendorApplication::STATUS_APPROVED => [
-                'label'       => 'Rekanan Terdaftar (Approved)',
-                'short_label' => 'Approved',
+                'label'       => __('status_registered_partner_approved'),
+                'short_label' => __('status_short_approved'),
                 'badge_class' => 'label-light-success',
                 'stat_type'   => 'success',
                 'color'       => 'success',
-                'desc'        => 'Selamat! Perusahaan Anda telah resmi terdaftar dan disetujui (Approved) sebagai Rekanan Resmi PT Phapros Tbk.',
+                'desc'        => __('status_desc_approved'),
             ],
             VendorApplication::STATUS_REJECTED => [
-                'label'       => 'Permohonan Ditolak',
-                'short_label' => 'Ditolak',
+                'label'       => __('status_application_rejected'),
+                'short_label' => __('status_short_rejected'),
                 'badge_class' => 'label-light-danger',
                 'stat_type'   => 'danger',
                 'color'       => 'danger',
-                'desc'        => 'Permohonan pendaftaran rekanan belum dapat disetujui.',
+                'desc'        => __('status_desc_rejected'),
             ],
         ];
 
@@ -373,40 +378,40 @@ class DashboardController extends Controller
         $pipelineSteps = [
             [
                 'step'   => 1,
-                'title'  => 'Pendaftaran & Berkas',
-                'desc'   => 'Pengisian data umum & spesifik',
+                'title'  => __('step_registration_and_documents'),
+                'desc'   => __('step_registration_and_documents_desc'),
                 'icon'   => 'fas fa-file-alt',
                 'status' => 'pending',
                 'date'   => ($application && $application->submitted_at) ? $application->submitted_at->format('d M Y') : null,
             ],
             [
                 'step'   => 2,
-                'title'  => 'Verifikasi Pengadaan',
-                'desc'   => 'Pemeriksaan berkas administrasi',
+                'title'  => __('step_procurement_verification'),
+                'desc'   => __('step_procurement_verification_desc'),
                 'icon'   => 'fas fa-clipboard-check',
                 'status' => 'pending',
                 'date'   => ($application && $application->verified_at) ? $application->verified_at->format('d M Y') : null,
             ],
             [
                 'step'   => 3,
-                'title'  => 'Penilaian Risiko QA',
-                'desc'   => 'Evaluasi kualifikasi mutu',
+                'title'  => __('step_qa_risk_assessment'),
+                'desc'   => __('step_qa_risk_assessment_desc'),
                 'icon'   => 'fas fa-shield-alt',
                 'status' => 'pending',
                 'date'   => ($application && $application->qualification && $application->qualification->created_at) ? $application->qualification->created_at->format('d M Y') : null,
             ],
             [
                 'step'   => 4,
-                'title'  => 'Audit Supplier',
-                'desc'   => 'Audit On-Desk / On-Site',
+                'title'  => __('step_supplier_audit'),
+                'desc'   => __('step_supplier_audit_desc'),
                 'icon'   => 'fas fa-search',
                 'status' => 'pending',
                 'date'   => null,
             ],
             [
                 'step'   => 5,
-                'title'  => 'Penetapan Rekanan',
-                'desc'   => 'Penerbitan status Approved',
+                'title'  => __('step_partner_approval'),
+                'desc'   => __('step_partner_approval_desc'),
                 'icon'   => 'fas fa-check-circle',
                 'status' => 'pending',
                 'date'   => ($application && $application->approved_at) ? $application->approved_at->format('d M Y') : null,
@@ -452,7 +457,7 @@ class DashboardController extends Controller
         if ($application && $status === VendorApplication::STATUS_NEED_REVISION) {
             if (!empty($application->admin_note)) {
                 $revisionNotes[] = [
-                    'field' => 'Catatan Verifikator',
+                    'field' => __('verifier_note'),
                     'note'  => $application->admin_note,
                 ];
             }
@@ -513,8 +518,8 @@ class DashboardController extends Controller
             }
 
             $monitoredDocuments[] = (object) [
-                'name'        => 'Sertifikat CDOB',
-                'doc_type'    => 'Cara Distribusi Obat yang Baik',
+                'name'        => __('cert_cdob'),
+                'doc_type'    => __('cdob_good_distribution_practice'),
                 'issue_date'  => ($baku && $baku->q5_issue_date) ? Carbon::parse($baku->q5_issue_date)->format('d M Y') : '-',
                 'expiry_date' => $expiryQ5 ? $expiryQ5->format('d M Y') : '-',
                 'days_left'   => $daysQ5,
@@ -536,8 +541,8 @@ class DashboardController extends Controller
             }
 
             $monitoredDocuments[] = (object) [
-                'name'        => 'SIPA APJ',
-                'doc_type'    => 'Surat Izin Praktik Apoteker (APJ)',
+                'name'        => __('doc_sipa_apj'),
+                'doc_type'    => __('sipa_pharmacist_license'),
                 'issue_date'  => ($baku && $baku->q6_issue_date) ? Carbon::parse($baku->q6_issue_date)->format('d M Y') : '-',
                 'expiry_date' => $expiryQ6 ? $expiryQ6->format('d M Y') : '-',
                 'days_left'   => $daysQ6,
@@ -595,6 +600,11 @@ class DashboardController extends Controller
         if ($application && $application->categories) {
             $categories = $application->categories->pluck('category_id')
                 ->map(function ($id) {
+                    $key = 'cat_title_' . $id;
+                    $trans = __($key);
+                    if ($trans !== $key) {
+                        return $trans;
+                    }
                     return isset(VendorApplication::CATEGORY_LABELS[$id]) ? VendorApplication::CATEGORY_LABELS[$id] : null;
                 })
                 ->filter()
@@ -654,7 +664,7 @@ class DashboardController extends Controller
     private static function resolveStatus(array $map, $key, $fallbackCls)
     {
         if (isset($map[$key])) {
-            return $map[$key];
+            return [__($map[$key][0]), $map[$key][1]];
         }
         return [ucwords(str_replace('_', ' ', (string) $key)), $fallbackCls];
     }
@@ -692,10 +702,10 @@ class DashboardController extends Controller
     private static function auditTypeLabel($t)
     {
         $map = [
-            'on_desk' => 'On Desk',
-            'on_site' => 'Onsite',
-            'paper'   => 'Paper',
-            'remote'  => 'Remote',
+            'on_desk' => __('audit_type_on_desk'),
+            'on_site' => __('audit_type_onsite'),
+            'paper'   => __('audit_type_paper'),
+            'remote'  => __('audit_type_remote'),
         ];
         return isset($map[$t]) ? $map[$t] : ucwords(str_replace('_', ' ', (string) $t));
     }
