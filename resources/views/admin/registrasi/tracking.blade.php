@@ -589,9 +589,11 @@
                 @else
                     {{-- Internal Staff Navigation --}}
                     @if ($isRekualifikasi)
-                        <a href="{{ route('rekualifikasi.index') }}" class="btn btn-light-danger font-weight-bold">
-                            <i class="fas fa-arrow-left mr-1"></i> {{ __('back_to_requalification') }}
-                        </a>
+                        @can('rekualifikasi-list')
+                            <a href="{{ route('rekualifikasi.index') }}" class="btn btn-light-danger font-weight-bold">
+                                <i class="fas fa-arrow-left mr-1"></i> {{ __('back_to_requalification') }}
+                            </a>
+                        @endcan
                     @endif
                     @canany(['verifikasi-list', 'verifikasi-detail'])
                         <a href="{{ route('verifikasi.show', $application->id) }}" class="btn btn-primary font-weight-bold">
