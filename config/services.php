@@ -35,4 +35,8 @@ return [
         'secret' => env('TURNSTILE_SECRET_KEY'),
     ],
 
+    'syncmaster' => [
+        'api_url' => env('SYNCMASTER_API_URL', 'https://kacaerp.phapros.co.id/SyncMaster-api'),
+        'key' => env('SYNCMASTER_API_KEY'),
+    ],
 ];

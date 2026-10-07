@@ -77,7 +77,7 @@
                             <a href="javascript:;" id="kt_login_forgot" class="text-muted text-hover-primary">Forget
                                 Password ?</a>
                         </div>
-                        {{-- <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div> --}}
+                        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div>
 
 
                         @error('cf-turnstile-response')
