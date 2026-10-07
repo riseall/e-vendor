@@ -69,6 +69,7 @@ class PermissionSeeder extends Seeder
             // Supplier Terekomendasi
             'supplier-list',
             'supplier-edit-qad',
+            'supplier-detail',
         ];
 
         foreach ($permissions as $perm) {
@@ -108,10 +109,12 @@ class PermissionSeeder extends Seeder
             'audit-create',
             'audit-verify',
             'audit-result',
+            'rekualifikasi-initiate',
             'evaluasi-list',
             'evaluasi-create',
             'supplier-list',
             'supplier-edit-qad',
+            'supplier-detail',
         ];
 
         $qa = Role::where('name', 'Quality Assurance')->first();
@@ -143,6 +146,7 @@ class PermissionSeeder extends Seeder
                 'evaluasi-approve-gm',
                 'supplier-list',
                 'supplier-edit-qad',
+                'supplier-detail',
             ]);
         }
     }

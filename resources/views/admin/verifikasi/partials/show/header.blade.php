@@ -2,7 +2,16 @@
     <div class="card-body py-6 px-7">
         <div class="d-flex flex-wrap justify-content-between align-items-start">
             <div class="d-flex align-items-start">
-                <a href="{{ route('verifikasi.index') }}" class="btn btn-icon btn-sm btn-light-primary mr-5 mt-1"
+                @php
+                    $backUrl = url()->previous() && url()->previous() !== url()->current()
+                        ? url()->previous()
+                        : (auth()->user() && auth()->user()->can('verifikasi-list')
+                            ? route('verifikasi.index')
+                            : (auth()->user() && auth()->user()->can('supplier-list')
+                                ? route('supplier.index')
+                                : route('home')));
+                @endphp
+                <a href="{{ $backUrl }}" class="btn btn-icon btn-sm btn-light-primary mr-5 mt-1"
                     title="Kembali ke daftar">
                     <i class="ki ki-arrow-back icon-sm"></i>
                 </a>

@@ -88,7 +88,7 @@ class ProcurementVerificationController extends Controller
         VendorFileService $fileService
     ): View
     {
-        $this->authorizeProcurementAccess();
+        $this->authorizeViewAccess();
 
         $application->load(self::SHOW_RELATIONS);
         $this->verificationService->syncVerificationItems($application);
@@ -218,6 +218,22 @@ class ProcurementVerificationController extends Controller
 
         abort_unless(
             $user && $user->hasAnyRole(self::VERIFICATION_ROLES),
+            403
+        );
+    }
+
+    private function authorizeViewAccess(): void
+    {
+        $user = Auth::user();
+
+        abort_unless(
+            $user && (
+                $user->hasAnyRole(self::VERIFICATION_ROLES) ||
+                $user->can('supplier-detail') ||
+                $user->can('supplier-list') ||
+                $user->can('verifikasi-detail') ||
+                $user->can('verifikasi-list')
+            ),
             403
         );
     }

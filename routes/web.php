@@ -104,9 +104,10 @@ Route::group(
             // Product Search
             Route::get('/search-products', [RegistrasiController::class, 'searchProducts'])->name('search-products');
 
-            Route::prefix('verification')->name('verifikasi.')->middleware('can:verifikasi-list')->group(function () {
+            Route::prefix('verification')->name('verifikasi.')->group(function () {
                 Route::get('/', [ProcurementVerificationController::class, 'index'])
-                    ->name('index');
+                    ->name('index')
+                    ->middleware('can:verifikasi-list');
                 Route::get('/{application}', [ProcurementVerificationController::class, 'show'])
                     ->name('show');
                 Route::post('/{application}/verify', [ProcurementVerificationController::class, 'verify'])
@@ -173,10 +174,16 @@ Route::group(
             });
 
             // Rekualifikasi Vendor & Admin Trigger
-            Route::prefix('rekualifikasi')->name('rekualifikasi.')->middleware('can:rekualifikasi-list')->group(function () {
-                Route::get('/', [VendorRekualifikasiController::class, 'index'])->name('index');
-                Route::post('/initiate', [VendorRekualifikasiController::class, 'initiate'])->name('initiate');
-                Route::post('/{applicationId}/trigger', [VendorRekualifikasiController::class, 'triggerByAdmin'])->name('trigger');
+            Route::prefix('rekualifikasi')->name('rekualifikasi.')->group(function () {
+                Route::get('/', [VendorRekualifikasiController::class, 'index'])
+                    ->name('index')
+                    ->middleware('can:rekualifikasi-list');
+                Route::post('/initiate', [VendorRekualifikasiController::class, 'initiate'])
+                    ->name('initiate')
+                    ->middleware('can:rekualifikasi-initiate');
+                Route::post('/{applicationId}/trigger', [VendorRekualifikasiController::class, 'triggerByAdmin'])
+                    ->name('trigger')
+                    ->middleware('can:rekualifikasi-initiate');
             });
 
             // Users
