@@ -193,9 +193,6 @@
 
                 @if($categories->isNotEmpty())
                     <div class="d-flex align-items-center flex-wrap mt-3">
-                        <span class="text-white-75 small font-weight-bold mr-2 mb-1">
-                            <i class="fas fa-tags mr-1 text-white-50"></i> Kategori:
-                        </span>
                         @foreach($categories as $cat)
                             <span class="vnd-category-pill">
                                 <i class="fas fa-tag"></i> {{ $cat }}
@@ -208,13 +205,13 @@
             <div class="text-md-right my-auto">
                 <span class="label label-xl {{ $statusInfo['badge_class'] }} label-inline font-weight-bolder py-4 px-5 text-uppercase shadow-xs">
                     @if($status === \App\Models\VendorApplication::STATUS_APPROVED)
-                        <i class="fas fa-check-circle mr-2 text-success"></i>
+                        <i class="fas fa-check-circle mr-2" style="color: inherit;"></i>
                     @elseif($status === \App\Models\VendorApplication::STATUS_NEED_REVISION)
-                        <i class="fas fa-exclamation-circle mr-2 text-danger"></i>
+                        <i class="fas fa-exclamation-circle mr-2" style="color: inherit;"></i>
                     @elseif($status === \App\Models\VendorApplication::STATUS_SUBMITTED)
-                        <i class="fas fa-hourglass-half mr-2 text-primary"></i>
+                        <i class="fas fa-hourglass-half mr-2" style="color: inherit;"></i>
                     @else
-                        <i class="fas fa-info-circle mr-2"></i>
+                        <i class="fas fa-info-circle mr-2" style="color: inherit;"></i>
                     @endif
                     {{ $statusInfo['label'] }}
                 </span>
@@ -386,13 +383,14 @@
     </div>
 
     {{-- ═══════════════════════════════════════════════════════════════════
-         4. KONTEN DUA KOLOM (Dokumen Legalitas & Riwayat Audit / Evaluasi)
+         4. KONTEN DASHBOARD (Dokumen, Audit, Profil, Evaluasi & Bantuan)
          ═══════════════════════════════════════════════════════════════════ --}}
-    <div class="row">
-        {{-- KOLOM KIRI: Monitoring Dokumen & Profil --}}
-        <div class="col-xl-7 col-lg-12 mb-4">
-            {{-- Card Monitoring Dokumen --}}
-            <div class="vnd-card mb-4">
+
+    {{-- BARIS 1: MONITORING OPERASIONAL (Dokumen Legalitas & Riwayat Audit) --}}
+    <div class="row mb-6">
+        {{-- Card Monitoring Dokumen --}}
+        <div class="col-lg-6 mb-4 mb-lg-0 d-flex flex-column">
+            <div class="vnd-card h-100 d-flex flex-column">
                 <div class="vnd-card-head">
                     <div class="vnd-card-title">
                         <span class="vnd-card-title-dot"></span>
@@ -405,8 +403,8 @@
                         </span>
                     </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
+                <div class="card-body p-0 flex-grow-1 d-flex flex-column">
+                    <div class="table-responsive flex-grow-1">
                         <table class="table tbl-vendor table-borderless table-sm mb-0">
                             <thead>
                                 <tr>
@@ -480,9 +478,64 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            {{-- Card Detail Profil Perusahaan --}}
-            <div class="vnd-card mb-4">
+        {{-- Card Riwayat Audit --}}
+        <div class="col-lg-6 d-flex flex-column">
+            <div class="vnd-card h-100 d-flex flex-column">
+                <div class="vnd-card-head">
+                    <div class="vnd-card-title">
+                        <span class="vnd-card-title-dot"></span>
+                        <i class="fas fa-clipboard-check text-primary mr-1"></i>
+                        Riwayat & Jadwal Audit
+                    </div>
+                    @if($audits->isNotEmpty())
+                        <a href="{{ route('vendor.audit.results') }}" class="vnd-btn-detail vnd-btn-detail--secondary">
+                            Semua Hasil <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    @endif
+                </div>
+                <div class="card-body p-0 flex-grow-1 d-flex flex-column">
+                    @forelse($audits as $audit)
+                        <div class="p-4 border-bottom d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="font-weight-bolder text-dark">
+                                    Audit {{ $audit->audit_type_label }}
+                                    <span class="badge {{ $audit->status_cls }} ml-2">{{ $audit->status_label }}</span>
+                                </div>
+                                <div class="text-muted small mt-1">
+                                    <i class="far fa-calendar-alt mr-1"></i> {{ $audit->schedule_date }}
+                                </div>
+                            </div>
+                            <div>
+                                @if($audit->can_fill_questionnaire)
+                                    <a href="{{ route('vendor.audit.questionnaire', $audit->id) }}" class="btn btn-xs btn-primary font-weight-bold">
+                                        Isi Kuesioner
+                                    </a>
+                                @else
+                                    <a href="{{ route('vendor.audit.results') }}" class="btn btn-xs btn-light font-weight-bold">
+                                        Lihat
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <div class="vnd-empty py-5 flex-grow-1 d-flex flex-column justify-content-center">
+                            <div class="vnd-empty-icon"><i class="fas fa-calendar-times"></i></div>
+                            <div class="vnd-empty-title">Belum Ada Riwayat Audit</div>
+                            <div class="vnd-empty-sub">Audit vendor (On-Desk / On-Site) akan dijadwalkan oleh Tim QA sesuai kategori & profil risiko material.</div>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- BARIS 2: PROFIL PERUSAHAAN & EVALUASI KINERJA --}}
+    <div class="row mb-6">
+        {{-- Card Detail Profil Perusahaan --}}
+        <div class="col-lg-6 mb-4 mb-lg-0 d-flex flex-column">
+            <div class="vnd-card h-100 d-flex flex-column">
                 <div class="vnd-card-head">
                     <div class="vnd-card-title">
                         <span class="vnd-card-title-dot"></span>
@@ -493,7 +546,7 @@
                         Lihat Profil Lengkap <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
-                <div class="card-body p-5">
+                <div class="card-body p-5 flex-grow-1">
                     <div class="row">
                         <div class="col-sm-6 mb-3">
                             <label class="text-muted small mb-1">Nama Perusahaan Resmi</label>
@@ -535,58 +588,9 @@
             </div>
         </div>
 
-        {{-- KOLOM KANAN: Riwayat Audit, Evaluasi & Support --}}
-        <div class="col-xl-5 col-lg-12 mb-4">
-            {{-- Card Riwayat Audit --}}
-            <div class="vnd-card mb-4">
-                <div class="vnd-card-head">
-                    <div class="vnd-card-title">
-                        <span class="vnd-card-title-dot"></span>
-                        <i class="fas fa-clipboard-check text-primary mr-1"></i>
-                        Riwayat & Jadwal Audit
-                    </div>
-                    @if($audits->isNotEmpty())
-                        <a href="{{ route('vendor.audit.results') }}" class="vnd-btn-detail vnd-btn-detail--secondary">
-                            Semua Hasil <i class="fas fa-arrow-right ml-1"></i>
-                        </a>
-                    @endif
-                </div>
-                <div class="card-body p-0">
-                    @forelse($audits as $audit)
-                        <div class="p-4 border-bottom d-flex align-items-center justify-content-between">
-                            <div>
-                                <div class="font-weight-bolder text-dark">
-                                    Audit {{ $audit->audit_type_label }}
-                                    <span class="badge {{ $audit->status_cls }} ml-2">{{ $audit->status_label }}</span>
-                                </div>
-                                <div class="text-muted small mt-1">
-                                    <i class="far fa-calendar-alt mr-1"></i> {{ $audit->schedule_date }}
-                                </div>
-                            </div>
-                            <div>
-                                @if($audit->can_fill_questionnaire)
-                                    <a href="{{ route('vendor.audit.questionnaire', $audit->id) }}" class="btn btn-xs btn-primary font-weight-bold">
-                                        Isi Kuesioner
-                                    </a>
-                                @else
-                                    <a href="{{ route('vendor.audit.results') }}" class="btn btn-xs btn-light font-weight-bold">
-                                        Lihat
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-                    @empty
-                        <div class="vnd-empty py-5">
-                            <div class="vnd-empty-icon"><i class="fas fa-calendar-times"></i></div>
-                            <div class="vnd-empty-title">Belum Ada Riwayat Audit</div>
-                            <div class="vnd-empty-sub">Audit vendor (On-Desk / On-Site) akan dijadwalkan oleh Tim QA sesuai kategori & profil risiko material.</div>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-
-            {{-- Card Evaluasi Kinerja Vendor --}}
-            <div class="vnd-card mb-4">
+        {{-- Card Evaluasi Kinerja Vendor --}}
+        <div class="col-lg-6 d-flex flex-column">
+            <div class="vnd-card h-100 d-flex flex-column">
                 <div class="vnd-card-head">
                     <div class="vnd-card-title">
                         <span class="vnd-card-title-dot"></span>
@@ -599,57 +603,59 @@
                         </a>
                     @endif
                 </div>
-                <div class="card-body p-5">
+                <div class="card-body p-5 flex-grow-1 d-flex flex-column justify-content-between">
                     @if($latestEvaluation)
-                        <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
-                            <div>
-                                <div class="text-muted small">Penilaian Tahun</div>
-                                <div class="font-weight-bolder text-dark h4 mb-0">Tahun {{ $latestEvaluation->year }}</div>
+                        <div>
+                            <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+                                <div>
+                                    <div class="text-muted small">Penilaian Tahun</div>
+                                    <div class="font-weight-bolder text-dark h4 mb-0">Tahun {{ $latestEvaluation->year }}</div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="badge {{ $latestEvaluation->category === 'BAIK' ? 'badge-success' : ($latestEvaluation->category === 'CUKUP' ? 'badge-warning' : 'badge-danger') }} font-weight-bolder px-3 py-2 h6 mb-0">
+                                        {{ $latestEvaluation->category }} ({{ number_format($latestEvaluation->final_score, 1) }})
+                                    </span>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <span class="badge {{ $latestEvaluation->category === 'BAIK' ? 'badge-success' : ($latestEvaluation->category === 'CUKUP' ? 'badge-warning' : 'badge-danger') }} font-weight-bolder px-3 py-2 h6 mb-0">
-                                    {{ $latestEvaluation->category }} ({{ number_format($latestEvaluation->final_score, 1) }})
-                                </span>
-                            </div>
-                        </div>
 
-                        <div class="metric-row">
-                            <div class="metric-label">
-                                <span>Ketepatan Pengiriman (Delivery)</span>
-                                <b>{{ number_format($latestEvaluation->delivery_score_avg, 1) }}</b>
+                            <div class="metric-row">
+                                <div class="metric-label">
+                                    <span>Ketepatan Pengiriman (Delivery)</span>
+                                    <b>{{ number_format($latestEvaluation->delivery_score_avg, 1) }}</b>
+                                </div>
+                                <div class="vnd-progress-track">
+                                    <div class="vnd-progress-fill" style="width: {{ min(100, $latestEvaluation->delivery_score_avg) }}%;"></div>
+                                </div>
                             </div>
-                            <div class="vnd-progress-track">
-                                <div class="vnd-progress-fill" style="width: {{ min(100, $latestEvaluation->delivery_score_avg) }}%;"></div>
-                            </div>
-                        </div>
 
-                        <div class="metric-row">
-                            <div class="metric-label">
-                                <span>Kualitas Produk / Mutu (Quality)</span>
-                                <b>{{ number_format($latestEvaluation->quality_score_avg, 1) }}</b>
+                            <div class="metric-row">
+                                <div class="metric-label">
+                                    <span>Kualitas Produk / Mutu (Quality)</span>
+                                    <b>{{ number_format($latestEvaluation->quality_score_avg, 1) }}</b>
+                                </div>
+                                <div class="vnd-progress-track">
+                                    <div class="vnd-progress-fill" style="width: {{ min(100, $latestEvaluation->quality_score_avg) }}%;"></div>
+                                </div>
                             </div>
-                            <div class="vnd-progress-track">
-                                <div class="vnd-progress-fill" style="width: {{ min(100, $latestEvaluation->quality_score_avg) }}%;"></div>
-                            </div>
-                        </div>
 
-                        <div class="metric-row">
-                            <div class="metric-label">
-                                <span>Kuantitas Barang (Quantity)</span>
-                                <b>{{ number_format($latestEvaluation->quantity_score_avg, 1) }}</b>
+                            <div class="metric-row">
+                                <div class="metric-label">
+                                    <span>Kuantitas Barang (Quantity)</span>
+                                    <b>{{ number_format($latestEvaluation->quantity_score_avg, 1) }}</b>
+                                </div>
+                                <div class="vnd-progress-track">
+                                    <div class="vnd-progress-fill" style="width: {{ min(100, $latestEvaluation->quantity_score_avg) }}%;"></div>
+                                </div>
                             </div>
-                            <div class="vnd-progress-track">
-                                <div class="vnd-progress-fill" style="width: {{ min(100, $latestEvaluation->quantity_score_avg) }}%;"></div>
-                            </div>
-                        </div>
 
-                        <div class="metric-row">
-                            <div class="metric-label">
-                                <span>Penanganan Komplain</span>
-                                <b>{{ number_format($latestEvaluation->complain_score_avg, 1) }}</b>
-                            </div>
-                            <div class="vnd-progress-track">
-                                <div class="vnd-progress-fill" style="width: {{ min(100, $latestEvaluation->complain_score_avg) }}%;"></div>
+                            <div class="metric-row">
+                                <div class="metric-label">
+                                    <span>Penanganan Komplain</span>
+                                    <b>{{ number_format($latestEvaluation->complain_score_avg, 1) }}</b>
+                                </div>
+                                <div class="vnd-progress-track">
+                                    <div class="vnd-progress-fill" style="width: {{ min(100, $latestEvaluation->complain_score_avg) }}%;"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -659,7 +665,7 @@
                             </a>
                         </div>
                     @else
-                        <div class="vnd-empty py-4">
+                        <div class="vnd-empty py-5 my-auto">
                             <div class="vnd-empty-icon"><i class="fas fa-chart-line"></i></div>
                             <div class="vnd-empty-title">Belum Ada Laporan Evaluasi</div>
                             <div class="vnd-empty-sub">Evaluasi kinerja diterbitkan secara tahunan untuk vendor terdaftar yang telah memiliki transaksi pemesanan (PO).</div>
@@ -667,45 +673,59 @@
                     @endif
                 </div>
             </div>
+        </div>
+    </div>
 
-            {{-- Card Bantuan & Panduan Rekanan --}}
+    {{-- BARIS 3: BANTUAN & KONTAK PENGADAAN --}}
+    <div class="row">
+        <div class="col-12 mb-6">
             <div class="vnd-card">
-                <div class="vnd-card-head">
-                    <div class="vnd-card-title">
-                        <span class="vnd-card-title-dot"></span>
-                        <i class="fas fa-question-circle text-primary mr-1"></i>
-                        Bantuan & Kontak Pengadaan
-                    </div>
-                </div>
-                <div class="card-body p-5">
-                    <p class="text-muted small mb-3">
-                        Membutuhkan bantuan teknis atau pertanyaan seputar proses pendaftaran rekanan PT Phapros Tbk?
-                    </p>
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="btn btn-icon btn-light-primary btn-sm mr-3">
-                            <i class="fas fa-envelope"></i>
+                <div class="card-body p-5 p-md-6">
+                    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
+                        <div class="d-flex align-items-center mb-4 mb-lg-0 mr-lg-4">
+                            <div class="btn btn-icon btn-light-primary btn-circle mr-4 flex-shrink-0" style="width: 48px; height: 48px;">
+                                <i class="fas fa-question-circle fa-2x text-primary"></i>
+                            </div>
+                            <div>
+                                <h6 class="font-weight-bolder text-dark mb-1">
+                                    Bantuan & Kontak Pengadaan
+                                </h6>
+                                <p class="text-muted small mb-0">
+                                    Membutuhkan bantuan teknis atau pertanyaan seputar proses pendaftaran rekanan PT Phapros Tbk?
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <div class="text-muted small">Email Pengadaan</div>
-                            <a href="mailto:pengadaan@phapros.co.id" class="font-weight-bolder text-dark">pengadaan@phapros.co.id</a>
+
+                        <div class="d-flex flex-wrap align-items-center justify-content-between justify-content-lg-end" style="gap: 1.5rem;">
+                            <div class="d-flex align-items-center">
+                                <div class="btn btn-icon btn-xs btn-light-primary mr-3">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted" style="font-size: 0.72rem; font-weight: 600;">Email Pengadaan</div>
+                                    <a href="mailto:pengadaan@phapros.co.id" class="font-weight-bolder text-dark small">pengadaan@phapros.co.id</a>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <div class="btn btn-icon btn-xs btn-light-success mr-3">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted" style="font-size: 0.72rem; font-weight: 600;">Telepon Kantor Pusat</div>
+                                    <span class="font-weight-bolder text-dark small">(024) 7604616 (Ext. Pengadaan)</span>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center" style="gap: 0.5rem;">
+                                <a href="{{ route('tutorial') }}" class="btn btn-sm btn-light font-weight-bolder px-4">
+                                    <i class="fas fa-book-open mr-1"></i> Panduan
+                                </a>
+                                <a href="{{ route('contact') }}" class="btn btn-sm btn-primary font-weight-bolder px-4">
+                                    <i class="fas fa-headset mr-1"></i> Hubungi Kami
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="d-flex align-items-center mb-4">
-                        <div class="btn btn-icon btn-light-success btn-sm mr-3">
-                            <i class="fas fa-phone-alt"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small">Telepon Kantor Pusat</div>
-                            <span class="font-weight-bolder text-dark">(024) 7604616 (Ext. Pengadaan)</span>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('tutorial') }}" class="btn btn-sm btn-light font-weight-bold flex-grow-1 mr-2">
-                            <i class="fas fa-book-open mr-1"></i> Panduan
-                        </a>
-                        <a href="{{ route('contact') }}" class="btn btn-sm btn-light font-weight-bold flex-grow-1">
-                            <i class="fas fa-headset mr-1"></i> Hubungi Kami
-                        </a>
                     </div>
                 </div>
             </div>
