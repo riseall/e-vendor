@@ -1350,6 +1350,12 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     white-space: nowrap;
 }
 
+/* Fix Metronic label-light-secondary low contrast bug */
+.label.label-light-secondary {
+    color: #475569 !important;
+    background-color: #f1f5f9 !important;
+}
+
 /* User topbar toggle text styling */
 #kt_quick_user_toggle .text-dark-50,
 #kt_quick_user_toggle .text-dark-75,

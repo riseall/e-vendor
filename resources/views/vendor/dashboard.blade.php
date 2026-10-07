@@ -153,6 +153,40 @@
         color: #0284c7;
     }
 
+    /* ── Welcome Card Status Badge (High Contrast & Clean Appearance) ── */
+    .welcome-card .label {
+        font-size: 0.82rem;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .welcome-card .label.label-light-secondary,
+    .welcome-card .label.label-light-dark {
+        color: #1e293b !important;
+        background-color: #ffffff !important;
+        border-color: rgba(226, 232, 240, 0.9) !important;
+    }
+    .welcome-card .label.label-light-warning {
+        color: #92400e !important;
+        background-color: #fef3c7 !important;
+    }
+    .welcome-card .label.label-light-success {
+        color: #166534 !important;
+        background-color: #dcfce7 !important;
+    }
+    .welcome-card .label.label-light-danger {
+        color: #991b1b !important;
+        background-color: #fee2e2 !important;
+    }
+    .welcome-card .label.label-light-primary {
+        color: #1e40af !important;
+        background-color: #dbeafe !important;
+    }
+    .welcome-card .label.label-light-info {
+        color: #581c87 !important;
+        background-color: #f3e8ff !important;
+    }
+
     @media (max-width: 767.98px) {
         .vnd-stepper {
             flex-direction: column;
