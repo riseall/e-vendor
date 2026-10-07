@@ -603,8 +603,8 @@ class RegistrasiController extends Controller
         // Step 1: Submitted (selalu ada)
         $steps[] = [
             'key' => VendorApplication::STATUS_SUBMITTED,
-            'title' => 'Permohonan Dikirim',
-            'description' => 'Data vendor sudah dikirim ke sistem E-Vendor.',
+            'title' => __('tracking_step_submitted_title'),
+            'description' => __('tracking_step_submitted_desc'),
             'date' => $application->submitted_at,
             'state' => 'done',
         ];
@@ -613,8 +613,8 @@ class RegistrasiController extends Controller
         if ($application->activityLogs->where('action', 'revision_requested')->isNotEmpty()) {
             $steps[] = [
                 'key' => VendorApplication::STATUS_NEED_REVISION,
-                'title' => 'Revisi Dikirim',
-                'description' => 'Tim pengadaan meminta revisi data permohonan.',
+                'title' => __('tracking_step_revision_req_title'),
+                'description' => __('tracking_step_revision_req_desc'),
                 'date' => $application->activityLogs
                     ->where('action', 'revision_requested')
                     ->sortByDesc('created_at')
@@ -635,8 +635,8 @@ class RegistrasiController extends Controller
             if ($application->revision_submitted_at) {
                 $steps[] = [
                     'key' => 'revision_submitted',
-                    'title' => 'Revisi Diproses',
-                    'description' => 'Perbaikan data sudah dikirim kembali ke tim pengadaan.',
+                    'title' => __('tracking_step_revision_sub_title'),
+                    'description' => __('tracking_step_revision_sub_desc'),
                     'date' => $application->revision_submitted_at,
                     'state' => in_array($application->status, [
                         VendorApplication::STATUS_VERIFIED,
@@ -664,8 +664,8 @@ class RegistrasiController extends Controller
         ) {
             $steps[] = [
                 'key' => VendorApplication::STATUS_VERIFIED,
-                'title' => 'Verifikasi Selesai',
-                'description' => 'Tim pengadaan selesai memeriksa kelengkapan data dan dokumen.',
+                'title' => __('tracking_step_verified_title'),
+                'description' => __('tracking_step_verified_desc'),
                 'date' => $application->verified_at,
                 'state' => in_array($application->status, [
                     VendorApplication::STATUS_VERIFIED,
@@ -691,8 +691,8 @@ class RegistrasiController extends Controller
         ) {
             $steps[] = [
                 'key' => VendorApplication::STATUS_RISK_ASSESSED,
-                'title' => 'Risk Assessment QA',
-                'description' => 'Penilaian risiko terhadap vendor telah selesai.',
+                'title' => __('tracking_step_risk_assessed_title'),
+                'description' => __('tracking_step_risk_assessed_desc'),
                 'date' => $application->risk_assessed_at ?? $application->updated_at,
                 'state' => in_array($application->status, [
                     VendorApplication::STATUS_RISK_ASSESSED,
@@ -711,8 +711,8 @@ class RegistrasiController extends Controller
         ) {
             $steps[] = [
                 'key' => VendorApplication::STATUS_AUDIT_REQUIRED,
-                'title' => 'Audit QA',
-                'description' => 'Vendor perlu mengikuti proses audit kualitas lebih lanjut.',
+                'title' => __('tracking_step_audit_qa_title'),
+                'description' => __('tracking_step_audit_qa_desc'),
                 'date' => $application->audit_required_at ?? $application->updated_at,
                 'state' => in_array($application->status, [
                     VendorApplication::STATUS_AUDIT_REQUIRED,
@@ -727,8 +727,8 @@ class RegistrasiController extends Controller
         if ($application->status === VendorApplication::STATUS_ON_HOLD) {
             $steps[] = [
                 'key' => VendorApplication::STATUS_ON_HOLD,
-                'title' => 'Proses Evaluasi',
-                'description' => 'Permohonan sedang menunggu tindak lanjut QA.',
+                'title' => __('tracking_step_on_hold_title'),
+                'description' => __('tracking_step_on_hold_desc'),
                 'date' => $application->updated_at,
                 'state' => 'active',
             ];
@@ -738,16 +738,16 @@ class RegistrasiController extends Controller
         if ($application->status === VendorApplication::STATUS_APPROVED) {
             $steps[] = [
                 'key' => VendorApplication::STATUS_APPROVED,
-                'title' => 'Disetujui',
-                'description' => 'Permohonan telah disetujui dan vendor terekomendasi.',
+                'title' => __('tracking_step_approved_title'),
+                'description' => __('tracking_step_approved_desc'),
                 'date' => $application->approved_at ?? $application->updated_at,
                 'state' => 'done',
             ];
         } elseif ($application->status === VendorApplication::STATUS_REJECTED) {
             $steps[] = [
                 'key' => VendorApplication::STATUS_REJECTED,
-                'title' => 'Ditolak',
-                'description' => 'Permohonan tidak disetujui.',
+                'title' => __('tracking_step_rejected_title'),
+                'description' => __('tracking_step_rejected_desc'),
                 'date' => $application->rejected_at ?? $application->updated_at,
                 'state' => 'danger',
             ];
@@ -757,32 +757,32 @@ class RegistrasiController extends Controller
         if ($application->status === VendorApplication::STATUS_SUBMITTED) {
             $steps[] = [
                 'key' => 'in_progress',
-                'title' => 'Proses Verifikasi',
-                'description' => 'Tim pengadaan sedang memeriksa kelengkapan data dan dokumen Anda.',
+                'title' => __('tracking_step_verifying_title'),
+                'description' => __('tracking_step_verifying_desc'),
                 'date' => null,
                 'state' => 'active',
             ];
         } elseif ($application->status === VendorApplication::STATUS_VERIFIED) {
             $steps[] = [
                 'key' => 'in_progress',
-                'title' => 'Risk Assessment QA',
-                'description' => 'Tim Quality Assurance sedang melakukan penilaian risiko terhadap profil Anda.',
+                'title' => __('tracking_step_risk_assessing_title'),
+                'description' => __('tracking_step_risk_assessing_desc'),
                 'date' => null,
                 'state' => 'active',
             ];
         } elseif ($application->status === VendorApplication::STATUS_RISK_ASSESSED) {
             $steps[] = [
                 'key' => 'in_progress',
-                'title' => 'Proses Keputusan Final',
-                'description' => 'Menunggu keputusan persetujuan final atau penetapan jadwal audit.',
+                'title' => __('tracking_step_final_decision_title'),
+                'description' => __('tracking_step_final_decision_desc'),
                 'date' => null,
                 'state' => 'active',
             ];
         } elseif ($application->status === VendorApplication::STATUS_AUDIT_REQUIRED) {
             $steps[] = [
                 'key' => 'in_progress',
-                'title' => 'Proses Pelaksanaan Audit',
-                'description' => 'Menunggu penyelesaian dan perilisan hasil dari audit kualitas.',
+                'title' => __('tracking_step_audit_execution_title'),
+                'description' => __('tracking_step_audit_execution_desc'),
                 'date' => null,
                 'state' => 'active',
             ];

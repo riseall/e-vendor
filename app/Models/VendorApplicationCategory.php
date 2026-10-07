@@ -18,6 +18,11 @@ class VendorApplicationCategory extends Model
 
     public function getCategoryLabelAttribute()
     {
+        $key = 'cat_title_' . $this->category_id;
+        $trans = __($key);
+        if ($trans !== $key) {
+            return $trans;
+        }
         return VendorApplication::CATEGORY_LABELS[$this->category_id] ?? '-';
     }
 }

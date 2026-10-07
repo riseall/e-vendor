@@ -1,19 +1,19 @@
-@extends('layouts.app', ['title' => 'Profil Registrasi Vendor'])
+@extends('layouts.app', ['title' => __('vendor_registration_profile')])
 
 @push('style')
     <link href="{{ asset('css/wizard-4.css') }}" rel="stylesheet" type="text/css" />
     @include('admin.registrasi.partials.profile.styles')
 @endpush
 
-@section('breadcrumb', 'Registrasi')
-@section('step', 'Profil Vendor')
-@section('page_title', 'Profil Registrasi Vendor')
-@section('page_desc', 'Data registrasi dan perkembangan verifikasi permohonan vendor.')
+@section('breadcrumb', __('registration'))
+@section('step', __('vendor_profile'))
+@section('page_title', __('vendor_registration_profile'))
+@section('page_desc', __('vendor_reg_profile_desc'))
 
 @section('content')
     <div class="vendor-profile-header">
         <div>
-            <div class="vendor-profile-eyebrow">Nomor Permohonan</div>
+            <div class="vendor-profile-eyebrow">{{ __('application_number') }}</div>
             <div class="vendor-profile-number">{{ $application->application_number ?: '-' }}</div>
             <div class="vendor-profile-company">
                 {{ optional($application->general)->nama_perusahaan ?: auth()->user()->name }}
@@ -28,18 +28,18 @@
             <div class="d-flex align-items-center justify-content-end flex-wrap mt-3" style="gap: 8px;">
                 <a href="{{ route('registrasi.tracking', $application->application_number) }}"
                     class="btn btn-light-primary btn-sm font-weight-bold">
-                    <i class="flaticon2-search-1"></i> Lihat Tracking
+                    <i class="flaticon2-search-1"></i> {{ __('view_tracking') }}
                 </a>
 
                 @if ($application->status === \App\Models\VendorApplication::STATUS_APPROVED)
                     @if (!empty($isEditMode))
                         <a href="{{ route('registrasi.index') }}" class="btn btn-danger btn-sm font-weight-bold">
-                            <i class="fas fa-angle-left"></i> Kembali
+                            <i class="fas fa-angle-left"></i> {{ __('back') }}
                         </a>
                     @else
                         <a href="{{ route('registrasi.index', ['edit' => 1]) }}"
                             class="btn btn-warning btn-sm font-weight-bold">
-                            <i class="fas fa-edit"></i> Ubah Data
+                            <i class="fas fa-edit"></i> {{ __('edit_data') }}
                         </a>
                     @endif
                 @endif
@@ -53,24 +53,27 @@
             !$application->qualification &&
             empty($isEditMode))
         @php
-            $reasonText =
+            $reasonKey = 'reason_' . $application->requalification_reason . '_label';
+            $reasonTrans = __($reasonKey);
+            $reasonText = ($reasonTrans !== $reasonKey) ? $reasonTrans : (
                 \App\Models\VendorApplication::REASON_LABELS[$application->requalification_reason] ??
-                $application->requalification_reason;
+                $application->requalification_reason
+            );
         @endphp
         <div class="alert alert-custom alert-light-warning mb-6 shadow-sm" role="alert"
             style="border-left: 4px solid #f59e0b;">
             <div class="alert-icon"><i class="fas fa-exclamation-triangle text-warning" style="font-size:1.5rem;"></i></div>
             <div class="alert-text">
                 <div class="font-weight-bolder text-dark font-size-h6 mb-1">
-                    <i class="fas fa-redo text-warning mr-1"></i> Permintaan Pembaharuan Data
+                    <i class="fas fa-redo text-warning mr-1"></i> {{ __('data_update_request') }}
                 </div>
                 <div class="text-dark-75 mb-2">
-                    Tim Phapros telah meminta Anda untuk melakukan pembaharuan data dengan alasan:
+                    {{ __('data_update_request_desc') }}
                     <strong class="text-warning font-weight-bold">{{ $reasonText }}</strong>.
                 </div>
                 <a href="{{ route('registrasi.index', ['edit' => 1]) }}"
                     class="btn btn-warning font-weight-bold btn-sm px-4">
-                    <i class="fas fa-edit mr-1"></i> Mulai Perbarui Data
+                    <i class="fas fa-edit mr-1"></i> {{ __('start_update_data') }}
                 </a>
             </div>
         </div>
@@ -80,10 +83,8 @@
         <div class="alert alert-custom alert-light-primary mb-6" role="alert">
             <div class="alert-icon"><i class="fas fa-edit text-primary"></i></div>
             <div class="alert-text">
-                <div class="font-weight-bold text-dark mb-1">Mode Edit Profil Aktif</div>
-                Seluruh data profil Anda terbuka untuk diubah. Silakan perbarui data atau dokumen yang
-                diperlukan, lalu klik <strong>"Simpan Perubahan"</strong> di bagian bawah. Jika tidak ingin mengubah
-                data, klik <strong>"Kembali"</strong> di bagian atas.
+                <div class="font-weight-bold text-dark mb-1">{{ __('edit_profile_mode_active') }}</div>
+                {!! __('edit_profile_mode_desc') !!}
             </div>
         </div>
     @endif
@@ -92,14 +93,13 @@
         <div class="alert alert-custom alert-light-warning mb-6" role="alert">
             <div class="alert-icon"><i class="flaticon-warning text-warning"></i></div>
             <div class="alert-text">
-                <div class="font-weight-bold text-dark mb-1">Permohonan perlu diperbaiki</div>
-                Terdapat <strong>{{ count($revisionNotes) }} catatan revisi</strong>. Field terkait sudah ditandai
-                dengan warna merah dan kuning.
+                <div class="font-weight-bold text-dark mb-1">{{ __('application_needs_correction') }}</div>
+                {!! __('revision_notes_count_desc', ['count' => count($revisionNotes)]) !!}
                 @if (!empty($draft['admin_note']))
-                    <div class="mt-2"><strong>Catatan umum:</strong> {{ $draft['admin_note'] }}</div>
+                    <div class="mt-2"><strong>{{ __('general_note_colon') }}</strong> {{ $draft['admin_note'] }}</div>
                 @endif
                 <button type="button" id="btn-first-revision" class="btn btn-sm btn-warning font-weight-bold mt-3">
-                    <i class="flaticon2-arrow-down"></i> Lihat Revisi Pertama
+                    <i class="flaticon2-arrow-down"></i> {{ __('view_first_revision') }}
                 </button>
             </div>
         </div>
@@ -107,14 +107,14 @@
 
     <div class="vendor-profile-layout">
         <aside class="vendor-profile-nav">
-            <div class="vendor-profile-nav-title">Data Registrasi</div>
-            <a href="#profil-perusahaan">Profil Perusahaan</a>
-            <a href="#pembayaran">Pembayaran</a>
-            <a href="#komitmen">Komitmen & Sertifikasi</a>
-            <a href="#informasi-lain">Informasi Lain</a>
-            <a href="#vendor-lokal">Data Vendor Lokal</a>
-            <a href="#produk">Daftar Produk</a>
-            <a href="#dokumen">Dokumen</a>
+            <div class="vendor-profile-nav-title">{{ __('registration_data') }}</div>
+            <a href="#profil-perusahaan">{{ __('company_profile') }}</a>
+            <a href="#pembayaran">{{ __('payment') }}</a>
+            <a href="#komitmen">{{ __('commitment_and_certification') }}</a>
+            <a href="#informasi-lain">{{ __('other_info') }}</a>
+            <a href="#vendor-lokal">{{ __('local_vendor_data') }}</a>
+            <a href="#produk">{{ __('product_list') }}</a>
+            <a href="#dokumen">{{ __('document') }}</a>
             @foreach ($selectedCategorySections as $categorySection)
                 <a href="#kategori-{{ $categorySection['id'] }}">
                     {{ \Illuminate\Support\Str::limit($categorySection['label'], 32) }}
@@ -124,7 +124,7 @@
 
         <main class="vendor-profile-content">
             <div class="vendor-profile-categories">
-                <span class="font-weight-bold text-dark mr-2">Kategori terdaftar:</span>
+                <span class="font-weight-bold text-dark mr-2">{{ __('registered_categories_colon') }}</span>
                 @foreach ($selectedCategoryLabels as $categoryLabel)
                     <span class="label label-light-primary label-inline mb-1">{{ $categoryLabel }}</span>
                 @endforeach
@@ -172,23 +172,21 @@
                 @if ($isRevisionMode)
                     <div class="vendor-profile-submit">
                         <div>
-                            <div class="font-weight-bold text-dark">Selesai memperbaiki data?</div>
-                            <div class="text-muted font-size-sm">Pastikan seluruh catatan revisi sudah ditindaklanjuti.
-                            </div>
+                            <div class="font-weight-bold text-dark">{{ __('finished_correcting_data') }}</div>
+                            <div class="text-muted font-size-sm">{{ __('ensure_all_revisions_addressed') }}</div>
                         </div>
                         <button type="button" id="btn-submit-revision" class="btn btn-primary font-weight-bold">
-                            <i class="flaticon2-paper-plane"></i> Kirim Ulang Revisi
+                            <i class="flaticon2-paper-plane"></i> {{ __('resubmit_revision') }}
                         </button>
                     </div>
                 @elseif (!empty($isEditMode))
                     <div class="vendor-profile-submit">
                         <div class="flex-grow-1">
-                            <div class="font-weight-bold text-dark">Selesai memperbarui data?</div>
-                            <div class="text-muted font-size-sm">Klik Simpan Perubahan untuk menyimpan perubahan data.
-                            </div>
+                            <div class="font-weight-bold text-dark">{{ __('finished_updating_data') }}</div>
+                            <div class="text-muted font-size-sm">{{ __('click_save_to_update_data') }}</div>
                         </div>
                         <button type="button" id="btn-submit-rekualifikasi" class="btn btn-primary font-weight-bold">
-                            <i class="flaticon2-paper-plane"></i> Simpan Perubahan
+                            <i class="flaticon2-paper-plane"></i> {{ __('save_changes') }}
                         </button>
                     </div>
                 @endif

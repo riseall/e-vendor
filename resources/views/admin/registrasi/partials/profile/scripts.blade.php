@@ -97,7 +97,7 @@
 
                 Swal.fire({
                     icon: 'error',
-                    title: 'Validasi Gagal',
+                    title: @json(__('validation_failed')),
                     html: `<ul class="mb-0 pl-5">${messages}</ul>`
                 });
                 return;
@@ -105,8 +105,8 @@
 
             Swal.fire({
                 icon: 'error',
-                title: 'Gagal',
-                text: xhr.responseJSON?.message || 'Data gagal dikirim.'
+                title: @json(__('failed')),
+                text: xhr.responseJSON?.message || @json(__('data_failed_to_send'))
             });
         }
 
@@ -130,16 +130,16 @@
 
             Swal.fire({
                 icon: 'question',
-                title: isRekualifikasi ? 'Kirim Rekualifikasi?' : 'Kirim ulang revisi?',
-                text: isRekualifikasi ? 'Data rekualifikasi akan dikirim ke tim pengadaan & QA untuk diverifikasi.' : 'Data akan dikirim kembali ke tim pengadaan untuk diverifikasi.',
+                title: isRekualifikasi ? @json(__('send_requalification_question')) : @json(__('resubmit_revision_question')),
+                text: isRekualifikasi ? @json(__('send_requalification_confirm_desc')) : @json(__('resubmit_revision_confirm_desc')),
                 showCancelButton: true,
-                confirmButtonText: 'Ya, Kirim',
-                cancelButtonText: 'Batal'
+                confirmButtonText: @json(__('yes_submit')),
+                cancelButtonText: @json(__('cancel'))
             }).then(function(result) {
                 if (result.isConfirmed || result.value) {
                     Swal.fire({
-                        title: isRekualifikasi ? 'Mengirim Rekualifikasi...' : 'Mengirim Revisi...',
-                        text: 'Mohon tunggu, jangan menutup atau me-refresh halaman ini.',
+                        title: isRekualifikasi ? @json(__('sending_requalification')) : @json(__('sending_revision')),
+                        text: @json(__('swal_please_wait')),
                         allowOutsideClick: false,
                         allowEscapeKey: false,
                         showConfirmButton: false,
@@ -152,7 +152,7 @@
                     });
 
                     button.prop('disabled', true).html(
-                        '<span class="spinner-border spinner-border-sm mr-2"></span> Memproses...'
+                        '<span class="spinner-border spinner-border-sm mr-2"></span> ' + @json(__('processing'))
                     );
 
                     form.querySelectorAll('.is-invalid').forEach(element => element.classList
@@ -187,7 +187,7 @@
                         .then(function(response) {
                             return Swal.fire({
                                 icon: 'success',
-                                title: isRekualifikasi ? 'Rekualifikasi Terkirim' : 'Revisi Terkirim',
+                                title: isRekualifikasi ? @json(__('requalification_submitted_title')) : @json(__('revision_submitted_title')),
                                 text: response.message
                             }).then(function() {
                                 window.location.href = response.redirect;

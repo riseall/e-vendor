@@ -103,15 +103,22 @@ class VendorRegistrationViewService
             'revisionNotes' => $revisionNotes,
             'selectedCategories' => $selectedCategories,
             'selectedCategoryLabels' => collect($selectedCategories)
-                ->map(fn(int $categoryId) => VendorApplication::CATEGORY_LABELS[$categoryId] ?? "Kategori {$categoryId}")
+                ->map(function (int $categoryId) {
+                    $key = 'cat_title_' . $categoryId;
+                    $trans = __($key);
+                    return ($trans !== $key) ? $trans : (VendorApplication::CATEGORY_LABELS[$categoryId] ?? "Kategori {$categoryId}");
+                })
                 ->values()
                 ->all(),
             'selectedCategorySections' => collect($selectedCategories)
                 ->filter(fn(int $categoryId) => isset(self::CATEGORY_VIEWS[$categoryId]))
                 ->map(function (int $categoryId) {
+                    $key = 'cat_title_' . $categoryId;
+                    $trans = __($key);
+                    $label = ($trans !== $key) ? $trans : VendorApplication::CATEGORY_LABELS[$categoryId];
                     return [
                         'id' => $categoryId,
-                        'label' => VendorApplication::CATEGORY_LABELS[$categoryId],
+                        'label' => $label,
                         'view' => self::CATEGORY_VIEWS[$categoryId],
                     ];
                 })
@@ -128,64 +135,64 @@ class VendorRegistrationViewService
         switch ($status) {
             case VendorApplication::STATUS_SUBMITTED:
                 return [
-                    'label' => 'Menunggu Verifikasi',
+                    'label' => __('status_awaiting_verification'),
                     'class' => 'primary',
-                    'description' => 'Data sudah dikirim dan sedang diperiksa oleh tim pengadaan.',
+                    'description' => __('status_desc_submitted'),
                 ];
             case VendorApplication::STATUS_NEED_REVISION:
                 return [
-                    'label' => 'Perlu Revisi',
+                    'label' => __('status_short_need_revision'),
                     'class' => 'warning',
-                    'description' => 'Perbaiki field yang memiliki catatan, lalu kirim ulang permohonan.',
+                    'description' => __('status_desc_need_revision'),
                 ];
             case VendorApplication::STATUS_VERIFIED:
                 return [
-                    'label' => 'Terverifikasi',
+                    'label' => __('status_short_verified'),
                     'class' => 'success',
-                    'description' => 'Data registrasi sudah selesai diverifikasi dan menunggu risk assessment QA.',
+                    'description' => __('status_desc_verified'),
                 ];
             case VendorApplication::STATUS_RISK_ASSESSED:
                 return [
-                    'label' => 'Risk Assessed',
+                    'label' => __('status_risk_assessed'),
                     'class' => 'info',
-                    'description' => 'QA sudah menyelesaikan risk assessment vendor.',
+                    'description' => __('status_desc_risk_assessed'),
                 ];
             case VendorApplication::STATUS_AUDIT_REQUIRED:
                 return [
-                    'label' => 'Perlu Audit',
+                    'label' => __('status_audit_required'),
                     'class' => 'warning',
-                    'description' => 'Vendor perlu mengikuti proses audit QA sebelum direkomendasikan.',
+                    'description' => __('status_desc_audit_required'),
                 ];
             case VendorApplication::STATUS_ON_HOLD:
                 return [
-                    'label' => 'On Hold',
+                    'label' => __('status_on_hold'),
                     'class' => 'warning',
-                    'description' => 'Permohonan ditunda menunggu tindak lanjut atau evaluasi dari tim QA.',
+                    'description' => __('status_desc_on_hold'),
                 ];
             case VendorApplication::STATUS_APPROVED:
                 if ($application && $application->requalification_reason && !$application->qualification) {
                     return [
-                        'label' => 'Rekualifikasi Dipicu',
+                        'label' => __('status_requalification_triggered'),
                         'class' => 'warning',
-                        'description' => 'Permintaan rekualifikasi telah dipicu. Silakan perbarui data profil Anda.',
+                        'description' => __('status_desc_requalification_triggered'),
                     ];
                 }
                 return [
-                    'label' => 'Terekomendasi',
+                    'label' => __('status_recommended'),
                     'class' => 'success',
-                    'description' => 'Vendor telah disetujui.',
+                    'description' => __('status_desc_approved'),
                 ];
             case VendorApplication::STATUS_REJECTED:
                 return [
-                    'label' => 'Ditolak',
+                    'label' => __('status_short_rejected'),
                     'class' => 'danger',
-                    'description' => 'Permohonan vendor tidak disetujui.',
+                    'description' => __('status_desc_rejected'),
                 ];
             default:
                 return [
-                    'label' => 'Draft',
+                    'label' => __('draft'),
                     'class' => 'secondary',
-                    'description' => 'Data registrasi belum dikirim.',
+                    'description' => __('status_desc_draft'),
                 ];
         }
     }
