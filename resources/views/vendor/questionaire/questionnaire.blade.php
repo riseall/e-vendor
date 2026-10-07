@@ -1,11 +1,9 @@
-@extends('layouts.app', ['title' => 'Questionnaire Audit'])
+@extends('layouts.app', ['title' => __('questionnaire_audit_title')])
 
-@section('breadcrumb', 'Vendor')
-@section('step', 'Audit On Desk')
-@section('page_title', 'Questionnaire Audit Vendor')
-@section('page_desc',
-    'Jawab pertanyaan audit dari tim Quality Assurance. Anda dapat menyimpan draft terlebih
-    dahulu dan melanjutkannya nanti.')
+@section('breadcrumb', __('vendor'))
+@section('step', __('audit_on_desk'))
+@section('page_title', __('vendor_audit_questionnaire_title'))
+@section('page_desc', __('vendor_audit_questionnaire_desc'))
 
     @php
         use App\Models\VendorAudit;
@@ -13,27 +11,27 @@
 
         $statusMeta = [
             VendorAudit::STATUS_QUESTIONNAIRE_PROGRESS => [
-                'label' => 'Sedang Diisi',
+                'label' => __('status_filling_in_progress'),
                 'class' => 'vnd-status--revision',
                 'icon' => 'flaticon2-hourglass text-warning',
             ],
             VendorAudit::STATUS_QUESTIONNAIRE_SUBMITTED => [
-                'label' => 'Sudah Submit',
+                'label' => __('status_submitted'),
                 'class' => 'vnd-status--info',
                 'icon' => 'flaticon2-check-mark text-info',
             ],
             VendorAudit::STATUS_NEED_REVISION => [
-                'label' => 'Perlu Revisi',
+                'label' => __('status_short_need_revision'),
                 'class' => 'vnd-status--revision',
                 'icon' => 'flaticon-warning text-warning',
             ],
             VendorAudit::STATUS_COMPLETED => [
-                'label' => 'Selesai',
+                'label' => __('status_completed'),
                 'class' => 'vnd-status--approved',
                 'icon' => 'flaticon2-check-mark text-success',
             ],
             VendorAudit::STATUS_REJECTED => [
-                'label' => 'Ditolak',
+                'label' => __('status_short_rejected'),
                 'class' => 'vnd-status--rejected',
                 'icon' => 'flaticon-danger text-danger',
             ],
@@ -108,11 +106,11 @@
             <div>
                 <div class="vnd-card-title">
                     <span class="vnd-card-title-dot"></span>
-                    Questionnaire Audit Vendor
+                    {{ __('vendor_audit_questionnaire_title') }}
                 </div>
                 <div class="d-flex align-items-center mt-1" style="gap:.5rem;">
-                    <span class="vnd-tag vnd-tag--on-desk">ON DESK AUDIT</span>
-                    <span class="text-muted font-size-sm">Nomor Permohonan: <strong>{{ $application->application_number }}</strong></span>
+                    <span class="vnd-tag vnd-tag--on-desk">{{ __('on_desk_audit_caps') }}</span>
+                    <span class="text-muted font-size-sm">{{ __('application_number_colon') }} <strong>{{ $application->application_number }}</strong></span>
                 </div>
             </div>
 
@@ -129,10 +127,10 @@
             @if (!$readOnly)
                 <div class="text-muted small text-right mb-3" id="au-saved-at">
                     @if ($audit->questionnaire_payload)
-                        <i class="flaticon2-check-mark text-success mr-1"></i>Draft terakhir disimpan:
+                        <i class="flaticon2-check-mark text-success mr-1"></i>{{ __('last_draft_saved_colon') }}
                         {{ optional($audit->updated_at)->diffForHumans() }}
                     @else
-                        Belum ada draft tersimpan
+                        {{ __('no_draft_saved_yet') }}
                     @endif
                 </div>
             @endif
@@ -142,7 +140,7 @@
                 <div class="alert alert-custom alert-light-warning mb-6" role="alert">
                     <div class="alert-icon"><i class="flaticon-warning text-warning"></i></div>
                     <div class="alert-text">
-                        <div class="font-weight-bold mb-2">Catatan Revisi dari QA:</div>
+                        <div class="font-weight-bold mb-2">{{ __('qa_revision_notes_colon') }}</div>
                         <ul class="mb-0 pl-5">
                             @foreach ($audit->questionnaire_revision_notes as $note)
                                 <li>{{ $note }}</li>
@@ -158,8 +156,8 @@
                     <div class="vnd-empty-icon">
                         <i class="flaticon-info text-info"></i>
                     </div>
-                    <div class="vnd-empty-title">Belum Ada Pertanyaan Audit</div>
-                    <div class="vnd-empty-sub">Belum ada template pertanyaan audit untuk kategori ini. Silakan hubungi tim QA Phapros.</div>
+                    <div class="vnd-empty-title">{{ __('no_audit_questions_title') }}</div>
+                    <div class="vnd-empty-sub">{{ __('no_audit_questions_desc') }}</div>
                 </div>
             @endif
         </div>
@@ -172,12 +170,12 @@
                         @foreach ($groupedQuestions as $sectionName => $sectionQuestions)
                             <div class="wz-nav-item {{ $loop->first ? 'active' : '' }}"
                                 data-step-nav="{{ $loop->index }}" data-clickable="true"
-                                title="{{ $sectionName ?: 'Umum' }}">
+                                title="{{ $sectionName ?: __('general') }}">
                                 <div class="wz-nav-step">
                                     <div class="wz-nav-icon"><i class="fas fa-clipboard-list"></i></div>
                                     <div class="wz-nav-label text-truncate text-center font-weight-bold"
                                         style="max-width: 130px;">
-                                        {{ $sectionName ?: 'Umum' }}
+                                        {{ $sectionName ?: __('general') }}
                                     </div>
                                 </div>
                             </div>
@@ -203,10 +201,10 @@
                             <div class="mb-6">
                                 <h4 class="font-weight-bolder text-dark mb-1 d-flex align-items-center">
                                     <i class="flaticon2-list-1 text-primary mr-2" style="font-size:1.1rem;"></i>
-                                    {{ $sectionName ?: 'Umum' }}
+                                    {{ $sectionName ?: __('general') }}
                                 </h4>
                                 <span class="text-muted font-size-sm font-weight-bold">
-                                    {{ $sectionQuestions->count() }} pertanyaan pada bagian ini
+                                    {{ __('questions_count_in_section', ['count' => $sectionQuestions->count()]) }}
                                 </span>
                                 <div class="separator separator-dashed separator-border-2 mt-3"></div>
                             </div>
@@ -221,8 +219,8 @@
                                 <div class="vnd-question-block">
                                     @if ($q->answer_type === VendorAuditQuestionTemplate::TYPE_YES_NO)
                                         <x-vendor-radio :name="$inputName" :label="$inputLabel" :options="[
-                                            ['value' => 'yes', 'label' => 'Ya'],
-                                            ['value' => 'no', 'label' => 'Tidak'],
+                                            ['value' => 'yes', 'label' => __('yes')],
+                                            ['value' => 'no', 'label' => __('no')],
                                         ]"
                                             :selected="$val" :readonly="$readOnly" :required="$q->is_required" />
                                     @elseif ($q->answer_type === VendorAuditQuestionTemplate::TYPE_MULTIPLE_CHOICE)
@@ -252,7 +250,7 @@
                             <button type="button"
                                 class="btn btn-light-primary font-weight-bolder text-uppercase px-7 py-3" id="btn-prev"
                                 style="display: none;">
-                                <i class="la la-angle-left"></i> Sebelumnya
+                                <i class="la la-angle-left"></i> {{ __('previous') }}
                             </button>
                         </div>
                         <div class="d-flex align-items-center" style="gap:.5rem;">
@@ -260,20 +258,20 @@
                                 <button type="button"
                                     class="btn btn-outline-success font-weight-bolder text-uppercase px-6 py-3"
                                     id="au-save-draft">
-                                    <i class="flaticon2-save"></i> Simpan Draft
+                                    <i class="flaticon2-save"></i> {{ __('save_draft') }}
                                 </button>
                             @endif
 
                             <button type="button" class="btn btn-primary font-weight-bolder text-uppercase px-7 py-3"
                                 id="btn-next">
-                                Selanjutnya <i class="la la-angle-right"></i>
+                                {{ __('next') }} <i class="la la-angle-right"></i>
                             </button>
 
                             @if (!$readOnly)
                                 <button type="submit"
                                     class="btn btn-success font-weight-bolder text-uppercase px-7 py-3" id="btn-submit"
                                     style="display: none;">
-                                    <i class="flaticon2-send-1"></i> Submit ke QA
+                                    <i class="flaticon2-send-1"></i> {{ __('submit_to_qa') }}
                                 </button>
                             @endif
                         </div>
@@ -283,7 +281,7 @@
                         <div class="alert alert-custom alert-light-info mt-6 mb-0" role="alert">
                             <div class="alert-icon"><i class="flaticon-info"></i></div>
                             <div class="alert-text font-weight-bold">
-                                Questionnaire ini telah disubmit dan sedang/telah diverifikasi oleh QA. Anda berada dalam mode baca (*Read-Only*).
+                                {!! __('questionnaire_readonly_notice') !!}
                             </div>
                         </div>
                     @endif
@@ -357,8 +355,8 @@
                 if (!isValid) {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'Peringatan',
-                        text: 'Harap lengkapi semua pertanyaan yang wajib diisi pada bagian ini.'
+                        title: @json(__('warning')),
+                        text: @json(__('complete_all_required_questions'))
                     });
                     return;
                 }
@@ -400,8 +398,8 @@
                     if (!isValid) {
                         Swal.fire({
                             icon: 'warning',
-                            title: 'Peringatan',
-                            text: 'Harap lengkapi semua pertanyaan yang wajib diisi pada bagian ini.'
+                            title: @json(__('warning')),
+                            text: @json(__('complete_all_required_questions'))
                         });
                     } else {
                         currentStep = targetStep;
@@ -422,10 +420,10 @@
                 if (!$el.length || typeof Swal === 'undefined') return;
 
                 var messages = [
-                    { key: 'success', icon: 'success', title: 'Sukses' },
-                    { key: 'error', icon: 'error', title: 'Gagal' },
-                    { key: 'warning', icon: 'warning', title: 'Peringatan' },
-                    { key: 'info', icon: 'info', title: 'Informasi' },
+                    { key: 'success', icon: 'success', title: @json(__('success')) },
+                    { key: 'error', icon: 'error', title: @json(__('failed')) },
+                    { key: 'warning', icon: 'warning', title: @json(__('warning')) },
+                    { key: 'info', icon: 'info', title: @json(__('information')) },
                 ];
 
                 messages.forEach(function(m) {
@@ -462,7 +460,7 @@
                 $('#au-save-draft').on('click', function() {
                     var $btn = $(this);
                     var data = new FormData($('#au-qform')[0]);
-                    $btn.prop('disabled', true).html('<i class="flaticon2-loader"></i> Menyimpan...');
+                    $btn.prop('disabled', true).html('<i class="flaticon2-loader"></i> ' + @json(__('saving')));
 
                     $.ajax({
                         url: '{{ route('vendor.audit.questionnaire.save', $audit->id) }}',
@@ -474,10 +472,10 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         success: function(r) {
-                            $('#au-saved-at').html('<i class="flaticon2-check-mark text-success mr-1"></i>Draft terakhir disimpan: baru saja');
+                            $('#au-saved-at').html('<i class="flaticon2-check-mark text-success mr-1"></i>' + @json(__('last_draft_saved_just_now')));
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Draft Tersimpan',
+                                title: @json(__('draft_saved')),
                                 toast: true,
                                 position: 'top-end',
                                 timer: 2500,
@@ -487,13 +485,13 @@
                         error: function() {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Gagal Menyimpan Draft',
-                                text: 'Terjadi kesalahan saat menyimpan draft. Silakan coba lagi.'
+                                title: @json(__('failed_to_save_draft')),
+                                text: @json(__('error_saving_draft_try_again'))
                             });
                         },
                         complete: function() {
                             $btn.prop('disabled', false).html(
-                                '<i class="flaticon2-save"></i> Simpan Draft');
+                                '<i class="flaticon2-save"></i> ' + @json(__('save_draft')));
                         }
                     });
                 });
@@ -504,12 +502,12 @@
                 e.preventDefault();
 
                 Swal.fire({
-                    title: 'Kirim Questionnaire?',
-                    text: 'Submit questionnaire ke tim QA? Anda tidak dapat mengubah data setelah disubmit.',
+                    title: @json(__('submit_questionnaire_question')),
+                    text: @json(__('submit_questionnaire_confirm_desc')),
                     icon: 'question',
                     showCancelButton: true,
-                    confirmButtonText: 'Ya, Submit!',
-                    cancelButtonText: 'Batal',
+                    confirmButtonText: @json(__('yes_submit_exclamation')),
+                    cancelButtonText: @json(__('cancel')),
                     reverseButtons: true,
                     customClass: {
                         confirmButton: 'btn btn-success font-weight-bold mr-2',
@@ -520,8 +518,8 @@
 
                     if (confirmed) {
                         Swal.fire({
-                            title: 'Mohon tunggu...',
-                            text: 'Sedang memproses dan mengirimkan data...',
+                            title: @json(__('please_wait_dots')),
+                            text: @json(__('processing_and_sending_data')),
                             allowOutsideClick: false,
                             showConfirmButton: false,
                             didOpen: function() {

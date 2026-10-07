@@ -1,10 +1,9 @@
-@extends('layouts.app', ['title' => 'Hasil Audit Vendor'])
+@extends('layouts.app', ['title' => __('vendor_audit_results')])
 
-@section('breadcrumb', 'Quality Assurance')
-@section('step', 'Hasil Audit')
-@section('page_title', 'Hasil Audit Vendor')
-@section('page_desc', 'Hasil evaluasi, rekomendasi resmi, dan pratinjau dokumen audit dari tim Quality Assurance
-    Phapros.')
+@section('breadcrumb', __('quality_assurance'))
+@section('step', __('audit_results'))
+@section('page_title', __('vendor_audit_results'))
+@section('page_desc', __('vendor_audit_results_desc'))
 
 @section('content')
     <div class="d-flex flex-column gap-5 mb-5">
@@ -13,9 +12,8 @@
                 <div class="card-body text-center py-12">
                     <img src="{{ asset('assets/media/svg/illustrations/sorry.svg') }}" alt="Empty" style="max-width: 170px;"
                         class="mb-4 opacity-75" />
-                    <h5 class="text-dark font-weight-bolder">Belum Ada Data Audit</h5>
-                    <p class="text-muted font-size-sm mb-0">Permohonan Anda saat ini belum memiliki riwayat evaluasi audit.
-                    </p>
+                    <h5 class="text-dark font-weight-bolder">{{ __('no_audit_data_title') }}</h5>
+                    <p class="text-muted font-size-sm mb-0">{{ __('no_audit_data_desc') }}</p>
                 </div>
             </div>
         @else
@@ -33,19 +31,19 @@
                     if ($cat === 'terekomendasi') {
                         $bannerBg = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
                         $badgeClass = 'badge-light-success text-success';
-                        $catLabel = 'TEREKOMENDASI (APPROVED)';
+                        $catLabel = __('recommended_approved');
                     } elseif ($cat === 'tdk_rekomendasi') {
                         $bannerBg = 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)';
                         $badgeClass = 'badge-light-danger text-danger';
-                        $catLabel = 'TIDAK REKOMENDASI (REJECTED)';
+                        $catLabel = __('not_recommended_rejected');
                     } elseif ($cat === 'on_hold') {
                         $bannerBg = 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)';
                         $badgeClass = 'badge-light-warning text-warning';
-                        $catLabel = 'ON HOLD (PENDING)';
+                        $catLabel = __('on_hold_pending');
                     } else {
                         $bannerBg = 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)';
                         $badgeClass = 'badge-light-primary text-primary';
-                        $catLabel = strtoupper(str_replace('_', ' ', $cat ?? 'DALAM PROSES EVALUASI'));
+                        $catLabel = __('in_evaluation_process');
                     }
 
                     $filePath = $audit->audit_result_path;
@@ -73,14 +71,14 @@
                                     {{ $catLabel }}
                                 </h6>
                                 <span class="font-size-xs text-white-50 font-weight-bold">
-                                    {{ $audit->audit_type === 'on_desk' ? 'Audit On Desk' : 'Audit On Site' }}
+                                    {{ $audit->audit_type === 'on_desk' ? __('on_desk_audit') : __('on_site_audit') }}
                                 </span>
                             </div>
                         </div>
                         <div class="mt-2 mt-sm-0">
                             <span class="badge badge-white text-dark font-weight-bolder px-3 py-2"
                                 style="font-size: 0.8rem; border-radius: 20px;">
-                                No. Permohonan: {{ $audit->application->application_number ?? '-' }}
+                                {{ __('application_number_colon') }} {{ $audit->application->application_number ?? '-' }}
                             </span>
                         </div>
                     </div>
@@ -90,7 +88,7 @@
                         <div class="row mb-5">
                             <div class="col-md-4 mb-3 mb-md-0 border-right">
                                 <div class="text-muted font-weight-bold font-size-xs text-uppercase mb-1"
-                                    style="letter-spacing: 0.5px;">Status Evaluasi Audit</div>
+                                    style="letter-spacing: 0.5px;">{{ __('audit_evaluation_status') }}</div>
                                 <div class="font-weight-bolder text-dark mb-3" style="font-size: 1rem;">
                                     <span class="badge badge-light-info font-weight-bolder px-3 py-2"
                                         style="border-radius: 6px;">
@@ -100,7 +98,7 @@
 
                                 @if ($audit->confirmed_schedule_at)
                                     <div class="text-muted font-weight-bold font-size-xs text-uppercase mb-1"
-                                        style="letter-spacing: 0.5px;">Jadwal Audit</div>
+                                        style="letter-spacing: 0.5px;">{{ __('audit_schedule') }}</div>
                                     <div class="font-weight-bolder text-dark mb-3" style="font-size: 0.9rem;">
                                         {{ \Carbon\Carbon::parse($audit->confirmed_schedule_at)->translatedFormat('d F Y H:i') }}
                                         WIB
@@ -109,7 +107,7 @@
 
                                 @if ($audit->completed_at)
                                     <div class="text-muted font-weight-bold font-size-xs text-uppercase mb-1"
-                                        style="letter-spacing: 0.5px;">Tanggal Selesai</div>
+                                        style="letter-spacing: 0.5px;">{{ __('completion_date') }}</div>
                                     <div class="font-weight-bolder text-dark" style="font-size: 0.9rem;">
                                         {{ \Carbon\Carbon::parse($audit->completed_at)->translatedFormat('d F Y') }}
                                     </div>
@@ -118,17 +116,17 @@
 
                             <div class="col-md-8 pl-md-5">
                                 <div class="text-muted font-weight-bold font-size-xs text-uppercase mb-2"
-                                    style="letter-spacing: 0.5px;">Catatan / Ringkasan Evaluasi QA</div>
+                                    style="letter-spacing: 0.5px;">{{ __('qa_evaluation_summary') }}</div>
                                 <div class="p-4 bg-light rounded text-dark font-weight-bold"
                                     style="font-size: 0.95rem; line-height: 1.6; min-height: 75px; border-left: 4px solid var(--brand-primary, #0284c7);">
-                                    {!! nl2br(e($audit->summary ?? 'Belum ada catatan evaluasi dari Quality Assurance.')) !!}
+                                    {!! nl2br(e($audit->summary ?? __('no_qa_evaluation_notes'))) !!}
                                 </div>
 
                                 @if ($audit->audit_type === 'on_desk' && $audit->status === \App\Models\VendorAudit::STATUS_QUESTIONNAIRE_PROGRESS)
                                     <div class="mt-4">
                                         <a href="{{ route('vendor.audit.questionnaire', $audit->id) }}"
                                             class="btn btn-primary font-weight-bold">
-                                            <i class="flaticon2-edit"></i> Isi Questionnaire Sekarang
+                                            <i class="flaticon2-edit"></i> {{ __('fill_questionnaire_now') }}
                                         </a>
                                     </div>
                                 @endif
@@ -141,16 +139,16 @@
                                 <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
                                     <div class="d-flex align-items-center">
                                         <i class="flaticon2-file text-primary icon-lg mr-2"></i>
-                                        <h6 class="font-weight-bolder text-dark mb-0">Dokumen Hasil Audit Resmi</h6>
+                                        <h6 class="font-weight-bolder text-dark mb-0">{{ __('official_audit_result_doc') }}</h6>
                                     </div>
                                     <div class="d-flex gap-2 mt-2 mt-sm-0">
                                         <a href="{{ $docUrl }}" target="_blank"
                                             class="btn btn-sm btn-light-primary font-weight-bold mr-2">
-                                            <i class="flaticon2-open-text-book"></i> Buka di Tab Baru
+                                            <i class="flaticon2-open-text-book"></i> {{ __('open_in_new_tab') }}
                                         </a>
                                         <a href="{{ $docUrl }}" download
                                             class="btn btn-sm btn-primary font-weight-bold">
-                                            <i class="flaticon2-download"></i> Unduh Dokumen
+                                            <i class="flaticon2-download"></i> {{ __('download_document') }}
                                         </a>
                                     </div>
                                 </div>
@@ -165,7 +163,7 @@
                                         </div>
                                     @elseif ($isImage)
                                         <div class="text-center p-4">
-                                            <img src="{{ $docUrl }}" alt="Dokumen Hasil Audit"
+                                            <img src="{{ $docUrl }}" alt="{{ __('audit_result_document') }}"
                                                 class="img-fluid rounded shadow-sm"
                                                 style="max-height: 600px; object-fit: contain;">
                                         </div>
@@ -176,16 +174,13 @@
                                                 <div class="alert-icon mr-3"><i
                                                         class="flaticon-doc icon-2x text-primary"></i></div>
                                                 <div>
-                                                    <div class="font-weight-bold text-dark font-size-base">Dokumen Hasil
-                                                        Audit ({{ strtoupper($extension) }})</div>
-                                                    <div class="text-muted font-size-sm">Format dokumen ini tidak mendukung
-                                                        penayangan langsung di browser. Silakan unduh untuk membaca file
-                                                        secara utuh.</div>
+                                                    <div class="font-weight-bold text-dark font-size-base">{{ __('audit_result_doc_ext', ['ext' => strtoupper($extension)]) }}</div>
+                                                    <div class="text-muted font-size-sm">{{ __('unsupported_preview_format_desc') }}</div>
                                                 </div>
                                             </div>
                                             <a href="{{ $docUrl }}" download
                                                 class="btn btn-primary font-weight-bold btn-sm">
-                                                <i class="flaticon2-download"></i> Unduh File
+                                                <i class="flaticon2-download"></i> {{ __('download_file') }}
                                             </a>
                                         </div>
                                     @endif
