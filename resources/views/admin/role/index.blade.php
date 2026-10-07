@@ -197,7 +197,7 @@
 
                 // Fetch assigned permissions for this role
                 $.ajax({
-                    url: "/role/" + roleId + "/permissions",
+                    url: "{{ route('role.permissions.get', ':id') }}".replace(':id', roleId),
                     type: 'GET',
                     success: function(response) {
                         if (response.success) {
@@ -225,7 +225,7 @@
                 btn.addClass('spinner spinner-white spinner-right').attr('disabled', true);
 
                 $.ajax({
-                    url: "/role/" + roleId + "/permissions",
+                    url: "{{ route('role.permissions.update', ':id') }}".replace(':id', roleId),
                     type: 'POST',
                     dataType: 'json',
                     headers: {
@@ -297,7 +297,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: "/role/" + roleId,
+                            url: "{{ route('role.destroy', ':id') }}".replace(':id', roleId),
                             type: 'DELETE',
                             data: {
                                 _token: "{{ csrf_token() }}"
