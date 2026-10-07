@@ -29,9 +29,9 @@
                         <th>Name</th>
                         <th>Username</th>
                         <th>Email</th>
-                        <th>Roles</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th class="text-nowrap">Roles</th>
+                        <th class="text-nowrap">Status</th>
+                        <th class="text-nowrap">Actions</th>
                     </tr>
                 </thead>
             </table>
@@ -127,7 +127,7 @@
                     },
                     {
                         data: 'roles',
-                        className: 'text-center',
+                        className: 'text-center text-nowrap',
                         title: 'Roles',
                         render: function(data) {
                             if (data && data.length > 0) {
@@ -159,7 +159,7 @@
                                     }
                                     badges +=
                                         '<span class="label label-lg font-weight-bold ' +
-                                        color + ' label-inline mr-1">' + role.name +
+                                        color + ' label-inline text-nowrap mr-1">' + role.name +
                                         '</span>';
                                 });
                                 return badges;
@@ -169,7 +169,7 @@
                     },
                     {
                         data: 'is_active',
-                        className: 'text-center',
+                        className: 'text-center text-nowrap',
                         render: function(data) {
                             return data == 1 ?
                                 '<div><span class="label label-success label-dot mr-2"></span><span class="font-weight-bold text-success">Aktif</span></div>' :
@@ -179,7 +179,7 @@
                     {
                         data: 'id',
                         responsivePriority: -1,
-                        className: 'text-center',
+                        className: 'text-center text-nowrap',
                         orderable: false,
                         render: function(data, type, full) {
                             var roleName = (full.roles && full.roles.length) ? full.roles[0].name : '';

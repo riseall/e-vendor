@@ -854,12 +854,6 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     transform: translateY(-1px);
 }
 
-.btn:hover i,
-.btn:hover svg,
-.btn:hover .svg-icon,
-.btn:hover [class*="flaticon-"],
-.btn:hover [class*="fa-"],
-.btn:hover [class*="text-"],
 .vnd-btn-filter:hover i,
 .vnd-btn-filter:hover svg,
 .vnd-btn-filter:hover [class*="flaticon-"],
@@ -1351,3 +1345,15 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     min-height: 280px;
 }
 
+/* Ensure label badges never wrap internally */
+.label.label-inline {
+    white-space: nowrap;
+}
+
+/* User topbar toggle text styling */
+#kt_quick_user_toggle .text-dark-50,
+#kt_quick_user_toggle .text-dark-75,
+#kt_quick_user_toggle:hover .text-dark-50,
+#kt_quick_user_toggle:hover .text-dark-75 {
+    color: #464e5f !important;
+}
