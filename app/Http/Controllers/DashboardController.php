@@ -284,9 +284,9 @@ class DashboardController extends Controller
             'not_registered' => [
                 'label'       => __('status_not_registered'),
                 'short_label' => __('status_short_not_registered'),
-                'badge_class' => 'label-light-secondary',
+                'badge_class' => 'label-light-dark',
                 'stat_type'   => 'info',
-                'color'       => 'secondary',
+                'color'       => 'dark',
                 'desc'        => __('status_desc_not_registered'),
             ],
             VendorApplication::STATUS_DRAFT => [
@@ -368,9 +368,9 @@ class DashboardController extends Controller
             : [
                 'label'       => ucwords(str_replace('_', ' ', (string) $status)),
                 'short_label' => ucwords(str_replace('_', ' ', (string) $status)),
-                'badge_class' => 'label-light-secondary',
+                'badge_class' => 'label-light-dark',
                 'stat_type'   => 'primary',
-                'color'       => 'secondary',
+                'color'       => 'dark',
                 'desc'        => '',
             ];
 
