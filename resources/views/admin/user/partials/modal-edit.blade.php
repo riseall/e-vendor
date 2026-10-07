@@ -79,7 +79,7 @@
             btn.addClass('spinner spinner-white spinner-right').attr('disabled', true);
 
             $.ajax({
-                url: "/user/" + id,
+                url: "{{ route('user.update', ':id') }}".replace(':id', id),
                 method: "POST",
                 dataType: 'json',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },

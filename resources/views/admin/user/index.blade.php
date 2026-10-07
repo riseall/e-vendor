@@ -222,7 +222,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: "/user/" + id,
+                            url: "{{ route('user.destroy', ':id') }}".replace(':id', id),
                             type: 'DELETE',
                             dataType: 'json',
                             data: {
