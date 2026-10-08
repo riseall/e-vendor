@@ -37,6 +37,9 @@
                 <i class="flaticon2-folder text-primary" style="font-size:.9rem;"></i>
                 <span class="text-uppercase"
                     style="font-size:.82rem; letter-spacing:0.5px;">{{ $q->section ?: 'Umum' }}</span>
+                @if (!empty($q->section_translations['en']))
+                    <span class="text-muted font-italic font-weight-normal font-size-xs">({{ $q->section_translations['en'] }})</span>
+                @endif
             </div>
         </td>
     </tr>
@@ -50,6 +53,11 @@
         <div class="font-weight-bold text-dark mb-1" style="font-size:.88rem; line-height:1.4;">
             {!! nl2br(e($q->question)) !!}
         </div>
+        @if (!empty($q->question_translations['en']))
+            <div class="text-muted font-italic font-size-xs mb-1" style="line-height:1.3;">
+                <i class="fas fa-globe mr-1 text-primary" style="font-size:.7rem;"></i>{{ $q->question_translations['en'] }}
+            </div>
+        @endif
         @if ($q->answer_type === 'multiple_choice' && is_array($q->options))
             <div class="mt-1">
                 @foreach ($q->options as $opt)

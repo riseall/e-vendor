@@ -90,9 +90,12 @@ class QuestionnaireFormController extends Controller
         $this->authorizeAdmin();
         $data = $request->validate([
             'section'      => 'required|string|max:255',
+            'section_en'   => 'nullable|string|max:255',
             'question'     => 'required|string',
+            'question_en'  => 'nullable|string',
             'answer_type'  => 'required|string|in:yes_no,multiple_choice,text,document',
             'options'      => 'nullable|string',
+            'options_en'   => 'nullable|string',
             'weight'       => 'required|integer|min:0',
             'is_required'  => 'nullable|boolean',
             'is_active'    => 'nullable|boolean',
@@ -104,12 +107,35 @@ class QuestionnaireFormController extends Controller
         $data['is_active'] = $request->has('is_active') ? true : false;
         $data['created_by'] = Auth::id();
 
+        // Format dwibahasa (ID & EN) dalam JSON
+        $sectionEn = trim($request->input('section_en', ''));
+        $data['section'] = json_encode([
+            'id' => trim($data['section']),
+            'en' => $sectionEn,
+        ]);
+
+        $questionEn = trim($request->input('question_en', ''));
+        $data['question'] = json_encode([
+            'id' => trim($data['question']),
+            'en' => $questionEn,
+        ]);
+
         if (!empty($data['options'])) {
-            // Convert newline-separated options into an array
-            $data['options'] = array_filter(array_map('trim', explode("\n", $data['options'])));
+            $optsId = array_values(array_filter(array_map('trim', explode("\n", $data['options']))));
+            $optsEnRaw = $request->input('options_en');
+            $optsEn = !empty($optsEnRaw)
+                ? array_values(array_filter(array_map('trim', explode("\n", $optsEnRaw))))
+                : [];
+
+            $data['options'] = [
+                'id' => $optsId,
+                'en' => $optsEn,
+            ];
         } else {
             $data['options'] = null;
         }
+
+        unset($data['section_en'], $data['question_en'], $data['options_en']);
 
         VendorAuditQuestionTemplate::create($data);
 
@@ -121,9 +147,12 @@ class QuestionnaireFormController extends Controller
         $this->authorizeAdmin();
         $data = $request->validate([
             'section'      => 'required|string|max:255',
+            'section_en'   => 'nullable|string|max:255',
             'question'     => 'required|string',
+            'question_en'  => 'nullable|string',
             'answer_type'  => 'required|string|in:yes_no,multiple_choice,text,document',
             'options'      => 'nullable|string',
+            'options_en'   => 'nullable|string',
             'weight'       => 'required|integer|min:0',
             'is_required'  => 'nullable|boolean',
             'is_active'    => 'nullable|boolean',
@@ -133,11 +162,35 @@ class QuestionnaireFormController extends Controller
         $data['is_required'] = $request->has('is_required') ? true : false;
         $data['is_active'] = $request->has('is_active') ? true : false;
 
+        // Format dwibahasa (ID & EN) dalam JSON
+        $sectionEn = trim($request->input('section_en', ''));
+        $data['section'] = json_encode([
+            'id' => trim($data['section']),
+            'en' => $sectionEn,
+        ]);
+
+        $questionEn = trim($request->input('question_en', ''));
+        $data['question'] = json_encode([
+            'id' => trim($data['question']),
+            'en' => $questionEn,
+        ]);
+
         if (!empty($data['options'])) {
-            $data['options'] = array_filter(array_map('trim', explode("\n", $data['options'])));
+            $optsId = array_values(array_filter(array_map('trim', explode("\n", $data['options']))));
+            $optsEnRaw = $request->input('options_en');
+            $optsEn = !empty($optsEnRaw)
+                ? array_values(array_filter(array_map('trim', explode("\n", $optsEnRaw))))
+                : [];
+
+            $data['options'] = [
+                'id' => $optsId,
+                'en' => $optsEn,
+            ];
         } else {
             $data['options'] = null;
         }
+
+        unset($data['section_en'], $data['question_en'], $data['options_en']);
 
         $question->update($data);
 
@@ -167,17 +220,42 @@ class QuestionnaireFormController extends Controller
             $order = 1;
             foreach ($rows as $row) {
                 // Ensure array keys exist since empty cells might not be set depending on the parser
-                $section = $row['section'] ?? '';
-                $question = $row['question'] ?? '';
+                $sectionId = isset($row['section']) ? trim($row['section']) : '';
+                $sectionEn = isset($row['section_en']) ? trim($row['section_en']) : '';
+                $questionId = isset($row['question']) ? trim($row['question']) : '';
+                $questionEn = isset($row['question_en']) ? trim($row['question_en']) : '';
 
-                if (empty($section) || empty($question)) continue;
+                if (empty($sectionId) || empty($questionId)) continue;
+
+                $section = json_encode([
+                    'id' => $sectionId,
+                    'en' => $sectionEn,
+                ]);
+
+                $question = json_encode([
+                    'id' => $questionId,
+                    'en' => $questionEn,
+                ]);
+
+                $options = null;
+                if (!empty($row['options'])) {
+                    $optsId = array_values(array_filter(array_map('trim', explode(',', $row['options']))));
+                    $optsEn = !empty($row['options_en'])
+                        ? array_values(array_filter(array_map('trim', explode(',', $row['options_en']))))
+                        : [];
+
+                    $options = [
+                        'id' => $optsId,
+                        'en' => $optsEn,
+                    ];
+                }
 
                 VendorAuditQuestionTemplate::create([
                     'form_id'     => $form->id,
                     'section'     => $section,
                     'question'    => $question,
                     'answer_type' => !empty($row['answer_type']) ? $row['answer_type'] : 'text',
-                    'options'     => !empty($row['options']) ? array_values(array_filter(array_map('trim', explode(',', $row['options'])))) : null,
+                    'options'     => $options,
                     'weight'      => isset($row['weight']) && $row['weight'] !== '' ? (int) $row['weight'] : 0,
                     'is_required' => isset($row['is_required']) && $row['is_required'] !== '' ? filter_var($row['is_required'], FILTER_VALIDATE_BOOLEAN) : true,
                     'is_active'   => isset($row['is_active']) && $row['is_active'] !== '' ? filter_var($row['is_active'], FILTER_VALIDATE_BOOLEAN) : true,

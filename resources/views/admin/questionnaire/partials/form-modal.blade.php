@@ -1,5 +1,6 @@
 <!-- Modal Form Questionnaire (Create / Edit) -->
-<div class="modal fade" id="modalFormQuestionnaire" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="modalFormQuestionnaire" data-backdrop="static" tabindex="-1" role="dialog"
+    aria-labelledby="staticBackdrop" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content shadow-lg border-0" style="border-radius:12px;">
             <div class="modal-header border-bottom py-4 px-6">
@@ -57,16 +58,23 @@
                         </div>
                         <div class="col-md-6 d-flex align-items-center">
                             <div class="form-group mb-0 pt-3">
-                                <label class="checkbox checkbox-lg checkbox-outline checkbox-success font-weight-bold">
-                                    <input type="checkbox" name="is_active" id="form_is_active" value="1"
-                                        checked />
-                                    <span></span>&nbsp; Aktifkan Form
-                                </label>
+                                <div class="d-flex align-items-center">
+                                    <span class="switch switch-outline switch-icon switch-success mr-3">
+                                        <label>
+                                            <input type="checkbox" name="is_active" id="form_is_active" value="1"
+                                                checked />
+                                            <span></span>
+                                        </label>
+                                    </span>
+                                    <span class="font-weight-bold text-dark">Aktifkan Form</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer border-top py-3 px-6">
+                    <button type="button" class="btn btn-light-danger font-weight-bold"
+                        data-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary font-weight-bold px-6" id="btnSubmit">
                         <i class="flaticon2-check-mark mr-1" style="font-size:.8rem;"></i> Simpan
                     </button>

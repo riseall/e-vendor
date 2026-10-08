@@ -225,11 +225,14 @@
         function toggleOptionsField() {
             var type = $('#q_answer_type').val();
             if (type === 'multiple_choice') {
-                $('#optionsGroup').slideDown();
+                $('#optionsGroup_id').slideDown();
+                $('#optionsGroup_en').slideDown();
                 $('#q_options').attr('required', true);
             } else {
-                $('#optionsGroup').slideUp();
+                $('#optionsGroup_id').slideUp();
+                $('#optionsGroup_en').slideUp();
                 $('#q_options').removeAttr('required').val('');
+                $('#q_options_en').val('');
             }
         }
 
@@ -238,13 +241,17 @@
             $('#questionForm').attr('action', "{{ route('questionnaire-form.questions.store', $form->id) }}");
             $('#methodPlaceholder').html('');
             $('#q_section').val('');
+            $('#q_section_en').val('');
             $('#q_question').val('');
+            $('#q_question_en').val('');
             $('#q_answer_type').val('yes_no');
             $('#q_options').val('');
+            $('#q_options_en').val('');
             $('#q_weight').val('1');
             $('#q_order').val('0');
             $('#q_is_required').prop('checked', true);
             $('#q_is_active').prop('checked', true);
+            $('.nav-tabs a[href="#tab_lang_id"]').tab('show');
             toggleOptionsField();
         }
 
@@ -254,20 +261,32 @@
             var actionUrl = "{{ route('questionnaire-form.questions.update', [$form->id, ':id']) }}".replace(':id', q.id);
             $('#questionForm').attr('action', actionUrl);
             $('#methodPlaceholder').html('<input type="hidden" name="_method" value="PUT">');
-            $('#q_section').val(q.section);
-            $('#q_question').val(q.question);
+
+            var secTrans = q.section_translations || {};
+            var qTrans = q.question_translations || {};
+            var optTrans = q.options_translations || {};
+
+            $('#q_section').val(secTrans.id || q.section || '');
+            $('#q_section_en').val(secTrans.en || '');
+            $('#q_question').val(qTrans.id || q.question || '');
+            $('#q_question_en').val(qTrans.en || '');
             $('#q_answer_type').val(q.answer_type);
 
-            if (q.answer_type === 'multiple_choice' && Array.isArray(q.options)) {
-                $('#q_options').val(q.options.join('\n'));
+            if (q.answer_type === 'multiple_choice') {
+                var optsId = optTrans.id || (Array.isArray(q.options) ? q.options : []);
+                var optsEn = optTrans.en || [];
+                $('#q_options').val(Array.isArray(optsId) ? optsId.join('\n') : '');
+                $('#q_options_en').val(Array.isArray(optsEn) ? optsEn.join('\n') : '');
             } else {
                 $('#q_options').val('');
+                $('#q_options_en').val('');
             }
 
             $('#q_weight').val(q.weight);
             $('#q_order').val(q.order);
             $('#q_is_required').prop('checked', Boolean(q.is_required));
             $('#q_is_active').prop('checked', Boolean(q.is_active));
+            $('.nav-tabs a[href="#tab_lang_id"]').tab('show');
             toggleOptionsField();
             $('#modalQuestion').modal('show');
         }

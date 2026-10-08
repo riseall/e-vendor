@@ -225,10 +225,11 @@
                                             :selected="$val" :readonly="$readOnly" :required="$q->is_required" />
                                     @elseif ($q->answer_type === VendorAuditQuestionTemplate::TYPE_MULTIPLE_CHOICE)
                                         @php
-                                            $opts = array_combine($q->options ?? [], $q->options ?? []);
+                                            $opts = !empty($q->options) ? array_combine($q->options, $q->options) : [];
+                                            $selectedVal = method_exists($q, 'resolveSelectedOption') ? $q->resolveSelectedOption($val) : $val;
                                         @endphp
                                         <x-vendor-select :name="$inputName" :label="$inputLabel" :options="$opts"
-                                            :selected="$val" :readonly="$readOnly" :required="$q->is_required" />
+                                            :selected="$selectedVal" :readonly="$readOnly" :required="$q->is_required" />
                                     @elseif ($q->answer_type === VendorAuditQuestionTemplate::TYPE_TEXT)
                                         <x-vendor-input :name="$inputName" :label="$inputLabel" type="textarea"
                                             :value="is_string($val) ? $val : ''" :readonly="$readOnly" :required="$q->is_required"
