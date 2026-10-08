@@ -100,7 +100,7 @@
                                                         @if ($isDoc)
                                                             @if ($val)
                                                                 @foreach ((array) $val as $docPath)
-                                                                    <x-preview-doc-button :url="Storage::url($docPath)"
+                                                                    <x-preview-doc-button :url="asset('storage/' . $docPath)"
                                                                         label="Lihat" />
                                                                 @endforeach
                                                             @else

@@ -21,7 +21,7 @@
                         <small class="form-text text-muted mt-2">Format file harus berupa `.xlsx`, `.xls`, atau `.csv` sesuai template.</small>
                     </div>
                     <div class="mt-4 pt-2 border-top">
-                        <a href="{{ Storage::url('templates/template_questions.xlsx') }}"
+                        <a href="{{ asset('storage/templates/template_questions.xlsx') }}"
                             class="btn btn-sm btn-light-info font-weight-bold">
                             <i class="flaticon2-download mr-1" style="font-size:.8rem;"></i> Download Template Excel
                         </a>

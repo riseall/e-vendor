@@ -47,7 +47,7 @@
                     }
 
                     $filePath = $audit->audit_result_path;
-                    $docUrl = $filePath ? Storage::url($filePath) : null;
+                    $docUrl = $filePath ? asset('storage/' . $filePath) : null;
                     $extension = $filePath ? strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) : '';
                     $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
                     $isPdf = $extension === 'pdf';
