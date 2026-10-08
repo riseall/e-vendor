@@ -51,14 +51,14 @@
         @endif
 
         @if ($value && !$readonly)
-            <div class="mt-1 d-flex align-items-center justify-content-between py-1 px-2 rounded bg-light-primary"
+            <div class="mt-1 d-flex align-items-center justify-content-between py-1 px-2 rounded bg-light-success"
                 style="font-size:0.75rem;">
-                <span class="text-primary font-weight-bold text-truncate mr-2">
-                    <i class="ki ki-check icon-xs text-primary mr-1"></i>{{ __('file_saved') }}
+                <span class="text-success font-weight-bold text-truncate mr-2">
+                    <i class="ki ki-check icon-xs text-success mr-1"></i>{{ __('file_saved') }}
                 </span>
                 <button type="button"
                     data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $value) }}"
-                    class="btn btn-xs btn-light-primary btn-icon btn-preview-doc flex-shrink-0"
+                    class="btn btn-xs btn-light-success btn-icon btn-preview-doc flex-shrink-0"
                     title="{{ __('view') }}" style="width:20px; height:20px; min-width:20px; line-height:20px;">
                     <i class="flaticon-eye" style="font-size:10px;"></i>
                 </button>
