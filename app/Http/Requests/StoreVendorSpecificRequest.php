@@ -147,10 +147,10 @@ class StoreVendorSpecificRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'required_if'      => 'Field ini wajib diisi berdasarkan pilihan Anda sebelumnya.',
-            'required_without' => 'File dokumen wajib diunggah.',
-            'string'           => 'Parameter data file tidak valid.',
-            'max'              => 'Ukuran string path file melebihi batas yang ditentukan.',
+            'required_if'      => __('field_required_based_on_selection'),
+            'required_without' => __('doc_file_must_be_uploaded'),
+            'string'           => __('invalid_file_path_param'),
+            'max'              => __('file_string_path_exceeds_limit'),
         ];
     }
 

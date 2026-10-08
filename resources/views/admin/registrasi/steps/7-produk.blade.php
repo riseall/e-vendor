@@ -168,7 +168,7 @@
                 <tr>
                     <th>{{ __('product') }}</th>
                     <th>{{ __('manufacturer_origin') }} <span class="text-danger">*</span></th>
-                    <th>{{ __('country') }}</th>
+                    <th>{{ __('country') }} <span class="text-danger">*</span></th>
                     <th>{{ __('supply_chain') }} <span class="text-danger">*</span></th>
                     <th>{{ __('agency_letter') }} <span class="text-danger">*</span></th>
                     <th>TKDN</th>

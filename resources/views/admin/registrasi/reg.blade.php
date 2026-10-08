@@ -292,17 +292,26 @@
                         $.inArray($inputs.attr('type'), ['radio', 'checkbox']) > -1;
 
                     $inputs.addClass('is-invalid');
+                    $inputs.closest('.bootstrap-select').addClass('is-invalid');
 
                     if (isGroup) {
-                        // Cari container pembungkus group (label / .radio-list / .form-group)
-                        // lalu sisipkan pesan di BAWAH seluruh group, bukan di sela radio pertama
-                        var $container = $inputs.first().closest(
-                            '.radio-list, .checkbox-list, .form-group, .form-item, label');
-                        if ($container.length === 0) $container = $inputs.first().parent();
-                        $container.append(
-                            '<div class="invalid-feedback dynamic-error d-block w-100 mt-2">' +
-                            value[0] + '</div>'
-                        );
+                        // Cari container pembungkus group (.radio-inline / .radio-list / .checkbox-inline / .checkbox-list)
+                        // lalu sisipkan pesan di BAWAH seluruh group, BUKAN di sela / di dalam label radio pertama
+                        var $groupContainer = $inputs.first().closest(
+                            '.radio-inline, .radio-list, .checkbox-inline, .checkbox-list');
+                        if ($groupContainer.length) {
+                            $groupContainer.after(
+                                '<div class="invalid-feedback dynamic-error d-block w-100 mt-1 mb-2">' +
+                                value[0] + '</div>'
+                            );
+                        } else {
+                            var $container = $inputs.first().closest('.form-group, .form-item');
+                            if ($container.length === 0) $container = $inputs.first().parent();
+                            $container.append(
+                                '<div class="invalid-feedback dynamic-error d-block w-100 mt-2">' +
+                                value[0] + '</div>'
+                            );
+                        }
                     } else {
                         var $input = $inputs.first();
                         var errorHtml = '<div class="invalid-feedback dynamic-error d-block" style="font-size: 0.85rem; line-height: 1.2; margin-top: 4px; word-break: break-word;">' + value[0] + '</div>';
@@ -310,14 +319,22 @@
                         if ($input.hasClass('custom-file-input')) {
                             // File input: letakkan di luar .custom-file
                             $input.closest('.custom-file').after(errorHtml);
-                        } else if ($input.hasClass('selectpicker') || $input.next().hasClass('bootstrap-select')) {
-                            // Selectpicker: letakkan setelah div .bootstrap-select
-                            var $bsSelect = $input.next('.bootstrap-select');
+                        } else if ($input.closest('.bootstrap-select').length || $input.hasClass('selectpicker') || $input.next().hasClass('bootstrap-select')) {
+                            // Selectpicker: letakkan setelah div .bootstrap-select (bukan di dalam sebelum button)
+                            var $bsSelect = $input.closest('.bootstrap-select');
+                            if (!$bsSelect.length) {
+                                $bsSelect = $input.next('.bootstrap-select');
+                            }
                             if ($bsSelect.length) {
+                                $bsSelect.addClass('is-invalid');
                                 $bsSelect.after(errorHtml);
                             } else {
                                 $input.after(errorHtml);
                             }
+                        } else if ($input.next('.select2-container').length) {
+                            var $s2 = $input.next('.select2-container');
+                            $s2.addClass('is-invalid');
+                            $s2.after(errorHtml);
                         } else if ($input.closest('.input-group').length) {
                             $input.closest('.input-group').after(errorHtml);
                         } else {
@@ -716,23 +733,37 @@
 
             // Hapus error secara otomatis saat user mulai memperbaiki input.
             // Untuk radio/checkbox group, hapus class di semua sibling + pesan terkait.
-            $(document).on('input change', '.is-invalid', function() {
+            $(document).on('input change changed.bs.select', '.is-invalid, select, .custom-file-input', function() {
                 var $changed = $(this);
                 var name = $changed.attr('name');
-                $('[name="' + name + '"]').removeClass('is-invalid');
+                if (name) {
+                    $('[name="' + name + '"]').removeClass('is-invalid');
+                    $('[name="' + name + '"]').closest('.bootstrap-select').removeClass('is-invalid');
+                    $('[name="' + name + '"]').next('.select2-container').removeClass('is-invalid');
+                }
+                $changed.removeClass('is-invalid');
+                $changed.closest('.bootstrap-select').removeClass('is-invalid');
                 $changed.closest('div, td, label').find('.invalid-feedback.dynamic-error').remove();
                 
-                // Fallback untuk custom-file dan selectpicker yang meletakkan error di luar komponen
+                // Fallback untuk custom-file, selectpicker, radio/checkbox group yang meletakkan error di luar komponen
                 if ($changed.hasClass('custom-file-input')) {
                     $changed.closest('.custom-file').next('.invalid-feedback.dynamic-error').remove();
-                } else if ($changed.hasClass('selectpicker')) {
+                } else if ($changed.closest('.bootstrap-select').length) {
+                    $changed.closest('.bootstrap-select').next('.invalid-feedback.dynamic-error').remove();
+                } else if ($changed.next('.bootstrap-select').length) {
                     $changed.next('.bootstrap-select').next('.invalid-feedback.dynamic-error').remove();
+                } else if ($changed.next('.select2-container').length) {
+                    $changed.next('.select2-container').next('.invalid-feedback.dynamic-error').remove();
+                } else if ($changed.closest('.radio-inline, .radio-list, .checkbox-inline, .checkbox-list').length) {
+                    $changed.closest('.radio-inline, .radio-list, .checkbox-inline, .checkbox-list').next('.invalid-feedback.dynamic-error').remove();
                 } else if ($changed.closest('.input-group').length) {
                     $changed.closest('.input-group').next('.invalid-feedback.dynamic-error').remove();
                 }
                 
                 // fallback: kalau masih ada (struktur DOM unik), hapus satu pesan setelah input pertama
-                $('[name="' + name + '"]').first().next('.invalid-feedback.dynamic-error').remove();
+                if (name) {
+                    $('[name="' + name + '"]').first().next('.invalid-feedback.dynamic-error').remove();
+                }
             });
         });
     </script>

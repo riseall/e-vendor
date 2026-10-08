@@ -206,20 +206,18 @@ class StoreFormUmumRequest extends FormRequest
                 in_array('other', (array) $this->input('iso_certificates', []), true)
                 && blank($this->input('iso_other'))
             ) {
-                $validator->errors()->add(
-                    'iso_other',
-                    'Sertifikat ISO lainnya wajib diisi.'
-                );
+                $validator->errors()->add('iso_other', __('other_iso_certificate_required'));
             }
 
+            $certErrors = [
+                'tkdn'    => 'tkdn_file_required',
+                'sni'     => 'sni_file_required',
+                'halal'   => 'halal_file_required',
+                'bse_tse' => 'bse_tse_file_required',
+            ];
+
             foreach ((array) $this->input('products', []) as $index => $product) {
-                foreach (
-                    [
-                        'tkdn' => 'Dokumen sertifikat TKDN',
-                        'sni' => 'Dokumen sertifikat SNI',
-                        'halal' => 'Dokumen sertifikat halal',
-                    ] as $certificate => $label
-                ) {
+                foreach ($certErrors as $certificate => $errorKey) {
                     if (($product['has_' . $certificate] ?? 'no') !== 'yes') {
                         continue;
                     }
@@ -240,7 +238,7 @@ class StoreFormUmumRequest extends FormRequest
                     if (!$hasUpload && !$hasExisting) {
                         $validator->errors()->add(
                             "products.{$index}.{$certificate}_file",
-                            $label . ' wajib diunggah.'
+                            __($errorKey)
                         );
                     }
                 }
@@ -260,7 +258,7 @@ class StoreFormUmumRequest extends FormRequest
                 if (!$hasSuratUpload && !$hasSuratExisting) {
                     $validator->errors()->add(
                         "products.{$index}.file_surat",
-                        'Dokumen surat produk wajib diunggah.'
+                        __('product_letter_doc_required')
                     );
                 }
             }
@@ -272,6 +270,11 @@ class StoreFormUmumRequest extends FormRequest
         if (!in_array('other', (array) $this->input('iso_certificates', []), true)) {
             $this->merge(['iso_other' => null]);
         }
+
+        $website = $this->input('website');
+        if (!empty($website) && is_string($website) && !preg_match('~^https?://~i', $website)) {
+            $this->merge(['website' => 'https://' . $website]);
+        }
     }
 
     /**
@@ -280,36 +283,70 @@ class StoreFormUmumRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nama_perusahaan.required' => 'Nama perusahaan wajib diisi.',
-            'nama_perusahaan.string' => 'Nama perusahaan harus berupa teks.',
-            'nama_perusahaan.max' => 'Nama perusahaan maksimal 255 karakter.',
-            'alamat.required' => 'Alamat wajib diisi.',
-            'alamat.string' => 'Alamat harus berupa teks.',
-            'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
-            'telepon.required' => 'Nomor telepon wajib diisi.',
-            'jenis_perusahaan.required' => 'Jenis perusahaan wajib diisi.',
-            'tahun_berdiri.required' => 'Tahun berdiri wajib diisi.',
-            'tahun_berdiri.digits' => 'Tahun berdiri harus berupa 4 digit.',
-            'jumlah_karyawan.required' => 'Jumlah karyawan wajib diisi.',
-            'jumlah_karyawan.integer' => 'Jumlah karyawan harus berupa angka.',
-            'products.required' => 'Minimal 1 produk harus ditambahkan.',
-            'products.min' => 'Minimal 1 produk harus ditambahkan.',
-            'products.*.product_name.required' => 'Nama produk wajib diisi.',
-            'products.*.manufaktur.required' => 'Manufaktur produk wajib diisi.',
-            'products.*.rantai_pasok.required' => 'Rantai pasok produk wajib diisi.',
-            'products.*.has_tkdn.required' => 'Status TKDN harus dipilih.',
-            'products.*.tkdn_file.string' => 'Dokumen TKDN harus berupa path yang valid.',
-            'products.*.tkdn_file.max' => 'Ukuran parameter dokumen TKDN tidak valid.',
-            'products.*.has_sni.required' => 'Status SNI harus dipilih.',
-            'products.*.sni_file.string' => 'Dokumen SNI harus berupa path yang valid.',
-            'products.*.sni_file.max' => 'Ukuran parameter dokumen SNI tidak valid.',
-            'products.*.has_halal.required' => 'Status halal harus dipilih.',
-            'products.*.halal_file.string' => 'Dokumen halal harus berupa path yang valid.',
-            'products.*.halal_file.max' => 'Ukuran parameter dokumen halal tidak valid.',
-            'products.*.file_surat.required' => 'Dokumen surat produk wajib diunggah.',
-            'products.*.file_surat.string' => 'Dokumen surat harus berupa path yang valid.',
-            'products.*.file_surat.max' => 'Ukuran parameter dokumen surat tidak valid.',
+            'products.required'                    => __('min_one_product_required'),
+            'products.min'                         => __('min_one_product_required'),
+            'products.*.product_name.required'     => __('product_name_required'),
+            'products.*.manufaktur.required'       => __('manufacturer_origin_required'),
+            'products.*.negara.required'           => __('product_country_required'),
+            'products.*.rantai_pasok.required'     => __('product_supply_chain_required'),
+            'products.*.has_tkdn.required'         => __('tkdn_status_required'),
+            'products.*.has_sni.required'          => __('sni_status_required'),
+            'products.*.has_halal.required'        => __('halal_status_required'),
+            'products.*.has_bse_tse.required'      => __('bse_tse_status_required'),
+            'products.*.file_surat.required'       => __('product_letter_doc_required'),
+            'website.url'                          => __('website_url_invalid'),
+            'payment_term_other.required_if'       => __('other_payment_term_required'),
+            'komitmen_kualitas_detail.required_if' => __('quality_commitment_detail_required'),
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     */
+    public function attributes(): array
+    {
+        return [
+            'nama_perusahaan'          => __('company_name'),
+            'alamat_perusahaan'        => __('full_company_address'),
+            'website'                  => __('official_website'),
+            'email_perusahaan'         => __('company_email'),
+            'telepon_perusahaan'       => __('company_phone_number'),
+            'nib'                      => __('nib_number'),
+            'npwp'                     => __('npwp_number'),
+            'pic_nama'                 => __('name'),
+            'pic_email'                => __('email'),
+            'pic_telepon'              => __('mobile_phone_number'),
+            'has_other_company'        => __('other_companies_owned'),
+            'other_companies'          => __('other_companies'),
+            'other_companies.*.nama'   => __('company_name'),
+            'other_companies.*.alamat' => __('address'),
+            'payment_term'             => __('preferred_payment_term'),
+            'payment_term_other'       => __('other'),
+            'pemegang_rekening'        => __('account_holder'),
+            'nomor_rekening'           => __('account_number'),
+            'nama_bank'                => __('bank_name'),
+            'alamat_bank'              => __('bank_address'),
+            'swift_code'               => __('swift_code'),
+            'iso_certificates'         => __('iso_certificate_owned'),
+            'iso_other'                => __('other'),
+            'komitmen_kualitas'        => __('commitment'),
+            'komitmen_kualitas_detail' => __('commitment'),
+            'lead_time'                => __('delivery_lead_time'),
+            'customer_list'            => __('pharmaceutical_customer_list'),
+            'products'                 => __('product'),
+            'products.*.product_name'  => __('product_name'),
+            'products.*.manufaktur'    => __('manufacturer_origin'),
+            'products.*.negara'        => __('country'),
+            'products.*.rantai_pasok'  => __('supply_chain'),
+            'products.*.has_tkdn'      => 'TKDN',
+            'products.*.has_sni'       => 'SNI',
+            'products.*.has_halal'     => __('halal'),
+            'products.*.has_bse_tse'   => 'BSE/TSE',
+            'products.*.file_surat'    => __('agency_letter'),
+            'products.*.tkdn_file'     => __('tkdn_certificate_doc'),
+            'products.*.sni_file'      => __('sni_certificate_doc'),
+            'products.*.halal_file'    => __('halal_certificate_doc'),
+            'products.*.bse_tse_file'  => __('bse_tse_certificate_doc'),
         ];
     }
 }
