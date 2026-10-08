@@ -235,12 +235,20 @@
                     null;
             }
 
-            function setStatus(el, color, text) {
+            function setStatus(el, color, text, previewUrl, title) {
                 if (!el) return;
                 el.style.display = (el.tagName === 'DIV' || el.classList.contains('d-block')) ? 'block' : 'inline';
                 el.style.color = color;
                 el.style.fontSize = '0.78rem';
-                el.innerText = text;
+
+                if (color === 'green' && previewUrl) {
+                    el.innerHTML = `<span class="d-inline-flex align-items-center" style="max-width:100%;">` +
+                        `<span class="text-truncate mr-1">${text}</span>` +
+                        `<a href="${previewUrl}" target="_blank" class="btn btn-xs btn-light-success btn-icon btn-preview-doc ml-1" data-url="${previewUrl}" data-title="${title || 'Dokumen'}" title="Lihat" style="width:20px; height:20px; min-width:20px; line-height:20px; flex-shrink:0;"><i class="flaticon-eye" style="font-size:10px;"></i></a>` +
+                        `</span>`;
+                } else {
+                    el.innerText = text;
+                }
             }
 
             const STATUS_READY_TEXT = 'Siap submit';
@@ -291,6 +299,15 @@
                 const fieldName = e.target.getAttribute('data-field') || e.target.name || 'file';
                 const isMulti = e.target.hasAttribute('multiple') || files.length > 1;
 
+                // Bersihkan nama file di custom-file-label (cegah C:\fakepath\ dari scripts.bundle.js)
+                const customLabel = e.target.parentElement?.querySelector('.custom-file-label');
+                if (customLabel) {
+                    setTimeout(() => {
+                        customLabel.classList.add('selected');
+                        customLabel.textContent = isMulti ? `${files.length} file dipilih` : files[0].name;
+                    }, 0);
+                }
+
                 // Validasi client cepat
                 for (const f of files) {
                     if (f.size > MAX_BYTES) {
@@ -326,8 +343,7 @@
                         hidden.value = allPaths.join(','); // server split saat simpan
 
                         // Tampilkan status dengan total file terunggah
-                        const fileNames = files.map(f => f.name).join(', ');
-                        setStatus(status, 'green', `✓ Terunggah: ${fileNames} (Total: ${allPaths.length} file)`);
+                        setStatus(status, 'green', `✓ Terunggah (${allPaths.length} file)`);
 
                         e.target.dispatchEvent(new CustomEvent('ajax-upload-done', {
                             bubbles: true,
@@ -341,8 +357,8 @@
                         const data = await uploadOne(files[0], fieldName);
                         hidden.value = data.path;
 
-                        // TAMPILKAN NAMA FILE TUNGGAL YANG DI-UPLOAD
-                        setStatus(status, 'green', `✓ Terunggah: ${files[0].name}`);
+                        // Tampilkan status bersih dengan tombol preview dokumen
+                        setStatus(status, 'green', '✓ Terunggah', data.url, files[0].name);
 
                         e.target.dispatchEvent(new CustomEvent('ajax-upload-done', {
                             bubbles: true,

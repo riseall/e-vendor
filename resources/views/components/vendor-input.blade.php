@@ -25,49 +25,56 @@
         </label>
     @endif
 
-    <div class="input-group">
-        @if ($type === 'textarea')
+    @if ($type === 'textarea')
+        <div class="input-group">
             <textarea name="{{ $name }}" rows="3"
                 {{ $attributes->merge(['class' => 'form-control ' . ($errors->has($name) ? 'is-invalid' : '') . ($readonly ? ' form-control-solid' : '')]) }}
                 placeholder="{{ $placeholder }}" {{ $readonly ? 'readonly disabled' : '' }}>{{ old($name, $value) }}</textarea>
-        @elseif ($type === 'file')
-            @if (!$readonly)
-                <div class="custom-file w-100">
-                    <input type="{{ $type }}" data-field="{{ $name }}"
-                        class="custom-file-input ajax-file-upload {{ $errors->has($name) ? 'is-invalid' : '' }}"
-                        id="{{ $name }}" accept=".pdf,.jpg,.jpeg,.png" placeholder="{{ $placeholder }}"
-                        {{ $required && !$value ? 'required' : '' }}>
-                    <label class="custom-file-label font-size-xs" for="{{ $name }}">
-                        {{ $value ? __('change_file') . '...' : ($placeholder ?: __('upload_file') . '...') }}
-                    </label>
-                </div>
-                <span class="upload-status d-block mt-1 font-weight-bold" style="display:none;"></span>
-            @endif
+        </div>
+    @elseif ($type === 'file')
+        @if (!$readonly)
+            <div class="custom-file w-100">
+                <input type="{{ $type }}" data-field="{{ $name }}"
+                    class="custom-file-input ajax-file-upload {{ $errors->has($name) ? 'is-invalid' : '' }}"
+                    id="{{ $name }}" accept=".pdf,.jpg,.jpeg,.png" placeholder="{{ $placeholder }}"
+                    {{ $required && !$value ? 'required' : '' }}>
+                <label class="custom-file-label font-size-xs text-truncate" for="{{ $name }}"
+                    style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:75px;">
+                    {{ $value ? __('change_file') . '...' : ($placeholder ?: __('upload_file') . '...') }}
+                </label>
+            </div>
+            <div class="upload-status mt-1 font-weight-bold" style="display:none; font-size:0.75rem;"></div>
+        @endif
 
-            @if ($value)
-                <input type="hidden" name="{{ $existingName ?? 'existing_' . $name }}" value="{{ $value }}">
-            @endif
+        @if ($value)
+            <input type="hidden" name="{{ $existingName ?? 'existing_' . $name }}" value="{{ $value }}">
+        @endif
 
-            @if ($value && !$readonly)
-                <div class="mt-2 w-100 d-flex justify-content-between p-2 bg-light-success rounded">
-                    <span class="text-success font-size-xs font-weight-bold mr-3 align-self-center">{{ __('file_saved') }}</span>
-                    <button type="button"
-                        data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $value) }}"
-                        class="btn btn-xs btn-success btn-icon btn-preview-doc" title="{{ __('view') }}">
-                        <i class="flaticon-eye"></i>
-                    </button>
-                </div>
-            @elseif($value && $readonly)
+        @if ($value && !$readonly)
+            <div class="mt-1 d-flex align-items-center justify-content-between py-1 px-2 rounded bg-light-primary"
+                style="font-size:0.75rem;">
+                <span class="text-primary font-weight-bold text-truncate mr-2">
+                    <i class="ki ki-check icon-xs text-primary mr-1"></i>{{ __('file_saved') }}
+                </span>
                 <button type="button"
                     data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $value) }}"
-                    class="btn btn-sm btn-light-primary btn-preview-doc w-100">
-                    <i class="flaticon-eye mr-2"></i> {{ __('view') }}
+                    class="btn btn-xs btn-light-primary btn-icon btn-preview-doc flex-shrink-0"
+                    title="{{ __('view') }}" style="width:20px; height:20px; min-width:20px; line-height:20px;">
+                    <i class="flaticon-eye" style="font-size:10px;"></i>
                 </button>
-            @elseif(!$value && $readonly)
-                <input type="text" class="form-control form-control-solid font-size-sm text-muted" readonly disabled
-                    value="{{ __('no_document') }}">
-            @endif
-        @else
+            </div>
+        @elseif($value && $readonly)
+            <button type="button"
+                data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $value) }}"
+                class="btn btn-xs btn-light-primary btn-preview-doc w-100 py-1 font-weight-bold">
+                <i class="flaticon-eye mr-1 icon-xs"></i> {{ __('view') }}
+            </button>
+        @elseif(!$value && $readonly)
+            <input type="text" class="form-control form-control-sm form-control-solid font-size-xs text-muted py-1"
+                readonly disabled value="{{ __('no_document') }}">
+        @endif
+    @else
+        <div class="input-group">
             @if ($leftIcon)
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="{{ $leftIcon }}"></i></span>
@@ -86,8 +93,8 @@
                     <span class="input-group-text"><i class="{{ $rightIcon }}"></i></span>
                 </div>
             @endif
-        @endif
-    </div>
+        </div>
+    @endif
 
     @if ($hasRevision)
         <div class="revision-note-message text-danger mt-1 font-size-xs font-weight-bold"

@@ -9,17 +9,34 @@
             min-height: 320px;
         }
 
+        #selectedProductsTable .custom-file,
+        #selectedProductsTable .custom-file-input {
+            height: calc(1.5em + 0.65rem + 2px);
+        }
+
         #selectedProductsTable .custom-file-label {
             height: calc(1.5em + 0.65rem + 2px);
             padding: 0.35rem 0.75rem;
-            font-size: 0.875rem;
+            padding-right: 75px !important;
+            font-size: 0.8rem;
             line-height: 1.5;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
         }
 
         #selectedProductsTable .custom-file-label::after {
             height: calc(1.5em + 0.65rem);
-            padding: 0.35rem 0.75rem;
+            padding: 0.35rem 0.65rem;
             line-height: 1.5;
+            font-size: 0.8rem;
+        }
+
+        #selectedProductsTable .upload-status {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
         }
     </style>
 @endpush

@@ -11,7 +11,7 @@
     </td>
 
     {{-- Kolom: Manufaktur / Asal --}}
-    <td class="align-top" style="min-width:160px; padding:14px 12px;">
+    <td class="align-top" style="min-width:220px; padding:14px 12px;">
         @if ($isReadOnly)
             <div class="font-weight-bolder text-dark mb-2" style="font-size:0.875rem;">
                 {{ old('products.' . $id . '.manufaktur', $data['manufaktur'] ?? '-') }}
@@ -62,7 +62,7 @@
     </td>
 
     {{-- Kolom: Surat Keagenan --}}
-    <td class="align-top" style="min-width:155px; padding:14px 12px;">
+    <td class="align-top" style="min-width:180px; padding:14px 12px;">
         <x-vendor-input type="file" name="products[{{ $id }}][file_surat]"
             existingName="products[{{ $id }}][existing_file_surat]" :value="$data['file_surat_path'] ?? null" :application="$application"
             :readonly="$isReadOnly" required />
@@ -70,7 +70,7 @@
 
     {{-- Kolom: TKDN --}}
     @php $hasTkdn = old('products.' . $id . '.has_tkdn', $data['has_tkdn'] ?? 'no'); @endphp
-    <td class="align-top" style="min-width:155px; padding:14px 12px;">
+    <td class="align-top" style="min-width:175px; padding:14px 12px;">
         @if ($isReadOnly)
             @if ($hasTkdn === 'yes' && !empty($data['tkdn_file_path']))
                 <x-vendor-input type="file" name="products[{{ $id }}][tkdn_file]"
@@ -94,7 +94,7 @@
 
     {{-- Kolom: SNI --}}
     @php $hasSni = old('products.' . $id . '.has_sni', $data['has_sni'] ?? 'no'); @endphp
-    <td class="align-top" style="min-width:155px; padding:14px 12px;">
+    <td class="align-top" style="min-width:175px; padding:14px 12px;">
         @if ($isReadOnly)
             @if ($hasSni === 'yes' && !empty($data['sni_file_path']))
                 <x-vendor-input type="file" name="products[{{ $id }}][sni_file]"
@@ -118,7 +118,7 @@
 
     {{-- Kolom: Halal --}}
     @php $hasHalal = old('products.' . $id . '.has_halal', $data['has_halal'] ?? 'no'); @endphp
-    <td class="align-top" style="min-width:155px; padding:14px 12px;">
+    <td class="align-top" style="min-width:175px; padding:14px 12px;">
         @if ($isReadOnly)
             @if ($hasHalal === 'yes' && !empty($data['halal_file_path']))
                 <x-vendor-input type="file" name="products[{{ $id }}][halal_file]"
@@ -143,7 +143,7 @@
 
     {{-- Kolom: BSE/TSE --}}
     @php $hasBseTse = old('products.' . $id . '.has_bse_tse', $data['has_bse_tse'] ?? 'no'); @endphp
-    <td class="align-top" style="min-width:155px; padding:14px 12px;">
+    <td class="align-top" style="min-width:175px; padding:14px 12px;">
         @if ($isReadOnly)
             @if ($hasBseTse === 'yes' && !empty($data['bse_tse_file_path']))
                 <x-vendor-input type="file" name="products[{{ $id }}][bse_tse_file]"
