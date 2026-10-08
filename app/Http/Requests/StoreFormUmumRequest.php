@@ -186,6 +186,10 @@ class StoreFormUmumRequest extends FormRequest
             $rules['iso_files']   = 'nullable|string';
         }
 
+        $rules['existing_iso_files'] = 'nullable|array';
+        $rules['existing_iso_files.*'] = 'nullable|string|max:255';
+        $rules['existing_iso_files_present'] = 'nullable';
+
         return $rules;
     }
 

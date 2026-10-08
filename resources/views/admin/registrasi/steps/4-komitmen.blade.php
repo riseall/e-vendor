@@ -66,6 +66,7 @@
 
             {{-- Hidden inputs untuk path file yang masih disimpan --}}
             <div id="isoExistingPaths">
+                <input type="hidden" name="existing_iso_files_present" value="1">
                 @foreach ($uploadedIso as $isoDoc)
                     <input type="hidden" name="existing_iso_files[]" value="{{ $isoDoc['file_path'] }}">
                 @endforeach
@@ -73,25 +74,23 @@
         @endif
 
         {{-- Daftar file yang sudah ter-upload --}}
-        @if (!empty($uploadedIso))
-            <ul class="list-group list-group-sm mt-3" id="isoUploadedList">
-                @foreach ($uploadedIso as $isoDoc)
-                    <li class="list-group-item d-flex justify-content-between align-items-center py-2"
-                        data-path="{{ $isoDoc['file_path'] }}">
-                        <a href="{{ $isoDoc['url'] }}" target="_blank" class="text-primary btn-preview-doc"
-                            data-url="{{ $isoDoc['url'] }}" data-title="{{ $isoDoc['original_name'] }}">
-                            <i class="flaticon2-file mr-2"></i>{{ $isoDoc['original_name'] }}
-                        </a>
-                        @if (!$isReadOnly)
-                            <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove"
-                                title="{{ __('delete') }}">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        @endif
-                    </li>
-                @endforeach
-            </ul>
-        @endif
+        <ul class="list-group list-group-sm mt-3 {{ empty($uploadedIso) ? 'd-none' : '' }}" id="isoUploadedList">
+            @foreach ($uploadedIso as $isoDoc)
+                <li class="list-group-item d-flex justify-content-between align-items-center py-2"
+                    data-path="{{ $isoDoc['file_path'] }}">
+                    <a href="{{ $isoDoc['url'] }}" target="_blank" class="text-primary btn-preview-doc"
+                        data-url="{{ $isoDoc['url'] }}" data-title="{{ $isoDoc['original_name'] }}">
+                        <i class="flaticon2-file mr-2"></i>{{ $isoDoc['original_name'] }}
+                    </a>
+                    @if (!$isReadOnly)
+                        <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove"
+                            title="{{ __('delete') }}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    @endif
+                </li>
+            @endforeach
+        </ul>
     </div>
 </div>
 
@@ -141,12 +140,60 @@
             }
         });
 
-        // Hapus sertifikat ISO existing dari daftar "kept"
+        // Preview instan saat file ISO selesai di-upload via AJAX
+        $(document).on('ajax-upload-done', function(e) {
+            const detail = e.originalEvent ? e.originalEvent.detail : e.detail;
+            if (!detail || detail.field !== 'iso_files' || !detail.files) return;
+
+            const $list = $('#isoUploadedList');
+            $list.removeClass('d-none');
+
+            detail.files.forEach(function(item) {
+                const li = `
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-2"
+                        data-temp-path="${item.path}">
+                        <a href="${item.url}" target="_blank" class="text-primary btn-preview-doc"
+                            data-url="${item.url}" data-title="${item.original_name}">
+                            <i class="flaticon2-file mr-2"></i>${item.original_name}
+                        </a>
+                        <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove"
+                            title="{{ __('delete') }}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </li>
+                `;
+                $list.append(li);
+            });
+        });
+
+        // Hapus sertifikat ISO (baik existing dari database maupun baru di-upload)
         $(document).on('click', '.btn-iso-remove', function() {
-            const li = $(this).closest('li[data-path]');
+            const li = $(this).closest('li');
             const path = li.data('path');
+            const tempPath = li.data('temp-path');
             li.remove();
-            $('#isoExistingPaths input[value="' + path + '"]').remove();
+
+            if (path) {
+                $('#isoExistingPaths input[value="' + path + '"]').remove();
+            }
+
+            if (tempPath) {
+                const hidden = document.getElementById('iso_files__hidden[]');
+                if (hidden && hidden.value) {
+                    const paths = hidden.value.split(',').map(s => s.trim()).filter(s => s && s !== tempPath);
+                    hidden.value = paths.join(',');
+                    const $status = $('input[data-field="iso_files"]').closest('.custom-file').find('.upload-status');
+                    if (paths.length > 0) {
+                        $status.text('✓ Tersisa ' + paths.length + ' file baru');
+                    } else {
+                        $status.text('').hide();
+                    }
+                }
+            }
+
+            if ($('#isoUploadedList li').length === 0) {
+                $('#isoUploadedList').addClass('d-none');
+            }
         });
     </script>
 @endpush

@@ -24,6 +24,8 @@ class VendorUploadController extends Controller
         return response()->json([
             'success' => true,
             'path' => $path,
+            'url' => asset('storage/' . $path),
+            'original_name' => $file->getClientOriginalName(),
             'field_name' => $request->field_name
         ]);
     }

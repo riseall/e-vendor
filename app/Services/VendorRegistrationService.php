@@ -66,7 +66,39 @@ class VendorRegistrationService
             // Process ISO certificates (multi-file)
             $this->processIsoCertificates($data, $application);
 
-            return ['success' => true, 'application_id' => $vendorApplicationId];
+            $isoFiles = $application->documents()
+                ->where('field_name', 'iso_certificate')
+                ->get()
+                ->map(function ($doc) use ($application) {
+                    return [
+                        'id' => $doc->id,
+                        'original_name' => $doc->original_name,
+                        'file_path' => $doc->file_path,
+                        'url' => $this->fileService->url($application, $doc->file_path),
+                    ];
+                })
+                ->values()
+                ->all();
+
+            $generalDocs = $application->documents()
+                ->whereIn('field_name', $documentFields)
+                ->get()
+                ->keyBy('field_name')
+                ->map(function ($doc) use ($application) {
+                    return [
+                        'original_name' => $doc->original_name,
+                        'file_path'     => $doc->file_path,
+                        'url'           => $this->fileService->url($application, $doc->file_path),
+                    ];
+                })
+                ->toArray();
+
+            return [
+                'success'           => true,
+                'application_id'    => $vendorApplicationId,
+                'iso_files'         => $isoFiles,
+                'general_documents' => $generalDocs,
+            ];
         });
     }
 
@@ -243,17 +275,25 @@ class VendorRegistrationService
     {
         $fieldName = 'iso_certificate';
 
-        if (request()->has('existing_iso_files')) {
+        if (request()->has('existing_iso_files_present')) {
+            $kept = collect((array) request()->input('existing_iso_files', []))
+                ->filter()
+                ->values()
+                ->all();
+
+            $application->documents()
+                ->where('field_name', $fieldName)
+                ->whereNotIn('file_path', $kept)
+                ->delete();
+        } elseif (request()->has('existing_iso_files')) {
             $kept = collect((array) request()->input('existing_iso_files'))
                 ->filter()
                 ->values()
                 ->all();
 
-            // Proteksi Concurrency agar tidak bentrok saat double-submit
             $application->documents()
                 ->where('field_name', $fieldName)
                 ->whereNotIn('file_path', $kept)
-                ->where('created_at', '<', now()->subSeconds(10))
                 ->delete();
         }
 

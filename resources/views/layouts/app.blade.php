@@ -310,27 +310,48 @@
 
                 try {
                     if (isMulti) {
-                        // Multi: append tiap path (hidden name sudah [] )
-                        hidden.value = '';
                         const paths = [];
+                        const uploadedItems = [];
                         for (let i = 0; i < files.length; i++) {
                             setStatus(status, 'blue',
                                 `Mengunggah ${i+1}/${files.length}...`);
                             const data = await uploadOne(files[i], fieldName);
                             paths.push(data.path);
+                            uploadedItems.push(data);
                         }
-                        hidden.value = paths.join(','); // server split saat simpan
 
-                        // AMBIL SEMUA NAMA FILE & GABUNGKAN DENGAN KOMA
+                        // Append ke path yang sudah di-upload sebelumnya jika ada (misal upload bertahap)
+                        const existingPaths = hidden.value ? hidden.value.split(',').map(p => p.trim()).filter(Boolean) : [];
+                        const allPaths = existingPaths.concat(paths);
+                        hidden.value = allPaths.join(','); // server split saat simpan
+
+                        // Tampilkan status dengan total file terunggah
                         const fileNames = files.map(f => f.name).join(', ');
-                        setStatus(status, 'green', `✓ Terunggah: ${fileNames}`);
+                        setStatus(status, 'green', `✓ Terunggah: ${fileNames} (Total: ${allPaths.length} file)`);
 
+                        e.target.dispatchEvent(new CustomEvent('ajax-upload-done', {
+                            bubbles: true,
+                            detail: {
+                                field: fieldName,
+                                files: uploadedItems,
+                                isMulti: true
+                            }
+                        }));
                     } else {
                         const data = await uploadOne(files[0], fieldName);
                         hidden.value = data.path;
 
                         // TAMPILKAN NAMA FILE TUNGGAL YANG DI-UPLOAD
                         setStatus(status, 'green', `✓ Terunggah: ${files[0].name}`);
+
+                        e.target.dispatchEvent(new CustomEvent('ajax-upload-done', {
+                            bubbles: true,
+                            detail: {
+                                field: fieldName,
+                                files: [data],
+                                isMulti: false
+                            }
+                        }));
                     }
 
                     e.target.value = '';

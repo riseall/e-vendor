@@ -129,7 +129,9 @@ class RegistrasiController extends Controller
             return response()->json([
                 'status'  => 'success',
                 'message' => $request->action === 'submit' ? 'Data berhasil divalidasi.' : 'Draft berhasil diperbarui.',
-                'application_id' => $result['application_id']
+                'application_id' => $result['application_id'],
+                'iso_files' => $result['iso_files'] ?? [],
+                'general_documents' => $result['general_documents'] ?? []
             ], 200);
         } catch (ValidationException $e) {
             throw $e;

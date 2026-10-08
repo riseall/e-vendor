@@ -633,6 +633,48 @@
                             $('#application_id').val(res.application_id);
                         }
 
+                        if (res.iso_files && Array.isArray(res.iso_files)) {
+                            const isoHidden = document.getElementById('iso_files__hidden[]');
+                            if (isoHidden) isoHidden.value = '';
+                            $('input[data-field="iso_files"]').closest('.custom-file').find('.upload-status').text('').hide();
+
+                            let pathsHtml = '<input type="hidden" name="existing_iso_files_present" value="1">';
+                            res.iso_files.forEach(function(doc) {
+                                pathsHtml += '<input type="hidden" name="existing_iso_files[]" value="' + doc.file_path + '">';
+                            });
+                            $('#isoExistingPaths').html(pathsHtml);
+
+                            const $list = $('#isoUploadedList');
+                            if (res.iso_files.length > 0) {
+                                let listHtml = '';
+                                res.iso_files.forEach(function(doc) {
+                                    listHtml += '<li class="list-group-item d-flex justify-content-between align-items-center py-2" data-path="' + doc.file_path + '">' +
+                                        '<a href="' + doc.url + '" target="_blank" class="text-primary btn-preview-doc" data-url="' + doc.url + '" data-title="' + doc.original_name + '">' +
+                                        '<i class="flaticon2-file mr-2"></i>' + doc.original_name + '</a>' +
+                                        '<button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove" title="' + __('delete') + '">' +
+                                        '<i class="fas fa-trash-alt"></i></button></li>';
+                                });
+                                $list.html(listHtml).removeClass('d-none');
+                            } else {
+                                $list.empty().addClass('d-none');
+                            }
+                        }
+
+                        if (res.general_documents && typeof res.general_documents === 'object') {
+                            Object.keys(res.general_documents).forEach(function(fieldName) {
+                                const doc = res.general_documents[fieldName];
+                                const container = document.getElementById('item-' + fieldName);
+                                if (container) {
+                                    const previewBtn = container.querySelector('.btn-preview-doc');
+                                    if (previewBtn && doc && doc.url) {
+                                        previewBtn.setAttribute('data-url', doc.url);
+                                        previewBtn.removeAttribute('disabled');
+                                        previewBtn.classList.remove('d-none');
+                                    }
+                                }
+                            });
+                        }
+
                         Swal.fire({
                             icon: 'success',
                             title: __('success'),

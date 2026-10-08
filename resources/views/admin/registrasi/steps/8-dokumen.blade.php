@@ -85,14 +85,12 @@
                             </a>
                         @endif
 
-                        @if ($isUploaded)
-                            <button type="button" data-url="{{ $docData['url'] ?? '' }}"
-                                data-title="{{ __('preview') }} {{ $dok['label'] ?? __('document') }}"
-                                class="btn btn-light-success btn-icon btn-sm mr-2 btn-preview-doc"
-                                title="{{ __('click_preview_document') }}" @if (empty($docData['url'])) disabled @endif>
-                                <i class="flaticon-eye icon-md"></i>
-                            </button>
-                        @endif
+                        <button type="button" data-url="{{ $docData['url'] ?? '' }}"
+                            data-title="{{ __('preview') }} {{ $dok['label'] ?? __('document') }}"
+                            class="btn btn-light-success btn-icon btn-sm mr-2 btn-preview-doc {{ !$isUploaded ? 'd-none' : '' }}"
+                            title="{{ __('click_preview_document') }}" @if (empty($docData['url'])) disabled @endif>
+                            <i class="flaticon-eye icon-md"></i>
+                        </button>
 
                         @if (!$isReadOnly)
                             <label class="btn btn-light-primary btn-sm font-weight-bold mb-0 btn-upload">
@@ -125,6 +123,36 @@
                     if (btnText) btnText.textContent = "{{ __('change') }}";
                 });
             });
+        });
+
+        // Instant preview saat upload dokumen Step 8 selesai via AJAX
+        $(document).on('ajax-upload-done', function(e) {
+            const detail = e.originalEvent ? e.originalEvent.detail : e.detail;
+            if (!detail || !detail.field || !detail.files || !detail.files[0]) return;
+
+            const container = document.getElementById('item-' + detail.field);
+            if (!container) return;
+
+            const file = detail.files[0];
+            const previewBtn = container.querySelector('.btn-preview-doc');
+            const fileNameDisplay = container.querySelector('.file-name-text');
+            const btnText = container.querySelector('.btn-upload span');
+
+            if (fileNameDisplay) {
+                fileNameDisplay.className = 'text-success font-weight-bold file-name-text';
+                fileNameDisplay.innerHTML = `<i class="ki ki-check-circle icon-nm"></i> ${file.original_name}`;
+            }
+            if (btnText) btnText.textContent = "{{ __('change') }}";
+            container.classList.remove('status-pending');
+            container.classList.add('status-uploaded');
+
+            if (previewBtn) {
+                previewBtn.setAttribute('data-url', file.url);
+                const docLabel = container.querySelector('.doc-label')?.textContent?.trim() || '';
+                previewBtn.setAttribute('data-title', `{{ __('preview') }} ${docLabel}`);
+                previewBtn.removeAttribute('disabled');
+                previewBtn.classList.remove('d-none');
+            }
         });
     </script>
 @endpush
