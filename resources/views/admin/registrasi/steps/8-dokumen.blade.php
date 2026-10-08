@@ -78,7 +78,7 @@
 
                     <div class="doc-actions">
                         @if (!empty($dok['template']) && !$isReadOnly)
-                            <a href="{{ Storage::url('templates/' . $dok['template']) }}" target="_blank"
+                            <a href="{{ asset('storage/templates/' . $dok['template']) }}" target="_blank"
                                 class="btn btn-light-warning btn-icon btn-sm mr-2 btn-download-template"
                                 title="{{ __('download_template') }} {{ $dok['label'] }}">
                                 <i class="flaticon2-download icon-md"></i>

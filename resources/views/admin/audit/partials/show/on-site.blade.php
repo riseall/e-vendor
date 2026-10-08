@@ -111,7 +111,7 @@
                         </div>
                         <div class="verification-panel-body">
                             <div class="mb-4">
-                                <x-preview-doc-button :url="Storage::url($audit->audit_result_path)" label="Lihat File Hasil Audit" />
+                                <x-preview-doc-button :url="asset('storage/' . $audit->audit_result_path)" label="Lihat File Hasil Audit" />
                             </div>
 
                             <div class="row pt-2">
@@ -142,7 +142,7 @@
                             <div class="col-6">
                                 @if ($audit->audit_result_path)
                                     <div class="mb-3">
-                                        <x-preview-doc-button :url="Storage::url($audit->audit_result_path)" label="Lihat File Saat Ini" />
+                                        <x-preview-doc-button :url="asset('storage/' . $audit->audit_result_path)" label="Lihat File Saat Ini" />
                                     </div>
                                 @endif
                                 <div class="custom-file">
