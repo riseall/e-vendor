@@ -18,27 +18,52 @@
         @endif
     </label>
 
-    <x-vendor-checkbox name="iso_certificates" :options="$isoOptions" :selected="$selectedIso" :readonly="$isReadOnly" required>
-        <div class="d-flex align-items-center mt-3">
-            <label class="checkbox checkbox-primary mr-3 mb-0 {{ $isReadOnly ? 'checkbox-disabled' : '' }}">
-                <input type="checkbox" name="iso_certificates[]" value="other" id="isoOtherCb"
-                    {{ in_array('other', $selectedIso) ? 'checked' : '' }} {{ $isReadOnly ? 'disabled' : '' }}>
-                <span></span> {{ __('other') }}:
-            </label>
+    @if ($isReadOnly)
+        {{-- ponytail: Clean read-only badges instead of disabled checkboxes and raw input fields --}}
+        <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+            @php $hasAnyIso = false; @endphp
+            @foreach ($isoOptions as $iso)
+                @if (in_array($iso['value'], $selectedIso))
+                    @php $hasAnyIso = true; @endphp
+                    <span class="badge badge-light-primary font-weight-bolder px-3 py-2" style="font-size: 0.85rem;">
+                        <i class="fas fa-certificate text-primary mr-1"></i> {{ $iso['label'] }}
+                    </span>
+                @endif
+            @endforeach
 
-            {{-- Container input dinamis --}}
-            <div id="isoOtherContainer" style="flex: 1; {{ in_array('other', $selectedIso) ? '' : 'display: none;' }}">
-                <input type="text" name="iso_other" id="isoOtherInput" class="form-control form-control-sm"
-                    placeholder="{{ __('iso_other_placeholder') }}"
-                    value="{{ $draft['general']->iso_other ?? '' }}"
-                    {{ !in_array('other', $selectedIso) || $isReadOnly ? 'disabled' : '' }}
-                    {{ $isReadOnly ? 'readonly' : '' }}>
-            </div>
+            @if (in_array('other', $selectedIso) && !empty($draft['general']->iso_other))
+                @php $hasAnyIso = true; @endphp
+                <span class="badge badge-light-info font-weight-bolder px-3 py-2" style="font-size: 0.85rem;">
+                    <i class="fas fa-award text-info mr-1"></i> {{ __('other') }}: {{ $draft['general']->iso_other }}
+                </span>
+            @endif
+
+            @if (!$hasAnyIso)
+                <span class="text-muted font-size-sm font-weight-bold">-</span>
+            @endif
         </div>
-    </x-vendor-checkbox>
+    @else
+        <x-vendor-checkbox name="iso_certificates" :options="$isoOptions" :selected="$selectedIso" :readonly="false" required>
+            <div class="d-flex align-items-center mt-3">
+                <label class="checkbox checkbox-primary mr-3 mb-0">
+                    <input type="checkbox" name="iso_certificates[]" value="other" id="isoOtherCb"
+                        {{ in_array('other', $selectedIso) ? 'checked' : '' }}>
+                    <span></span> {{ __('other') }}:
+                </label>
+
+                {{-- Container input dinamis --}}
+                <div id="isoOtherContainer"
+                    style="max-width: 320px; flex: 1; {{ in_array('other', $selectedIso) ? '' : 'display: none;' }}">
+                    <input type="text" name="iso_other" id="isoOtherInput" class="form-control form-control-sm"
+                        placeholder="{{ __('iso_other_placeholder') }}" value="{{ $draft['general']->iso_other ?? '' }}"
+                        {{ !in_array('other', $selectedIso) ? 'disabled' : '' }}>
+                </div>
+            </div>
+        </x-vendor-checkbox>
+    @endif
 
     {{-- Upload Dokumen Sertifikat ISO (multi-file) --}}
-    <div class="mt-4">
+    <div class="mt-5">
         <label class="question-label">
             {{ __('iso_certificate_document') }}
             @if (!$isReadOnly)
@@ -74,20 +99,38 @@
         @endif
 
         {{-- Daftar file yang sudah ter-upload --}}
-        <ul class="list-group list-group-sm mt-3 {{ empty($uploadedIso) ? 'd-none' : '' }}" id="isoUploadedList">
+        <ul class="list-unstyled mt-3 {{ empty($uploadedIso) ? 'd-none' : '' }}" id="isoUploadedList">
             @foreach ($uploadedIso as $isoDoc)
-                <li class="list-group-item d-flex justify-content-between align-items-center py-2"
-                    data-path="{{ $isoDoc['file_path'] }}">
-                    <a href="{{ $isoDoc['url'] }}" target="_blank" class="text-primary btn-preview-doc"
-                        data-url="{{ $isoDoc['url'] }}" data-title="{{ $isoDoc['original_name'] }}">
-                        <i class="flaticon2-file mr-2"></i>{{ $isoDoc['original_name'] }}
-                    </a>
-                    @if (!$isReadOnly)
-                        <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove"
-                            title="{{ __('delete') }}">
-                            <i class="fas fa-trash-alt"></i>
+                @php
+                    $cleanName = preg_replace('/^\d+_/', '', $isoDoc['original_name']);
+                @endphp
+                <li class="d-flex justify-content-between align-items-center py-2 px-3 rounded mb-2 border"
+                    data-path="{{ $isoDoc['file_path'] }}"
+                    style="background-color: #fafbfc; border-color: #ebedf2 !important;">
+                    <div class="d-flex align-items-center text-truncate mr-2" style="min-width: 0;">
+                        <span class="btn btn-icon btn-xs btn-light-danger mr-2 flex-shrink-0"
+                            style="width: 26px; height: 26px; pointer-events: none;">
+                            <i class="fas fa-file-pdf font-size-sm"></i>
+                        </span>
+                        <span class="text-dark-75 font-weight-bold font-size-sm text-truncate"
+                            title="{{ $cleanName }}">
+                            {{ $cleanName }}
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center flex-shrink-0 ml-2" style="gap: 6px;">
+                        <button type="button"
+                            class="btn btn-xs btn-icon btn-light-primary btn-preview-doc font-weight-bold py-1 px-3"
+                            data-url="{{ $isoDoc['url'] }}" data-title="{{ $cleanName }}"
+                            title="{{ __('view') }}">
+                            <i class="fas fa-eye"></i>
                         </button>
-                    @endif
+                        @if (!$isReadOnly)
+                            <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove"
+                                title="{{ __('delete') }}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        @endif
+                    </div>
                 </li>
             @endforeach
         </ul>
@@ -108,8 +151,8 @@
 
             <div id="komitmenKualitasDetail"
                 style="{{ ($draft['general']->komitmen_kualitas ?? '') === 'yes' ? '' : 'display:none' }}">
-                <x-vendor-input name="komitmen_kualitas_detail" class="form-control form-control-sm"
-                    :label="__('mention_documents')" :value="$draft['general']->komitmen_kualitas_detail ?? ''" :readonly="$isReadOnly" />
+                <x-vendor-input name="komitmen_kualitas_detail" class="form-control form-control-sm" :label="__('mention_documents')"
+                    :value="$draft['general']->komitmen_kualitas_detail ?? ''" :readonly="$isReadOnly" />
             </div>
         </div>
     </div>
@@ -149,17 +192,28 @@
             $list.removeClass('d-none');
 
             detail.files.forEach(function(item) {
+                const cleanName = item.original_name.replace(/^\d+_/, '');
                 const li = `
-                    <li class="list-group-item d-flex justify-content-between align-items-center py-2"
-                        data-temp-path="${item.path}">
-                        <a href="${item.url}" target="_blank" class="text-primary btn-preview-doc"
-                            data-url="${item.url}" data-title="${item.original_name}">
-                            <i class="flaticon2-file mr-2"></i>${item.original_name}
-                        </a>
-                        <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove"
-                            title="{{ __('delete') }}">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
+                    <li class="d-flex justify-content-between align-items-center py-2 px-3 rounded mb-2 border"
+                        data-temp-path="${item.path}" style="background-color: #fafbfc; border-color: #ebedf2 !important;">
+                        <div class="d-flex align-items-center text-truncate mr-2" style="min-width: 0;">
+                            <span class="btn btn-icon btn-xs btn-light-danger mr-2 flex-shrink-0" style="width: 26px; height: 26px; pointer-events: none;">
+                                <i class="fas fa-file-pdf font-size-sm"></i>
+                            </span>
+                            <span class="text-dark-75 font-weight-bold font-size-sm text-truncate" title="${cleanName}">
+                                ${cleanName}
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-center flex-shrink-0 ml-2" style="gap: 6px;">
+                            <button type="button" class="btn btn-xs btn-light-primary btn-preview-doc font-weight-bold py-1 px-3"
+                                data-url="${item.url}" data-title="${cleanName}">
+                                <i class="fas fa-eye mr-1"></i> {{ __('preview') }}
+                            </button>
+                            <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove"
+                                title="{{ __('delete') }}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
                     </li>
                 `;
                 $list.append(li);
@@ -182,7 +236,8 @@
                 if (hidden && hidden.value) {
                     const paths = hidden.value.split(',').map(s => s.trim()).filter(s => s && s !== tempPath);
                     hidden.value = paths.join(',');
-                    const $status = $('input[data-field="iso_files"]').closest('.custom-file').find('.upload-status');
+                    const $status = $('input[data-field="iso_files"]').closest('.custom-file').find(
+                        '.upload-status');
                     if (paths.length > 0) {
                         $status.text('✓ Tersisa ' + paths.length + ' file baru');
                     } else {

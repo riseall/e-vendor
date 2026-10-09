@@ -196,6 +196,7 @@
     "country":  "Country",
     "supply_chain":  "Supply Chain",
     "agency_letter":  "Agency Letter",
+    "documents_and_certifications": "Documents & Certifications",
     "search_product":  "Search Product",
     "product_already_in_list":  "Product is already in the list.",
     "packaging_already_in_list":  "Packaging material is already in the list.",

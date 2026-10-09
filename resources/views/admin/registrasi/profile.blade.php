@@ -27,7 +27,7 @@
             <div class="text-muted font-size-sm mt-2">{{ $statusPresentation['description'] }}</div>
             <div class="d-flex align-items-center justify-content-end flex-wrap mt-3" style="gap: 8px;">
                 <a href="{{ route('registrasi.tracking', $application->application_number) }}"
-                    class="btn btn-light-primary btn-sm font-weight-bold">
+                    class="btn btn-primary btn-sm font-weight-bold">
                     <i class="flaticon2-search-1"></i> {{ __('view_tracking') }}
                 </a>
 
@@ -55,10 +55,11 @@
         @php
             $reasonKey = 'reason_' . $application->requalification_reason . '_label';
             $reasonTrans = __($reasonKey);
-            $reasonText = ($reasonTrans !== $reasonKey) ? $reasonTrans : (
-                \App\Models\VendorApplication::REASON_LABELS[$application->requalification_reason] ??
-                $application->requalification_reason
-            );
+            $reasonText =
+                $reasonTrans !== $reasonKey
+                    ? $reasonTrans
+                    : \App\Models\VendorApplication::REASON_LABELS[$application->requalification_reason] ??
+                        $application->requalification_reason;
         @endphp
         <div class="alert alert-custom alert-light-warning mb-6 shadow-sm" role="alert"
             style="border-left: 4px solid #f59e0b;">
@@ -185,9 +186,15 @@
                             <div class="font-weight-bold text-dark">{{ __('finished_updating_data') }}</div>
                             <div class="text-muted font-size-sm">{{ __('click_save_to_update_data') }}</div>
                         </div>
-                        <button type="button" id="btn-submit-rekualifikasi" class="btn btn-primary font-weight-bold">
-                            <i class="flaticon2-paper-plane"></i> {{ __('save_changes') }}
-                        </button>
+                        <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                            <a href="{{ route('registrasi.index') }}" class="btn btn-sm btn-danger font-weight-bold">
+                                <i class="fas fa-angle-left"></i> {{ __('back') }}
+                            </a>
+                            <button type="button" id="btn-submit-rekualifikasi"
+                                class="btn btn-sm btn-primary font-weight-bold">
+                                <i class="flaticon2-paper-plane"></i> {{ __('save_changes') }}
+                            </button>
+                        </div>
                     </div>
                 @endif
             </form>

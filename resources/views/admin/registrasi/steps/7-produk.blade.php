@@ -1,12 +1,20 @@
 @push('style')
     <style>
+        #selectedProductsTable th {
+            vertical-align: middle;
+            font-size: 0.85rem;
+            padding: 10px 12px;
+        }
+
         #selectedProductsTable td {
-            vertical-align: top;
+            vertical-align: middle;
             position: relative;
+            font-size: 0.85rem;
+            padding: 10px 12px;
         }
 
         #selectedProductsContainer .table-responsive {
-            min-height: 320px;
+            min-height: {{ $isReadOnly ? 'auto' : '320px' }};
         }
 
         #selectedProductsTable .custom-file,
@@ -166,16 +174,21 @@
         <table class="table table-bordered table-hover" id="selectedProductsTable">
             <thead class="thead-light">
                 <tr>
-                    <th>{{ __('product') }}</th>
-                    <th>{{ __('manufacturer_origin') }} <span class="text-danger">*</span></th>
-                    <th>{{ __('country') }} <span class="text-danger">*</span></th>
-                    <th>{{ __('supply_chain') }} <span class="text-danger">*</span></th>
-                    <th>{{ __('agency_letter') }} <span class="text-danger">*</span></th>
-                    <th>TKDN</th>
-                    <th>SNI</th>
-                    <th>Halal</th>
-                    <th>BSE/TSE</th>
-                    @if (!$isReadOnly)
+                    @if ($isReadOnly)
+                        <th style="width: 28%;">{{ __('product') }}</th>
+                        <th style="width: 24%;">{{ __('manufacturer_origin') }}</th>
+                        <th style="width: 20%;">{{ __('supply_chain') }}</th>
+                        <th style="width: 28%;">{{ __('documents_and_certifications') }}</th>
+                    @else
+                        <th>{{ __('product') }}</th>
+                        <th>{{ __('manufacturer_origin') }} <span class="text-danger">*</span></th>
+                        <th>{{ __('country') }} <span class="text-danger">*</span></th>
+                        <th>{{ __('supply_chain') }} <span class="text-danger">*</span></th>
+                        <th>{{ __('agency_letter') }} <span class="text-danger">*</span></th>
+                        <th>TKDN</th>
+                        <th>SNI</th>
+                        <th>Halal</th>
+                        <th>BSE/TSE</th>
                         <th>{{ __('action') }}</th>
                     @endif
                 </tr>
@@ -207,16 +220,18 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            const isReadOnly = {{ $isReadOnly ? 'true' : 'false' }};
             const productTable = $('#selectedProductsTable').DataTable({
                 responsive: false,
-                scrollX: true,
+                scrollX: !isReadOnly,
+                autoWidth: false,
                 pageLength: 10,
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
                     [10, 25, 50, 100, "{{ __('all') }}"]
                 ],
                 order: [],
-                columnDefs: [{
+                columnDefs: isReadOnly ? [] : [{
                     targets: -1,
                     orderable: false,
                     searchable: false
