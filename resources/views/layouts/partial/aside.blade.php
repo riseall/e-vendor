@@ -37,7 +37,8 @@
             data-menu-dropdown-timeout="500">
             <!--begin::Menu Nav-->
             <ul class="menu-nav">
-                <li class="menu-item {{ request()->routeIs('dashboard', 'vendor.dashboard') ? 'menu-item-active' : '' }}" aria-haspopup="true">
+                <li class="menu-item {{ request()->routeIs('dashboard', 'vendor.dashboard') ? 'menu-item-active' : '' }}"
+                    aria-haspopup="true">
                     <a href="{{ route('dashboard') }}" class="menu-link">
                         <span class="svg-icon menu-icon">
                             <!--begin::Svg Icon | path:assets/media/svg/icons/Design/Layers.svg-->
@@ -97,27 +98,6 @@
                     </a>
                 </li>
 
-                {{-- @if ($latestVendorApplication)
-                    <li class="menu-item" aria-haspopup="true">
-                        <a href="{{ route('registrasi.tracking', $latestVendorApplication->application_number) }}"
-                            class="menu-link">
-                            <span class="svg-icon menu-icon">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px"
-                                    height="24px">
-                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                        <rect x="0" y="0" width="24" height="24" />
-                                        <path fill="currentColor" opacity=".3"
-                                            d="M5 4h14c1.105 0 2 .895 2 2v11c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V6c0-1.105.895-2 2-2z" />
-                                        <path fill="currentColor"
-                                            d="M7 8h7c.552 0 1 .448 1 1s-.448 1-1 1H7c-.552 0-1-.448-1-1s.448-1 1-1zm0 4h5c.552 0 1 .448 1 1s-.448 1-1 1H7c-.552 0-1-.448-1-1s.448-1 1-1zm11.707-1.707c.391.391.391 1.024 0 1.414l-3 3c-.391.391-1.024.391-1.414 0l-1-1c-.391-.391-.391-1.024 0-1.414s1.024-.391 1.414 0l.293.293 2.293-2.293c.391-.391 1.024-.391 1.414 0z" />
-                                    </g>
-                                </svg>
-                            </span>
-                            <span class="menu-text">Tracking Permohonan</span>
-                        </a>
-                    </li>
-                @endif --}}
-
                 @php
                     $activeAudit = \App\Models\VendorAudit::whereHas('application', function ($q) {
                         $q->where('user_id', Auth::id());
@@ -172,12 +152,15 @@
                                     height="24px">
                                     <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                         <rect x="0" y="0" width="24" height="24" />
-                                        <path fill="currentColor" opacity=".3"
-                                            d="M 6 4 C 4.895 4 4 4.895 4 6 L 4 18 C 4 19.105 4.895 20 6 20 L 18 20 C 19.105 20 20 19.105 20 18 L 20 6 C 20 4.895 19.105 4 18 4 L 6 4 Z"
-                                            class="duo-icons-secondary-layer" />
-                                        <path fill="currentColor"
-                                            d="M 10.5 15 L 7.5 12 C 7.114 11.614 7.114 10.986 7.5 10.6 C 7.886 10.214 8.514 10.214 8.9 10.6 L 10.5 12.2 L 15.1 7.6 C 15.486 7.214 16.114 7.214 16.5 7.6 C 16.886 7.986 16.886 8.614 16.5 9 L 11.2 14.3 C 11.007 14.493 10.745 14.601 10.471 14.601 C 10.198 14.601 9.936 14.493 9.743 14.3 L 10.5 15 Z"
-                                            class="duo-icons-primary-layer" />
+                                        <path
+                                            d="M4,4 L20,4 C21.1045695,4 22,4.8954305 22,6 L22,18 C22,19.1045695 21.1045695,20 20,20 L4,20 C2.8954305,20 2,19.1045695 2,18 L2,6 C2,4.8954305 2.8954305,4 4,4 Z"
+                                            fill="#000000" opacity="0.3" />
+                                        <path
+                                            d="M18.5,11 L5.5,11 C4.67157288,11 4,11.6715729 4,12.5 L4,13 L8.58578644,13 C8.85100293,13 9.10535684,13.1053568 9.29289322,13.2928932 L10.2928932,14.2928932 C10.7456461,14.7456461 11.3597108,15 12,15 C12.6402892,15 13.2543539,14.7456461 13.7071068,14.2928932 L14.7071068,13.2928932 C14.8946432,13.1053568 15.1489971,13 15.4142136,13 L20,13 L20,12.5 C20,11.6715729 19.3284271,11 18.5,11 Z"
+                                            fill="#000000" />
+                                        <path
+                                            d="M5.5,6 C4.67157288,6 4,6.67157288 4,7.5 L4,8 L20,8 L20,7.5 C20,6.67157288 19.3284271,6 18.5,6 L5.5,6 Z"
+                                            fill="#000000" />
                                     </g>
                                 </svg>
                             </span>
@@ -192,13 +175,22 @@
                         ->exists();
                 @endphp
                 @if ($hasApprovedEval)
-                    <li class="menu-item {{ request()->routeIs('vendor.evaluasi.*') ? 'menu-item-active' : '' }}" aria-haspopup="true">
+                    <li class="menu-item {{ request()->routeIs('vendor.evaluasi.*') ? 'menu-item-active' : '' }}"
+                        aria-haspopup="true">
                         <a href="{{ route('vendor.evaluasi.index') }}" class="menu-link">
                             <span class="svg-icon menu-icon">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24px"
+                                    height="24px">
                                     <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                         <rect x="0" y="0" width="24" height="24" />
-                                        <path d="M12,2 C6.4771525,2 2,6.4771525 2,12 C2,17.5228475 6.4771525,22 12,22 C17.5228475,22 22,17.5228475 22,12 C22,6.4771525 17.5228475,2 12,2 Z M10.5,16.5 L6.5,12.5 L7.91421356,11.0857864 L10.5,13.6715729 L16.0857864,8.08578644 L17.5,9.5 L10.5,16.5 Z" fill="currentColor" />
+                                        <rect fill="#000000" opacity="0.3" x="13" y="4" width="3"
+                                            height="16" rx="1.5" />
+                                        <rect fill="#000000" x="8" y="9" width="3" height="11"
+                                            rx="1.5" />
+                                        <rect fill="#000000" x="18" y="11" width="3" height="9"
+                                            rx="1.5" />
+                                        <rect fill="#000000" x="3" y="13" width="3" height="7"
+                                            rx="1.5" />
                                     </g>
                                 </svg>
                             </span>
