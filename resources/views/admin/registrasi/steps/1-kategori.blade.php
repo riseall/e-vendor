@@ -70,10 +70,7 @@
 
                 {{-- Checkmark badge --}}
                 <div class="cat-check">
-                    <svg width="11" height="11" viewBox="0 0 11 11">
-                        <polyline points="2,5.5 4.5,8 9,3" stroke="white" stroke-width="1.8" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <i class="fas fa-check text-white" style="font-size:8px;"></i>
                 </div>
 
                 <div class="cat-icon">
@@ -109,16 +106,7 @@
 
 @push('scripts')
     <script>
-        var categoryLabels = {
-            1: "{{ __('cat_sub_1') }}",
-            2: "{{ __('cat_sub_2') }}",
-            3: "{{ __('cat_sub_3') }}",
-            4: "{{ __('cat_sub_4') }}",
-            5: "{{ __('cat_sub_5') }}",
-            6: "{{ __('cat_sub_6') }}",
-            7: "{{ __('cat_sub_7') }}",
-            8: "{{ __('cat_sub_8') }}",
-        };
+        var categoryLabels = @json(collect($categories)->pluck('sub', 'id'));
 
         // TOGGLE CATEGORY CARD
         $(document).ready(function() {

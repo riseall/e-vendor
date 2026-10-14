@@ -15,11 +15,9 @@
 
                 <div id="wrap_t1"
                     class="mt-3 p-4 bg-light rounded border-left border-primary {{ ($draft['t1_k3_commitment'] ?? '') === 'yes' ? '' : 'd-none' }}">
-                    <div class="form-group">
-                        <label>{{ __('upload_k3_proof') }}</label>
-                        <x-vendor-input type="file" name="t1_safety_file" :value="$draft['t1_safety_file'] ?? null" :readonly="$isReadOnly"
-                            :placeholder="__('upload_k3_proof_placeholder')" />
-                    </div>
+                    <x-vendor-input type="file" name="t1_safety_file" :label="__('upload_k3_proof')"
+                        :value="$draft['t1_safety_file'] ?? null" :readonly="$isReadOnly"
+                        :placeholder="__('upload_k3_proof_placeholder')" />
                 </div>
             </div>
         </div>
@@ -119,11 +117,9 @@
                 <x-vendor-input name="t8_customs_expert" :placeholder="__('expert_name_placeholder')" :value="$draft['t8_customs_expert'] ?? ''" :readonly="$isReadOnly"
                     class="mb-2" />
 
-                <div class="form-group">
-                    <label>{{ __('upload_expert_cert') }}</label>
-                    <x-vendor-input type="file" name="t8_expert_cert" :value="$draft['t8_expert_cert'] ?? null" :readonly="$isReadOnly"
-                        :placeholder="__('upload_expert_cert_placeholder')" />
-                </div>
+                <x-vendor-input type="file" name="t8_expert_cert" :label="__('upload_expert_cert')"
+                    :value="$draft['t8_expert_cert'] ?? null" :readonly="$isReadOnly"
+                    :placeholder="__('upload_expert_cert_placeholder')" />
             </div>
         </div>
 

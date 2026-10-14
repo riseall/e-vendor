@@ -15,11 +15,9 @@
 
                 <div id="wrap_v1"
                     class="mt-3 p-4 bg-light rounded border-left border-primary {{ ($draft['v1_is_sole_agent'] ?? '') === 'yes' ? '' : 'd-none' }}">
-                    <div class="form-group">
-                        <label>{{ __('agency_authorization_letter') }}</label>
-                        <x-vendor-input type="file" name="v1_auth_letter" :value="$draft['v1_auth_letter'] ?? null" :readonly="$isReadOnly"
-                            :placeholder="__('upload_auth_letter_placeholder')" />
-                    </div>
+                    <x-vendor-input type="file" name="v1_auth_letter" :label="__('agency_authorization_letter')"
+                        :value="$draft['v1_auth_letter'] ?? null" :readonly="$isReadOnly"
+                        :placeholder="__('upload_auth_letter_placeholder')" />
                 </div>
             </div>
         </div>
@@ -36,11 +34,9 @@
 
                 <div id="wrap_v2"
                     class="mt-3 p-4 bg-light rounded border-left border-primary {{ ($draft['v2_has_special_license'] ?? '') === 'yes' ? '' : 'd-none' }}">
-                    <div class="form-group">
-                        <label>{{ __('permit_license_document') }}</label>
-                        <x-vendor-input type="file" name="v2_license_file" :value="$draft['v2_license_file'] ?? null" :readonly="$isReadOnly"
-                            :placeholder="__('upload_permit_document_placeholder')" />
-                    </div>
+                    <x-vendor-input type="file" name="v2_license_file" :label="__('permit_license_document')"
+                        :value="$draft['v2_license_file'] ?? null" :readonly="$isReadOnly"
+                        :placeholder="__('upload_permit_document_placeholder')" />
                 </div>
             </div>
         </div>
@@ -101,11 +97,9 @@
 
                 <div id="wrap_v6"
                     class="mt-3 p-4 bg-light rounded border-left border-primary {{ ($draft['v6_kir'] ?? '') === 'yes' ? '' : 'd-none' }}">
-                    <div class="form-group">
-                        <label>{{ __('kir_letter') }}</label>
-                        <x-vendor-input type="file" name="v6_kir_file" :value="$draft['v6_kir_file'] ?? null" :readonly="$isReadOnly"
-                            :placeholder="__('upload_kir_placeholder')" />
-                    </div>
+                    <x-vendor-input type="file" name="v6_kir_file" :label="__('kir_letter')"
+                        :value="$draft['v6_kir_file'] ?? null" :readonly="$isReadOnly"
+                        :placeholder="__('upload_kir_placeholder')" />
                 </div>
             </div>
         </div>

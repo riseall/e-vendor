@@ -33,13 +33,16 @@
 @endphp
 
 <div class="form-section-title mb-4">{{ __('attached_documents') }}</div>
-<p class="text-muted mb-8">
-    {{ __('documents_optional_hint') }}
-</p>
+@if (!$isReadOnly)
+    <p class="text-muted mb-8">
+        {{ __('documents_optional_hint') }}
+    </p>
+@endif
 
 <div class="modern-doc-list">
     @foreach (collect($dokumenList)->groupBy('type') as $type => $items)
-        <h5 class="text-primary font-weight-bold mb-4 mt-6">{{ $type === 'General' ? __('general_documents') : __('local_vendor_documents') }}</h5>
+        <h5 class="text-primary font-weight-bold mb-4 mt-6">
+            {{ $type === 'General' ? __('general_documents') : __('local_vendor_documents') }}</h5>
         <div class="list-container mb-4">
             @foreach ($items as $dok)
                 @php
@@ -52,24 +55,33 @@
                     id="item-{{ $dok['name'] }}" data-field-name="{{ $dok['name'] }}">
                     <div class="doc-info">
                         <div class="doc-icon-wrapper">
-                            <i class="flaticon2-file icon-lg"></i>
+                            <i class="fas fa-file-alt icon-lg"></i>
                         </div>
                         <div class="doc-text">
                             <span class="doc-label text-dark-75 font-weight-bolder">{{ $dok['label'] }}</span>
                             <div class="doc-meta">
                                 @if ($isUploaded)
+                                    @php
+                                        $cleanDocName = preg_replace(
+                                            '/^\d+_\d+_|^\d+_/',
+                                            '',
+                                            $docData['original_name'] ?? '',
+                                        );
+                                    @endphp
                                     <span class="text-success font-weight-bold file-name-text">
-                                        <i class="ki ki-check-circle icon-nm"></i> {{ $docData['original_name'] }}
+                                        <i class="fas fa-check-circle mr-1"></i> {{ $cleanDocName }}
                                     </span>
                                 @else
-                                    <span class="text-muted file-name-text">{{ __('no_file_selected') }}</span>
+                                    <span
+                                        class="text-muted file-name-text">{{ $isReadOnly ? __('status_not_uploaded') : __('no_file_selected') }}</span>
                                 @endif
                                 <div class="upload-status mt-1"
                                     style="display:none; font-size:0.78rem; font-weight:600;"></div>
                                 @if ($revisionNote)
                                     <div class="revision-note-message text-danger font-weight-bold mt-1"
                                         data-revision-field="{{ $dok['name'] }}">
-                                        <i class="fas fa-exclamation-circle mr-1"></i> {{ __('revision') }}: {{ $revisionNote }}
+                                        <i class="fas fa-exclamation-circle mr-1"></i> {{ __('revision') }}:
+                                        {{ $revisionNote }}
                                     </div>
                                 @endif
                             </div>
@@ -81,15 +93,16 @@
                             <a href="{{ asset('storage/templates/' . $dok['template']) }}" target="_blank"
                                 class="btn btn-light-warning btn-icon btn-sm mr-2 btn-download-template"
                                 title="{{ __('download_template') }} {{ $dok['label'] }}">
-                                <i class="flaticon2-download icon-md"></i>
+                                <i class="fas fa-download icon-md"></i>
                             </a>
                         @endif
 
                         <button type="button" data-url="{{ $docData['url'] ?? '' }}"
                             data-title="{{ __('preview') }} {{ $dok['label'] ?? __('document') }}"
                             class="btn btn-light-success btn-icon btn-sm mr-2 btn-preview-doc {{ !$isUploaded ? 'd-none' : '' }}"
-                            title="{{ __('click_preview_document') }}" @if (empty($docData['url'])) disabled @endif>
-                            <i class="flaticon-eye icon-md"></i>
+                            title="{{ __('click_preview_document') }}"
+                            @if (empty($docData['url'])) disabled @endif>
+                            <i class="fas fa-eye icon-md"></i>
                         </button>
 
                         @if (!$isReadOnly)
@@ -118,7 +131,7 @@
                     const btnText = container.querySelector('.btn-upload span');
                     if (fileNameDisplay) {
                         fileNameDisplay.innerHTML =
-                            `<i class="flaticon-upload text-primary"></i> {{ __('file_selected') }}: <strong>${this.files[0].name}</strong>`;
+                            `<i class="fas fa-upload text-primary mr-1"></i> {{ __('file_selected') }}: <strong>${this.files[0].name}</strong>`;
                     }
                     if (btnText) btnText.textContent = "{{ __('change') }}";
                 });

@@ -14,10 +14,8 @@
                         <x-revision-note name="h1_association" :notes="$revisionNotes ?? []" />
                     </div>
                     <div class="col-md-5">
-                        <div class="form-group">
-                            <x-vendor-input type="file" name="h1_association_file" :value="$draft['h1_association_file'] ?? null"
-                                :readonly="$isReadOnly" :placeholder="__('upload_proof_placeholder')" />
-                        </div>
+                        <x-vendor-input type="file" name="h1_association_file" :value="$draft['h1_association_file'] ?? null"
+                            :readonly="$isReadOnly" :placeholder="__('upload_proof_placeholder')" />
                     </div>
                 </div>
             </div>

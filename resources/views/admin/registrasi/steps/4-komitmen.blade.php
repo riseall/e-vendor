@@ -119,10 +119,10 @@
                     </div>
                     <div class="d-flex align-items-center flex-shrink-0 ml-2" style="gap: 6px;">
                         <button type="button"
-                            class="btn btn-xs btn-icon btn-light-primary btn-preview-doc font-weight-bold py-1 px-3"
+                            class="btn btn-icon btn-xs btn-light-success btn-preview-doc"
                             data-url="{{ $isoDoc['url'] }}" data-title="{{ $cleanName }}"
-                            title="{{ __('view') }}">
-                            <i class="fas fa-eye"></i>
+                            title="{{ __('view') }}" style="width:24px; height:24px; min-width:24px;">
+                            <i class="fas fa-eye font-size-xs"></i>
                         </button>
                         @if (!$isReadOnly)
                             <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove"
@@ -205,9 +205,9 @@
                             </span>
                         </div>
                         <div class="d-flex align-items-center flex-shrink-0 ml-2" style="gap: 6px;">
-                            <button type="button" class="btn btn-xs btn-light-primary btn-preview-doc font-weight-bold py-1 px-3"
-                                data-url="${item.url}" data-title="${cleanName}">
-                                <i class="fas fa-eye mr-1"></i> {{ __('preview') }}
+                            <button type="button" class="btn btn-icon btn-xs btn-light-success btn-preview-doc"
+                                data-url="${item.url}" data-title="${cleanName}" title="{{ __('view') }}" style="width:24px; height:24px; min-width:24px;">
+                                <i class="fas fa-eye font-size-xs"></i>
                             </button>
                             <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove"
                                 title="{{ __('delete') }}">

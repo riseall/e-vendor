@@ -106,11 +106,9 @@
                     data-target="#wrap_f6" :readonly="$isReadOnly" />
 
                 <div id="wrap_f6" class="mt-3 {{ ($draft['f6_sanitation_cert'] ?? '') === 'yes' ? '' : 'd-none' }}">
-                    <div class="form-group">
-                        <label>{{ __('upload_sanitation_cert') }}</label>
-                        <x-vendor-input type="file" name="f6_file" :value="$draft['f6_file'] ?? null" :readonly="$isReadOnly"
-                            :placeholder="__('upload_sanitation_cert_placeholder')" />
-                    </div>
+                    <x-vendor-input type="file" name="f6_file" :label="__('upload_sanitation_cert')"
+                        :value="$draft['f6_file'] ?? null" :readonly="$isReadOnly"
+                        :placeholder="__('upload_sanitation_cert_placeholder')" />
                 </div>
             </div>
         </div>

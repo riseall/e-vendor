@@ -31,13 +31,9 @@
 
                 <div id="wrap_q2"
                     class="mt-4 p-4 bg-light rounded border-left border-primary {{ ($draft['q2_is_sole_agent'] ?? '') === 'yes' ? '' : 'd-none' }}">
-                    @php $q2File = $draft['q2_auth_letter'] ?? null; @endphp
-
-                    <div class="form-group">
-                        <label>{{ __('agency_authorization_letter') }}</label>
-                        <x-vendor-input type="file" name="q2_auth_letter" :value="$draft['q2_auth_letter'] ?? null" :readonly="$isReadOnly"
-                            :placeholder="__('upload_auth_letter_placeholder')" />
-                    </div>
+                    <x-vendor-input type="file" name="q2_auth_letter" :label="__('agency_authorization_letter')"
+                        :value="$draft['q2_auth_letter'] ?? null" :readonly="$isReadOnly"
+                        :placeholder="__('upload_auth_letter_placeholder')" />
                 </div>
             </div>
         </div>
@@ -171,73 +167,15 @@
 
     <h6 class="font-weight-bolder mb-4 text-primary">{{ __('special_for_packaging_material') }}</h6>
 
-    {{-- Baris 4: Peralatan (Repeater) --}}
-    <div class="row">
-        <div class="col-12">
-            <div class="question-wrapper">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <label class="question-label font-weight-bolder">{{ __('equipment_machinery_data') }}</label>
-                    @if (!$isReadOnly)
-                        <button type="button" class="btn btn-sm btn-light-primary font-weight-bold btn-add-repeater"
-                            data-target-tbody="#equipmentBody" data-template="#tpl_equipment">
-                            <i class="flaticon2-plus icon-sm"></i> {{ __('add_equipment') }}
-                        </button>
-                    @endif
-                </div>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead class="thead-light">
-                            <tr>
-                                <th width="50px">{{ __('no_short') }}</th>
-                                <th>{{ __('equipment_type') }}</th>
-                                <th width="100px">{{ __('qty') }}</th>
-                                <th>{{ __('current_capacity_output') }}</th>
-                                <th>{{ __('brand_type') }}</th>
-                                <th width="120px">{{ __('year_of_manufacture') }}</th>
-                                @if (!$isReadOnly)
-                                    <th width="50px"></th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody id="equipmentBody">
-                            @php $equipments = $draft['q7_equipments'] ?? []; @endphp
-                            @foreach ($equipments as $index => $item)
-                                <tr>
-                                    <td class="text-center align-middle row-number">{{ $loop->iteration }}</td>
-                                    <td><input type="text" class="form-control form-control-sm"
-                                            name="q7_equipments[{{ $index }}][jenis]"
-                                            value="{{ $item['jenis'] ?? '' }}" required
-                                            {{ $isReadOnly ? 'readonly' : '' }}></td>
-                                    <td><input type="number" class="form-control form-control-sm"
-                                            name="q7_equipments[{{ $index }}][jml]"
-                                            value="{{ $item['jml'] ?? '' }}" required
-                                            {{ $isReadOnly ? 'readonly' : '' }}></td>
-                                    <td><input type="text" class="form-control form-control-sm"
-                                            name="q7_equipments[{{ $index }}][kapasitas]"
-                                            value="{{ $item['kapasitas'] ?? '' }}"
-                                            {{ $isReadOnly ? 'readonly' : '' }}></td>
-                                    <td><input type="text" class="form-control form-control-sm"
-                                            name="q7_equipments[{{ $index }}][merk]"
-                                            value="{{ $item['merk'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}>
-                                    </td>
-                                    <td><input type="number" class="form-control form-control-sm"
-                                            name="q7_equipments[{{ $index }}][tahun]"
-                                            value="{{ $item['tahun'] ?? '' }}" {{ $isReadOnly ? 'readonly' : '' }}>
-                                    </td>
-                                    @if (!$isReadOnly)
-                                        <td class="text-center"><button type="button"
-                                                class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater"><i
-                                                    class="fas fa-trash-alt"></i></button></td>
-                                    @endif
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                <x-revision-note name="q7_equipments" :notes="$revisionNotes ?? []" />
-            </div>
-        </div>
-    </div>
+    @include('admin.registrasi.category.partials.equipment-table', [
+        'name' => 'q7_equipments',
+        'items' => $draft['q7_equipments'] ?? [],
+        'isReadOnly' => $isReadOnly,
+        'title' => __('equipment_machinery_data'),
+        'tbodyId' => 'equipmentBody',
+        'templateId' => 'tpl_equipment',
+        'revisionNotes' => $revisionNotes ?? []
+    ])
 
     {{-- Baris 5: Material Impor --}}
     <div class="row">
@@ -260,19 +198,4 @@
     </div>
 </div>
 
-{{-- Template untuk Repeater --}}
-@if (!$isReadOnly)
-    <script type="text/template" id="tpl_equipment">
-    <tr>
-        <td class="text-center align-middle row-number"></td>
-        <td><input type="text" class="form-control form-control-sm" name="q7_equipments[__INDEX__][jenis]" required></td>
-        <td><input type="number" class="form-control form-control-sm" name="q7_equipments[__INDEX__][jml]" required></td>
-        <td><input type="text" class="form-control form-control-sm" name="q7_equipments[__INDEX__][kapasitas]"></td>
-        <td><input type="text" class="form-control form-control-sm" name="q7_equipments[__INDEX__][merk]"></td>
-        <td><input type="number" class="form-control form-control-sm" name="q7_equipments[__INDEX__][tahun]"></td>
-        <td class="text-center align-middle">
-            <button type="button" class="btn btn-icon btn-xs btn-light-danger btn-remove-repeater"><i class="fas fa-trash-alt"></i></button>
-        </td>
-    </tr>
-</script>
-@endif
+

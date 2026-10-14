@@ -117,8 +117,8 @@
             <a href="#produk">{{ __('product_list') }}</a>
             <a href="#dokumen">{{ __('document') }}</a>
             @foreach ($selectedCategorySections as $categorySection)
-                <a href="#kategori-{{ $categorySection['id'] }}">
-                    {{ \Illuminate\Support\Str::limit($categorySection['label'], 32) }}
+                <a href="#kategori-{{ $categorySection['id'] }}" title="{{ $categorySection['label'] }}">
+                    {{ $categorySection['label'] }}
                 </a>
             @endforeach
         </aside>

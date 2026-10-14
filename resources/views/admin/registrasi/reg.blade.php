@@ -665,11 +665,16 @@
                             if (res.iso_files.length > 0) {
                                 let listHtml = '';
                                 res.iso_files.forEach(function(doc) {
-                                    listHtml += '<li class="list-group-item d-flex justify-content-between align-items-center py-2" data-path="' + doc.file_path + '">' +
-                                        '<a href="' + doc.url + '" target="_blank" class="text-primary btn-preview-doc" data-url="' + doc.url + '" data-title="' + doc.original_name + '">' +
-                                        '<i class="flaticon2-file mr-2"></i>' + doc.original_name + '</a>' +
-                                        '<button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove" title="' + __('delete') + '">' +
-                                        '<i class="fas fa-trash-alt"></i></button></li>';
+                                    const cleanName = doc.original_name.replace(/^\d+_/, '');
+                                    listHtml += '<li class="d-flex justify-content-between align-items-center py-2 px-3 rounded mb-2 border" data-path="' + doc.file_path + '" style="background-color: #fafbfc; border-color: #ebedf2 !important;">' +
+                                        '<div class="d-flex align-items-center text-truncate mr-2" style="min-width: 0;">' +
+                                        '<span class="btn btn-icon btn-xs btn-light-danger mr-2 flex-shrink-0" style="width: 26px; height: 26px; pointer-events: none;"><i class="fas fa-file-pdf font-size-sm"></i></span>' +
+                                        '<span class="text-dark-75 font-weight-bold font-size-sm text-truncate" title="' + cleanName + '">' + cleanName + '</span>' +
+                                        '</div>' +
+                                        '<div class="d-flex align-items-center flex-shrink-0 ml-2" style="gap: 6px;">' +
+                                        '<button type="button" class="btn btn-icon btn-xs btn-light-success btn-preview-doc" data-url="' + doc.url + '" data-title="' + cleanName + '" title="' + __('view') + '" style="width:24px; height:24px; min-width:24px;"><i class="fas fa-eye font-size-xs"></i></button>' +
+                                        '<button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove" title="' + __('delete') + '"><i class="fas fa-trash-alt"></i></button>' +
+                                        '</div></li>';
                                 });
                                 $list.html(listHtml).removeClass('d-none');
                             } else {

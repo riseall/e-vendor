@@ -50,27 +50,59 @@
             <input type="hidden" name="{{ $existingName ?? 'existing_' . $name }}" value="{{ $value }}">
         @endif
 
+        @php
+            $appModel = null;
+            if ($application instanceof \App\Models\VendorApplication) {
+                $appModel = $application;
+            } elseif (isset($__data['application']) && $__data['application'] instanceof \App\Models\VendorApplication) {
+                $appModel = $__data['application'];
+            } elseif (isset($__data['app']) && $__data['app'] instanceof \App\Models\VendorApplication) {
+                $appModel = $__data['app'];
+            } elseif (view()->shared('application') instanceof \App\Models\VendorApplication) {
+                $appModel = view()->shared('application');
+            } elseif (isset($app) && $app instanceof \App\Models\VendorApplication) {
+                $appModel = $app;
+            }
+
+            $fileUrl = ($appModel && $value) ? app(\App\Services\VendorFileService::class)->url($appModel, $value) : '';
+        @endphp
+
         @if ($value && !$readonly)
-            <div class="mt-1 d-flex align-items-center justify-content-between py-1 px-2 rounded bg-light-success"
-                style="font-size:0.75rem;">
-                <span class="text-success font-weight-bold text-truncate mr-2">
-                    <i class="ki ki-check icon-xs text-success mr-1"></i>{{ __('file_saved') }}
+            <div class="existing-file-indicator mt-1 d-inline-flex align-items-center" style="font-size:0.78rem;">
+                <span class="text-success font-weight-bold text-truncate mr-1">
+                    ✓ {{ __('file_saved') }}
                 </span>
-                <button type="button"
-                    data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $value) }}"
-                    class="btn btn-xs btn-light-success btn-icon btn-preview-doc flex-shrink-0"
-                    title="{{ __('view') }}" style="width:20px; height:20px; min-width:20px; line-height:20px;">
-                    <i class="flaticon-eye" style="font-size:10px;"></i>
-                </button>
+                @if ($fileUrl)
+                    <button type="button"
+                        data-url="{{ $fileUrl }}"
+                        class="btn btn-xs btn-light-success btn-icon btn-preview-doc ml-1"
+                        title="{{ __('view') }}" style="width:20px; height:20px; min-width:20px; line-height:20px; flex-shrink:0;">
+                        <i class="fas fa-eye" style="font-size:10px;"></i>
+                    </button>
+                @endif
             </div>
         @elseif($value && $readonly)
-            <button type="button"
-                data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $value) }}"
-                class="btn btn-xs btn-light-primary btn-preview-doc w-100 py-1 font-weight-bold">
-                <i class="flaticon-eye mr-1 icon-xs"></i> {{ __('view') }}
-            </button>
+            @php
+                $cleanFileName = basename($value);
+                $cleanFileName = preg_replace('/^\d+_\d+_|^\d+_/', '', $cleanFileName);
+            @endphp
+            <div class="input-group input-group-sm">
+                <input type="text" class="form-control form-control-sm form-control-solid font-size-xs text-dark-75 text-truncate font-weight-bold"
+                    readonly disabled value="{{ $cleanFileName }}" title="{{ $cleanFileName }}">
+                @if ($fileUrl)
+                    <div class="input-group-append">
+                        <button type="button"
+                            data-url="{{ $fileUrl }}"
+                            data-title="{{ $label ? strip_tags($label) : $cleanFileName }}"
+                            class="btn btn-sm btn-light-success btn-icon btn-preview-doc"
+                            title="{{ __('view') }}">
+                            <i class="fas fa-eye font-size-xs"></i>
+                        </button>
+                    </div>
+                @endif
+            </div>
         @elseif(!$value && $readonly)
-            <input type="text" class="form-control form-control-sm form-control-solid font-size-xs text-muted py-1"
+            <input type="text" class="form-control form-control-sm form-control-solid font-size-xs text-muted"
                 readonly disabled value="{{ __('no_document') }}">
         @endif
     @else

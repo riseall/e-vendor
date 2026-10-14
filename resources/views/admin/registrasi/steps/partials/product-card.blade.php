@@ -46,74 +46,31 @@
 
         {{-- Kolom: Dokumen & Sertifikasi --}}
         <td class="align-middle" style="min-width: 220px;">
+            @php
+                $certButtons = [
+                    ['path' => $data['file_surat_path'] ?? null, 'title' => __('agency_letter') . ' - ' . $name, 'label' => __('agency_letter'), 'class' => 'primary', 'icon' => 'file-contract'],
+                    ['path' => $data['gmp_file_path'] ?? null, 'title' => 'GMP - ' . $name, 'label' => 'GMP', 'class' => 'info', 'icon' => 'shield-alt'],
+                    ['path' => (($data['has_tkdn'] ?? '') === 'yes') ? ($data['tkdn_file_path'] ?? null) : null, 'title' => 'TKDN - ' . $name, 'label' => 'TKDN', 'class' => 'success', 'icon' => 'award'],
+                    ['path' => (($data['has_sni'] ?? '') === 'yes') ? ($data['sni_file_path'] ?? null) : null, 'title' => 'SNI - ' . $name, 'label' => 'SNI', 'class' => 'warning', 'icon' => 'check-circle'],
+                    ['path' => (($data['has_halal'] ?? '') === 'yes') ? ($data['halal_file_path'] ?? null) : null, 'title' => 'Halal - ' . $name, 'label' => 'Halal', 'class' => 'dark', 'icon' => 'certificate'],
+                    ['path' => (($data['has_bse_tse'] ?? '') === 'yes') ? ($data['bse_tse_file_path'] ?? null) : null, 'title' => 'BSE/TSE - ' . $name, 'label' => 'BSE/TSE', 'class' => 'danger', 'icon' => 'file-alt'],
+                ];
+                $hasAnyCert = false;
+            @endphp
             <div class="d-flex align-items-center flex-wrap" style="gap: 6px;">
-                {{-- Surat Keagenan --}}
-                @if (!empty($data['file_surat_path']))
-                    <button type="button"
-                        data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $data['file_surat_path']) }}"
-                        data-title="{{ __('agency_letter') }} - {{ $name }}"
-                        class="btn btn-xs btn-light-primary btn-preview-doc font-weight-bolder py-1 px-2"
-                        title="{{ __('agency_letter') }}">
-                        <i class="fas fa-file-contract mr-1"></i> {{ __('agency_letter') }}
-                    </button>
-                @endif
-
-                {{-- GMP --}}
-                @if (!empty($data['gmp_file_path']))
-                    <button type="button"
-                        data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $data['gmp_file_path']) }}"
-                        data-title="GMP - {{ $name }}"
-                        class="btn btn-xs btn-light-info btn-preview-doc font-weight-bolder py-1 px-2"
-                        title="GMP">
-                        <i class="fas fa-shield-alt mr-1"></i> GMP
-                    </button>
-                @endif
-
-                {{-- TKDN --}}
-                @if (($data['has_tkdn'] ?? '') === 'yes' && !empty($data['tkdn_file_path']))
-                    <button type="button"
-                        data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $data['tkdn_file_path']) }}"
-                        data-title="TKDN - {{ $name }}"
-                        class="btn btn-xs btn-light-success btn-preview-doc font-weight-bolder py-1 px-2"
-                        title="TKDN">
-                        <i class="fas fa-award mr-1"></i> TKDN
-                    </button>
-                @endif
-
-                {{-- SNI --}}
-                @if (($data['has_sni'] ?? '') === 'yes' && !empty($data['sni_file_path']))
-                    <button type="button"
-                        data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $data['sni_file_path']) }}"
-                        data-title="SNI - {{ $name }}"
-                        class="btn btn-xs btn-light-warning btn-preview-doc font-weight-bolder py-1 px-2"
-                        title="SNI">
-                        <i class="fas fa-check-circle mr-1"></i> SNI
-                    </button>
-                @endif
-
-                {{-- Halal --}}
-                @if (($data['has_halal'] ?? '') === 'yes' && !empty($data['halal_file_path']))
-                    <button type="button"
-                        data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $data['halal_file_path']) }}"
-                        data-title="Halal - {{ $name }}"
-                        class="btn btn-xs btn-light-dark btn-preview-doc font-weight-bolder py-1 px-2"
-                        title="Halal">
-                        <i class="fas fa-certificate mr-1"></i> Halal
-                    </button>
-                @endif
-
-                {{-- BSE/TSE --}}
-                @if (($data['has_bse_tse'] ?? '') === 'yes' && !empty($data['bse_tse_file_path']))
-                    <button type="button"
-                        data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $data['bse_tse_file_path']) }}"
-                        data-title="BSE/TSE - {{ $name }}"
-                        class="btn btn-xs btn-light-danger btn-preview-doc font-weight-bolder py-1 px-2"
-                        title="BSE/TSE">
-                        <i class="fas fa-file-alt mr-1"></i> BSE/TSE
-                    </button>
-                @endif
-
-                @if (empty($data['file_surat_path']) && empty($data['gmp_file_path']) && empty($data['tkdn_file_path']) && empty($data['sni_file_path']) && empty($data['halal_file_path']) && empty($data['bse_tse_file_path']))
+                @foreach ($certButtons as $btn)
+                    @if (!empty($btn['path']))
+                        @php $hasAnyCert = true; @endphp
+                        <button type="button"
+                            data-url="{{ app(\App\Services\VendorFileService::class)->url($application, $btn['path']) }}"
+                            data-title="{{ $btn['title'] }}"
+                            class="btn btn-xs btn-light-{{ $btn['class'] }} btn-preview-doc font-weight-bolder py-1 px-2"
+                            title="{{ $btn['label'] }}">
+                            <i class="fas fa-{{ $btn['icon'] }} mr-1"></i> {{ $btn['label'] }}
+                        </button>
+                    @endif
+                @endforeach
+                @if (!$hasAnyCert)
                     <span class="text-muted font-size-xs">-</span>
                 @endif
             </div>
@@ -177,63 +134,28 @@
                 :readonly="false" required />
         </td>
 
-        {{-- Kolom: TKDN --}}
-        @php $hasTkdn = old('products.' . $id . '.has_tkdn', $data['has_tkdn'] ?? 'no'); @endphp
-        <td class="align-top" style="min-width:160px; padding:12px 10px;">
-            <x-vendor-select name="products[{{ $id }}][has_tkdn]" :options="['no' => __('no'), 'yes' => __('yes')]" :selected="$hasTkdn"
-                :readonly="false" wrapperClass="mb-0" class="product-cert-toggle"
-                data-target=".detail-tkdn-{{ $id }}" />
+        @php
+            $certToggles = [
+                'tkdn' => ['select' => 'has_tkdn', 'file' => 'tkdn_file', 'existing' => 'existing_tkdn_file', 'path' => 'tkdn_file_path'],
+                'sni' => ['select' => 'has_sni', 'file' => 'sni_file', 'existing' => 'existing_sni_file', 'path' => 'sni_file_path'],
+                'halal' => ['select' => 'has_halal', 'file' => 'halal_file', 'existing' => 'existing_halal_file', 'path' => 'halal_file_path'],
+                'bse-tse' => ['select' => 'has_bse_tse', 'file' => 'bse_tse_file', 'existing' => 'existing_bse_tse_file', 'path' => 'bse_tse_file_path'],
+            ];
+        @endphp
+        @foreach ($certToggles as $key => $cfg)
+            @php $isSelected = old('products.' . $id . '.' . $cfg['select'], $data[$cfg['select']] ?? 'no'); @endphp
+            <td class="align-top" style="min-width:160px; padding:12px 10px;">
+                <x-vendor-select name="products[{{ $id }}][{{ $cfg['select'] }}]" :options="['no' => __('no'), 'yes' => __('yes')]"
+                    :selected="$isSelected" :readonly="false" wrapperClass="mb-0" class="product-cert-toggle"
+                    data-target=".detail-{{ $key }}-{{ $id }}" />
 
-            <div class="detail-tkdn-{{ $id }} mt-2" style="{{ $hasTkdn === 'yes' ? '' : 'display:none' }}">
-                <x-vendor-input type="file" name="products[{{ $id }}][tkdn_file]"
-                    existingName="products[{{ $id }}][existing_tkdn_file]" :value="$data['tkdn_file_path'] ?? null"
-                    :application="$application" :readonly="false" />
-            </div>
-        </td>
-
-        {{-- Kolom: SNI --}}
-        @php $hasSni = old('products.' . $id . '.has_sni', $data['has_sni'] ?? 'no'); @endphp
-        <td class="align-top" style="min-width:160px; padding:12px 10px;">
-            <x-vendor-select name="products[{{ $id }}][has_sni]" :options="['no' => __('no'), 'yes' => __('yes')]" :selected="$hasSni"
-                :readonly="false" wrapperClass="mb-0" class="product-cert-toggle"
-                data-target=".detail-sni-{{ $id }}" />
-
-            <div class="detail-sni-{{ $id }} mt-2" style="{{ $hasSni === 'yes' ? '' : 'display:none' }}">
-                <x-vendor-input type="file" name="products[{{ $id }}][sni_file]"
-                    existingName="products[{{ $id }}][existing_sni_file]" :value="$data['sni_file_path'] ?? null"
-                    :application="$application" :readonly="false" />
-            </div>
-        </td>
-
-        {{-- Kolom: Halal --}}
-        @php $hasHalal = old('products.' . $id . '.has_halal', $data['has_halal'] ?? 'no'); @endphp
-        <td class="align-top" style="min-width:160px; padding:12px 10px;">
-            <x-vendor-select name="products[{{ $id }}][has_halal]" :options="['no' => __('no'), 'yes' => __('yes')]" :selected="$hasHalal"
-                :readonly="false" wrapperClass="mb-0" class="product-cert-toggle"
-                data-target=".detail-halal-{{ $id }}" />
-
-            <div class="detail-halal-{{ $id }} mt-2"
-                style="{{ $hasHalal === 'yes' ? '' : 'display:none' }}">
-                <x-vendor-input type="file" name="products[{{ $id }}][halal_file]"
-                    existingName="products[{{ $id }}][existing_halal_file]" :value="$data['halal_file_path'] ?? null"
-                    :application="$application" :readonly="false" />
-            </div>
-        </td>
-
-        {{-- Kolom: BSE/TSE --}}
-        @php $hasBseTse = old('products.' . $id . '.has_bse_tse', $data['has_bse_tse'] ?? 'no'); @endphp
-        <td class="align-top" style="min-width:160px; padding:12px 10px;">
-            <x-vendor-select name="products[{{ $id }}][has_bse_tse]" :options="['no' => __('no'), 'yes' => __('yes')]" :selected="$hasBseTse"
-                :readonly="false" wrapperClass="mb-0" class="product-cert-toggle"
-                data-target=".detail-bse-tse-{{ $id }}" />
-
-            <div class="detail-bse-tse-{{ $id }} mt-2"
-                style="{{ $hasBseTse === 'yes' ? '' : 'display:none' }}">
-                <x-vendor-input type="file" name="products[{{ $id }}][bse_tse_file]"
-                    existingName="products[{{ $id }}][existing_bse_tse_file]" :value="$data['bse_tse_file_path'] ?? null"
-                    :application="$application" :readonly="false" />
-            </div>
-        </td>
+                <div class="detail-{{ $key }}-{{ $id }} mt-2" style="{{ $isSelected === 'yes' ? '' : 'display:none' }}">
+                    <x-vendor-input type="file" name="products[{{ $id }}][{{ $cfg['file'] }}]"
+                        existingName="products[{{ $id }}][{{ $cfg['existing'] }}]" :value="$data[$cfg['path']] ?? null"
+                        :application="$application" :readonly="false" />
+                </div>
+            </td>
+        @endforeach
 
         {{-- Kolom: Aksi --}}
         <td class="align-top text-center" style="min-width:56px; padding:12px 8px;">

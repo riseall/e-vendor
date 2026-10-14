@@ -244,7 +244,7 @@
                 if (color === 'green' && previewUrl) {
                     el.innerHTML = `<span class="d-inline-flex align-items-center" style="max-width:100%;">` +
                         `<span class="text-truncate mr-1">${text}</span>` +
-                        `<a href="${previewUrl}" target="_blank" class="btn btn-xs btn-light-success btn-icon btn-preview-doc ml-1" data-url="${previewUrl}" data-title="${title || 'Dokumen'}" title="Lihat" style="width:20px; height:20px; min-width:20px; line-height:20px; flex-shrink:0;"><i class="flaticon-eye" style="font-size:10px;"></i></a>` +
+                        `<a href="${previewUrl}" target="_blank" class="btn btn-xs btn-light-success btn-icon btn-preview-doc ml-1" data-url="${previewUrl}" data-title="${title || 'Dokumen'}" title="Lihat" style="width:20px; height:20px; min-width:20px; line-height:20px; flex-shrink:0;"><i class="fas fa-eye" style="font-size:10px;"></i></a>` +
                         `</span>`;
                 } else {
                     el.innerText = text;
@@ -322,6 +322,9 @@
                     }
                 }
 
+                const existingIndicator = e.target.closest('.form-group')?.querySelector('.existing-file-indicator');
+                if (existingIndicator) existingIndicator.style.display = 'none';
+
                 setStatus(status, 'blue', `Mengunggah ${files.length} file...`);
                 const hidden = ensureHidden(e.target);
 
@@ -374,6 +377,13 @@
                 } catch (err) {
                     setStatus(status, 'red', err.message || 'Gagal.');
                     e.target.value = '';
+                }
+            });
+
+            // Global auto-adjust DataTables column widths & scrollbars on Tab / Pill switch
+            $(document).on('shown.bs.tab', 'a[data-toggle="tab"], a[data-toggle="pill"]', function() {
+                if (window.jQuery && $.fn.DataTable) {
+                    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
                 }
             });
         });
