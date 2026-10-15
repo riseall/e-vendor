@@ -46,20 +46,22 @@
                 <i class="flaticon2-list-1 icon-sm text-white" style="font-size:.7rem;"></i> Pertanyaan
             </a>
 
-            <button type="button" class="vnd-btn-detail vnd-btn-detail--warning" title="Edit Form Kuesioner"
-                data-form="{{ json_encode($form) }}" onclick="openEditModal(this)">
-                <i class="fas fa-edit text-warning" style="font-size:.9rem;"></i>
-            </button>
-
-            <form action="{{ route('questionnaire-form.destroy', $form->id) }}" method="POST"
-                class="d-inline delete-form">
-                @csrf
-                @method('DELETE')
-                <button type="button" class="vnd-btn-detail vnd-btn-detail--danger btn-delete-form"
-                    data-form-name="{{ $form->name }}" title="Hapus Form Kuesioner">
-                    <i class="fas fa-trash-alt text-danger" style="font-size:.9rem;"></i>
+            @can('questionnaire-edit')
+                <button type="button" class="vnd-btn-detail vnd-btn-detail--warning" title="Edit Form Kuesioner"
+                    data-form="{{ json_encode($form) }}" onclick="openEditModal(this)">
+                    <i class="fas fa-edit text-warning" style="font-size:.9rem;"></i>
                 </button>
-            </form>
+
+                <form action="{{ route('questionnaire-form.destroy', $form->id) }}" method="POST"
+                    class="d-inline delete-form">
+                    @csrf
+                    @method('DELETE')
+                    <button type="button" class="vnd-btn-detail vnd-btn-detail--danger btn-delete-form"
+                        data-form-name="{{ $form->name }}" title="Hapus Form Kuesioner">
+                        <i class="fas fa-trash-alt text-danger" style="font-size:.9rem;"></i>
+                    </button>
+                </form>
+            @endcan
         </div>
     </td>
 </tr>

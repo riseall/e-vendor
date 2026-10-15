@@ -179,21 +179,28 @@
                             <td class="text-right">
                                 <div class="d-inline-flex flex-wrap justify-content-end" style="gap:.35rem;">
                                     @if ($canCreateAudit)
-                                        <a href="{{ route('qa.audit.create', $application->id) }}"
-                                            class="vnd-btn-detail vnd-btn-detail--primary">
-                                            <i class="flaticon2-add-1 icon-sm" style="font-size:.7rem;"></i> Buat Audit
-                                        </a>
+                                        @can('audit-create')
+                                            <a href="{{ route('qa.audit.create', $application->id) }}"
+                                                class="vnd-btn-detail vnd-btn-detail--primary">
+                                                <i class="flaticon2-add-1 icon-sm" style="font-size:.7rem;"></i> Buat Audit
+                                            </a>
+                                        @endcan
                                     @endif
-                                    <a href="{{ route('qa.risk-assessment.create', $application->id) }}"
-                                        class="vnd-btn-detail {{ $isAssessed ? 'vnd-btn-detail' : 'vnd-btn-detail--primary' }}">
-                                        @if ($isAssessed)
+                                    @if ($isAssessed)
+                                        <a href="{{ route('qa.risk-assessment.create', $application->id) }}"
+                                            class="vnd-btn-detail">
                                             <i class="flaticon-eye icon-sm text-primary" style="font-size:.7rem;"></i>
                                             Detail
-                                        @else
-                                            <i class="flaticon2-add-1 icon-sm" style="font-size:.7rem;"></i> Mulai
-                                            Assessment
-                                        @endif
-                                    </a>
+                                        </a>
+                                    @else
+                                        @can('qa-risk-create')
+                                            <a href="{{ route('qa.risk-assessment.create', $application->id) }}"
+                                                class="vnd-btn-detail vnd-btn-detail--primary">
+                                                <i class="flaticon2-add-1 icon-sm" style="font-size:.7rem;"></i> Mulai
+                                                Assessment
+                                            </a>
+                                        @endcan
+                                    @endif
                                 </div>
                             </td>
                         </tr>

@@ -28,10 +28,12 @@
             </div>
 
             <div class="d-flex align-items-center" style="gap:.6rem;">
-                <button type="button" class="vnd-btn-filter style-none btn btn-primary font-weight-bolder px-4 text-white"
-                    data-toggle="modal" data-target="#modalFormQuestionnaire" onclick="openCreateModal()">
-                    <i class="fas fa-plus-circle icon-sm text-white" style="font-size:.7rem;"></i> Tambah Form
-                </button>
+                @can('questionnaire-create')
+                    <button type="button" class="vnd-btn-filter style-none btn btn-primary font-weight-bolder px-4 text-white"
+                        data-toggle="modal" data-target="#modalFormQuestionnaire" onclick="openCreateModal()">
+                        <i class="fas fa-plus-circle icon-sm text-white" style="font-size:.7rem;"></i> Tambah Form
+                    </button>
+                @endcan
             </div>
         </div>
 

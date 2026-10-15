@@ -1,5 +1,5 @@
-    <div class="modal fade" id="modalRejectItem" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" style="max-width:460px;" role="document">
+    <div class="modal fade" id="modalRejectItem" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modalRejectItemLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:480px; width:94vw;" role="document">
             <form method="POST" action="#" class="modal-content" id="formRejectItem"
                 style="border:none;border-radius:var(--radius-lg);box-shadow:0 20px 60px rgba(15,23,42,.15);overflow:hidden;">
                 @csrf
@@ -17,7 +17,7 @@
                         <i class="ki ki-close"></i>
                     </button>
                 </div>
-                <div class="modal-body" style="padding:1.5rem;">
+                <div class="modal-body" style="padding:1.25rem 1.5rem; max-height:calc(100vh - 160px); overflow-y:auto;">
                     <div
                         style="background:var(--brand-danger-light);border:1px solid #fca5a5;border-radius:var(--radius-md);padding:1rem 1.25rem;margin-bottom:1.25rem;">
                         <div
@@ -49,10 +49,12 @@
                 <div class="modal-footer"
                     style="border-top:1px solid var(--border-light);background:var(--surface-1);gap:.5rem;">
                     <button type="button" class="btn-undo" data-dismiss="modal">Batal</button>
+                    @can('verifikasi-reject')
                     <button type="submit" class="btn-reject"
                         style="background:var(--brand-danger);color:#fff;border-color:var(--brand-danger);">
                         <i class="ki ki-close icon-xs"></i> Tolak Item
                     </button>
+                    @endcan
                 </div>
             </form>
         </div>

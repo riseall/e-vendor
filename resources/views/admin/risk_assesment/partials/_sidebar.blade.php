@@ -75,10 +75,12 @@
 
             {{-- Submit button --}}
             <div class="ra-sidebar-actions">
-                <button type="submit" class="ra-btn-submit" id="btn-submit" disabled>
-                    <i class="flaticon2-check-mark" style="font-size:.75rem;"></i>
-                    Simpan Penilaian
-                </button>
+                @can('qa-risk-store')
+                    <button type="submit" class="ra-btn-submit" id="btn-submit" disabled>
+                        <i class="flaticon2-check-mark" style="font-size:.75rem;"></i>
+                        Simpan Penilaian
+                    </button>
+                @endcan
                 <a href="{{ route('qa.risk-assessment.index') }}" class="ra-btn-cancel">Batal</a>
             </div>
 

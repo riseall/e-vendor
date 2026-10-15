@@ -178,9 +178,11 @@
                         <div class="form-group row">
                             <div class="col-3"></div>
                             <div class="col-6">
+                                @can('audit-result')
                                 <button type="submit" class="btn btn-primary font-weight-bold">
                                     <i class="flaticon2-save"></i> Simpan Hasil Audit
                                 </button>
+                                @endcan
                             </div>
                         </div>
                     </form>

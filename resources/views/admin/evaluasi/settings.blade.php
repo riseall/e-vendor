@@ -268,9 +268,11 @@
                             class="btn btn-light-danger font-weight-bolder px-8 mr-3">
                             <i class="fas fa-arrow-left mr-2"></i>Kembali
                         </a>
+                        @can('evaluasi-settings')
                         <button type="submit" class="btn btn-primary font-weight-bolder px-8" id="btnSaveSettings">
                             <i class="fas fa-save mr-2"></i>Simpan Pengaturan
                         </button>
+                        @endcan
                     </div>
                 </div>
             </div>

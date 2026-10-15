@@ -49,6 +49,7 @@
             </div>
 
             <div class="d-flex align-items-center" style="gap:.5rem;">
+                @can('questionnaire-create')
                 <button type="button" class="btn btn-sm btn-success font-weight-bolder px-4" data-toggle="modal"
                     data-target="#modalImport">
                     <i class="fas fa-file-excel icon-sm" style="font-size:.75rem;"></i> Import Excel
@@ -57,6 +58,7 @@
                     data-target="#modalQuestion" onclick="openCreateModal()">
                     <i class="fas fa-plus-circle icon-sm" style="font-size:.75rem;"></i> Tambah Pertanyaan
                 </button>
+                @endcan
             </div>
         </div>
 

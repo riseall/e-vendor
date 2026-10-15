@@ -167,9 +167,11 @@
 
                 <div class="d-flex justify-content-end mt-4">
                     <a href="{{ route('qa.risk-assessment.index') }}" class="btn btn-light mr-2">Batal</a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="flaticon2-check-mark"></i> Mulai Audit
-                    </button>
+                    @can('audit-create')
+                        <button type="submit" class="btn btn-primary">
+                            <i class="flaticon2-check-mark"></i> Mulai Audit
+                        </button>
+                    @endcan
                 </div>
             </form>
         </div>

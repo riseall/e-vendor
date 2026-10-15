@@ -119,6 +119,7 @@
     @endif
 
     {{-- ==================== VERIFIKASI KUESIONER (ON DESK) ==================== --}}
+    @can('audit-verify')
     @if (
         $audit->audit_type === \App\Models\VendorAudit::TYPE_ON_DESK &&
             $audit->status === \App\Models\VendorAudit::STATUS_QUESTIONNAIRE_SUBMITTED)
@@ -195,6 +196,7 @@
             </div>
         </div>
     @endif
+    @endcan
 
     <x-document-preview />
 

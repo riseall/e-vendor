@@ -95,6 +95,7 @@
     </td>
     <td class="text-right">
         <div class="d-inline-flex flex-wrap justify-content-end align-items-center" style="gap:.35rem;">
+            @can('questionnaire-edit')
             <button type="button" class="vnd-btn-detail vnd-btn-detail--warning" title="Edit Pertanyaan"
                 data-form="{{ json_encode($q) }}" onclick="openEditModal(this)">
                 <i class="fas fa-edit text-warning" style="font-size:.9rem;"></i>
@@ -109,6 +110,7 @@
                     <i class="fas fa-trash-alt text-danger" style="font-size:.9rem;"></i>
                 </button>
             </form>
+            @endcan
         </div>
     </td>
 </tr>

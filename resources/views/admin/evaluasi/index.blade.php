@@ -101,6 +101,7 @@
                     @endcan
 
                     @if ($activeTab == 'annual')
+                        @can('evaluasi-create')
                         <form action="{{ route('admin.evaluasi.annual.generate') }}" method="POST" class="d-inline mb-0">
                             @csrf
                             <input type="hidden" name="year" value="{{ $year }}">
@@ -111,6 +112,7 @@
                                 <i class="fas fa-sync-alt mr-2"></i> Generate Evaluasi {{ $year }}
                             </button>
                         </form>
+                        @endcan
                     @endif
                 </div>
             </div>

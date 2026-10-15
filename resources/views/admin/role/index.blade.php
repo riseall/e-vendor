@@ -10,9 +10,11 @@
                 <h3 class="card-label">Master Role & Permission</h3>
             </div>
             <div class="card-toolbar">
-                <button type="button" class="btn btn-primary font-weight-bolder" data-toggle="modal" data-target="#modalTambahRole">
-                    <i class="fas fa-plus mr-1"></i> Role Baru
-                </button>
+                @can('role-create')
+                    <button type="button" class="btn btn-primary font-weight-bolder" data-toggle="modal" data-target="#modalTambahRole">
+                        <i class="fas fa-plus mr-1"></i> Role Baru
+                    </button>
+                @endcan
             </div>
         </div>
 
@@ -50,10 +52,16 @@
                                     {{ $role->name }}
                                 </h3>
                                 <div class="card-toolbar">
-                                    @if (!in_array($role->name, ['Super Admin', 'Admin IT']))
-                                        <button class="btn btn-sm btn-icon btn-light-danger btn-delete-role" data-id="{{ $role->id }}" data-name="{{ $role->name }}" title="Hapus Role">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                    @if (!in_array($role->name, \App\Http\Controllers\RoleController::SYSTEM_ROLES, true))
+                                        @can('role-create')
+                                            <button class="btn btn-sm btn-icon btn-light-danger btn-delete-role" data-id="{{ $role->id }}" data-name="{{ $role->name }}" title="Hapus Role">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        @endcan
+                                    @else
+                                        <span class="label label-light-primary label-inline font-weight-bold" title="Role utama sistem tidak dapat dihapus">
+                                            <i class="fas fa-lock font-size-xs mr-1 text-primary"></i>Sistem
+                                        </span>
                                     @endif
                                 </div>
                             </div>
@@ -70,9 +78,11 @@
                                 <div class="separator separator-dashed mb-4"></div>
 
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <button type="button" class="btn btn-sm btn-light-primary font-weight-bolder btn-manage-permissions" data-id="{{ $role->id }}" data-name="{{ $role->name }}">
-                                        <i class="fas fa-key mr-1"></i> Kelola Permission
-                                    </button>
+                                    @can('role-permission-assign')
+                                        <button type="button" class="btn btn-sm btn-light-primary font-weight-bolder btn-manage-permissions" data-id="{{ $role->id }}" data-name="{{ $role->name }}">
+                                            <i class="fas fa-key mr-1"></i> Kelola Permission
+                                        </button>
+                                    @endcan
                                 </div>
                             </div>
                         </div>
@@ -197,8 +207,13 @@
 
                 // Fetch assigned permissions for this role
                 $.ajax({
-                    url: "{{ route('role.permissions.get', ':id') }}".replace(':id', roleId),
+                    url: "{{ route('role.permissions.get', ':id') }}".replace(':id', roleId).replace('%3Aid', roleId),
                     type: 'GET',
+                    dataType: 'json',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
                     success: function(response) {
                         if (response.success) {
                             let assigned = response.assigned || [];
@@ -225,7 +240,7 @@
                 btn.addClass('spinner spinner-white spinner-right').attr('disabled', true);
 
                 $.ajax({
-                    url: "{{ route('role.permissions.update', ':id') }}".replace(':id', roleId),
+                    url: "{{ route('role.permissions.update', ':id') }}".replace(':id', roleId).replace('%3Aid', roleId),
                     type: 'POST',
                     dataType: 'json',
                     headers: {
@@ -281,9 +296,10 @@
             });
 
             // Handle Delete Role
-            $('.btn-delete-role').on('click', function() {
-                let roleId = $(this).data('id');
-                let roleName = $(this).data('name');
+            $(document).on('click', '.btn-delete-role', function() {
+                let btn = $(this);
+                let roleId = btn.data('id') || btn.attr('data-id');
+                let roleName = btn.data('name') || btn.attr('data-name');
 
                 Swal.fire({
                     title: 'Hapus Role?',
@@ -295,24 +311,43 @@
                     confirmButtonText: 'Ya, Hapus!',
                     cancelButtonText: 'Batal'
                 }).then((result) => {
-                    if (result.isConfirmed) {
+                    if (result.value || result.isConfirmed) {
+                        let deleteUrl = "{{ route('role.destroy', ':id') }}".replace(':id', roleId).replace('%3Aid', roleId);
                         $.ajax({
-                            url: "{{ route('role.destroy', ':id') }}".replace(':id', roleId),
-                            type: 'DELETE',
+                            url: deleteUrl,
+                            type: 'POST',
+                            dataType: 'json',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                                'X-HTTP-Method-Override': 'DELETE'
+                            },
                             data: {
-                                _token: "{{ csrf_token() }}"
+                                _token: "{{ csrf_token() }}",
+                                _method: 'DELETE'
                             },
                             success: function(res) {
-                                if (res.success) {
-                                    Swal.fire('Terhapus!', res.message, 'success').then(function() {
+                                if (res && res.success) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Terhapus!',
+                                        text: res.message || 'Role berhasil dihapus.',
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    }).then(function() {
                                         location.reload();
                                     });
                                 } else {
-                                    Swal.fire('Gagal!', res.message, 'error');
+                                    Swal.fire('Gagal!', (res && res.message) ? res.message : 'Gagal menghapus role.', 'error');
                                 }
                             },
-                            error: function() {
-                                Swal.fire('Error!', 'Gagal menghapus role.', 'error');
+                            error: function(err) {
+                                let msg = 'Gagal menghapus role.';
+                                if (err.responseJSON && err.responseJSON.message) {
+                                    msg = err.responseJSON.message;
+                                }
+                                Swal.fire('Error!', msg, 'error');
                             }
                         });
                     }
