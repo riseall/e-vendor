@@ -22,7 +22,6 @@ use Illuminate\View\View;
 
 class VendorAuditController extends Controller
 {
-    private const QA_ROLES = ['Super Admin', 'Admin IT', 'Quality Assurance', 'Apoteker', 'Specialist'];
 
     private const STATUS_OPTIONS = [
         'all'        => 'Semua Status',
@@ -443,7 +442,7 @@ class VendorAuditController extends Controller
 
     private function qaUsers()
     {
-        return User::role(self::QA_ROLES)
+        return User::permission('audit-list')
             ->orderBy('name')
             ->get(['id', 'name', 'email']);
     }
@@ -451,6 +450,6 @@ class VendorAuditController extends Controller
     private function authorizeQaAccess(): void
     {
         $user = Auth::user();
-        abort_unless($user && $user->hasAnyRole(self::QA_ROLES), 403);
+        abort_unless($user && $user->can('audit-list'), 403);
     }
 }

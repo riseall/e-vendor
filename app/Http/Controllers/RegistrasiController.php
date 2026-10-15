@@ -329,7 +329,7 @@ class RegistrasiController extends Controller
     public function tracking(?string $applicationNumber = null)
     {
         $user = Auth::user();
-        $isInternalStaff = $user && $user->hasAnyRole(['Super Admin', 'Admin IT', 'Procurement', 'Verifikator', 'Quality Assurance']);
+        $isInternalStaff = $user && ($user->can('verifikasi-list') || $user->can('verifikasi-detail') || $user->can('supplier-detail'));
 
         $query = VendorApplication::query()
             ->with(['user', 'general', 'categories', 'activityLogs.user', 'audits', 'parent.general']);
@@ -369,7 +369,7 @@ class RegistrasiController extends Controller
     ) {
         $user = Auth::user();
         $canAccess = $application->user_id === optional($user)->id
-            || ($user && $user->hasAnyRole(['Super Admin', 'Admin IT', 'Procurement', 'Verifikator', 'Quality Assurance']));
+            || ($user && ($user->can('verifikasi-detail') || $user->can('supplier-detail') || $user->can('verifikasi-list')));
 
         abort_unless($canAccess, 403);
 

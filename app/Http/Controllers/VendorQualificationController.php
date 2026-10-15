@@ -16,7 +16,6 @@ use Illuminate\View\View;
 
 class VendorQualificationController extends Controller
 {
-    private const QA_ROLES = ['Super Admin', 'Admin IT', 'Quality Assurance', 'Apoteker', 'Specialist'];
 
     private const STATUS_OPTIONS = [
         'all' => 'Semua Status',
@@ -113,7 +112,6 @@ class VendorQualificationController extends Controller
         return view('admin.risk_assesment.create', [
             'application' => $application,
             'qualification' => $application->qualification,
-            'qaManagers' => $this->qaManagers(),
             'autoScores' => $autoScores,
             'lowThreshold' => (int) config('risk_assessment.low_threshold', 88),
             'highThreshold' => (int) config('risk_assessment.high_threshold', 164),
@@ -248,13 +246,6 @@ class VendorQualificationController extends Controller
         return redirect()
             ->route('qa.risk-assessment.index')
             ->with('success', 'Risk assessment berhasil disimpan dan status vendor diperbarui.');
-    }
-
-    private function qaManagers()
-    {
-        return User::role(self::QA_ROLES)
-            ->orderBy('name')
-            ->get(['id', 'name', 'email']);
     }
 
     private function automaticScores(VendorApplication $application): array
@@ -433,6 +424,6 @@ class VendorQualificationController extends Controller
     {
         $user = Auth::user();
 
-        abort_unless($user && $user->hasAnyRole(self::QA_ROLES), 403);
+        abort_unless($user && $user->can('qa-risk-list'), 403);
     }
 }

@@ -38,8 +38,6 @@ class ProcurementVerificationController extends Controller
         'verificationItems.verifier',
     ];
 
-    private const VERIFICATION_ROLES = ['Super Admin', 'Admin IT', 'Procurement', 'Verifikator'];
-
     private ProcurementVerificationService $verificationService;
     private VendorApplicationNotificationService $notificationService;
 
@@ -124,7 +122,7 @@ class ProcurementVerificationController extends Controller
 
     public function verify(Request $request, VendorApplication $application)
     {
-        $this->authorizeProcurementAccess();
+        abort_unless(Auth::user() && Auth::user()->can('verifikasi-approve'), 403);
         $previousStatus = $application->status;
 
         $this->verificationService->verifyApplication(
@@ -140,7 +138,7 @@ class ProcurementVerificationController extends Controller
 
     public function requestRevision(Request $request, VendorApplication $application)
     {
-        $this->authorizeProcurementAccess();
+        abort_unless(Auth::user() && Auth::user()->can('verifikasi-reject'), 403);
         $previousStatus = $application->status;
 
         $data = $request->validate([
@@ -173,7 +171,7 @@ class ProcurementVerificationController extends Controller
         VendorApplication $application,
         VendorApplicationVerificationItem $item
     ) {
-        $this->authorizeProcurementAccess();
+        abort_unless(Auth::user() && Auth::user()->can('verifikasi-approve'), 403);
         $previousStatus = $application->status;
 
         $this->verificationService->approveVerificationItem($application, $item);
@@ -191,7 +189,7 @@ class ProcurementVerificationController extends Controller
         VendorApplication $application,
         VendorApplicationVerificationItem $item
     ) {
-        $this->authorizeProcurementAccess();
+        abort_unless(Auth::user() && Auth::user()->can('verifikasi-reject'), 403);
         $previousStatus = $application->status;
 
         $data = $request->validate([
@@ -217,7 +215,7 @@ class ProcurementVerificationController extends Controller
         $user = Auth::user();
 
         abort_unless(
-            $user && $user->hasAnyRole(self::VERIFICATION_ROLES),
+            $user && $user->can('verifikasi-list'),
             403
         );
     }
@@ -228,7 +226,6 @@ class ProcurementVerificationController extends Controller
 
         abort_unless(
             $user && (
-                $user->hasAnyRole(self::VERIFICATION_ROLES) ||
                 $user->can('supplier-detail') ||
                 $user->can('supplier-list') ||
                 $user->can('verifikasi-detail') ||

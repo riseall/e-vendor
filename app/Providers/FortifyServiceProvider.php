@@ -168,9 +168,8 @@ class FortifyServiceProvider extends ServiceProvider
                 ->first();
 
             if ($externalUser) {
-                // Akun internal WAJIB login via API SyncMaster, tolak jika lewat jalur password lokal
-                $internalRoles = ['Super Admin', 'Admin IT', 'Verifikator', 'Procurement', 'Quality Assurance', 'Apoteker', 'Specialist'];
-                if ($externalUser->hasAnyRole($internalRoles)) {
+                // Akun internal WAJIB login via API SyncMaster, jalur password lokal hanya khusus Supplier
+                if (!$externalUser->hasRole('Supplier')) {
                     return false;
                 }
 

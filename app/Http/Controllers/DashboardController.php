@@ -639,25 +639,7 @@ class DashboardController extends Controller
      */
     private function isVendorUser(?User $user): bool
     {
-        if (!$user) {
-            return false;
-        }
-
-        if ($user->hasRole('Supplier') || $user->hasRole('Vendor')) {
-            return true;
-        }
-
-        $internalRoles = [
-            'Super Admin',
-            'Admin IT',
-            'Verifikator',
-            'Procurement',
-            'Quality Assurance',
-            'Apoteker',
-            'Specialist',
-        ];
-
-        return !$user->hasAnyRole($internalRoles);
+        return (bool) ($user && ($user->hasRole('Supplier') || $user->hasRole('Vendor')));
     }
 
     /** Resolve a status map entry → [label, class]. */

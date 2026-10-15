@@ -140,27 +140,51 @@ class RoleController extends Controller
         ]);
     }
 
+    public const SYSTEM_ROLES = ['Super Admin', 'Admin IT', 'Supplier'];
+
     /**
      * Remove the specified role from storage.
      *
      * @param  \Spatie\Permission\Models\Role  $role
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function destroy(Role $role)
+    public function destroy($role)
     {
-        if (in_array($role->name, ['Super Admin', 'Admin IT'])) {
-            if (request()->wantsJson()) {
+        if (!($role instanceof Role)) {
+            $role = Role::findOrFail($role);
+        }
+
+        $isAjax = request()->wantsJson() || request()->ajax();
+
+        if (in_array($role->name, self::SYSTEM_ROLES, true)) {
+            $msg = 'Role utama sistem "' . $role->name . '" tidak dapat dihapus.';
+            if ($isAjax) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Role utama sistem tidak dapat dihapus.'
+                    'message' => $msg
                 ], 403);
             }
-            return redirect()->back()->with('error', 'Role utama sistem tidak dapat dihapus.');
+            return redirect()->back()->with('error', $msg);
+        }
+
+        // Cek jika role masih digunakan oleh user
+        if ($role->users()->count() > 0) {
+            $msg = 'Role tidak dapat dihapus karena masih digunakan oleh ' . $role->users()->count() . ' user.';
+            if ($isAjax) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg
+                ], 422);
+            }
+            return redirect()->back()->with('error', $msg);
         }
 
         $role->delete();
 
-        if (request()->wantsJson()) {
+        // Reset permission cache
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        if ($isAjax) {
             return response()->json([
                 'success' => true,
                 'message' => 'Role berhasil dihapus.'
