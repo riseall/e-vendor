@@ -1,10 +1,20 @@
 @php
     $dokumenList = [
-        ['name' => 'dok_nib', 'label' => __('doc_nib'), 'type' => 'General'],
-        ['name' => 'dok_npwp', 'label' => __('doc_npwp'), 'type' => 'General'],
-        ['name' => 'dok_company_profile', 'label' => __('doc_company_profile'), 'type' => 'General'],
+        ['name' => 'dok_nib', 'label' => __('doc_nib'), 'type' => 'General', 'required' => true],
+        ['name' => 'dok_npwp', 'label' => __('doc_npwp'), 'type' => 'General', 'required' => true],
+        [
+            'name' => 'dok_company_profile',
+            'label' => __('doc_company_profile'),
+            'type' => 'General',
+            'required' => true,
+        ],
         ['name' => 'dok_struktur_org', 'label' => __('doc_struktur_org'), 'type' => 'General'],
-        ['name' => 'dok_sertifikat_halal', 'label' => __('doc_sertifikat_halal'), 'type' => 'General'],
+        [
+            'name' => 'dok_sertifikat_halal',
+            'label' => __('doc_sertifikat_halal'),
+            'type' => 'General',
+            'required' => true,
+        ],
         // Khusus Lokal
         ['name' => 'dok_akte_pendirian', 'label' => __('doc_akte_pendirian'), 'type' => 'Local Vendor Only'],
         ['name' => 'dok_akte_direksi', 'label' => __('doc_akte_direksi'), 'type' => 'Local Vendor Only'],
@@ -32,10 +42,35 @@
     ];
 @endphp
 
+@push('style')
+    <style>
+        .doc-item.status-error {
+            border-left-color: #f64e60 !important;
+            background-color: #fff9f9 !important;
+        }
+
+        .doc-item.status-error:hover {
+            background-color: #fff2f2 !important;
+        }
+
+        .doc-item.status-error .doc-icon-wrapper {
+            background-color: #ffe2e5 !important;
+        }
+
+        .doc-item.status-error .doc-icon-wrapper i {
+            color: #f64e60 !important;
+        }
+
+        .doc-item.status-error .file-name-text {
+            display: none !important;
+        }
+    </style>
+@endpush
+
 <div class="form-section-title mb-4">{{ __('attached_documents') }}</div>
 @if (!$isReadOnly)
     <p class="text-muted mb-8">
-        {{ __('documents_optional_hint') }}
+        {{ __('documents_hint') }}
     </p>
 @endif
 
@@ -58,7 +93,11 @@
                             <i class="fas fa-file-alt icon-lg"></i>
                         </div>
                         <div class="doc-text">
-                            <span class="doc-label text-dark-75 font-weight-bolder">{{ $dok['label'] }}</span>
+                            <span class="doc-label text-dark-75 font-weight-bolder">{{ $dok['label'] }}@if (!empty($dok['required']))
+                                    <span class="text-danger ml-1 font-weight-bold"
+                                        title="{{ __('required') }}">*</span>
+                                @endif
+                            </span>
                             <div class="doc-meta">
                                 @if ($isUploaded)
                                     @php
@@ -127,9 +166,13 @@
                     if (!this.files || !this.files[0]) return;
                     const container = this.closest('.doc-item');
                     if (!container) return;
+                    container.classList.remove('status-error', 'border', 'border-danger');
+                    container.querySelectorAll('.doc-error-msg, .invalid-feedback.dynamic-error')
+                        .forEach(el => el.remove());
                     const fileNameDisplay = container.querySelector('.file-name-text');
                     const btnText = container.querySelector('.btn-upload span');
                     if (fileNameDisplay) {
+                        fileNameDisplay.style.display = '';
                         fileNameDisplay.innerHTML =
                             `<i class="fas fa-upload text-primary mr-1"></i> {{ __('file_selected') }}: <strong>${this.files[0].name}</strong>`;
                     }
@@ -146,18 +189,22 @@
             const container = document.getElementById('item-' + detail.field);
             if (!container) return;
 
+            container.classList.remove('status-error', 'status-pending', 'border', 'border-danger');
+            container.classList.add('status-uploaded');
+            container.querySelectorAll('.doc-error-msg, .invalid-feedback.dynamic-error').forEach(el => el
+        .remove());
+
             const file = detail.files[0];
             const previewBtn = container.querySelector('.btn-preview-doc');
             const fileNameDisplay = container.querySelector('.file-name-text');
             const btnText = container.querySelector('.btn-upload span');
 
             if (fileNameDisplay) {
+                fileNameDisplay.style.display = '';
                 fileNameDisplay.className = 'text-success font-weight-bold file-name-text';
                 fileNameDisplay.innerHTML = `<i class="ki ki-check-circle icon-nm"></i> ${file.original_name}`;
             }
             if (btnText) btnText.textContent = "{{ __('change') }}";
-            container.classList.remove('status-pending');
-            container.classList.add('status-uploaded');
 
             if (previewBtn) {
                 previewBtn.setAttribute('data-url', file.url);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\VendorApplicationDocument;
 use App\Models\VendorApplicationProduct;
 use App\Services\VendorUploadPolicy;
 use Illuminate\Foundation\Http\FormRequest;
@@ -207,6 +208,27 @@ class StoreFormUmumRequest extends FormRequest
                 && blank($this->input('iso_other'))
             ) {
                 $validator->errors()->add('iso_other', __('other_iso_certificate_required'));
+            }
+
+            // Validasi dokumen wajib umum (NIB, NPWP, Company Profile, Halal PBF)
+            $requiredDocs = [
+                'dok_nib'              => 'dok_nib_required',
+                'dok_npwp'             => 'dok_npwp_required',
+                'dok_company_profile'  => 'dok_company_profile_required',
+                'dok_sertifikat_halal' => 'dok_sertifikat_halal_required',
+            ];
+
+            foreach ($requiredDocs as $field => $errorKey) {
+                $hasUpload = $this->hasFile($field) || !empty($this->input($field));
+                $hasExisting = VendorApplicationDocument::query()
+                    ->where('application_id', $this->input('application_id'))
+                    ->where('field_name', $field)
+                    ->whereNotNull('file_path')
+                    ->exists();
+
+                if (!$hasUpload && !$hasExisting) {
+                    $validator->errors()->add($field, __($errorKey));
+                }
             }
 
             $certErrors = [
