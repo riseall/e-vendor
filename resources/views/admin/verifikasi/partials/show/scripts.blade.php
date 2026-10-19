@@ -154,9 +154,6 @@
             $('#formRejectItem textarea[name="note"]').val('');
 
             var $sourcePanel = btn.closest('.verification-panel');
-            if (!$sourcePanel.length) {
-                $sourcePanel = btn.closest('.specific-category-header').nextAll('.verification-panel').first();
-            }
 
             var fields = [];
             $sourcePanel.find('.js-revision-field').each(function() {
@@ -214,11 +211,28 @@
             });
         });
 
-        // Hide scrollbar tapi masih bisa scroll (tab nav)
-        document.querySelector('.nav-tabs')?.addEventListener('wheel', function(e) {
-            e.preventDefault();
-            this.scrollLeft += e.deltaY;
-        }, {
-            passive: false
+        // Tab Nav: Sinkronisasi tab aktif dengan URL hash
+        if (window.location.hash) {
+            var $hashTab = $('.verif-tabs a[href="' + window.location.hash + '"]');
+            if ($hashTab.length) {
+                $hashTab.tab('show');
+            }
+        }
+
+        $(document).on('shown.bs.tab', '.verif-tabs a[data-toggle="tab"]', function(e) {
+            if (history.replaceState) {
+                history.replaceState(null, null, e.target.hash);
+            }
         });
+
+        // Hide scrollbar tapi masih bisa scroll (tab nav)
+        var navTabsEl = document.querySelector('.verif-tabs');
+        if (navTabsEl) {
+            navTabsEl.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                this.scrollLeft += e.deltaY;
+            }, {
+                passive: false
+            });
+        }
     </script>

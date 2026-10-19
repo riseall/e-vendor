@@ -69,171 +69,168 @@
     @endif
 
     <div class="card card-custom card-transparent">
-        <div class="card-body p-0">
+        {{-- Wizard --}}
+        <div class="wizard wizard-4" id="kt_wizard">
 
-            {{-- Wizard --}}
-            <div class="wizard wizard-4" id="kt_wizard">
-
-                {{-- Wizard Nav --}}
-                <div class="wz-nav-wrapper">
-                    <div class="wz-nav" id="wzNav">
-                    </div>
+            {{-- Wizard Nav --}}
+            <div class="wz-nav-wrapper">
+                <div class="wz-nav" id="wzNav">
                 </div>
-                {{-- End Wizard Nav --}}
+            </div>
+            {{-- End Wizard Nav --}}
 
-                {{-- Wizard Body --}}
-                <div class="card card-custom card-shadowless rounded-top-0">
-                    <div class="card-body p-0">
-                        <div class="row justify-content-center py-8 px-8 py-lg-10 px-lg-10">
-                            <div class="col-xl-12">
+            {{-- Wizard Body --}}
+            <div class="card card-custom card-shadowless rounded-top-0">
+                <div class="card-body p-0">
+                    <div class="row justify-content-center py-3 px-4 py-lg-6 px-lg-8">
+                        <div class="col-xl-12">
 
-                                <form class="form" id="kt_form" action="{{ route('registrasi.save-draft') }}"
-                                    method="POST" enctype="multipart/form-data"
-                                    data-max-file-kb="{{ \App\Services\VendorUploadPolicy::MAX_FILE_KB }}">
-                                    @csrf
-                                    <input type="hidden" name="application_id" id="application_id"
-                                        value="{{ $applicationId ?? '' }}">
-                                    <input type="hidden" name="current_step" id="current_step" value="1">
+                            <form class="form" id="kt_form" action="{{ route('registrasi.save-draft') }}"
+                                method="POST" enctype="multipart/form-data"
+                                data-max-file-kb="{{ \App\Services\VendorUploadPolicy::MAX_FILE_KB }}">
+                                @csrf
+                                <input type="hidden" name="application_id" id="application_id"
+                                    value="{{ $applicationId ?? '' }}">
+                                <input type="hidden" name="current_step" id="current_step" value="1">
 
-                                    {{-- [STEP 1: KATEGORI] --}}
-                                    <div class="pb-5" data-step-id="step-1">
-                                        @include('admin.registrasi.steps.1-kategori')
-                                    </div>
-                                    {{-- End Step 1 --}}
+                                {{-- [STEP 1: KATEGORI] --}}
+                                <div class="pb-5" data-step-id="step-1">
+                                    @include('admin.registrasi.steps.1-kategori')
+                                </div>
+                                {{-- End Step 1 --}}
 
-                                    {{-- Persyaratan Umum --}}
-                                    {{-- [STEP 2: FORM UMUM] --}}
-                                    <div class="pb-5" data-step-id="step-2">
-                                        @include('admin.registrasi.steps.2-umum')
-                                    </div>
+                                {{-- Persyaratan Umum --}}
+                                {{-- [STEP 2: FORM UMUM] --}}
+                                <div class="pb-5" data-step-id="step-2">
+                                    @include('admin.registrasi.steps.2-umum')
+                                </div>
 
-                                    {{-- [STEP 3: INFO PEMBAYARAN] --}}
-                                    <div class="pb-5" data-step-id="step-3">
-                                        @include('admin.registrasi.steps.3-pembayaran')
-                                    </div>
+                                {{-- [STEP 3: INFO PEMBAYARAN] --}}
+                                <div class="pb-5" data-step-id="step-3">
+                                    @include('admin.registrasi.steps.3-pembayaran')
+                                </div>
 
-                                    {{-- [STEP 4: KOMITMEN] --}}
-                                    <div class="pb-5" data-step-id="step-4">
-                                        @include('admin.registrasi.steps.4-komitmen')
-                                    </div>
+                                {{-- [STEP 4: KOMITMEN] --}}
+                                <div class="pb-5" data-step-id="step-4">
+                                    @include('admin.registrasi.steps.4-komitmen')
+                                </div>
 
-                                    {{-- [STEP 5: INFO LAIN] --}}
-                                    <div class="pb-5" data-step-id="step-5">
-                                        @include('admin.registrasi.steps.5-info')
-                                    </div>
+                                {{-- [STEP 5: INFO LAIN] --}}
+                                <div class="pb-5" data-step-id="step-5">
+                                    @include('admin.registrasi.steps.5-info')
+                                </div>
 
-                                    {{-- [STEP 6: ISIAN LOKAL] --}}
-                                    <div class="pb-5" data-step-id="step-6">
-                                        @include('admin.registrasi.steps.6-lokal')
-                                    </div>
+                                {{-- [STEP 6: ISIAN LOKAL] --}}
+                                <div class="pb-5" data-step-id="step-6">
+                                    @include('admin.registrasi.steps.6-lokal')
+                                </div>
 
-                                    {{-- [STEP 7: PRODUK --}}
-                                    <div class="pb-5" data-step-id="step-7">
-                                        @include('admin.registrasi.steps.7-produk')
-                                    </div>
+                                {{-- [STEP 7: PRODUK --}}
+                                <div class="pb-5" data-step-id="step-7">
+                                    @include('admin.registrasi.steps.7-produk')
+                                </div>
 
-                                    {{-- [STEP 8: DOKUMEN --}}
-                                    <div class="pb-5" data-step-id="step-8">
-                                        @include('admin.registrasi.steps.8-dokumen')
-                                    </div>
+                                {{-- [STEP 8: DOKUMEN --}}
+                                <div class="pb-5" data-step-id="step-8">
+                                    @include('admin.registrasi.steps.8-dokumen')
+                                </div>
 
-                                    {{-- Step 9: Persyaratan Khusus --}}
-                                    {{-- Bahan Baku, Bahan Kemas, Produk Jadi & Alkes --}}
-                                    <div class="pb-5" data-step-id="cat-1">
-                                        @include('admin.registrasi.category.1-baku')
-                                    </div>
-                                    {{-- End --}}
+                                {{-- Step 9: Persyaratan Khusus --}}
+                                {{-- Bahan Baku, Bahan Kemas, Produk Jadi & Alkes --}}
+                                <div class="pb-5" data-step-id="cat-1">
+                                    @include('admin.registrasi.category.1-baku')
+                                </div>
+                                {{-- End --}}
 
-                                    {{-- Varia Teknik dan Umum, Reagen, Barang Investasi --}}
-                                    <div class="pb-5" data-step-id="cat-2">
-                                        @include('admin.registrasi.category.2-varia')
-                                    </div>
-                                    {{-- End --}}
+                                {{-- Varia Teknik dan Umum, Reagen, Barang Investasi --}}
+                                <div class="pb-5" data-step-id="cat-2">
+                                    @include('admin.registrasi.category.2-varia')
+                                </div>
+                                {{-- End --}}
 
-                                    {{-- Jasa Transporter, Forwarder & PPJK --}}
-                                    <div class="pb-5" data-step-id="cat-3">
-                                        @include('admin.registrasi.category.3-trans')
-                                    </div>
-                                    {{-- End --}}
+                                {{-- Jasa Transporter, Forwarder & PPJK --}}
+                                <div class="pb-5" data-step-id="cat-3">
+                                    @include('admin.registrasi.category.3-trans')
+                                </div>
+                                {{-- End --}}
 
-                                    {{-- Jasa Kontraktor, Perbaikan & Pemeliharaan --}}
-                                    <div class="pb-5" data-step-id="cat-4">
-                                        @include('admin.registrasi.category.4-kontraktor')
-                                    </div>
-                                    {{-- End --}}
+                                {{-- Jasa Kontraktor, Perbaikan & Pemeliharaan --}}
+                                <div class="pb-5" data-step-id="cat-4">
+                                    @include('admin.registrasi.category.4-kontraktor')
+                                </div>
+                                {{-- End --}}
 
-                                    {{-- Jasa Pengujian Laboratorium, Kalibrasi, Radiasi & Sertifikasi --}}
-                                    <div class="pb-5" data-step-id="cat-5">
-                                        @include('admin.registrasi.category.5-pengujian')
-                                    </div>
-                                    {{-- End --}}
+                                {{-- Jasa Pengujian Laboratorium, Kalibrasi, Radiasi & Sertifikasi --}}
+                                <div class="pb-5" data-step-id="cat-5">
+                                    @include('admin.registrasi.category.5-pengujian')
+                                </div>
+                                {{-- End --}}
 
-                                    {{-- Jasa Facility Service, Sewa, Security, Katering & MCU --}}
-                                    <div class="pb-5" data-step-id="cat-6">
-                                        @include('admin.registrasi.category.6-facility')
-                                    </div>
-                                    {{-- End --}}
+                                {{-- Jasa Facility Service, Sewa, Security, Katering & MCU --}}
+                                <div class="pb-5" data-step-id="cat-6">
+                                    @include('admin.registrasi.category.6-facility')
+                                </div>
+                                {{-- End --}}
 
-                                    {{-- Jasa Pelatihan,Konsultan, Notaris & Alih Daya Tenaga Kerja --}}
-                                    <div class="pb-5" data-step-id="cat-7">
-                                        @include('admin.registrasi.category.7-pelatihan')
-                                    </div>
-                                    {{-- End --}}
+                                {{-- Jasa Pelatihan,Konsultan, Notaris & Alih Daya Tenaga Kerja --}}
+                                <div class="pb-5" data-step-id="cat-7">
+                                    @include('admin.registrasi.category.7-pelatihan')
+                                </div>
+                                {{-- End --}}
 
-                                    {{-- Jasa Agency Advertising --}}
-                                    <div class="pb-5" data-step-id="cat-8">
-                                        @include('admin.registrasi.category.8-agency')
-                                    </div>
-                                    {{-- End --}}
+                                {{-- Jasa Agency Advertising --}}
+                                <div class="pb-5" data-step-id="cat-8">
+                                    @include('admin.registrasi.category.8-agency')
+                                </div>
+                                {{-- End --}}
 
-                                    {{-- Review --}}
-                                    {{-- <div class="pb-5" data-step-id="review">
+                                {{-- Review --}}
+                                {{-- <div class="pb-5" data-step-id="review">
                                         @include('admin.registrasi.review')
                                     </div> --}}
-                                    {{-- End Review --}}
+                                {{-- End Review --}}
 
-                                    {{-- Wizard Actions --}}
-                                    <div class="d-flex justify-content-between border-top mt-5 pt-10">
-                                        <div class="mr-2">
-                                            <button type="button" id="btnPrev"
-                                                class="btn btn-light-primary font-weight-bold text-uppercase px-9 py-4"
-                                                style="display:none">
-                                                <i class="ki ki-arrow-back mr-1"></i> {{ __('previous') }}
-                                            </button>
-                                        </div>
-                                        <div>
-                                            @if (!$isReadOnly)
-                                                <button type="button" id="btnSaveDraft"
-                                                    class="btn btn-light-primary font-weight-bold text-uppercase px-9 py-4 mr-3">
-                                                    <i class="flaticon2-fax mr-1"></i> {{ __('save_draft') }}
-                                                </button>
-                                            @endif
-                                            <button type="button" id="btnNext"
-                                                class="btn btn-primary font-weight-bold text-uppercase px-9 py-4">
-                                                {{ __('continue') }}
-                                                <i class="fas fa-arrow-up icon-md" style="transform: rotate(45deg);"></i>
-                                            </button>
-                                            @if (!$isReadOnly)
-                                                <button type="submit" id="btnSubmit"
-                                                    class="btn btn-primary font-weight-bold text-uppercase px-9 py-4"
-                                                    style="display:none">
-                                                    <i class="flaticon2-check-mark mr-1"></i> {{ __('submit') }}
-                                                </button>
-                                            @endif
-                                        </div>
+                                {{-- Wizard Actions --}}
+                                <div class="d-flex justify-content-between border-top mt-5 pt-10">
+                                    <div class="mr-2">
+                                        <button type="button" id="btnPrev"
+                                            class="btn btn-light-primary font-weight-bold text-uppercase"
+                                            style="display:none">
+                                            <i class="ki ki-arrow-back icon-sm"></i> {{ __('previous') }}
+                                        </button>
                                     </div>
-                                    {{-- End Wizard Actions --}}
+                                    <div>
+                                        @if (!$isReadOnly)
+                                            <button type="button" id="btnSaveDraft"
+                                                class="btn btn-light-primary font-weight-bold text-uppercase mr-3">
+                                                <i class="flaticon2-fax mr-1"></i> {{ __('save_draft') }}
+                                            </button>
+                                        @endif
+                                        <button type="button" id="btnNext"
+                                            class="btn btn-primary font-weight-bold text-uppercase">
+                                            {{ __('continue') }}
+                                            <i class="fas fa-arrow-up icon-md" style="transform: rotate(45deg);"></i>
+                                        </button>
+                                        @if (!$isReadOnly)
+                                            <button type="submit" id="btnSubmit"
+                                                class="btn btn-primary font-weight-bold text-uppercase"
+                                                style="display:none">
+                                                <i class="fas fa-check mr-1"></i> {{ __('submit') }}
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                                {{-- End Wizard Actions --}}
 
-                                </form>
+                            </form>
 
-                            </div>
                         </div>
                     </div>
                 </div>
-                {{-- End Wizard Body --}}
             </div>
-            {{-- End Wizard --}}
+            {{-- End Wizard Body --}}
         </div>
+        {{-- End Wizard --}}
     </div>
 
     <x-document-preview />
@@ -244,7 +241,7 @@
     <script src="{{ asset('js/dashboard/wizard-nav.js') }}"></script>
     <script src="{{ asset('js/dashboard/vendor-form.js') }}"></script>
     <script>
-        var __ = window.__ || function (key, replace = {}) {
+        var __ = window.__ || function(key, replace = {}) {
             let text = (window.i18n && window.i18n[key]) ? window.i18n[key] : key;
             for (const [k, v] of Object.entries(replace)) {
                 text = text.replace(':' + k, v);
@@ -258,6 +255,8 @@
                 // Bersihkan error lama
                 $('.is-invalid').removeClass('is-invalid');
                 $('.invalid-feedback.dynamic-error').remove();
+                $('.doc-item.status-error').removeClass('status-error border border-danger');
+                $('.doc-item .doc-error-msg').remove();
 
                 var $firstError = null;
                 var errorCount = 0;
@@ -278,7 +277,7 @@
 
                     // Cari berdasarkan dot notation atau bracket notation
                     var $inputs = $('[name="' + key + '"], [name="' + arrayName + '"]');
-                    
+
                     // Khusus untuk ajax-file-upload dan summernote atau custom component
                     // terkadang kita harus menarget fieldnya saja jika input aslinya dihidden
                     if ($inputs.length === 0) {
@@ -314,12 +313,24 @@
                         }
                     } else {
                         var $input = $inputs.first();
-                        var errorHtml = '<div class="invalid-feedback dynamic-error d-block" style="font-size: 0.85rem; line-height: 1.2; margin-top: 4px; word-break: break-word;">' + value[0] + '</div>';
+                        var errorHtml =
+                            '<div class="invalid-feedback dynamic-error d-block" style="font-size: 0.85rem; line-height: 1.2; margin-top: 4px; word-break: break-word;">' +
+                            value[0] + '</div>';
 
                         if ($input.hasClass('custom-file-input')) {
                             // File input: letakkan di luar .custom-file
                             $input.closest('.custom-file').after(errorHtml);
-                        } else if ($input.closest('.bootstrap-select').length || $input.hasClass('selectpicker') || $input.next().hasClass('bootstrap-select')) {
+                        } else if ($input.hasClass('ajax-file-upload') && $input.closest('.doc-item')
+                            .length) {
+                            var $docItem = $input.closest('.doc-item');
+                            $docItem.addClass('status-error');
+                            $docItem.find('.doc-error-msg').remove();
+                            $docItem.find('.doc-meta').append(
+                                '<span class="doc-error-msg text-danger font-weight-bold font-size-xs mt-1 d-block dynamic-error">' +
+                                value[0] + '</span>'
+                            );
+                        } else if ($input.closest('.bootstrap-select').length || $input.hasClass(
+                                'selectpicker') || $input.next().hasClass('bootstrap-select')) {
                             // Selectpicker: letakkan setelah div .bootstrap-select (bukan di dalam sebelum button)
                             var $bsSelect = $input.closest('.bootstrap-select');
                             if (!$bsSelect.length) {
@@ -360,7 +371,8 @@
                         Swal.fire({
                             icon: 'error',
                             title: __('validation_failed'),
-                            html: '<ul class="text-left mb-0 text-danger" style="font-size:0.9rem;">' + genericErrors + '</ul>'
+                            html: '<ul class="text-left mb-0 text-danger" style="font-size:0.9rem;">' +
+                                genericErrors + '</ul>'
                         });
                     }
                     return;
@@ -398,7 +410,9 @@
                 var list = '<ul class="text-left mb-0">';
                 Object.keys(perStep).forEach(function(stepId) {
                     var label = stepLabels[stepId] || stepId;
-                    var itemText = __('fields_need_correction', { count: perStep[stepId] });
+                    var itemText = __('fields_need_correction', {
+                        count: perStep[stepId]
+                    });
                     list += '<li><b>' + label + '</b> &mdash; ' + itemText + '</li>';
                 });
                 list += '</ul>';
@@ -406,7 +420,9 @@
                 Swal.fire({
                     icon: 'error',
                     title: __('validation_failed'),
-                    html: '<p class="mb-2">' + __('errors_found_in_steps', { count: errorCount }) + '</p>' + list
+                    html: '<p class="mb-2">' + __('errors_found_in_steps', {
+                        count: errorCount
+                    }) + '</p>' + list
                 });
             }
 
@@ -524,12 +540,14 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: __('failed'),
-                                text: xhr.responseJSON?.message || __('failed_submit_application')
+                                text: xhr.responseJSON?.message || __(
+                                    'failed_submit_application')
                             });
                         }
                     },
                     complete: function() {
-                        btnElement.attr('disabled', false).html(btnElement.data('original-html') || btnElement.html());
+                        btnElement.attr('disabled', false).html(btnElement.data('original-html') ||
+                            btnElement.html());
                     }
                 });
             }
@@ -573,7 +591,8 @@
                                 __('failed_save_before_submit')
                         });
                     }
-                    btnElement.attr('disabled', false).html(btnElement.data('original-html') || btnElement.html());
+                    btnElement.attr('disabled', false).html(btnElement.data('original-html') || btnElement
+                        .html());
                 });
             }
 
@@ -653,11 +672,15 @@
                         if (res.iso_files && Array.isArray(res.iso_files)) {
                             const isoHidden = document.getElementById('iso_files__hidden[]');
                             if (isoHidden) isoHidden.value = '';
-                            $('input[data-field="iso_files"]').closest('.custom-file').find('.upload-status').text('').hide();
+                            $('input[data-field="iso_files"]').closest('.custom-file').find(
+                                '.upload-status').text('').hide();
 
-                            let pathsHtml = '<input type="hidden" name="existing_iso_files_present" value="1">';
+                            let pathsHtml =
+                                '<input type="hidden" name="existing_iso_files_present" value="1">';
                             res.iso_files.forEach(function(doc) {
-                                pathsHtml += '<input type="hidden" name="existing_iso_files[]" value="' + doc.file_path + '">';
+                                pathsHtml +=
+                                    '<input type="hidden" name="existing_iso_files[]" value="' +
+                                    doc.file_path + '">';
                             });
                             $('#isoExistingPaths').html(pathsHtml);
 
@@ -666,14 +689,23 @@
                                 let listHtml = '';
                                 res.iso_files.forEach(function(doc) {
                                     const cleanName = doc.original_name.replace(/^\d+_/, '');
-                                    listHtml += '<li class="d-flex justify-content-between align-items-center py-2 px-3 rounded mb-2 border" data-path="' + doc.file_path + '" style="background-color: #fafbfc; border-color: #ebedf2 !important;">' +
+                                    listHtml +=
+                                        '<li class="d-flex justify-content-between align-items-center py-2 px-3 rounded mb-2 border" data-path="' +
+                                        doc.file_path +
+                                        '" style="background-color: #fafbfc; border-color: #ebedf2 !important;">' +
                                         '<div class="d-flex align-items-center text-truncate mr-2" style="min-width: 0;">' +
                                         '<span class="btn btn-icon btn-xs btn-light-danger mr-2 flex-shrink-0" style="width: 26px; height: 26px; pointer-events: none;"><i class="fas fa-file-pdf font-size-sm"></i></span>' +
-                                        '<span class="text-dark-75 font-weight-bold font-size-sm text-truncate" title="' + cleanName + '">' + cleanName + '</span>' +
+                                        '<span class="text-dark-75 font-weight-bold font-size-sm text-truncate" title="' +
+                                        cleanName + '">' + cleanName + '</span>' +
                                         '</div>' +
                                         '<div class="d-flex align-items-center flex-shrink-0 ml-2" style="gap: 6px;">' +
-                                        '<button type="button" class="btn btn-icon btn-xs btn-light-success btn-preview-doc" data-url="' + doc.url + '" data-title="' + cleanName + '" title="' + __('view') + '" style="width:24px; height:24px; min-width:24px;"><i class="fas fa-eye font-size-xs"></i></button>' +
-                                        '<button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove" title="' + __('delete') + '"><i class="fas fa-trash-alt"></i></button>' +
+                                        '<button type="button" class="btn btn-icon btn-xs btn-light-success btn-preview-doc" data-url="' +
+                                        doc.url + '" data-title="' + cleanName + '" title="' +
+                                        __('view') +
+                                        '" style="width:24px; height:24px; min-width:24px;"><i class="fas fa-eye font-size-xs"></i></button>' +
+                                        '<button type="button" class="btn btn-icon btn-xs btn-light-danger btn-iso-remove" title="' +
+                                        __('delete') +
+                                        '"><i class="fas fa-trash-alt"></i></button>' +
                                         '</div></li>';
                                 });
                                 $list.html(listHtml).removeClass('d-none');
@@ -687,7 +719,8 @@
                                 const doc = res.general_documents[fieldName];
                                 const container = document.getElementById('item-' + fieldName);
                                 if (container) {
-                                    const previewBtn = container.querySelector('.btn-preview-doc');
+                                    const previewBtn = container.querySelector(
+                                        '.btn-preview-doc');
                                     if (previewBtn && doc && doc.url) {
                                         previewBtn.setAttribute('data-url', doc.url);
                                         previewBtn.removeAttribute('disabled');
@@ -749,7 +782,7 @@
                 $changed.removeClass('is-invalid');
                 $changed.closest('.bootstrap-select').removeClass('is-invalid');
                 $changed.closest('div, td, label').find('.invalid-feedback.dynamic-error').remove();
-                
+
                 // Fallback untuk custom-file, selectpicker, radio/checkbox group yang meletakkan error di luar komponen
                 if ($changed.hasClass('custom-file-input')) {
                     $changed.closest('.custom-file').next('.invalid-feedback.dynamic-error').remove();
@@ -759,12 +792,14 @@
                     $changed.next('.bootstrap-select').next('.invalid-feedback.dynamic-error').remove();
                 } else if ($changed.next('.select2-container').length) {
                     $changed.next('.select2-container').next('.invalid-feedback.dynamic-error').remove();
-                } else if ($changed.closest('.radio-inline, .radio-list, .checkbox-inline, .checkbox-list').length) {
-                    $changed.closest('.radio-inline, .radio-list, .checkbox-inline, .checkbox-list').next('.invalid-feedback.dynamic-error').remove();
+                } else if ($changed.closest('.radio-inline, .radio-list, .checkbox-inline, .checkbox-list')
+                    .length) {
+                    $changed.closest('.radio-inline, .radio-list, .checkbox-inline, .checkbox-list').next(
+                        '.invalid-feedback.dynamic-error').remove();
                 } else if ($changed.closest('.input-group').length) {
                     $changed.closest('.input-group').next('.invalid-feedback.dynamic-error').remove();
                 }
-                
+
                 // fallback: kalau masih ada (struktur DOM unik), hapus satu pesan setelah input pertama
                 if (name) {
                     $('[name="' + name + '"]').first().next('.invalid-feedback.dynamic-error').remove();

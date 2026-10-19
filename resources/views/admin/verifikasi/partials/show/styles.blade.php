@@ -51,12 +51,11 @@
             padding: .65rem 1.1rem;
             text-align: center;
             min-width: 110px;
-            transition: box-shadow .15s ease, transform .15s ease;
+            transition: box-shadow .15s ease;
         }
 
         .stat-box:hover {
             box-shadow: var(--shadow-sm);
-            transform: translateY(-1px);
         }
 
         .stat-box .stat-label {
@@ -347,12 +346,11 @@
             overflow: hidden;
             background: var(--surface-0);
             box-shadow: var(--shadow-sm);
-            transition: box-shadow .2s ease, transform .2s ease;
+            transition: box-shadow .2s ease;
         }
 
         .verification-panel:hover {
             box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
         }
 
         .verification-panel.is-approved {
@@ -441,13 +439,12 @@
             color: #fff;
             border: none;
             cursor: pointer;
-            transition: background .15s, transform .1s, box-shadow .15s;
+            transition: background .15s, box-shadow .15s;
         }
 
         .btn-approve:hover {
             background: #059669;
             box-shadow: 0 3px 10px rgba(16, 185, 129, .3);
-            transform: translateY(-1px);
         }
 
         .btn-reject {
@@ -462,14 +459,13 @@
             color: var(--brand-danger);
             border: 1px solid #fca5a5;
             cursor: pointer;
-            transition: background .15s, transform .1s, box-shadow .15s;
+            transition: background .15s, box-shadow .15s;
         }
 
         .btn-reject:hover {
             background: var(--brand-danger);
             color: #fff;
             box-shadow: 0 3px 10px rgba(239, 68, 68, .25);
-            transform: translateY(-1px);
         }
 
         .btn-undo {
@@ -657,54 +653,74 @@
             letter-spacing: .5px;
         }
 
-        .specific-category-header {
+        /* ── Field Display (Lean Read-Only Inspection) ─────────────── */
+        .verif-field-box {
+            background: #fbfcfe;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: .6rem .85rem;
+            min-height: 60px;
             display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: .75rem;
-            margin: 1.5rem 0 .6rem;
-            padding: .75rem 1.1rem;
-            background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
-            border-left: 3px solid var(--brand-primary);
-            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-            color: var(--text-primary);
-            font-weight: 700;
-            font-size: .88rem;
+            flex-direction: column;
+            justify-content: center;
+            transition: border-color .15s ease;
         }
 
-        /* ── Table Wrap ──────────────────────────────────────────── */
-        .verification-table-wrap {
-            grid-column: 1 / -1;
-            overflow-x: auto;
+        .verif-field-box:hover {
+            border-color: #cbd5e1;
         }
 
-        .verification-table-wrap .table {
-            min-width: 980px;
-            margin-bottom: 0;
-        }
-
-        .verification-table-wrap .table thead th {
-            background: var(--surface-1);
-            border-bottom: 2px solid var(--border-light);
+        .verif-field-label {
             font-size: .72rem;
             font-weight: 700;
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: .4px;
-            color: var(--text-secondary);
-            padding: .7rem 1rem;
+            letter-spacing: .45px;
+            margin-bottom: .25rem;
+            line-height: 1.2;
         }
 
-        .verification-table-wrap .table tbody td {
-            font-size: .82rem;
-            padding: .65rem 1rem;
-            vertical-align: middle;
-            border-color: #f1f5f9;
+        .verif-field-value {
+            font-size: .88rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            word-break: break-word;
+            line-height: 1.35;
         }
 
-        .verification-table-wrap .table tbody tr:hover td {
-            background: var(--surface-1);
+        .verif-text-single {
+            display: block;
         }
+
+        .verif-text-multiline {
+            font-size: .84rem;
+            line-height: 1.45;
+            white-space: pre-line;
+            color: var(--text-primary);
+        }
+
+        .verif-empty-doc {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            color: var(--text-muted);
+            font-size: .8rem;
+            font-style: italic;
+        }
+
+        .verif-section-divider {
+            display: flex;
+            align-items: center;
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--brand-primary);
+            padding-bottom: .45rem;
+            border-bottom: 2px solid var(--brand-primary-light);
+        }
+
+
 
         /* ── Doc Preview Button ──────────────────────────────────── */
         .btn-preview-doc {
@@ -726,6 +742,43 @@
             background: var(--brand-primary);
             color: #fff;
             box-shadow: 0 2px 8px rgba(79, 70, 229, .25);
+        }
+
+        /* ── Verification Product Table Head & Grid ─────────────── */
+        .verif-table-head th {
+            background-color: #f8fafc !important;
+            color: #181c32 !important;
+            font-weight: 700 !important;
+            font-size: 0.85rem !important;
+            border-top: 1px solid #ebedf3 !important;
+            border-bottom: 1px solid #ebedf3 !important;
+            border-right: 1px solid #ebedf3 !important;
+            padding: 0.85rem 1rem !important;
+            vertical-align: middle !important;
+        }
+
+        .verif-table-head th:last-child {
+            border-right: none !important;
+        }
+
+        #verificationProductTable tbody td {
+            padding: 0.9rem 1rem !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+
+        /* 2x3 Grid untuk Dokumen & Sertifikasi */
+        .verif-doc-grid {
+            display: inline-grid;
+            grid-template-columns: repeat(3, auto);
+            gap: 6px 8px;
+            align-items: center;
+        }
+
+        .verif-doc-grid .btn.disabled,
+        .verif-doc-grid .btn:disabled {
+            opacity: 0.35 !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
         }
 
         /* ── Min-w utility ───────────────────────────────────────── */

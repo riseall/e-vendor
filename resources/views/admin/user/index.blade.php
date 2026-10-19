@@ -14,10 +14,12 @@
                 <h3 class="card-label">Master User</h3>
             </div>
             <div class="card-toolbar">
-                <button type="button" class="btn btn-primary font-weight-bolder" data-toggle="modal"
-                    data-target="#modalTambahUser">
-                    <i class="fas fa-plus mr-1"></i> User Baru
-                </button>
+                @can('user-create')
+                    <button type="button" class="btn btn-primary font-weight-bolder" data-toggle="modal"
+                        data-target="#modalTambahUser">
+                        <i class="fas fa-plus mr-1"></i> User Baru
+                    </button>
+                @endcan
             </div>
         </div>
 
@@ -46,6 +48,9 @@
 @push('scripts')
     <script src="{{ asset('js/widgets/select2.js') }}"></script>
     <script>
+        var canEditUser = {{ auth()->user()->can('user-edit') ? 'true' : 'false' }};
+        var canDeleteUser = {{ auth()->user()->can('user-delete') ? 'true' : 'false' }};
+
         // Shared toast notification helper standard vnd-swal-toast
         function showToast(type, title, message) {
             var iconClass = 'fa-check text-success';
@@ -183,8 +188,9 @@
                         orderable: false,
                         render: function(data, type, full) {
                             var roleName = (full.roles && full.roles.length) ? full.roles[0].name : '';
-                            return `
-                                <div class="d-flex justify-content-center">
+                            var buttons = [];
+                            if (canEditUser) {
+                                buttons.push(`
                                     <button class="btn btn-sm btn-icon btn-outline-warning mr-2 btn-edit-user" 
                                         data-id="${data}" 
                                         data-name="${full.name || ''}" 
@@ -194,13 +200,22 @@
                                         title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </button>
+                                `);
+                            }
+                            if (canDeleteUser) {
+                                buttons.push(`
                                     <button class="btn btn-sm btn-icon btn-outline-danger btn-delete-user" 
                                         data-id="${data}" 
                                         data-name="${full.name || ''}" 
                                         title="Delete">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
-                                </div>`;
+                                `);
+                            }
+                            if (buttons.length === 0) {
+                                return '<span class="text-muted">—</span>';
+                            }
+                            return '<div class="d-flex justify-content-center">' + buttons.join('') + '</div>';
                         },
                     }],
             });

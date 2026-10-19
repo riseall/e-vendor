@@ -1,29 +1,6 @@
 <div id="verificationMainCard" class="card card-custom"
     style="border-radius:var(--radius-lg);box-shadow:var(--shadow-md);border:none;">
-    <div class="card-header border-bottom-0 pt-6 pb-0">
-        <div class="card-title">
-            <span class="card-icon">
-                <i class="flaticon2-check-mark" style="color:var(--brand-primary);"></i>
-            </span>
-            <h5 class="card-label font-weight-bolder d-flex align-items-center flex-wrap"
-                style="color:var(--text-primary); gap:8px;">
-                <span>
-                    @if ($application->status === \App\Models\VendorApplication::STATUS_APPROVED)
-                        {{ $application->isRekualifikasi() ? 'Data Rekualifikasi Vendor (Disetujui)' : 'Data Calon Penyedia (Disetujui)' }}
-                    @else
-                        {{ $application->isRekualifikasi() ? 'Verifikasi Data Rekualifikasi Vendor' : 'Verifikasi Data Calon Penyedia' }}
-                    @endif
-                </span>
-                @if ($application->isRekualifikasi())
-                    <span class="badge badge-warning font-weight-bold" style="font-size:0.75rem;">Rekualifikasi</span>
-                @else
-                    <span class="badge badge-info font-weight-bold" style="font-size:0.75rem;">Registrasi Baru</span>
-                @endif
-            </h5>
-        </div>
-    </div>
-
-    <div class="card-body pt-3">
+    <div class="card-body p-6">
 
         {{-- Tab Nav --}}
         <div class="tab-nav-wrap">
@@ -53,7 +30,6 @@
                     role="tabpanel">
 
                     <div class="verification-item-list">
-                        @php $lastSpecificHeader = null; @endphp
                         @foreach ($section['items'] as $item)
                             @php
                                 $meta = $itemStatus[$item->status] ?? $itemStatus['pending'];
@@ -62,7 +38,7 @@
                                     $section['key'] === 'specific'
                                         ? $specificCategoryHeaders[$item->item_key] ?? null
                                         : null;
-                                $showActionsInSpecificHeader = $section['key'] === 'specific' && $specificHeader;
+                                $panelTitle = $specificHeader ?: $item->item_label;
                                 $panelClass = '';
                                 if ($item->status === 'approved') {
                                     $panelClass = 'is-approved';
@@ -71,67 +47,13 @@
                                 }
                             @endphp
 
-                            @if ($specificHeader && $specificHeader !== $lastSpecificHeader)
-                                <div class="specific-category-header">
-                                    <span>{{ $specificHeader }}</span>
-
-                                    @if ($showActionsInSpecificHeader)
-                                        <div class="d-flex align-items-center flex-wrap justify-content-end"
-                                            style="gap:.5rem;">
-                                            <span
-                                                class="verif-status-badge {{ $item->status === 'approved' ? 'is-approved' : ($item->status === 'rejected' ? 'is-rejected' : 'is-pending') }}">
-                                                <i class="{{ $meta['icon'] }} icon-xs"></i>
-                                                {{ $meta['label'] }}
-                                            </span>
-
-                                            @if ($item->status === 'pending')
-                                                <form method="POST"
-                                                    action="{{ route('verifikasi.items.approve', [$application, $item]) }}"
-                                                    class="d-inline js-confirm-approve"
-                                                    data-label="{{ $specificHeader }}">
-                                                    @csrf
-                                                    <button type="submit" class="btn-approve">
-                                                        <i class="flaticon2-check-mark icon-xs text-white"></i> Setuju
-                                                    </button>
-                                                </form>
-                                                <button type="button" class="btn-reject js-reject-btn"
-                                                    data-toggle="modal" data-target="#modalRejectItem"
-                                                    data-action="{{ route('verifikasi.items.reject', [$application, $item]) }}"
-                                                    data-label="{{ $specificHeader }}">
-                                                    <i class="flaticon2-delete icon-xs"></i> Tidak Setuju
-                                                </button>
-                                            @elseif ($item->status === 'approved')
-                                                <button type="button" class="btn-undo js-reject-btn"
-                                                    data-toggle="modal" data-target="#modalRejectItem"
-                                                    data-action="{{ route('verifikasi.items.reject', [$application, $item]) }}"
-                                                    data-label="{{ $specificHeader }}"
-                                                    title="Ubah menjadi Tidak Setuju">
-                                                    <i class="flaticon2-delete icon-xs"></i> Tolak
-                                                </button>
-                                            @elseif ($item->status === 'rejected')
-                                                <form method="POST"
-                                                    action="{{ route('verifikasi.items.approve', [$application, $item]) }}"
-                                                    class="d-inline js-confirm-approve"
-                                                    data-label="{{ $specificHeader }}">
-                                                    @csrf
-                                                    <button type="submit" class="btn-undo" title="Ubah menjadi Setuju">
-                                                        <i class="flaticon2-check-mark icon-xs text-white"></i> Setujui
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        </div>
-                                    @endif
-                                </div>
-                                @php $lastSpecificHeader = $specificHeader; @endphp
-                            @endif
-
                             <div class="verification-panel mb-4 {{ $panelClass }}">
 
                                 {{-- Panel Head --}}
                                 <div class="verification-panel-head">
                                     <div class="min-w-0">
                                         <div class="panel-head-title">
-                                            {{ $showActionsInSpecificHeader ? 'Detail Persyaratan' : $item->item_label }}
+                                            {{ $panelTitle }}
                                         </div>
                                         <div class="panel-head-meta">
                                             @if ($item->verifier)
@@ -146,55 +68,57 @@
                                         </div>
                                     </div>
 
-                                    @if (!$showActionsInSpecificHeader)
-                                        <div class="d-flex align-items-center flex-wrap justify-content-end"
-                                            style="gap:.5rem;">
-                                            {{-- Status badge --}}
-                                            <span
-                                                class="verif-status-badge {{ $item->status === 'approved' ? 'is-approved' : ($item->status === 'rejected' ? 'is-rejected' : 'is-pending') }}">
-                                                <i class="{{ $meta['icon'] }} icon-xs"></i>
-                                                {{ $meta['label'] }}
-                                            </span>
+                                    <div class="d-flex align-items-center flex-wrap justify-content-end"
+                                        style="gap:.5rem;">
+                                        {{-- Status badge --}}
+                                        <span
+                                            class="verif-status-badge {{ $item->status === 'approved' ? 'is-approved' : ($item->status === 'rejected' ? 'is-rejected' : 'is-pending') }}">
+                                            <i class="{{ $meta['icon'] }} icon-xs"></i>
+                                            {{ $meta['label'] }}
+                                        </span>
 
-                                            {{-- Aksi --}}
-                                            @if ($item->status === 'pending')
+                                        {{-- Aksi --}}
+                                        @if ($item->status === 'pending')
+                                            @can('verifikasi-approve')
                                                 <form method="POST"
                                                     action="{{ route('verifikasi.items.approve', [$application, $item]) }}"
-                                                    class="d-inline js-confirm-approve"
-                                                    data-label="{{ $item->item_label }}">
+                                                    class="d-inline js-confirm-approve" data-label="{{ $panelTitle }}">
                                                     @csrf
                                                     <button type="submit" class="btn-approve">
                                                         <i class="flaticon2-check-mark icon-xs text-white"></i> Setuju
                                                     </button>
                                                 </form>
-                                                <button type="button" class="btn-reject js-reject-btn"
-                                                    data-toggle="modal" data-target="#modalRejectItem"
+                                            @endcan
+                                            @can('verifikasi-reject')
+                                                <button type="button" class="btn-reject js-reject-btn" data-toggle="modal"
+                                                    data-target="#modalRejectItem"
                                                     data-action="{{ route('verifikasi.items.reject', [$application, $item]) }}"
-                                                    data-label="{{ $item->item_label }}">
+                                                    data-label="{{ $panelTitle }}">
                                                     <i class="flaticon2-delete icon-xs"></i> Tidak Setuju
                                                 </button>
-                                            @elseif ($item->status === 'approved')
-                                                <button type="button" class="btn-undo js-reject-btn"
-                                                    data-toggle="modal" data-target="#modalRejectItem"
+                                            @endcan
+                                        @elseif ($item->status === 'approved')
+                                            @can('verifikasi-reject')
+                                                <button type="button" class="btn-undo js-reject-btn" data-toggle="modal"
+                                                    data-target="#modalRejectItem"
                                                     data-action="{{ route('verifikasi.items.reject', [$application, $item]) }}"
-                                                    data-label="{{ $item->item_label }}"
-                                                    title="Ubah menjadi Tidak Setuju">
+                                                    data-label="{{ $panelTitle }}" title="Ubah menjadi Tidak Setuju">
                                                     <i class="flaticon2-delete icon-xs"></i> Tolak
                                                 </button>
-                                            @elseif ($item->status === 'rejected')
+                                            @endcan
+                                        @elseif ($item->status === 'rejected')
+                                            @can('verifikasi-approve')
                                                 <form method="POST"
                                                     action="{{ route('verifikasi.items.approve', [$application, $item]) }}"
-                                                    class="d-inline js-confirm-approve"
-                                                    data-label="{{ $item->item_label }}">
+                                                    class="d-inline js-confirm-approve" data-label="{{ $panelTitle }}">
                                                     @csrf
-                                                    <button type="submit" class="btn-undo"
-                                                        title="Ubah menjadi Setuju">
+                                                    <button type="submit" class="btn-undo" title="Ubah menjadi Setuju">
                                                         <i class="flaticon2-check-mark icon-xs"></i> Setujui
                                                     </button>
                                                 </form>
-                                            @endif
-                                        </div>
-                                    @endif
+                                            @endcan
+                                        @endif
+                                    </div>
                                 </div>
 
                                 {{-- Rejection Note --}}
@@ -216,10 +140,10 @@
                                 <div class="row px-4 pb-4 pt-2">
                                     @forelse ($rows as $row)
                                         @if (($row['type'] ?? null) === 'section_title')
-                                            <div class="col-12 mt-4 mb-2">
-                                                <div
-                                                    class="font-weight-bold text-dark text-uppercase border-bottom pb-2">
-                                                    {{ $row['label'] }}
+                                            <div class="col-12 mt-4 mb-3">
+                                                <div class="verif-section-divider">
+                                                    <i class="flaticon2-layers icon-sm mr-2 text-primary"></i>
+                                                    <span>{{ $row['label'] }}</span>
                                                 </div>
                                             </div>
                                         @elseif (($row['type'] ?? null) === 'other_company_table')
@@ -246,8 +170,7 @@
                                                             </tr>
                                                         @empty
                                                             <tr>
-                                                                <td colspan="3"
-                                                                    class="text-center text-muted py-3">
+                                                                <td colspan="3" class="text-center text-muted py-3">
                                                                     Tidak ada perusahaan lain milik pimpinan.
                                                                 </td>
                                                             </tr>
@@ -257,113 +180,162 @@
                                             </div>
                                         @elseif (($row['type'] ?? null) === 'product_table')
                                             <div class="col-12 mb-4">
-                                                <label
-                                                    class="font-size-sm font-weight-bold text-muted">{{ $row['label'] }}</label>
-                                                <table class="table table-sm table-bordered table-hover mb-0"
+                                                {{-- Title Sesuai Gambar --}}
+                                                <div class="form-section-title mb-4">
+                                                    {{ __('supplied_products_list') }}
+                                                </div>
+
+                                                <table class="table table-hover mb-0 w-100"
                                                     id="verificationProductTable">
-                                                    <thead class="thead-light text-nowrap text-center align-middle">
+                                                    <thead class="verif-table-head">
                                                         <tr>
-                                                            <th class="align-middle" style="min-width:250px;">Produk
-                                                            </th>
-                                                            <th class="align-middle" style="min-width:100px;">Item PH
-                                                            </th>
-                                                            <th class="align-middle" style="min-width:160px;">
-                                                                Manufaktur / Asal</th>
-                                                            <th class="align-middle" style="min-width:100px;">GMP</th>
-                                                            <th class="align-middle" style="min-width:120px;">Negara
-                                                            </th>
-                                                            <th class="align-middle" style="min-width:140px;">Rantai
-                                                                Pasok</th>
-                                                            <th class="align-middle" style="min-width:140px;">Surat
-                                                                Keagenan</th>
-                                                            <th class="align-middle" style="min-width:90px;">TKDN</th>
-                                                            <th class="align-middle" style="min-width:90px;">SNI</th>
-                                                            <th class="align-middle" style="min-width:90px;">Halal
-                                                            </th>
-                                                            <th class="align-middle" style="min-width:110px;">BSE/TSE
-                                                            </th>
+                                                            <th style="width: 28%; min-width: 180px;">
+                                                                {{ __('product') }}</th>
+                                                            <th style="width: 22%; min-width: 150px;">
+                                                                {{ __('manufacturer') }} / {{ __('origin') }}</th>
+                                                            <th style="width: 18%; min-width: 130px;">
+                                                                {{ __('supply_chain') }}</th>
+                                                            <th style="width: 32%; min-width: 280px;" class="text-left">
+                                                                {{ __('documents_and_certifications') }}</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         @forelse (($row['value'] ?? []) as $product)
-                                                            <tr class="js-revision-field align-middle text-center"
+                                                            <tr class="js-revision-field align-middle"
                                                                 data-field="{{ $product['field'] ?? 'products.' . ($product['erp'] ?? $loop->iteration) }}"
                                                                 data-label="{{ $product['label'] ?? ($product['product'] ?? 'Produk') }}">
-                                                                <td class="font-weight-bold text-dark text-left align-middle"
-                                                                    style="white-space: normal;">
-                                                                    {{ $product['product'] ?? '-' }}</td>
-                                                                <td class="align-middle">{{ $product['erp'] ?? '-' }}
+                                                                {{-- Kolom 1: Product --}}
+                                                                <td class="align-middle">
+                                                                    <div class="font-weight-bolder text-dark font-size-xs"
+                                                                        style="letter-spacing: 0.2px; line-height: 1.4;">
+                                                                        {{ strtoupper($product['product'] ?? '-') }}
+                                                                    </div>
                                                                 </td>
+
+                                                                {{-- Kolom 2: Manufacturer / Origin --}}
                                                                 <td class="align-middle">
-                                                                    {{ $product['manufaktur'] ?? '-' }}</td>
-                                                                <td class="align-middle">
-                                                                    @if (!empty($product['gmp']))
-                                                                        <x-preview-doc-button
-                                                                            url="{{ $product['gmp'] }}"
-                                                                            title="GMP - {{ $product['product'] ?? 'Produk' }}"
-                                                                            compact />
-                                                                    @else
-                                                                        -
+                                                                    <div
+                                                                        class="font-weight-bold text-dark font-size-xs mb-1">
+                                                                        {{ strtoupper($product['manufaktur'] ?? '-') }}
+                                                                    </div>
+                                                                    @if (!empty($product['negara']) && $product['negara'] !== '-')
+                                                                        <div class="text-muted font-size-xs d-flex align-items-center"
+                                                                            style="gap: 4px; color: #7e8299;">
+                                                                            <i class="fas fa-map-marker-alt"
+                                                                                style="font-size: 0.72rem; color: #7e8299;"></i>
+                                                                            <span>{{ $product['negara'] }}</span>
+                                                                        </div>
                                                                     @endif
                                                                 </td>
+
+                                                                {{-- Kolom 3: Supply Chain --}}
                                                                 <td class="align-middle">
-                                                                    {{ $product['negara'] ?? '-' }}</td>
-                                                                <td class="align-middle">
-                                                                    {{ $product['rantai_pasok'] ?? '-' }}</td>
-                                                                <td class="align-middle">
-                                                                    @if (!empty($product['surat']))
-                                                                        <x-preview-doc-button
-                                                                            url="{{ $product['surat'] }}"
-                                                                            title="Surat Keagenan - {{ $product['product'] ?? 'Produk' }}"
-                                                                            compact />
-                                                                    @else
-                                                                        -
-                                                                    @endif
+                                                                    @php
+                                                                        $supplyChainMap = [
+                                                                            'Manufaktur' => __('manufacturer'),
+                                                                            'Distributor Pertama' => __(
+                                                                                'first_distributor',
+                                                                            ),
+                                                                            'Distributor Kedua' => __(
+                                                                                'second_distributor',
+                                                                            ),
+                                                                            'Trader' => __('trader'),
+                                                                            'Repacker' => __('repacker'),
+                                                                        ];
+                                                                        $supplyChainDisplay =
+                                                                            $supplyChainMap[
+                                                                                $product['rantai_pasok'] ?? ''
+                                                                            ] ??
+                                                                            ($product['rantai_pasok'] ?? '-');
+                                                                    @endphp
+                                                                    <div
+                                                                        class="text-dark font-size-sm font-weight-medium">
+                                                                        {{ $supplyChainDisplay }}
+                                                                    </div>
                                                                 </td>
+
+                                                                {{-- Kolom 4: Documents & Certifications (2x3 Grid) --}}
                                                                 <td class="align-middle">
-                                                                    @if (!empty($product['tkdn']))
-                                                                        <x-preview-doc-button
-                                                                            url="{{ $product['tkdn'] }}"
-                                                                            title="Sertifikat TKDN - {{ $product['product'] ?? 'Produk' }}"
-                                                                            compact />
-                                                                    @else
-                                                                        {{ !empty($product['has_tkdn']) ? '-' : 'Tidak' }}
-                                                                    @endif
-                                                                </td>
-                                                                <td class="align-middle">
-                                                                    @if (!empty($product['sni']))
-                                                                        <x-preview-doc-button
-                                                                            url="{{ $product['sni'] }}"
-                                                                            title="Sertifikat SNI - {{ $product['product'] ?? 'Produk' }}"
-                                                                            compact />
-                                                                    @else
-                                                                        {{ !empty($product['has_sni']) ? '-' : 'Tidak' }}
-                                                                    @endif
-                                                                </td>
-                                                                <td class="align-middle">
-                                                                    @if (!empty($product['halal']))
-                                                                        <x-preview-doc-button
-                                                                            url="{{ $product['halal'] }}"
-                                                                            title="Sertifikat Halal - {{ $product['product'] ?? 'Produk' }}"
-                                                                            compact />
-                                                                    @else
-                                                                        {{ !empty($product['has_halal']) ? '-' : 'Tidak' }}
-                                                                    @endif
-                                                                </td>
-                                                                <td class="align-middle">
-                                                                    @if (!empty($product['bse_tse']))
-                                                                        <x-preview-doc-button
-                                                                            url="{{ $product['bse_tse'] }}"
-                                                                            title="Dokumen BSE/TSE - {{ $product['product'] ?? 'Produk' }}"
-                                                                            compact />
-                                                                    @else
-                                                                        {{ !empty($product['has_bse_tse']) ? '-' : 'Tidak' }}
-                                                                    @endif
+                                                                    @php
+                                                                        $allDocs = [
+                                                                            [
+                                                                                'key' => 'surat',
+                                                                                'label' => 'Agency Letter',
+                                                                                'icon' => 'fas fa-file-alt',
+                                                                                'class' => 'btn-light-primary',
+                                                                                'title' =>
+                                                                                    'Surat Keagenan (Agency Letter)',
+                                                                            ],
+                                                                            [
+                                                                                'key' => 'gmp',
+                                                                                'label' => 'GMP',
+                                                                                'icon' => 'fas fa-microscope',
+                                                                                'class' => 'btn-light-info',
+                                                                                'title' => 'Sertifikat GMP',
+                                                                            ],
+                                                                            [
+                                                                                'key' => 'tkdn',
+                                                                                'label' => 'TKDN',
+                                                                                'icon' => 'fas fa-cogs',
+                                                                                'class' => 'btn-light-dark',
+                                                                                'title' => 'Sertifikat TKDN',
+                                                                            ],
+                                                                            [
+                                                                                'key' => 'sni',
+                                                                                'label' => 'SNI',
+                                                                                'icon' => 'fas fa-award',
+                                                                                'class' => 'btn-light-warning',
+                                                                                'title' => 'Sertifikat SNI',
+                                                                            ],
+                                                                            [
+                                                                                'key' => 'halal',
+                                                                                'label' => 'Halal',
+                                                                                'icon' => 'fas fa-leaf',
+                                                                                'class' => 'btn-light-success',
+                                                                                'title' => 'Sertifikat Halal',
+                                                                            ],
+                                                                            [
+                                                                                'key' => 'bse_tse',
+                                                                                'label' => 'BSE/TSE',
+                                                                                'icon' => 'fas fa-heartbeat',
+                                                                                'class' => 'btn-light-danger',
+                                                                                'title' => 'Dokumen BSE/TSE',
+                                                                            ],
+                                                                        ];
+                                                                    @endphp
+                                                                    <div class="verif-doc-grid">
+                                                                        @foreach ($allDocs as $doc)
+                                                                            @php
+                                                                                $hasDoc = !empty($product[$doc['key']]);
+                                                                                $url = $hasDoc
+                                                                                    ? $product[$doc['key']]
+                                                                                    : null;
+                                                                            @endphp
+                                                                            @if ($hasDoc)
+                                                                                <button type="button"
+                                                                                    class="btn btn-xs {{ $doc['class'] }} font-weight-bold btn-preview-doc"
+                                                                                    data-url="{{ $url }}"
+                                                                                    data-title="{{ $doc['title'] }} - {{ $product['product'] ?? 'Produk' }}"
+                                                                                    title="Lihat {{ $doc['title'] }}">
+                                                                                    <i
+                                                                                        class="{{ $doc['icon'] }}"></i>{{ $doc['label'] }}
+                                                                                </button>
+                                                                            @else
+                                                                                <button type="button"
+                                                                                    class="btn btn-xs {{ $doc['class'] }} font-weight-bold btn-preview-doc disabled"
+                                                                                    disabled
+                                                                                    title="{{ $doc['title'] }} (Belum dilampirkan)">
+                                                                                    <i
+                                                                                        class="{{ $doc['icon'] }}"></i>{{ $doc['label'] }}
+                                                                                </button>
+                                                                            @endif
+                                                                        @endforeach
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                         @empty
                                                             <tr>
-                                                                <td colspan="11"
+                                                                <td colspan="4"
                                                                     class="text-center text-muted py-5">
                                                                     Belum ada produk yang dipilih.
                                                                 </td>
@@ -373,79 +345,105 @@
                                                 </table>
                                             </div>
                                         @elseif (($row['type'] ?? null) === 'iso_files_table')
-                                            @php $isoFileService = app(\App\Services\VendorFileService::class); @endphp
-                                            <div class="col-md-6 mb-4 js-revision-field"
+                                            <div class="col-md-6 mb-3 js-revision-field"
                                                 data-field="{{ $row['field'] ?? 'iso_files' }}"
                                                 data-label="{{ $row['label'] }}">
-                                                <label
-                                                    class="font-size-sm font-weight-bold text-muted">{{ $row['label'] }}</label>
-                                                <div class="form-control form-control-solid h-auto"
-                                                    style="min-height: 38px;">
-                                                    @if (empty($row['value']) || (is_object($row['value']) && $row['value']->isEmpty()))
-                                                        <span class="text-muted font-size-sm">Tidak ada dokumen.</span>
-                                                    @else
-                                                        @php
-                                                            $isoDocs =
-                                                                $row['value'] instanceof \Illuminate\Support\Collection
-                                                                    ? $row['value']->all()
-                                                                    : (array) $row['value'];
-                                                        @endphp
-                                                        <div class="d-flex flex-column" style="gap: .5rem;">
-                                                            @foreach ($isoDocs as $doc)
-                                                                @php
-                                                                    $docPath =
-                                                                        $doc['file_path'] ?? ($doc->file_path ?? null);
-                                                                    $docName =
-                                                                        $doc['original_name'] ??
-                                                                        ($doc->original_name ?? 'Dokumen ISO');
-                                                                    $docUrl =
-                                                                        $doc['url'] ??
-                                                                        ($docPath
-                                                                            ? $isoFileService->url(
-                                                                                $application,
-                                                                                $docPath,
-                                                                            )
-                                                                            : null);
-                                                                @endphp
-                                                                @if ($docUrl)
-                                                                    <x-preview-doc-button url="{{ $docUrl }}"
-                                                                        title="{{ $docName }}"
-                                                                        label="{{ $docName }}"
-                                                                        class="btn btn-sm btn-light-primary text-left" />
-                                                                @else
-                                                                    <div class="text-muted font-size-sm">
-                                                                        <i class="flaticon2-document icon-sm mr-1"></i>
-                                                                        {{ $docName }} (file tidak tersedia)
-                                                                    </div>
-                                                                @endif
-                                                            @endforeach
-                                                        </div>
-                                                    @endif
+                                                <div class="verif-field-box">
+                                                    <div class="verif-field-label">
+                                                        {{ $row['label'] }}
+                                                    </div>
+                                                    <div class="verif-field-value">
+                                                        @if (empty($row['value']) || (is_object($row['value']) && $row['value']->isEmpty()))
+                                                            <div class="verif-empty-doc">
+                                                                <i class="far fa-file-alt text-muted mr-1"></i>
+                                                                <span class="text-muted font-size-sm">Tidak
+                                                                    dilampirkan</span>
+                                                            </div>
+                                                        @else
+                                                            @php
+                                                                $isoDocs =
+                                                                    $row['value'] instanceof
+                                                                    \Illuminate\Support\Collection
+                                                                        ? $row['value']->all()
+                                                                        : (array) $row['value'];
+                                                            @endphp
+                                                            <div class="d-flex flex-wrap mt-1" style="gap: 0.5rem;">
+                                                                @foreach ($isoDocs as $doc)
+                                                                    @php
+                                                                        $docName = data_get(
+                                                                            $doc,
+                                                                            'original_name',
+                                                                            'Dokumen ISO',
+                                                                        );
+                                                                        $docUrl = data_get($doc, 'url');
+                                                                    @endphp
+                                                                    @if ($docUrl)
+                                                                        <button type="button"
+                                                                            class="btn btn-xs btn-light-primary font-weight-bold btn-preview-doc"
+                                                                            data-url="{{ $docUrl }}"
+                                                                            data-title="{{ $docName }}"
+                                                                            title="Lihat {{ $docName }}"
+                                                                            style="padding: 0.35rem 0.85rem; border-radius: 6px; font-size: 0.8rem; gap: 6px;">
+                                                                            <i class="far fa-eye"
+                                                                                style="font-size: 0.82rem;"></i>
+                                                                            <span>{{ $docName }}</span>
+                                                                        </button>
+                                                                    @else
+                                                                        <span class="text-muted font-size-sm">
+                                                                            <i class="far fa-file-alt mr-1"></i>
+                                                                            {{ $docName }} (tidak tersedia)
+                                                                        </span>
+                                                                    @endif
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </div>
                                         @else
-                                            <div class="col-md-6 mb-4 js-revision-field"
+                                            <div class="col-md-6 mb-3 js-revision-field"
                                                 data-field="{{ $row['field'] ?? $row['label'] }}"
                                                 data-label="{{ $row['label'] }}">
-                                                <div class="form-group mb-0">
-                                                    <label
-                                                        class="font-size-sm font-weight-bold text-muted">{{ $row['label'] }}</label>
-                                                    @if (!empty($row['url']))
-                                                        <div class="mt-1">
-                                                            <x-preview-doc-button url="{{ $row['url'] }}"
-                                                                title="{{ $row['label'] ?? 'Preview Dokumen' }}"
-                                                                label="Lihat Dokumen: {{ $row['value'] ?? ($row['label'] ?? 'Dokumen') }}"
-                                                                class="btn btn-sm btn-light-primary w-100 text-left" />
-                                                        </div>
-                                                    @else
-                                                        @if (strlen($row['value'] ?? '') > 100)
-                                                            <textarea class="form-control form-control-solid" rows="3" readonly disabled>{!! strip_tags($row['value'] ?? null ?: '-') !!}</textarea>
+                                                <div class="verif-field-box">
+                                                    <div class="verif-field-label">
+                                                        {{ $row['label'] }}
+                                                    </div>
+                                                    <div class="verif-field-value">
+                                                        @if (!empty($row['url']))
+                                                            <div class="mt-1">
+                                                                <button type="button"
+                                                                    class="btn btn-xs btn-light-primary font-weight-bold btn-preview-doc"
+                                                                    data-url="{{ $row['url'] }}"
+                                                                    data-title="{{ $row['label'] ?? 'Dokumen' }}"
+                                                                    title="Lihat {{ $row['label'] ?? 'Dokumen' }}"
+                                                                    style="padding: 0.35rem 0.85rem; border-radius: 6px; font-size: 0.8rem; gap: 6px;">
+                                                                    <i class="far fa-eye"
+                                                                        style="font-size: 0.82rem;"></i>
+                                                                    <span>Lihat Dokumen</span>
+                                                                </button>
+                                                            </div>
+                                                        @elseif (
+                                                            !empty($row['is_document']) ||
+                                                                \Illuminate\Support\Str::startsWith($row['field'] ?? '', 'dok_') ||
+                                                                \Illuminate\Support\Str::contains($row['field'] ?? '', ['_document', '_file', '_cert']))
+                                                            <div class="verif-empty-doc">
+                                                                <i class="far fa-file-alt text-muted mr-1"></i>
+                                                                <span class="text-muted font-size-sm">Tidak
+                                                                    dilampirkan</span>
+                                                            </div>
+                                                        @elseif (!empty($row['value']) && $row['value'] !== '-')
+                                                            @if (strlen($row['value']) > 100)
+                                                                <div class="verif-text-multiline">
+                                                                    {!! nl2br(e(strip_tags($row['value']))) !!}</div>
+                                                            @else
+                                                                <div class="verif-text-single">{!! strip_tags($row['value']) !!}
+                                                                </div>
+                                                            @endif
                                                         @else
-                                                            <input type="text"
-                                                                class="form-control form-control-solid"
-                                                                value="{!! strip_tags($row['value'] ?? null ?: '-') !!}" readonly disabled>
+                                                            <span
+                                                                class="text-muted font-size-sm font-weight-bold">—</span>
                                                         @endif
-                                                    @endif
+                                                    </div>
                                                 </div>
                                             </div>
                                         @endif
@@ -476,13 +474,19 @@
             if ($('#verificationProductTable').length) {
                 $('#verificationProductTable').DataTable({
                     responsive: false,
-                    scrollX: true,
+                    scrollX: false,
+                    autoWidth: false,
                     pageLength: 10,
                     lengthMenu: [
                         [10, 25, 50, 100, -1],
                         [10, 25, 50, 100, 'Semua']
                     ],
-                    order: []
+                    order: [],
+                    columnDefs: [{
+                        targets: 3,
+                        orderable: false,
+                        searchable: false
+                    }]
                 });
             }
         });

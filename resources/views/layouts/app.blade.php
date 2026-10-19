@@ -22,7 +22,8 @@
     <link href="{{ asset('css/aside/dark.css') }}" rel="stylesheet" type="text/css" />
     <!--end::Layout Themes-->
     <!--begin::Page Vendors Styles(used by this page)-->
-    <link href="{{ asset('css/admin/vms.css') }}?v={{ filemtime(public_path('css/admin/vms.css')) }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('css/admin/vms.css') }}?v={{ filemtime(public_path('css/admin/vms.css')) }}" rel="stylesheet"
+        type="text/css" />
     <link href="{{ asset('plugins/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
     <!--end::Page Vendors Styles-->
     <!-- Favicon icon -->
@@ -37,6 +38,11 @@
 
 <body id="kt_body"
     class="header-fixed header-mobile-fixed subheader-enabled subheader-fixed aside-enabled aside-fixed aside-minimize-hoverable page-loading">
+    <script>
+        if (window.innerWidth <= 1600 || window.innerHeight <= 920) {
+            document.getElementById('kt_body').classList.add('aside-minimize');
+        }
+    </script>
 
     <div class="page-loader page-loader-logo">
         <h1 style="font-size:7rem">E-VENDOR</h1>
@@ -68,9 +74,9 @@
                     <div class="d-flex flex-column-fluid">
                         <!--begin::Container-->
                         {{-- Page Header (muncul otomatis jika @section('page_title') diisi) --}}
-                        <div class="container">
+                        <div class="container-fluid px-4 px-lg-7">
                             @hasSection('page_title')
-                                <div class="page-header-wrapper mb-8">
+                                <div class="page-header-wrapper mb-4 mb-lg-6">
 
                                     {{-- Breadcrumb --}}
                                     <div class="mb-3 text-primary"
@@ -180,12 +186,11 @@
     <!--end::Global Config-->
     <!--begin::Localization Config-->
     <script>
-        window.i18n = @json(
-            file_exists(resource_path('lang/' . app()->getLocale() . '.json'))
+        window.i18n = @json(file_exists(resource_path('lang/' . app()->getLocale() . '.json'))
                 ? json_decode(file_get_contents(resource_path('lang/' . app()->getLocale() . '.json')), true)
                 : []
         );
-        window.__ = function (key, replace = {}) {
+        window.__ = function(key, replace = {}) {
             let text = (window.i18n && window.i18n[key]) ? window.i18n[key] : key;
             for (const [k, v] of Object.entries(replace)) {
                 text = text.replace(':' + k, v);
@@ -198,7 +203,9 @@
     <!--begin::Global Theme Bundle(used by all pages)-->
     <script src="{{ asset('plugins/plugins.bundle.js') }}"></script>
     <script src="{{ asset('js/scripts.bundle.js') }}"></script>
-    <script src="{{ asset('plugins/datatables/datatables.bundle.js') }}?v={{ filemtime(public_path('plugins/datatables/datatables.bundle.js')) }}"></script>
+    <script
+        src="{{ asset('plugins/datatables/datatables.bundle.js') }}?v={{ filemtime(public_path('plugins/datatables/datatables.bundle.js')) }}">
+    </script>
     <script>
         // Global Bootstrap-Select configuration
         if (window.jQuery && $.fn.selectpicker) {
@@ -304,7 +311,8 @@
                 if (customLabel) {
                     setTimeout(() => {
                         customLabel.classList.add('selected');
-                        customLabel.textContent = isMulti ? `${files.length} file dipilih` : files[0].name;
+                        customLabel.textContent = isMulti ? `${files.length} file dipilih` :
+                            files[0].name;
                     }, 0);
                 }
 
@@ -322,7 +330,8 @@
                     }
                 }
 
-                const existingIndicator = e.target.closest('.form-group')?.querySelector('.existing-file-indicator');
+                const existingIndicator = e.target.closest('.form-group')?.querySelector(
+                    '.existing-file-indicator');
                 if (existingIndicator) existingIndicator.style.display = 'none';
 
                 setStatus(status, 'blue', `Mengunggah ${files.length} file...`);
@@ -341,7 +350,8 @@
                         }
 
                         // Append ke path yang sudah di-upload sebelumnya jika ada (misal upload bertahap)
-                        const existingPaths = hidden.value ? hidden.value.split(',').map(p => p.trim()).filter(Boolean) : [];
+                        const existingPaths = hidden.value ? hidden.value.split(',').map(p => p.trim())
+                            .filter(Boolean) : [];
                         const allPaths = existingPaths.concat(paths);
                         hidden.value = allPaths.join(','); // server split saat simpan
 
@@ -383,7 +393,10 @@
             // Global auto-adjust DataTables column widths & scrollbars on Tab / Pill switch
             $(document).on('shown.bs.tab', 'a[data-toggle="tab"], a[data-toggle="pill"]', function() {
                 if (window.jQuery && $.fn.DataTable) {
-                    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+                    $.fn.dataTable.tables({
+                        visible: true,
+                        api: true
+                    }).columns.adjust();
                 }
             });
         });

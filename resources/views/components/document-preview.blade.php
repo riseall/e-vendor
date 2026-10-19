@@ -27,22 +27,22 @@
                         modalEl.setAttribute('aria-hidden', 'true');
                         modalEl.setAttribute('data-backdrop', 'true');
                         modalEl.innerHTML =
-                            '<div class="modal-dialog modal-lg modal-dialog-centered" role="document">' +
-                            '<div class="modal-content border-0">' +
-                            '<div class="modal-header">' +
-                            '<h5 class="modal-title font-weight-bold" id="documentPreviewModalLabel">Preview Dokumen</h5>' +
+                            '<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable doc-preview-dialog" role="document">' +
+                            '<div class="modal-content border-0 shadow-lg">' +
+                            '<div class="modal-header py-3 px-5 bg-light">' +
+                            '<h5 class="modal-title font-weight-bold text-dark" id="documentPreviewModalLabel">Preview Dokumen</h5>' +
                             '<button type="button" class="close" data-dismiss="modal" aria-label="Tutup">' +
                             '<i aria-hidden="true" class="ki ki-close"></i>' +
                             '</button>' +
                             '</div>' +
-                            '<div class="modal-body p-0 bg-light" style="height: 80vh; position: relative;">' +
+                            '<div class="modal-body p-0 bg-light doc-preview-body" style="position: relative;">' +
                             '<div id="documentPreviewContainer" class="h-100 d-flex align-items-center justify-content-center" style="overflow: auto;"></div>' +
                             '</div>' +
-                            '<div class="modal-footer">' +
-                            '<a id="documentPreviewOpen" href="#" target="_blank" rel="noopener" class="btn btn-light-primary font-weight-bold">' +
-                            '<i class="flaticon2-new-tab"></i> Buka di Tab Baru' +
+                            '<div class="modal-footer py-2 px-5 bg-light">' +
+                            '<a id="documentPreviewOpen" href="#" target="_blank" rel="noopener" class="btn btn-sm btn-light-primary font-weight-bold mr-2">' +
+                            '<i class="flaticon2-new-tab mr-1"></i> Buka di Tab Baru' +
                             '</a>' +
-                            '<button type="button" class="btn btn-light font-weight-bold" data-dismiss="modal">Tutup</button>' +
+                            '<button type="button" class="btn btn-sm btn-light-danger font-weight-bold" data-dismiss="modal">Tutup</button>' +
                             '</div>' +
                             '</div>' +
                             '</div>';

@@ -1303,6 +1303,17 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     width: 100% !important;
 }
 
+/* Netralkan wrapper div.bootstrap-select agar tidak membentuk double box saat select memiliki class form-control */
+.bootstrap-select.form-control,
+div.bootstrap-select.form-control {
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+}
+
 .bootstrap-select.show {
     z-index: 1050 !important;
 }
@@ -1340,9 +1351,9 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     z-index: 1066 !important;
 }
 
-/* Ensure DataTables with scrollX has sufficient vertical height for dropdowns */
+/* Ensure DataTables with scrollX has reasonable vertical height without excessive void */
 .dataTables_wrapper .dataTables_scrollBody {
-    min-height: 280px;
+    min-height: 100px;
 }
 
 /* Ensure label badges never wrap internally */
@@ -1375,3 +1386,540 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
 .checkbox > input.is-invalid ~ span {
     border-color: #F64E60 !important;
 }
+
+/* ==========================================================================
+   LAPTOP RESOLUTION & DENSITY HARMONIZATION (1366x768 / High-DPI Scale)
+   Harmonisasi seluruh menu untuk tampilan rapi, proporsional, dan full-width
+   ========================================================================== */
+@media screen and (max-width: 1600px), screen and (max-height: 920px) {
+    /* 1. Root typography scale (~18% lebih proporsional di laptop) */
+    html {
+        font-size: 13px !important;
+    }
+
+    /* 2. Container melebar penuh (menghilangkan ruang putih 156px di kiri-kanan) */
+    .content .container,
+    .content .container-fluid {
+        max-width: 100% !important;
+        padding-left: 24px !important;
+        padding-right: 24px !important;
+    }
+
+    /* 3. Sidebar Hover Ramping (215px bukan 265px saat di-hover) */
+    .aside-fixed.aside-minimize-hover .aside {
+        width: 215px !important;
+        box-shadow: 0 0 25px rgba(0, 0, 0, 0.15) !important;
+    }
+    .aside-fixed.aside-minimize-hover .aside-menu .menu-nav > .menu-item > .menu-link {
+        padding: 7px 14px !important;
+    }
+    .aside-fixed.aside-minimize-hover .aside-menu .menu-nav > .menu-item > .menu-link .menu-text {
+        font-size: 0.86rem !important;
+    }
+    .aside-fixed.aside-minimize-hover .brand-logo img {
+        max-width: 105px !important;
+    }
+
+    /* 4. Banner Welcome (Dashboard) */
+    .welcome-card {
+        padding: 1.15rem 1.5rem !important;
+    }
+    .welcome-card h2 {
+        font-size: 1.4rem !important;
+        margin-bottom: 0.2rem !important;
+    }
+    .welcome-card p {
+        font-size: 0.85rem !important;
+    }
+
+    /* 5. Stat Cards / KPI Overview (Hemat ~40px tinggi vertikal) */
+    .vnd-stat {
+        padding: 0.65rem 0.85rem !important;
+        gap: 0.75rem !important;
+    }
+    .vnd-stat-icon {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1.1rem !important;
+    }
+    .vnd-stat-num {
+        font-size: 1.35rem !important;
+    }
+    .vnd-stat-lbl {
+        font-size: 0.74rem !important;
+    }
+
+    /* 6. Page Header & Spasi Vertikal Ramping */
+    .page-header-wrapper {
+        margin-bottom: 0.85rem !important;
+    }
+    .page-header-wrapper h3 {
+        font-size: 1.25rem !important;
+    }
+    .content.d-flex {
+        padding-top: 15px !important;
+        padding-bottom: 15px !important;
+    }
+    .row.mb-6,
+    .content .row.mt-6,
+    .vnd-card.mt-6 {
+        margin-top: 0.85rem !important;
+        margin-bottom: 0.85rem !important;
+    }
+
+    /* 7. Card & Card Header Density */
+    .card .card-body,
+    .vnd-card-body {
+        padding: 1rem 1.25rem !important;
+    }
+    .card .card-header,
+    .vnd-card-head {
+        min-height: 44px !important;
+        padding: 0.5rem 1.25rem !important;
+    }
+
+    /* 8. Baris tabel DataTables lebih compact */
+    table.dataTable th,
+    table.dataTable td,
+    .table th,
+    .table td {
+        padding: 0.45rem 0.65rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* 9. Tab Menu Navigasi Horizontal */
+    .verif-tabs .nav-link,
+    .nav-tabs .nav-link {
+        font-size: 0.8rem !important;
+        padding: 0.5rem 0.8rem !important;
+    }
+    .verif-tab-badge {
+        font-size: 0.68rem !important;
+        padding: 1px 6px !important;
+    }
+
+    /* 10. Sub-Navigasi Profil Vendor */
+    .vendor-profile-layout {
+        grid-template-columns: minmax(190px, 220px) minmax(0, 1fr) !important;
+        gap: 16px !important;
+    }
+    .vendor-profile-nav a {
+        font-size: 12px !important;
+        padding: 7px 14px !important;
+    }
+
+    /* 11. Form Wizard Nav Bar (Universal seluruh step) */
+    .wz-nav-wrapper {
+        padding: 0.65rem 1.25rem !important;
+    }
+    .wz-nav-icon {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 8px !important;
+    }
+    .wz-nav-icon i {
+        font-size: 14px !important;
+    }
+    .wz-nav-label {
+        font-size: 10px !important;
+    }
+    .wz-nav-line {
+        width: 24px !important;
+        margin-bottom: 14px !important;
+    }
+    .wz-nav-step {
+        min-width: 58px !important;
+        gap: 4px !important;
+    }
+
+    /* 12. Alert Notification Kompak */
+    .alert.alert-custom {
+        padding: 0.65rem 1rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    .alert.alert-custom .alert-icon i {
+        font-size: 1.15rem !important;
+    }
+    .alert.alert-custom .alert-text {
+        font-size: 0.85rem !important;
+    }
+
+    /* 13. Hierarki Judul Form & Deskripsi di Seluruh Step */
+    .wizard h4,
+    .wizard .h4 {
+        font-size: 1.15rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+    .wizard p.text-muted,
+    .wizard p.text-muted.mb-8 {
+        font-size: 0.82rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    .form-section-title {
+        font-size: 12.5px !important;
+        letter-spacing: 0.5px !important;
+        padding-bottom: 6px !important;
+        margin-top: 0.75rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    .question-wrapper {
+        padding: 0.85rem 1.15rem !important;
+        margin-bottom: 0.85rem !important;
+    }
+    .question-label {
+        font-size: 0.92rem !important;
+        margin-bottom: 0.65rem !important;
+    }
+
+    /* 14. Step 1: Category Card Grid */
+    .wizard-4 .card-category {
+        padding: 0.75rem 1rem !important;
+    }
+    .wizard-4 .card-category .category-title {
+        font-size: 0.88rem !important;
+    }
+
+    /* 15. Step 8: Document Upload List */
+    .modern-doc-list h5 {
+        font-size: 0.95rem !important;
+        margin-top: 0.75rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .doc-item {
+        padding: 0.55rem 0.85rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .doc-icon-wrapper {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    .doc-label {
+        font-size: 0.86rem !important;
+    }
+
+    /* 16. Form Controls & Spacing (Densitas Kompak untuk Resolusi Laptop) */
+    .form-control:not(textarea):not(.bootstrap-select) {
+        height: 34px !important;
+        min-height: 34px !important;
+        padding: 0.35rem 0.75rem !important;
+        font-size: 0.84rem !important;
+        line-height: 1.4 !important;
+        border-radius: 0.35rem !important;
+    }
+    textarea.form-control {
+        padding: 0.45rem 0.75rem !important;
+        font-size: 0.84rem !important;
+        line-height: 1.4 !important;
+        min-height: 62px !important;
+        border-radius: 0.35rem !important;
+    }
+    .bootstrap-select.form-control,
+    div.bootstrap-select.form-control {
+        padding: 0 !important;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        height: auto !important;
+        min-height: 0 !important;
+    }
+    .bootstrap-select > .btn.dropdown-toggle,
+    .bootstrap-select .btn {
+        height: 34px !important;
+        min-height: 34px !important;
+        padding: 0.35rem 0.75rem !important;
+        font-size: 0.84rem !important;
+        line-height: 1.4 !important;
+        border-radius: 0.35rem !important;
+        background: #ffffff !important;
+        border: 1px solid #cdd3f4 !important;
+    }
+    .bootstrap-select .dropdown-menu {
+        font-size: 0.84rem !important;
+    }
+    .bootstrap-select .dropdown-menu .inner .dropdown-item {
+        padding: 0.35rem 0.75rem !important;
+    }
+    .custom-file {
+        height: 34px !important;
+    }
+    .custom-file-input {
+        height: 34px !important;
+    }
+    .custom-file-label {
+        height: 34px !important;
+        padding: 0.38rem 0.75rem !important;
+        line-height: 1.4 !important;
+        font-size: 0.82rem !important;
+        border-radius: 0.35rem !important;
+    }
+    .custom-file-label::after {
+        height: 32px !important;
+        line-height: 1.4 !important;
+        padding: 0.38rem 0.75rem !important;
+        font-size: 0.82rem !important;
+    }
+    .input-group-text {
+        height: 34px !important;
+        padding: 0.35rem 0.75rem !important;
+        font-size: 0.84rem !important;
+    }
+    .input-group > .btn {
+        height: 34px !important;
+        padding: 0.35rem 0.65rem !important;
+    }
+    .form-group {
+        margin-bottom: 0.75rem !important;
+    }
+    .question-wrapper .row.mt-4,
+    .question-wrapper .mt-4 {
+        margin-top: 0.65rem !important;
+    }
+    .question-wrapper label:not(.question-label):not(.custom-file-label):not(.custom-control-label) {
+        font-size: 0.82rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+
+    /* 17. Form Controls Khusus di Dalam Sel Tabel (Step 7 Produk & Equipment) */
+    .table .product-row td,
+    .table td .form-group {
+        margin-bottom: 0.35rem !important;
+    }
+    .table .product-row td {
+        padding: 8px 8px !important;
+    }
+    .table .form-control:not(textarea):not(.bootstrap-select) {
+        height: 30px !important;
+        min-height: 30px !important;
+        padding: 0.2rem 0.5rem !important;
+        font-size: 0.8rem !important;
+        line-height: 1.3 !important;
+    }
+    .table .bootstrap-select.form-control,
+    .table div.bootstrap-select.form-control {
+        padding: 0 !important;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        height: auto !important;
+        min-height: 0 !important;
+    }
+    .table .bootstrap-select > .btn.dropdown-toggle,
+    .table .bootstrap-select .btn {
+        height: 30px !important;
+        min-height: 30px !important;
+        padding: 0.2rem 0.5rem !important;
+        font-size: 0.8rem !important;
+        line-height: 1.3 !important;
+        border-radius: 0.35rem !important;
+        background: #ffffff !important;
+        border: 1px solid #cdd3f4 !important;
+    }
+    .table .bootstrap-select > .btn.dropdown-toggle .filter-option {
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+    .table .custom-file {
+        height: 28px !important;
+    }
+    .table .custom-file-input {
+        height: 28px !important;
+    }
+    .table .custom-file-label {
+        height: 28px !important;
+        padding: 0.2rem 0.5rem !important;
+        font-size: 0.76rem !important;
+        line-height: 1.3 !important;
+    }
+    .table .custom-file-label::after {
+        height: 26px !important;
+        padding: 0.2rem 0.5rem !important;
+        font-size: 0.76rem !important;
+        line-height: 1.3 !important;
+    }
+    .table .mt-2 {
+        margin-top: 0.35rem !important;
+    }
+    .table .existing-file-indicator {
+        font-size: 0.72rem !important;
+        margin-top: 2px !important;
+    }
+    .table .existing-file-indicator .btn-icon {
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px !important;
+        line-height: 18px !important;
+    }
+    .table .btn-hapus-produk {
+        width: 28px !important;
+        height: 28px !important;
+        padding: 0 !important;
+    }
+}
+
+/* ==========================================================================
+   GLOBAL HORIZONTAL SCROLLBAR VISIBILITY (Fix Scroll Hilang di Laptop)
+   Memastikan scrollbar horizontal selalu terlihat jelas & tidak di-hide Windows 11
+   ========================================================================== */
+.table-responsive,
+.dataTables_scrollBody,
+.tab-nav-wrap .nav,
+.verif-tabs {
+    scrollbar-width: thin !important;
+    scrollbar-color: #94a3b8 #edf2f7 !important;
+}
+
+.table-responsive::-webkit-scrollbar,
+.dataTables_scrollBody::-webkit-scrollbar,
+.tab-nav-wrap .nav::-webkit-scrollbar,
+.verif-tabs::-webkit-scrollbar {
+    height: 10px !important;
+    width: 8px !important;
+    display: block !important;
+    -webkit-appearance: none;
+}
+
+.table-responsive::-webkit-scrollbar-track,
+.dataTables_scrollBody::-webkit-scrollbar-track,
+.tab-nav-wrap .nav::-webkit-scrollbar-track,
+.verif-tabs::-webkit-scrollbar-track {
+    background: #edf2f7 !important;
+    border-radius: 6px !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.table-responsive::-webkit-scrollbar-thumb,
+.dataTables_scrollBody::-webkit-scrollbar-thumb,
+.tab-nav-wrap .nav::-webkit-scrollbar-thumb,
+.verif-tabs::-webkit-scrollbar-thumb {
+    background: #94a3b8 !important;
+    border-radius: 6px !important;
+    border: 2px solid #edf2f7 !important;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover,
+.dataTables_scrollBody::-webkit-scrollbar-thumb:hover,
+.tab-nav-wrap .nav::-webkit-scrollbar-thumb:hover,
+.verif-tabs::-webkit-scrollbar-thumb:hover {
+    background: #005db6 !important;
+}
+
+/* ==========================================================================
+   PRODUCT DETAIL & DOCUMENT PREVIEW MODALS - HD & FULL HD RESPONSIVE
+   Menyelaraskan ukuran modal di HD (1366x768) dan Full HD (1920x1080)
+   ========================================================================== */
+
+/* 1. Modal Preview Dokumen: Compact A4 Flexbox Fluid */
+.doc-preview-dialog {
+    max-width: min(72vw, 840px) !important;
+    width: 72vw !important;
+    margin: 2rem auto !important;
+    height: calc(100vh - 4.5rem) !important;
+    max-height: 85vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+@media (max-width: 768px) {
+    .doc-preview-dialog {
+        max-width: 95vw !important;
+        width: 95vw !important;
+        margin: 1rem auto !important;
+        height: calc(100vh - 2rem) !important;
+        max-height: calc(100vh - 2rem) !important;
+    }
+}
+.doc-preview-dialog .modal-content {
+    height: 100% !important;
+    max-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+.doc-preview-dialog .modal-header,
+.doc-preview-dialog .modal-footer {
+    flex-shrink: 0 !important;
+    padding: 0.65rem 1.25rem !important;
+}
+.doc-preview-body {
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: hidden !important;
+}
+
+/* 2. Modal Detail Produk: Fluid & Scroll-Safe */
+.modal-product-dialog {
+    max-width: min(94vw, 1140px) !important;
+    width: 94vw !important;
+    margin: 1rem auto !important;
+}
+.modal-product-detail .modal-content {
+    max-height: calc(100vh - 2rem) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+.modal-product-detail .modal-header,
+.modal-product-detail .modal-footer {
+    flex-shrink: 0 !important;
+}
+.modal-product-detail .modal-body {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    min-height: 0 !important;
+}
+
+/* 3. Penyesuaian Densitas di Seluruh Layar Laptop (Tinggi <= 920px ATAU Lebar <= 1600px) */
+@media screen and (max-width: 1600px), screen and (max-height: 920px) {
+    .modal-product-detail .modal-header {
+        padding: 0.55rem 1.25rem !important;
+    }
+    .modal-product-detail .modal-body {
+        padding: 0.75rem 1.25rem !important;
+        max-height: calc(100vh - 130px) !important;
+    }
+    .modal-product-detail .modal-footer {
+        padding: 0.45rem 1.25rem !important;
+    }
+    .modal-product-detail .form-group {
+        margin-bottom: 0.35rem !important;
+    }
+    .modal-product-detail label {
+        margin-bottom: 0.15rem !important;
+        font-size: 0.8rem !important;
+    }
+    .modal-product-detail .custom-file,
+    .modal-product-detail .custom-file-input,
+    .modal-product-detail .custom-file-label {
+        height: calc(1.35em + 0.85rem + 2px) !important;
+    }
+    .modal-product-detail .custom-file-label {
+        padding: 0.375rem 0.65rem !important;
+        line-height: 1.35 !important;
+        font-size: 0.8rem !important;
+    }
+    .modal-product-detail .custom-file-label::after {
+        padding: 0.375rem 0.65rem !important;
+        line-height: 1.35 !important;
+        height: calc(1.35em + 0.85rem) !important;
+    }
+    .modal-product-detail .cert-box {
+        padding: 0.5rem !important;
+        min-height: 88px !important;
+    }
+    .modal-product-detail .cert-label {
+        font-size: 0.75rem !important;
+        line-height: 1.25 !important;
+        height: 28px !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+}
+
+
+
+

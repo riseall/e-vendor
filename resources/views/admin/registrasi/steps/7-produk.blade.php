@@ -130,7 +130,8 @@
                         <select id="erpProductSelect" class="form-control select2" style="width: 100%;">
                             <option value=""></option>
                         </select>
-                        <span class="form-text text-primary font-size-xs mt-2">{{ __('type_min_3_chars_raw_material') }}</span>
+                        <span
+                            class="form-text text-primary font-size-xs mt-2">{{ __('type_min_3_chars_raw_material') }}</span>
                     </div>
                 </div>
 
@@ -145,7 +146,8 @@
                                     {{ $kemas->name }}</option>
                             @endforeach
                         </select>
-                        <span class="form-text text-info font-size-xs mt-2">{{ __('select_packaging_from_list') }}</span>
+                        <span
+                            class="form-text text-info font-size-xs mt-2">{{ __('select_packaging_from_list') }}</span>
                     </div>
                 </div>
 
@@ -161,7 +163,8 @@
                                     id="btnCustomProduct">{{ __('add') }}</button>
                             </div>
                         </div>
-                        <span class="form-text text-success font-size-xs mt-2">{{ __('if_product_not_in_list') }}</span>
+                        <span
+                            class="form-text text-success font-size-xs mt-2">{{ __('if_product_not_in_list') }}</span>
                     </div>
                 </div>
             </div>
@@ -180,16 +183,11 @@
                         <th style="width: 20%;">{{ __('supply_chain') }}</th>
                         <th style="width: 28%;">{{ __('documents_and_certifications') }}</th>
                     @else
-                        <th>{{ __('product') }}</th>
-                        <th>{{ __('manufacturer_origin') }} <span class="text-danger">*</span></th>
-                        <th>{{ __('country') }} <span class="text-danger">*</span></th>
-                        <th>{{ __('supply_chain') }} <span class="text-danger">*</span></th>
-                        <th>{{ __('agency_letter') }} <span class="text-danger">*</span></th>
-                        <th>TKDN</th>
-                        <th>SNI</th>
-                        <th>Halal</th>
-                        <th>BSE/TSE</th>
-                        <th>{{ __('action') }}</th>
+                        <th style="width: 26%;">{{ __('product') }}</th>
+                        <th style="width: 22%;">{{ __('manufacturer_origin') }}</th>
+                        <th style="width: 18%;">{{ __('supply_chain') }}</th>
+                        <th style="width: 22%;">{{ __('documents_and_certifications') }}</th>
+                        <th style="width: 12%; text-align: center;">{{ __('action') }}</th>
                     @endif
                 </tr>
             </thead>
@@ -207,9 +205,29 @@
     </div>
 </div>
 
+{{-- Container Modal Edit Produk (di luar table agar tidak terganggu pagination DataTables) --}}
+<div id="productModalsContainer">
+    @if (!$isReadOnly)
+        @foreach ($savedProducts as $prodId => $prodData)
+            @include('admin.registrasi.steps.partials.product-modal', [
+                'id' => $prodId,
+                'name' => $prodData['product_name'],
+                'data' => $prodData,
+            ])
+        @endforeach
+    @endif
+</div>
+
 @if (!$isReadOnly)
-    <template id="template-product-card">
+    <template id="template-product-row">
         @include('admin.registrasi.steps.partials.product-card', [
+            'id' => '__PRODUCT_ID__',
+            'name' => '__PRODUCT_NAME__',
+            'data' => [],
+        ])
+    </template>
+    <template id="template-product-modal">
+        @include('admin.registrasi.steps.partials.product-modal', [
             'id' => '__PRODUCT_ID__',
             'name' => '__PRODUCT_NAME__',
             'data' => [],
@@ -223,7 +241,7 @@
             const isReadOnly = {{ $isReadOnly ? 'true' : 'false' }};
             const productTable = $('#selectedProductsTable').DataTable({
                 responsive: false,
-                scrollX: !isReadOnly,
+                scrollX: false,
                 autoWidth: false,
                 pageLength: 10,
                 lengthMenu: [
@@ -264,6 +282,38 @@
             };
 
             @if (!$isReadOnly)
+                // Helper Toast SweetAlert2 sesuai guideline workspace (.vnd-swal-toast)
+                function showProductToast(type, title, message) {
+                    const isSuccess = type === 'success';
+                    const iconClass = isSuccess ? 'fa-check text-success' : 'fa-info text-info';
+                    const btnClass = isSuccess ? 'btn-outline-success' : 'btn-outline-info';
+
+                    Swal.fire({
+                        html: '<div class="vnd-swal-toast-body">' +
+                            '<div class="btn btn-icon ' + btnClass + ' btn-circle btn-sm m-0">' +
+                            '<i class="fas ' + iconClass + '" style="font-size:1rem;"></i>' +
+                            '</div>' +
+                            '<div class="vnd-swal-toast-content">' +
+                            '<div class="vnd-swal-toast__title">' + (title || "{{ __('success') }}") +
+                            '</div>' +
+                            '<div class="vnd-swal-toast__text">' + message + '</div>' +
+                            '</div>' +
+                            '</div>',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        showCloseButton: true,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        width: 360,
+                        padding: '0',
+                        customClass: {
+                            popup: 'vnd-swal-toast shadow-sm',
+                            closeButton: 'vnd-swal-toast__close',
+                        },
+                    });
+                }
+
                 function productExists(id) {
                     let exists = false;
                     productTable.rows().every(function() {
@@ -274,23 +324,183 @@
                     return exists;
                 }
 
-                function addProductRow(id, name) {
-                    let html = $('#template-product-card').html()
+                // Membuka modal produk baru dalam status pending (belum masuk tabel)
+                function openProductModalForAdd(id, name, type) {
+                    if (type === undefined) type = 'baku';
+
+                    // Bersihkan jika ada modal pending sebelumnya dengan ID yang sama
+                    $('#modal-product-' + id).remove();
+
+                    let modalHtml = $('#template-product-modal').html()
                         .replace(/__PRODUCT_ID__/g, id)
                         .replace(/__PRODUCT_NAME__/g, name);
-                    let rowNode = productTable.row.add($(html)[0]).draw(false).node();
+
+                    let $modal = $(modalHtml);
+                    $modal.attr('data-pending-add', 'true');
+                    $modal.attr('data-product-name', name);
+                    $modal.attr('data-product-id', id);
+                    $modal.attr('data-product-type', type);
+
+                    $('#productModalsContainer').append($modal);
+
+                    $modal.find('.product-type-radio[value="' + type + '"]').prop('checked', true).trigger(
+                    'change');
+
                     if ($.fn.selectpicker) {
-                        $(rowNode).find('.selectpicker').selectpicker();
+                        $modal.find('.selectpicker').selectpicker();
                     }
-                    window.refreshProductTable();
+
+                    $modal.modal('show');
                 }
 
-                // Inisialisasi awal untuk row yang sudah ada di tabel
+                // Backward-compatibility alias
+                function addProductRow(id, name, type, autoOpenModal) {
+                    if (autoOpenModal === undefined || autoOpenModal) {
+                        openProductModalForAdd(id, name, type);
+                    } else {
+                        let rowHtml = $('#template-product-row').html()
+                            .replace(/__PRODUCT_ID__/g, id)
+                            .replace(/__PRODUCT_NAME__/g, name);
+                        productTable.row.add($(rowHtml)[0]).draw(false);
+                    }
+                }
+
+                // Inisialisasi awal untuk selectpicker di dalam modals
                 if ($.fn.selectpicker) {
-                    $('#selectedProductsTable .selectpicker').selectpicker();
+                    $('#productModalsContainer .selectpicker').selectpicker();
                 }
 
-                // 1. Select2 untuk cari produk (QAD)
+                // Pastikan selectpicker selalu rapi saat modal dibuka
+                $(document).on('shown.bs.modal', '[id^="modal-product-"]', function() {
+                    $(this).find('.selectpicker').selectpicker('refresh');
+                });
+
+                // Bersihkan modal jika pengguna membatalkan/menutup modal sebelum disimpan
+                $(document).on('hidden.bs.modal', '[id^="modal-product-"]', function() {
+                    const $modal = $(this);
+                    if ($modal.attr('data-pending-add') === 'true') {
+                        $modal.remove();
+                    }
+                });
+
+                // Toggle dinamis kewajiban GMP berdasarkan kategori produk (Bahan Baku vs Kemas)
+                $(document).on('change', '.product-type-radio', function() {
+                    const id = $(this).data('id');
+                    const isBaku = $(this).val() === 'baku';
+                    const $modal = $('#modal-product-' + id);
+                    const $gmpCol = $modal.find('.gmp-col-' + id);
+                    const $fileInput = $gmpCol.find('input[type="file"]');
+                    const hasExisting = Boolean($gmpCol.find('input[name*="existing_gmp_file"]').val());
+
+                    let $label = $gmpCol.find('label').first();
+                    $label.find('.text-danger, .gmp-opt-note').remove();
+
+                    if (isBaku) {
+                        $label.append(' <span class="text-danger font-weight-bold">*</span>');
+                        if (!hasExisting) {
+                            $fileInput.prop('required', true);
+                        }
+                    } else {
+                        $label.append(
+                            ' <span class="text-muted font-size-xs gmp-opt-note">({{ __('optional') }})</span>'
+                            );
+                        $fileInput.prop('required', false);
+                    }
+                });
+
+                // Update ringkasan pada baris tabel
+                function updateProductRowSummary(id) {
+                    const $modal = $('#modal-product-' + id);
+                    const $row = $('#product-row-' + id);
+                    if (!$modal.length || !$row.length) return;
+
+                    const manufaktur = $modal.find('input[name="products[' + id + '][manufaktur]"]').val() || '-';
+                    const negara = $modal.find('select[name="products[' + id + '][negara]"]').val() || '';
+                    const rantai = $modal.find('select[name="products[' + id + '][rantai_pasok]"]').val() || '-';
+
+                    const hasSurat = Boolean($modal.find('input[name="products[' + id + '][existing_file_surat]"]')
+                        .val() || $modal.find('input[data-field="products[' + id + '][file_surat]"]').val());
+                    const hasGmp = Boolean($modal.find('input[name="products[' + id + '][existing_gmp_file]"]')
+                    .val() || $modal.find('input[data-field="products[' + id + '][gmp_file]"]').val());
+
+                    $row.find('.prod-summary-manufaktur').text(manufaktur);
+                    $row.find('.prod-summary-negara').html(negara ?
+                        '<i class="fas fa-map-marker-alt text-muted mr-1" style="font-size: 0.7rem;"></i>' +
+                        negara : '');
+                    $row.find('.prod-summary-rantai').text(rantai);
+
+                    let badges = '';
+                    if (hasSurat) badges +=
+                        '<span class="label label-light-primary label-inline font-size-xs font-weight-bolder mr-1 mb-1">{{ __('agency_letter') }}</span>';
+                    if (hasGmp) badges +=
+                        '<span class="label label-light-info label-inline font-size-xs font-weight-bolder mr-1 mb-1"><i class="fas fa-microscope mr-1"></i>GMP</span>';
+
+                    const certKeys = ['tkdn', 'sni', 'halal', 'bse_tse'];
+                    const certLabels = {
+                        tkdn: 'TKDN',
+                        sni: 'SNI',
+                        halal: 'Halal',
+                        bse_tse: 'BSE/TSE'
+                    };
+                    const certStyles = {
+                        tkdn: 'dark',
+                        sni: 'warning',
+                        halal: 'success',
+                        bse_tse: 'danger'
+                    };
+                    const certIcons = {
+                        tkdn: 'fas fa-cogs',
+                        sni: 'fas fa-award',
+                        halal: 'fas fa-leaf',
+                        bse_tse: 'fas fa-heartbeat'
+                    };
+
+                    certKeys.forEach(function(cert) {
+                        if ($modal.find('select[name="products[' + id + '][has_' + cert + ']"]').val() ===
+                            'yes') {
+                            badges += '<span class="label label-light-' + certStyles[cert] +
+                                ' label-inline font-size-xs font-weight-bolder mr-1 mb-1"><i class="' +
+                                certIcons[cert] + '"></i>' + certLabels[cert] + '</span>';
+                        }
+                    });
+
+                    if (!badges) {
+                        badges =
+                            '<span class="label label-light-warning label-inline font-size-xs font-weight-bold">{{ __('not_filled') }}</span>';
+                    }
+                    $row.find('.prod-summary-docs').html(badges);
+                }
+
+                // Klik Simpan pada Modal: Tambah baris baru jika pending, atau perbarui jika edit
+                $(document).on('click', '.btn-save-modal-product', function() {
+                    const id = $(this).data('id');
+                    const $modal = $('#modal-product-' + id);
+                    if (!$modal.length) return;
+
+                    const isPending = $modal.attr('data-pending-add') === 'true';
+
+                    if (isPending) {
+                        const name = $modal.attr('data-product-name') || $modal.find('.modal-title').text()
+                            .trim();
+                        let rowHtml = $('#template-product-row').html()
+                            .replace(/__PRODUCT_ID__/g, id)
+                            .replace(/__PRODUCT_NAME__/g, name);
+
+                        productTable.row.add($(rowHtml)[0]).draw(false);
+                        $modal.removeAttr('data-pending-add');
+
+                        showProductToast('success', "{{ __('success') }}",
+                            "{{ __('product_added_to_list') }}");
+                    } else {
+                        showProductToast('success', "{{ __('success') }}",
+                            "{{ __('product_details_updated') }}");
+                    }
+
+                    updateProductRowSummary(id);
+                    $modal.modal('hide');
+                });
+
+                // 1. Select2 untuk cari produk (QAD - Bahan Baku)
                 $('#erpProductSelect').select2({
                     width: '100%',
                     placeholder: "{{ __('search_product') }}...",
@@ -316,12 +526,12 @@
                             icon: 'warning'
                         });
                     } else {
-                        addProductRow(p.id, p.product_name);
+                        openProductModalForAdd(p.id, p.product_name, 'baku');
                     }
                     $(this).val(null).trigger('change');
                 });
 
-                // 1b. Select2 untuk Bahan Kemas
+                // 1b. Select2 untuk Bahan Kemas (Non-Bahan Baku)
                 $('#kemasProductSelect').select2({
                     width: '100%',
                     placeholder: "{{ __('select_packaging_material') }}...",
@@ -339,38 +549,35 @@
                             icon: 'warning'
                         });
                     } else {
-                        addProductRow(id, name);
+                        openProductModalForAdd(id, name, 'kemas');
                     }
                     $(this).val(null).trigger('change');
                 });
 
-                // 1c. Tambah Produk Manual (Free Text)
+                // 1c. Tambah Produk Manual (Free Text - Default Baku)
                 $('#btnCustomProduct').on('click', function() {
                     const name = $('#customProductName').val().trim();
                     if (!name) return;
 
-                    // Generate pseudo-ID based on timestamp to ensure uniqueness
                     const id = 'CUSTOM-' + Date.now();
-
-                    addProductRow(id, name);
-
-                    $('#customProductName').val(''); // reset input
+                    openProductModalForAdd(id, name, 'baku');
+                    $('#customProductName').val('');
                 });
 
-                // 2. Hapus Row
+                // 2. Hapus Row & Modal terkait
                 $('#selectedProductsTable').on('click', '.btn-hapus-produk', function() {
+                    const id = $(this).data('id');
                     productTable.row($(this).closest('tr')).remove().draw(false);
+                    $('#modal-product-' + id).remove();
                 });
 
-                // 3. (Dihapus: Nama File Upload dihandle global oleh ajax-file-upload)
-
-                // 4. Toggle input detail sertifikat
-                $('#selectedProductsTable').on('change', '.product-cert-toggle', function() {
+                // 3. Toggle input detail sertifikat di dalam modal
+                $('#productModalsContainer').on('change', '.product-cert-toggle', function() {
                     const target = $(this).data('target');
                     const $target = $(target);
                     const $fileInput = $target.find('input[type="file"]');
                     const hasExistingFile = Boolean(
-                        $(this).closest('td').find('input[type="hidden"][name*="existing_"]').val()
+                        $(this).closest('.border').find('input[type="hidden"][name*="existing_"]').val()
                     );
 
                     if ($(this).val() === 'yes') {
@@ -380,7 +587,8 @@
                         $fileInput.prop('required', false);
                         $target.slideUp(150, function() {
                             $fileInput.val('');
-                            $fileInput.siblings('.custom-file-label').text("{{ __('choose_file') }}");
+                            $fileInput.siblings('.custom-file-label').text(
+                                "{{ __('choose_file') }}");
                         });
                     }
                 });

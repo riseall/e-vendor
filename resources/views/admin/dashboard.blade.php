@@ -9,7 +9,7 @@
 
 @section('content')
     {{-- Welcome card --}}
-    <div class="card welcome-card p-6 py-8 shadow-sm">
+    <div class="card welcome-card p-4 p-md-5 py-4 py-md-5 shadow-sm">
         <p class="mb-1">
             {{ Auth::user()->roles->pluck('name')->implode(', ') }}
             @if (session('simulated_role'))

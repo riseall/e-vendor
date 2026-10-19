@@ -744,7 +744,7 @@ class ProcurementVerificationService
                 ['field' => 'q2_is_sole_agent', 'label' => 'Agen tunggal', 'value' => $this->yesNo($spec->q2_is_sole_agent)],
                 $this->fileRow($application, 'q2_auth_letter', 'Surat penunjukan agen', $spec->q2_auth_letter),
                 ['type' => 'section_title', 'label' => 'Gudang & Transportasi'],
-                ['field' => 'q3_transportation', 'label' => 'Angkutan pengiriman', 'value' => $spec->q3_transportation],
+                ['field' => 'q3_transportation', 'label' => 'Angkutan pengiriman', 'value' => $this->formatTransportation($spec->q3_transportation)],
                 ['field' => 'q3_3pl_name', 'label' => 'Nama perusahaan 3PL', 'value' => $spec->q3_3pl_name],
                 ['field' => 'q4_has_warehouse', 'label' => 'Memiliki gudang sendiri', 'value' => $this->yesNo($spec->q4_has_warehouse)],
                 ['field' => 'q4_warehouse_address', 'label' => 'Alamat gudang', 'value' => $spec->q4_warehouse_address],
@@ -928,8 +928,9 @@ class ProcurementVerificationService
         return [
             'field' => $field,
             'label' => $label,
-            'value' => optional($document)->original_name,
+            'value' => optional($document)->original_name ?: $label,
             'url' => $document ? $this->fileService->url($application, $document->file_path) : null,
+            'is_document' => true,
         ];
     }
 
@@ -942,9 +943,23 @@ class ProcurementVerificationService
         return [
             'field' => $field,
             'label' => $label,
-            'value' => $this->fileName($path),
+            'value' => $path ? $label : null,
             'url' => $this->fileService->url($application, $path),
+            'is_document' => true,
         ];
+    }
+
+    private function formatTransportation(?string $value): ?string
+    {
+        if ($value === 'owned') {
+            return 'Milik Sendiri';
+        }
+
+        if ($value === '3pl') {
+            return 'Pihak Ketiga (3PL)';
+        }
+
+        return $value;
     }
 
     private function fileName(?string $path): ?string
