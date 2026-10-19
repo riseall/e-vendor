@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Currency;
+use App\Models\VendorAnnualEvaluation;
 use App\Models\VendorApplication;
+use App\Models\VendorEvaluation;
 use Illuminate\Http\Request;
 
 class VendorSupplierController extends Controller
@@ -67,5 +69,48 @@ class VendorSupplierController extends Controller
         }
 
         return redirect()->back()->with('success', "Data QAD Supplier ({$qadCode}) berhasil disimpan.");
+    }
+
+    /**
+     * Display comprehensive Vendor Dossier (Summary from Registration to Evaluation).
+     */
+    public function show($id)
+    {
+        $app = VendorApplication::with([
+            'user',
+            'general',
+            'categories',
+            'products',
+            'documents',
+            'verifier',
+            'qualification',
+            'audits.questionnaireForm',
+            'audits.qaLead',
+            'audits.creator',
+            'specBaku',
+            'specVaria',
+            'specTrans',
+            'specKontraktor',
+            'specPengujian',
+            'specFacility',
+            'specPelatihan',
+            'specAgency',
+            'rekualifikasiChildren',
+            'parent',
+        ])->findOrFail($id);
+
+        $general = $app->general;
+
+        // Ambil riwayat evaluasi tahunan & bulanan untuk vendor ini
+        $annualEvaluations = VendorAnnualEvaluation::where('vendor_id', $app->user_id)
+            ->orderByDesc('year')
+            ->get();
+
+        $monthlyEvaluations = VendorEvaluation::where('vendor_id', $app->user_id)
+            ->orderByDesc('year')
+            ->orderByDesc('month')
+            ->get();
+
+        return view('admin.supplier.show', compact('app', 'general', 'annualEvaluations', 'monthlyEvaluations'));
     }
 }

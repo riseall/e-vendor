@@ -166,8 +166,8 @@
             @endcan
 
             @canany(['supplier-detail', 'verifikasi-detail', 'verifikasi-list'])
-                <a href="{{ route('verifikasi.show', $app->id) }}" class="vnd-btn-detail"
-                    title="Lihat Profil / Permohonan">
+                <a href="{{ route('supplier.show', $app->id) }}" class="vnd-btn-detail"
+                    title="Lihat Profil & Rangkuman Vendor">
                     <i class="fas fa-eye icon-sm text-primary" style="font-size:.7rem;"></i> Detail
                 </a>
             @endcanany
