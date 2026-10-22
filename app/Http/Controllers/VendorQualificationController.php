@@ -19,12 +19,12 @@ class VendorQualificationController extends Controller
 {
 
     private const STATUS_OPTIONS = [
-        'all' => 'Semua Status',
-        'pending' => 'Belum Assessment',
-        VendorApplication::STATUS_VERIFIED => 'Verified',
+        'pending' => 'Belum Assessment (Antrean Aktif)',
+        VendorApplication::STATUS_VERIFIED => 'Verified (Menunggu Assessment)',
         VendorApplication::STATUS_RISK_ASSESSED => 'Risk Assessed',
         VendorApplication::STATUS_AUDIT_REQUIRED => 'Audit Required',
         VendorApplication::STATUS_APPROVED => 'Approved',
+        'all' => 'Semua Riwayat',
     ];
 
     public function index(Request $request): View
@@ -32,7 +32,7 @@ class VendorQualificationController extends Controller
         $this->authorizeQaAccess();
 
         $activeTab = $request->input('tab', 'new');
-        $status = $request->input('status', 'all');
+        $status = $request->input('status', 'pending');
         $search = trim((string) $request->input('q', ''));
 
         if ($activeTab === 'existing') {
@@ -103,10 +103,10 @@ class VendorQualificationController extends Controller
                 'status'        => $status,
                 'search'        => $search,
                 'statusOptions' => [
-                    'all'                                    => 'Semua Status',
-                    'pending'                                => 'Belum Assessment Eksisting',
+                    'pending'                                => 'Belum Assessment (Antrean Aktif)',
                     VendorApplication::STATUS_APPROVED       => 'Approved (Menunggu Assessment)',
                     VendorApplication::STATUS_AUDIT_REQUIRED => 'Perlu Audit (Sudah Dinilai)',
+                    'all'                                    => 'Semua Riwayat',
                 ],
                 'countByLevel'  => $countByLevel,
                 'lowThreshold'  => (int) config('risk_assessment.existing.low_threshold', 84),

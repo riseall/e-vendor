@@ -14,10 +14,11 @@ use Illuminate\View\View;
 class ProcurementVerificationController extends Controller
 {
     private const STATUS_OPTIONS = [
-        'all' => 'Semua Status',
+        'active' => 'Perlu Tindakan (Antrean Aktif)',
         VendorApplication::STATUS_SUBMITTED => 'Submitted',
         VendorApplication::STATUS_NEED_REVISION => 'Need Revision',
         VendorApplication::STATUS_VERIFIED => 'Verified',
+        'all' => 'Semua Riwayat',
     ];
 
     private const SHOW_RELATIONS = [
@@ -53,11 +54,20 @@ class ProcurementVerificationController extends Controller
     {
         $this->authorizeProcurementAccess();
 
-        $status = $request->input('status', 'all');
+        $status = $request->input('status', 'active');
+        if (!array_key_exists($status, self::STATUS_OPTIONS)) {
+            $status = 'active';
+        }
+
         $search = $request->input('q');
         $query = $this->verificationService->indexQuery();
 
-        if ($status !== 'all') {
+        if ($status === 'active') {
+            $query->whereIn('status', [
+                VendorApplication::STATUS_SUBMITTED,
+                VendorApplication::STATUS_NEED_REVISION,
+            ]);
+        } elseif ($status !== 'all') {
             $query->where('status', $status);
         }
 

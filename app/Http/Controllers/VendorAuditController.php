@@ -24,12 +24,13 @@ class VendorAuditController extends Controller
 {
 
     private const STATUS_OPTIONS = [
-        'all'        => 'Semua Status',
-        'scheduled'  => 'Baru Terjadwal',
-        'in_progress' => 'Berjalan',
+        'active'        => 'Perlu Tindakan (Audit Aktif)',
+        'scheduled'     => 'Baru Terjadwal',
+        'in_progress'   => 'Berjalan',
         'need_revision' => 'Perlu Revisi',
-        'completed'  => 'Selesai',
-        'rejected'   => 'Ditolak',
+        'completed'     => 'Selesai',
+        'rejected'      => 'Ditolak',
+        'all'           => 'Semua Riwayat',
     ];
 
     /* ──────────────────────────────────────────────────────────────────
@@ -39,7 +40,11 @@ class VendorAuditController extends Controller
     {
         $this->authorizeQaAccess();
 
-        $status = $request->input('status', 'all');
+        $status = $request->input('status', 'active');
+        if (!array_key_exists($status, self::STATUS_OPTIONS)) {
+            $status = 'active';
+        }
+
         $type   = $request->input('type', 'all');
         $search = trim((string) $request->input('q', ''));
 
@@ -47,7 +52,9 @@ class VendorAuditController extends Controller
             ->with(['application.general', 'application.user', 'qualification'])
             ->latest();
 
-        if ($status !== 'all') {
+        if ($status === 'active') {
+            $query->whereIn('status', ['scheduled', 'in_progress', 'need_revision']);
+        } elseif ($status !== 'all') {
             $query->where('status', $status);
         }
 

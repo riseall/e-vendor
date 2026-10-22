@@ -99,7 +99,7 @@
 
             <form method="GET" action="{{ route('qa.risk-assessment.index') }}" class="vnd-filter">
                 <input type="hidden" name="tab" value="{{ $activeTab }}">
-                <select name="status" class="selectpicker" data-width="160px">
+                <select name="status" class="selectpicker" data-width="260px">
                     @foreach ($statusOptions as $value => $label)
                         <option value="{{ $value }}" {{ $status === $value ? 'selected' : '' }}>
                             {{ $label }}
@@ -316,8 +316,12 @@
                             <td colspan="8">
                                 <div class="vnd-empty">
                                     <i class="flaticon2-search-1"></i>
-                                    <div class="vnd-empty-title">Tidak ada vendor</div>
-                                    <div class="vnd-empty-sub">Coba ubah filter pencarian.</div>
+                                    <div class="vnd-empty-title">
+                                        {{ $status === 'pending' ? 'Tidak ada antrean vendor yang perlu dinilai' : 'Tidak ada vendor' }}
+                                    </div>
+                                    <div class="vnd-empty-sub">
+                                        {{ $status === 'pending' ? 'Semua vendor pada tab ini telah selesai dinilai risikonya atau coba ubah filter status.' : 'Coba ubah filter pencarian.' }}
+                                    </div>
                                 </div>
                             </td>
                         </tr>

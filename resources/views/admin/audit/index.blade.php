@@ -56,7 +56,7 @@
                         </option>
                     @endforeach
                 </select>
-                <select name="status" class="selectpicker" data-width="160px">
+                <select name="status" class="selectpicker" data-width="240px">
                     @foreach ($statusOptions as $value => $label)
                         <option value="{{ $value }}" {{ $status === $value ? 'selected' : '' }}>
                             {{ $label }}</option>
@@ -129,9 +129,12 @@
                             <td colspan="8">
                                 <div class="vnd-empty">
                                     <i class="flaticon2-search-1"></i>
-                                    <div class="vnd-empty-title">Tidak ada audit</div>
-                                    <div class="vnd-empty-sub">Audit akan muncul setelah risk assessment menghasilkan
-                                        Medium/High.</div>
+                                    <div class="vnd-empty-title">
+                                        {{ $status === 'active' ? 'Tidak ada antrean audit aktif' : 'Tidak ada audit' }}
+                                    </div>
+                                    <div class="vnd-empty-sub">
+                                        {{ $status === 'active' ? 'Semua audit telah selesai diproses atau coba ubah filter status.' : 'Audit akan muncul setelah risk assessment menghasilkan Medium/High.' }}
+                                    </div>
                                 </div>
                             </td>
                         </tr>

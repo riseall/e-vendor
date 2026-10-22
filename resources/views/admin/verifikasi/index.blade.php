@@ -32,7 +32,7 @@
                 </div> --}}
 
                 {{-- Status --}}
-                <select name="status" id="filterStatus" class="selectpicker" data-width="160px">
+                <select name="status" id="filterStatus" class="selectpicker" data-width="240px">
                     @foreach ($statusOptions as $value => $label)
                         <option value="{{ $value }}" {{ $status === $value ? 'selected' : '' }}>
                             {{ $label }}
@@ -75,8 +75,12 @@
                                     <div class="vnd-empty-icon">
                                         <i class="flaticon2-search-1"></i>
                                     </div>
-                                    <div class="vnd-empty-title">Tidak ada permohonan</div>
-                                    <div class="vnd-empty-sub">Coba ubah filter pencarian.</div>
+                                    <div class="vnd-empty-title">
+                                        {{ $status === 'active' ? 'Tidak ada antrean permohonan' : 'Tidak ada permohonan' }}
+                                    </div>
+                                    <div class="vnd-empty-sub">
+                                        {{ $status === 'active' ? 'Semua permohonan telah selesai diverifikasi atau coba ubah filter status.' : 'Coba ubah filter pencarian.' }}
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -98,24 +102,12 @@
                 paging: true
             });
 
-            // ── Sinkronisasi filter server-side (q & status) dengan DT search ──
-            // Ketik di filter header → filter DT juga (untuk filter di halaman saat ini)
+            // ── Sinkronisasi filter server-side ──
             $('#filterQ').on('keyup', function() {
                 table.search($(this).val()).draw();
             });
             $('#filterStatus').on('change', function() {
-                var val = $(this).val();
-                if (val === 'all') {
-                    table.column(3).search('').draw();
-                } else {
-                    // Search kolom Status berdasar text badge
-                    var labelMap = {
-                        'submitted': 'Submitted',
-                        'need_revision': 'Need Revision',
-                        'verified': 'Verified',
-                    };
-                    table.column(3).search(labelMap[val] || '').draw();
-                }
+                $('#filterForm').submit();
             });
         });
     </script>
