@@ -199,13 +199,14 @@ class VendorAuditController extends Controller
         // Validasi berbeda untuk on_desk vs on_site
         if ($auditType === VendorAudit::TYPE_ON_SITE) {
             $data = $request->validate([
-                'confirmed_schedule_at' => 'required|date|after:today',
+                'confirmed_schedule_at' => 'required|date',
                 'audit_location'        => 'required|string|max:255',
                 'audit_agenda'          => 'required|string|max:500',
                 'auditor_team'          => 'required|array|min:1',
                 'auditor_team.*.name'   => 'required|string|max:120',
                 'auditor_team.*.role'   => 'required|string|max:80',
-                'qa_lead_id'            => 'nullable|exists:users,id',
+                'qa_lead'               => 'nullable|string|max:120',
+                'qa_lead_id'            => 'nullable',
                 'summary'               => 'nullable|string|max:1000',
             ]);
         } else {
@@ -213,12 +214,22 @@ class VendorAuditController extends Controller
             // kategori material, ganti Rule::exists ke scope material_type.
             $data = $request->validate([
                 'questionnaire_form_id' => 'required|exists:vendor_audit_questionnaire_forms,id',
-                'qa_lead_id'            => 'nullable|exists:users,id',
+                'qa_lead'               => 'nullable|string|max:120',
+                'qa_lead_id'            => 'nullable',
                 'summary'               => 'nullable|string|max:1000',
             ]);
         }
 
-        $audit = DB::transaction(function () use ($application, $qualification, $auditType, $data, $workflow) {
+        $qaLeadText = $data['qa_lead'] ?? $request->input('qa_lead');
+        $qaLeadUser = null;
+        if (!empty($qaLeadText)) {
+            $qaLeadUser = User::where('name', $qaLeadText)->first();
+        } elseif (!empty($data['qa_lead_id'])) {
+            $qaLeadUser = User::find($data['qa_lead_id']);
+            $qaLeadText = optional($qaLeadUser)->name;
+        }
+
+        $audit = DB::transaction(function () use ($application, $qualification, $auditType, $data, $qaLeadText, $qaLeadUser, $workflow) {
             $payload = [
                 'vendor_application_id'   => $application->id,
                 'vendor_qualification_id' => $qualification->id,
@@ -226,9 +237,13 @@ class VendorAuditController extends Controller
                 'status'                  => $auditType === VendorAudit::TYPE_ON_DESK
                     ? VendorAudit::STATUS_QUESTIONNAIRE_PROGRESS
                     : VendorAudit::STATUS_IN_PROGRESS,
-                'qa_lead_id'              => $data['qa_lead_id'] ?? Auth::id(),
+                'qa_lead_id'              => optional($qaLeadUser)->id ?? Auth::id(),
                 'created_by'              => Auth::id(),
             ];
+
+            if (\Illuminate\Support\Facades\Schema::hasColumn('vendor_audits', 'qa_lead_name')) {
+                $payload['qa_lead_name'] = $qaLeadText;
+            }
 
             if ($auditType === VendorAudit::TYPE_ON_SITE) {
                 $payload = array_merge($payload, [

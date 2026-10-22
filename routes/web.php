@@ -164,6 +164,15 @@ Route::group(
                 Route::post('/{application_id}', [VendorQualificationController::class, 'store'])
                     ->name('store')
                     ->middleware('can:qa-risk-store');
+
+                // Vendor Eksisting (BB/BK - Rekualifikasi)
+                Route::get('/{application_id}/create-existing', [VendorQualificationController::class, 'createExisting'])
+                    ->name('create-existing')
+                    ->middleware('can:qa-risk-create');
+
+                Route::post('/{application_id}/existing', [VendorQualificationController::class, 'storeExisting'])
+                    ->name('store-existing')
+                    ->middleware('can:qa-risk-store');
             });
 
             // QA - Audit (Stage 5)

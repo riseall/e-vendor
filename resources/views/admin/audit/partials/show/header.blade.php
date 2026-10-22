@@ -36,7 +36,7 @@
             <div class="verif-summary-row mt-6">
                 <span class="verif-pill pending">
                     <i class="flaticon-profile-1 icon-xs"></i>
-                    QA Lead: {{ optional($audit->qaLead)->name ?? '—' }}
+                    QA Lead: {{ $audit->qa_lead_name ?: (optional($audit->qaLead)->name ?? '—') }}
                 </span>
                 <span class="verif-pill pending">
                     <i class="flaticon-calendar-with-a-clock-time-tools icon-xs"></i>

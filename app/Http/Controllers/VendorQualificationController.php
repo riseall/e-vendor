@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreExistingRiskAssessmentRequest;
 use App\Http\Requests\StoreRiskAssessmentRequest;
 use App\Models\User;
 use App\Models\VendorApplication;
@@ -30,11 +31,96 @@ class VendorQualificationController extends Controller
     {
         $this->authorizeQaAccess();
 
+        $activeTab = $request->input('tab', 'new');
         $status = $request->input('status', 'all');
         $search = trim((string) $request->input('q', ''));
 
+        if ($activeTab === 'existing') {
+            // Tab Vendor Eksisting (Kategori 1: Bahan Baku & Bahan Kemas)
+            $query = VendorApplication::query()
+                ->with(['user', 'general', 'categories', 'qualification', 'audits'])
+                ->whereHas('categories', function ($q) {
+                    $q->where('category_id', 1);
+                })
+                ->where(function ($q) {
+                    $q->where('status', VendorApplication::STATUS_APPROVED)
+                        ->orWhere(function ($sub) {
+                            $sub->whereIn('status', [
+                                VendorApplication::STATUS_AUDIT_REQUIRED,
+                                VendorApplication::STATUS_RISK_ASSESSED,
+                            ])->where(function ($typeQ) {
+                                $typeQ->where('type', VendorApplication::TYPE_REKUALIFIKASI)
+                                    ->orWhereHas('qualification', function ($qualQ) {
+                                        $qualQ->where('assessment_type', 'existing');
+                                    });
+                            });
+                        });
+                })
+                ->latest('approved_at')
+                ->latest();
+
+            if ($status === 'pending') {
+                $query->whereDoesntHave('qualification', function ($q) {
+                    $q->where('assessment_type', 'existing');
+                });
+            } elseif ($status !== 'all') {
+                $query->where('status', $status);
+            }
+
+            if ($search !== '') {
+                $query->where(function ($q) use ($search) {
+                    $q->where('application_number', 'like', "%{$search}%")
+                        ->orWhereHas('general', function ($general) use ($search) {
+                            $general->where('nama_perusahaan', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('user', function ($user) use ($search) {
+                            $user->where('name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                        });
+                });
+            }
+
+            $countByLevel = [
+                'low' => (clone $query)->whereHas('qualification', function ($q) {
+                    $q->where('assessment_type', 'existing')->where('risk_level', 'low');
+                })->count(),
+                'medium' => (clone $query)->whereHas('qualification', function ($q) {
+                    $q->where('assessment_type', 'existing')->where('risk_level', 'medium');
+                })->count(),
+                'high' => (clone $query)->whereHas('qualification', function ($q) {
+                    $q->where('assessment_type', 'existing')->where('risk_level', 'high');
+                })->count(),
+                'very_high' => (clone $query)->whereHas('qualification', function ($q) {
+                    $q->where('assessment_type', 'existing')->where('risk_level', 'very_high');
+                })->count(),
+            ];
+
+            $applications = $query->paginate(10)->withQueryString();
+
+            return view('admin.risk_assesment.index', [
+                'activeTab'     => 'existing',
+                'applications'  => $applications,
+                'status'        => $status,
+                'search'        => $search,
+                'statusOptions' => [
+                    'all'                                    => 'Semua Status',
+                    'pending'                                => 'Belum Assessment Eksisting',
+                    VendorApplication::STATUS_APPROVED       => 'Approved (Menunggu Assessment)',
+                    VendorApplication::STATUS_AUDIT_REQUIRED => 'Perlu Audit (Sudah Dinilai)',
+                ],
+                'countByLevel'  => $countByLevel,
+                'lowThreshold'  => (int) config('risk_assessment.existing.low_threshold', 84),
+                'highThreshold' => (int) config('risk_assessment.existing.high_threshold', 336),
+            ]);
+        }
+
+        // Tab Vendor Baru (Default)
         $query = VendorApplication::query()
             ->with(['user', 'general', 'categories', 'qualification', 'audits'])
+            ->where('type', '!=', VendorApplication::TYPE_REKUALIFIKASI)
+            ->whereDoesntHave('qualification', function ($q) {
+                $q->where('assessment_type', 'existing');
+            })
             ->whereIn('status', [
                 VendorApplication::STATUS_VERIFIED,
                 VendorApplication::STATUS_RISK_ASSESSED,
@@ -80,12 +166,13 @@ class VendorQualificationController extends Controller
         $applications = $query->paginate(10)->withQueryString();
 
         return view('admin.risk_assesment.index', [
-            'applications' => $applications,
-            'status' => $status,
-            'search' => $search,
+            'activeTab'     => 'new',
+            'applications'  => $applications,
+            'status'        => $status,
+            'search'        => $search,
             'statusOptions' => self::STATUS_OPTIONS,
-            'countByLevel' => $countByLevel,
-            'lowThreshold' => (int) config('risk_assessment.low_threshold', 88),
+            'countByLevel'  => $countByLevel,
+            'lowThreshold'  => (int) config('risk_assessment.low_threshold', 88),
             'highThreshold' => (int) config('risk_assessment.high_threshold', 164),
         ]);
     }
@@ -246,6 +333,163 @@ class VendorQualificationController extends Controller
         return redirect()
             ->route('qa.risk-assessment.index')
             ->with('success', 'Risk assessment berhasil disimpan dan status vendor diperbarui.');
+    }
+
+    public function createExisting(int $application_id): View
+    {
+        $this->authorizeQaAccess();
+
+        $application = VendorApplication::with([
+            'user',
+            'general',
+            'categories',
+            'documents',
+            'specBaku',
+            'qualification',
+            'products',
+        ])->findOrFail($application_id);
+
+        $autoScores = $this->automaticScores($application);
+
+        return view('admin.risk_assesment.create_existing', [
+            'application'   => $application,
+            'qualification' => $application->qualification,
+            'autoScores'    => $autoScores,
+            'sections'      => config('risk_assessment.existing_sections', []),
+            'thresholds'    => config('risk_assessment.existing.levels', []),
+        ]);
+    }
+
+    public function storeExisting(
+        StoreExistingRiskAssessmentRequest $request,
+        int $application_id,
+        VendorApplicationWorkflowService $workflow,
+        VendorApplicationNotificationService $notificationService
+    ) {
+        $this->authorizeQaAccess();
+
+        $data = $request->validated();
+        abort_unless((int) $data['vendor_application_id'] === $application_id, 422);
+
+        $application = VendorApplication::with(['qualification', 'user', 'general'])->findOrFail($application_id);
+
+        $qualification = DB::transaction(function () use ($application, $data, $workflow) {
+            $scoreA = (int) $data['score_safety_efficacy_doc']
+                + (int) $data['score_complaint_side_effect']
+                + (int) $data['score_safety_efficacy_attr'];
+
+            $scoreB = (int) $data['score_pareto']
+                + (int) $data['score_purchase_volume']
+                + (int) $data['score_availability_type']
+                + (int) $data['score_nie_status'];
+
+            $scoreC = (int) $data['score_audit_year']
+                + (int) $data['score_audit_result']
+                + (int) $data['score_audit_response']
+                + (int) $data['score_complaint_count'];
+
+            $scoreD = (int) $data['score_material_grade']
+                + (int) $data['score_facility_variation']
+                + (int) $data['score_material_purpose'];
+
+            $totalScore = ($scoreA + $scoreB) * ($scoreC + $scoreD);
+
+            $lowMax      = (int) config('risk_assessment.existing.low_threshold', 84);
+            $mediumMax   = (int) config('risk_assessment.existing.medium_threshold', 168);
+            $highMax     = (int) config('risk_assessment.existing.high_threshold', 336);
+
+            if ($totalScore <= $lowMax) {
+                $riskLevel              = 'low';
+                $auditType              = 'on_desk';
+                $periodYears            = 7;
+                $needsQualityAgreement  = false;
+            } elseif ($totalScore <= $mediumMax) {
+                $riskLevel              = 'medium';
+                $auditType              = 'on_desk';
+                $periodYears            = 5;
+                $needsQualityAgreement  = false;
+            } elseif ($totalScore <= $highMax) {
+                $riskLevel              = 'high';
+                $auditType              = 'on_site';
+                $periodYears            = 3;
+                $needsQualityAgreement  = false;
+            } else {
+                $riskLevel              = 'very_high';
+                $auditType              = 'on_site';
+                $periodYears            = 2;
+                $needsQualityAgreement  = true;
+            }
+
+            $qualification = VendorQualification::updateOrCreate(
+                ['vendor_application_id' => $application->id],
+                [
+                    'assessment_type'              => 'existing',
+                    'score_safety_efficacy_doc'    => (int) $data['score_safety_efficacy_doc'],
+                    'score_complaint_side_effect'  => (int) $data['score_complaint_side_effect'],
+                    'score_safety_efficacy_attr'   => (int) $data['score_safety_efficacy_attr'],
+                    'score_safety_efficacy'        => $scoreA,
+
+                    'score_pareto'                 => (int) $data['score_pareto'],
+                    'score_purchase_volume'        => (int) $data['score_purchase_volume'],
+                    'score_availability_type'      => (int) $data['score_availability_type'],
+                    'score_nie_status'             => (int) $data['score_nie_status'],
+                    'score_availability'           => $scoreB,
+
+                    'score_audit_year'             => (int) $data['score_audit_year'],
+                    'score_audit_result'           => (int) $data['score_audit_result'],
+                    'score_audit_response'         => (int) $data['score_audit_response'],
+                    'score_complaint_count'        => (int) $data['score_complaint_count'],
+                    'score_detectability'          => $scoreC,
+
+                    'score_material_grade'         => (int) $data['score_material_grade'],
+                    'score_facility_variation'     => (int) $data['score_facility_variation'],
+                    'score_material_purpose'       => (int) $data['score_material_purpose'],
+                    'score_probability'            => $scoreD,
+
+                    'total_score'                  => $totalScore,
+                    'risk_level'                   => $riskLevel,
+                    'audit_type'                   => $auditType,
+                    're_audit_period_years'        => $periodYears,
+                    'needs_quality_agreement'      => $needsQualityAgreement,
+
+                    'qa_pharmacist_id'             => Auth::id(),
+                    'qa_manager_id'                => $data['qa_manager_id'] ?? null,
+                    'notes'                        => $data['notes'] ?? null,
+                ]
+            );
+
+            // Memicu alur rekualifikasi pada vendor
+            $application->update([
+                'type'                   => VendorApplication::TYPE_REKUALIFIKASI,
+                'requalification_reason' => VendorApplication::REASON_QA_TRIGGER,
+            ]);
+
+            $workflow->transition(
+                $application,
+                VendorApplication::STATUS_AUDIT_REQUIRED,
+                'existing_risk_assessment_completed',
+                [],
+                Auth::user(),
+                [
+                    'qualification_id'         => $qualification->id,
+                    'assessment_type'          => 'existing',
+                    'total_score'              => $totalScore,
+                    'risk_level'               => $riskLevel,
+                    'audit_type'               => $auditType,
+                    're_audit_period_years'    => $periodYears,
+                    'needs_quality_agreement'  => $needsQualityAgreement,
+                ]
+            );
+
+            return $qualification;
+        });
+
+        return redirect()
+            ->route('qa.risk-assessment.index', ['tab' => 'existing'])
+            ->with(
+                'success',
+                'Risk assessment vendor eksisting berhasil disimpan (Skor: ' . $qualification->total_score . ', ' . strtoupper(str_replace('_', ' ', $qualification->risk_level)) . '). Silakan klik tombol "Buat Audit" untuk mengatur kuesioner atau jadwal audit.'
+            );
     }
 
     private function automaticScores(VendorApplication $application): array

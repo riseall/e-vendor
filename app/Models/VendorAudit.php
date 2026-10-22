@@ -51,6 +51,7 @@ class VendorAudit extends Model
         'audit_result_path',
         'audit_result_category',
         'qa_lead_id',
+        'qa_lead_name',
         'created_by',
     ];
 
@@ -85,6 +86,11 @@ class VendorAudit extends Model
     public function qaLead(): BelongsTo
     {
         return $this->belongsTo(User::class, 'qa_lead_id');
+    }
+
+    public function getQaLeadNameAttribute($value)
+    {
+        return $value ?: optional($this->qaLead)->name;
     }
 
     public function creator(): BelongsTo

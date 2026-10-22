@@ -50,18 +50,24 @@
                     <div class="text-muted font-weight-bold mb-1">Risk Level</div>
                     <div class="font-weight-bolder text-dark font-size-h6">
                         @php
-                            $risk = optional($application)->risk_level ?? 'muted';
+                            $qualification = optional($application)->qualification;
+                            $risk = $qualification->risk_level ?? (optional($application)->risk_level ?? 'muted');
                             $riskClass =
-                                $risk === 'high'
+                                $risk === 'very_high'
                                     ? 'danger'
-                                    : ($risk === 'medium'
-                                        ? 'warning'
-                                        : ($risk === 'low'
-                                            ? 'success'
-                                            : 'secondary'));
+                                    : ($risk === 'high'
+                                        ? 'danger'
+                                        : ($risk === 'medium'
+                                            ? 'warning'
+                                            : ($risk === 'low'
+                                                ? 'success'
+                                                : 'secondary')));
                         @endphp
                         <span class="label label-light-{{ $riskClass }} label-inline font-weight-bold">
-                            {{ strtoupper($risk !== 'muted' ? $risk : '—') }}
+                            {{ strtoupper(str_replace('_', ' ', $risk !== 'muted' ? $risk : '—')) }}
+                            @if ($qualification && $qualification->re_audit_period_years)
+                                ({{ $qualification->re_audit_period_years }} Thn)
+                            @endif
                         </span>
                     </div>
                 </div>
@@ -101,6 +107,16 @@
         </div>
 
         <div class="card-body">
+            @if ($errors->any())
+                <div class="alert alert-custom alert-light-danger fade show mb-5" role="alert">
+                    <div class="alert-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="alert-text">{{ $errors->first() }}</div>
+                    <div class="alert-close">
+                        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                    </div>
+                </div>
+            @endif
+
             @php $auditType = optional(optional($application)->qualification)->audit_type; @endphp
 
             <form method="POST" action="{{ route('qa.audit.store', $application->id) }}">
@@ -108,8 +124,8 @@
 
                 <div class="row">
                     <div class="col-md-6">
-                        <x-vendor-select name="qa_lead_id" label="QA Lead" :options="$qaUsers->pluck('name', 'id')->toArray()"
-                            placeholder="— Pilih QA Lead —" />
+                        <x-vendor-input name="qa_lead" label="QA Lead" placeholder="Nama QA Lead" :value="old('qa_lead', Auth::user()->name ?? '')"
+                            labelClass="font-weight-bolder text-dark" />
                     </div>
                     <div class="col-md-6">
                         <x-vendor-input name="summary" label="Catatan Awal (opsional)" placeholder="Catatan internal QA"
@@ -121,24 +137,71 @@
                     <hr>
                     <h6 class="font-weight-bolder text-dark mb-4 mt-5">Detail Audit On Site</h6>
 
-                    <x-vendor-input name="audit_location" label="Lokasi Audit" placeholder="Alamat lengkap lokasi vendor"
-                        :required="true" labelClass="font-weight-bolder text-dark" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <x-vendor-input name="confirmed_schedule_at" type="text" label="Tanggal Pelaksanaan Audit"
+                                :required="true" labelClass="font-weight-bolder text-dark" class="datepicker"
+                                placeholder="Pilih Tanggal" autocomplete="off" rightIcon="far fa-calendar-alt" />
+                        </div>
+                        <div class="col-md-6">
+                            <x-vendor-input name="audit_location" label="Lokasi Audit"
+                                placeholder="Alamat lengkap lokasi vendor" :required="true"
+                                labelClass="font-weight-bolder text-dark" />
+                        </div>
+                    </div>
 
                     <x-vendor-input name="audit_agenda" label="Agenda Audit"
                         placeholder="Misal: Tour pabrik, review dokumen mutu, wawancara PIC" :required="true"
                         labelClass="font-weight-bolder text-dark" />
 
                     <div class="form-group mb-4">
-                        <label class="font-weight-bolder text-dark">Tim Auditor</label>
-                        <div id="au-team-list"></div>
-                        <button type="button" class="btn btn-sm btn-light-primary mt-2" id="au-add-team">
-                            <i class="flaticon2-add-1"></i> Tambah Auditor
+                        <label class="font-weight-bolder text-dark">
+                            Tim Auditor <span class="text-danger">*</span>
+                        </label>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-vertical-center mb-2" id="au-team-table">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th style="width: 55%;" class="font-weight-bold">Nama Auditor <span
+                                                class="text-danger">*</span></th>
+                                        <th style="width: 35%;" class="font-weight-bold">Role / Peran <span
+                                                class="text-danger">*</span></th>
+                                        <th style="width: 10%;" class="text-center font-weight-bold">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="au-team-list">
+                                    @php
+                                        $oldTeam = old('auditor_team', [['name' => '', 'role' => '']]);
+                                    @endphp
+                                    @foreach ($oldTeam as $idx => $member)
+                                        <tr class="au-repeater-row">
+                                            <td>
+                                                <input type="text" name="auditor_team[{{ $idx }}][name]"
+                                                    class="form-control" placeholder="Nama lengkap auditor"
+                                                    value="{{ $member['name'] ?? '' }}" required>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="auditor_team[{{ $idx }}][role]"
+                                                    class="form-control"
+                                                    placeholder="Role (e.g. Lead / Observer / Anggota)"
+                                                    value="{{ $member['role'] ?? '' }}" required>
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                <button type="button"
+                                                    class="btn btn-icon btn-light-danger btn-sm au-remove-row"
+                                                    title="Hapus baris" {{ count($oldTeam) <= 1 ? 'disabled' : '' }}>
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-light-primary font-weight-bold" id="au-add-team">
+                            <i class="fas fa-plus icon-sm"></i> Tambah Auditor
                         </button>
                     </div>
-
-                    <x-vendor-input name="confirmed_schedule_at" type="text" label="Tanggal Pelaksanaan Audit"
-                        :required="true" labelClass="font-weight-bolder text-dark" class="datepicker"
-                        placeholder="Pilih Tanggal" autocomplete="off" rightIcon="far fa-calendar-alt" />
                 @else
                     <hr>
                     <h6 class="font-weight-bolder text-dark mb-4 mt-5">Audit On Desk (Questionnaire)</h6>
@@ -146,8 +209,6 @@
                     @if ($questionnaireForms->isEmpty())
                         <div class="alert alert-warning small mb-0">
                             Belum ada master form questionnaire yang aktif.
-                            Jalankan <code>php artisan db:seed --class=VendorAuditQuestionnaireKemasPrimerSeeder</code>
-                            (atau seed form lain) untuk menambahkan.
                         </div>
                     @else
                         @php
@@ -168,8 +229,8 @@
                 <div class="d-flex justify-content-end mt-4">
                     <a href="{{ route('qa.risk-assessment.index') }}" class="btn btn-light mr-2">Batal</a>
                     @can('audit-create')
-                        <button type="submit" class="btn btn-primary">
-                            <i class="flaticon2-check-mark"></i> Mulai Audit
+                        <button type="submit" class="btn btn-primary font-weight-bold">
+                            <i class="fas fa-check icon-sm"></i> Mulai Audit
                         </button>
                     @endcan
                 </div>
@@ -184,24 +245,38 @@
             // Team repeater
             var $teamList = $('#au-team-list');
             if ($teamList.length) {
-                var idx = 0;
+                var idx = $teamList.find('.au-repeater-row').length;
+
+                function updateRemoveButtons() {
+                    var rows = $teamList.find('.au-repeater-row');
+                    rows.find('.au-remove-row').prop('disabled', rows.length <= 1);
+                }
 
                 function addTeam() {
-                    var row = '<div class="d-flex mb-2 au-repeater-row" style="gap: 0.5rem;">' +
-                        '<input type="text" name="auditor_team[' + idx +
-                        '][name]" class="form-control" placeholder="Nama auditor" required>' +
-                        '<input type="text" name="auditor_team[' + idx +
-                        '][role]" class="form-control" placeholder="Role (Lead / Observer / dll)" required>' +
-                        '<button type="button" class="btn btn-icon btn-light-danger au-remove-row"><i class="fas fa-trash-alt"></i></button>' +
-                        '</div>';
+                    var row = '<tr class="au-repeater-row">' +
+                        '<td><input type="text" name="auditor_team[' + idx +
+                        '][name]" class="form-control" placeholder="Nama lengkap auditor" required></td>' +
+                        '<td><input type="text" name="auditor_team[' + idx +
+                        '][role]" class="form-control" placeholder="Role (e.g. Lead / Observer / Anggota)" required></td>' +
+                        '<td class="text-center align-middle">' +
+                        '<button type="button" class="btn btn-icon btn-light-danger btn-sm au-remove-row" title="Hapus baris"><i class="fas fa-trash-alt"></i></button>' +
+                        '</td>' +
+                        '</tr>';
                     $teamList.append(row);
                     idx++;
+                    updateRemoveButtons();
                 }
+
                 $('#au-add-team').on('click', addTeam);
+
                 $teamList.on('click', '.au-remove-row', function() {
-                    $(this).closest('.au-repeater-row').remove();
+                    if ($teamList.find('.au-repeater-row').length > 1) {
+                        $(this).closest('.au-repeater-row').remove();
+                        updateRemoveButtons();
+                    }
                 });
-                addTeam();
+
+                updateRemoveButtons();
             }
 
             if ($.fn.datepicker) {
@@ -209,7 +284,8 @@
                     format: 'yyyy-mm-dd',
                     todayHighlight: true,
                     autoclose: true,
-                    orientation: 'top left'
+                    orientation: 'bottom left',
+                    startDate: '+1d'
                 });
             }
         });

@@ -116,17 +116,17 @@
     --stat-icon-bg: var(--vnd-blue);
     --stat-icon-color: #fff;
     --stat-num-color: var(--vnd-blue);
-    --stat-lbl-color: #3d6fa8;
+    --stat-lbl-color: var(--vnd-blue);
 }
 
 /* Cyan / In Progress / Waiting */
 .vnd-stat--info {
-    --stat-bg: var(--vnd-cyan-lt);
-    --stat-border: var(--vnd-cyan-bd);
-    --stat-icon-bg: var(--vnd-cyan);
+    --stat-bg: var(--vnd-purple-lt);
+    --stat-border: var(--vnd-purple-bd);
+    --stat-icon-bg: var(--vnd-purple);
     --stat-icon-color: #fff;
-    --stat-num-color: var(--vnd-cyan);
-    --stat-lbl-color: #0369a1;
+    --stat-num-color: var(--vnd-purple);
+    --stat-lbl-color: var(--vnd-purple);
 }
 
 /* Green / Success / Verified / Low Risk */
@@ -136,7 +136,7 @@
     --stat-icon-bg: var(--vnd-green);
     --stat-icon-color: #fff;
     --stat-num-color: var(--vnd-green);
-    --stat-lbl-color: #2d6e30;
+    --stat-lbl-color: var(--vnd-green);
 }
 
 /* Amber / Warning / Pending / Medium Risk */
@@ -146,7 +146,7 @@
     --stat-icon-bg: var(--vnd-amber);
     --stat-icon-color: #fff;
     --stat-num-color: var(--vnd-amber);
-    --stat-lbl-color: #8a4e08;
+    --stat-lbl-color: var(--vnd-amber);
 }
 
 /* Red / Danger / High Risk */
@@ -156,7 +156,7 @@
     --stat-icon-bg: var(--vnd-red);
     --stat-icon-color: #fff;
     --stat-num-color: var(--vnd-red);
-    --stat-lbl-color: #9e2020;
+    --stat-lbl-color: var(--vnd-red);
 }
 
 /* Blue Gradient / Scheduled */
