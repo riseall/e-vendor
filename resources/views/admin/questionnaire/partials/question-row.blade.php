@@ -38,7 +38,8 @@
                 <span class="text-uppercase"
                     style="font-size:.82rem; letter-spacing:0.5px;">{{ $q->section ?: 'Umum' }}</span>
                 @if (!empty($q->section_translations['en']))
-                    <span class="text-muted font-italic font-weight-normal font-size-xs">({{ $q->section_translations['en'] }})</span>
+                    <span
+                        class="text-muted font-italic font-weight-normal font-size-xs">({{ $q->section_translations['en'] }})</span>
                 @endif
             </div>
         </td>
@@ -50,14 +51,21 @@
         {{ $q->order }}
     </td>
     <td>
+        @php
+            $locale = app()->getLocale();
+            $altQuestion =
+                $locale === 'en' ? $q->question_translations['id'] ?? '' : $q->question_translations['en'] ?? '';
+        @endphp
+
         <div class="font-weight-bold text-dark mb-1" style="font-size:.88rem; line-height:1.4;">
             {!! nl2br(e($q->question)) !!}
         </div>
-        @if (!empty($q->question_translations['en']))
+        @if (!empty($altQuestion) && $altQuestion !== $q->question)
             <div class="text-muted font-italic font-size-xs mb-1" style="line-height:1.3;">
-                <i class="fas fa-globe mr-1 text-primary" style="font-size:.7rem;"></i>{{ $q->question_translations['en'] }}
+                <i class="fas fa-globe mr-1 text-primary" style="font-size:.7rem;"></i>{{ $altQuestion }}
             </div>
         @endif
+
         @if ($q->answer_type === 'multiple_choice' && is_array($q->options))
             <div class="mt-1">
                 @foreach ($q->options as $opt)
@@ -96,20 +104,20 @@
     <td class="text-right">
         <div class="d-inline-flex flex-wrap justify-content-end align-items-center" style="gap:.35rem;">
             @can('questionnaire-edit')
-            <button type="button" class="vnd-btn-detail vnd-btn-detail--warning" title="Edit Pertanyaan"
-                data-form="{{ json_encode($q) }}" onclick="openEditModal(this)">
-                <i class="fas fa-edit text-warning" style="font-size:.9rem;"></i>
-            </button>
-
-            <form action="{{ route('questionnaire-form.questions.destroy', [$form->id, $q->id]) }}" method="POST"
-                class="d-inline delete-form">
-                @csrf
-                @method('DELETE')
-                <button type="button" class="vnd-btn-detail vnd-btn-detail--danger btn-delete-question"
-                    data-question="{{ Str::limit($q->question, 40) }}" title="Hapus Pertanyaan">
-                    <i class="fas fa-trash-alt text-danger" style="font-size:.9rem;"></i>
+                <button type="button" class="vnd-btn-detail vnd-btn-detail--warning" title="Edit Pertanyaan"
+                    data-form="{{ json_encode($q) }}" onclick="openEditModal(this)">
+                    <i class="fas fa-edit text-warning" style="font-size:.9rem;"></i>
                 </button>
-            </form>
+
+                <form action="{{ route('questionnaire-form.questions.destroy', [$form->id, $q->id]) }}" method="POST"
+                    class="d-inline delete-form">
+                    @csrf
+                    @method('DELETE')
+                    <button type="button" class="vnd-btn-detail vnd-btn-detail--danger btn-delete-question"
+                        data-question="{{ Str::limit($q->question, 40) }}" title="Hapus Pertanyaan">
+                        <i class="fas fa-trash-alt text-danger" style="font-size:.9rem;"></i>
+                    </button>
+                </form>
             @endcan
         </div>
     </td>
