@@ -25,18 +25,25 @@
 
                     <x-vendor-input name="password" id="edit_password" type="password"
                         label="Password Baru (Kosongkan jika tidak diubah)" placeholder="Password baru..."
-                        labelClass="font-weight-bold" leftIcon="fas fa-lock text-muted" />
+                        labelClass="font-weight-bold" leftIcon="fas fa-lock text-muted">
+                        <div class="input-group-append">
+                            <span class="input-group-text cursor-pointer bg-white" id="btnToggleEditPassword" style="cursor: pointer;" title="Lihat Password">
+                                <i class="fas fa-eye text-muted" id="iconToggleEditPassword"></i>
+                            </span>
+                        </div>
+                    </x-vendor-input>
 
                     <div class="form-group mb-0">
-                        <x-vendor-select name="role" id="edit_select_role" label="Pilih Role"
-                            :options="isset($roles) ? $roles->pluck('name', 'name')->toArray() : []"
+                        <x-vendor-select name="role" id="edit_select_role" label="Pilih Role" :options="isset($roles) ? $roles->pluck('name', 'name')->toArray() : []"
                             placeholder="-- Pilih Role --" :isSimple="true" class="select2"
                             labelClass="font-weight-bold" />
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary font-weight-bold" id="btnUpdateUser">Simpan Perubahan</button>
+                    <button type="button" class="btn btn-secondary font-weight-bold"
+                        data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary font-weight-bold" id="btnUpdateUser">Simpan
+                        Perubahan</button>
                 </div>
             </form>
         </div>
@@ -44,73 +51,101 @@
 </div>
 
 @push('scripts')
-<script>
-    $(document).ready(function() {
-        // Select2 Role Edit
-        $('#edit_select_role').select2({
-            placeholder: '-- Pilih Role --',
-            dropdownParent: $('#modalEditUser'),
-            width: '100%'
-        });
+    <script>
+        $(document).ready(function() {
+            // Select2 Role Edit
+            $('#edit_select_role').select2({
+                placeholder: '-- Pilih Role --',
+                dropdownParent: $('#modalEditUser'),
+                width: '100%'
+            });
 
-        // Open Edit Modal
-        $(document).on('click', '.btn-edit-user', function() {
-            var id = $(this).data('id');
-            var name = $(this).data('name');
-            var username = $(this).data('username');
-            var email = $(this).data('email');
-            var role = $(this).data('role');
-
-            $('#edit_user_id').val(id);
-            $('#edit_name').val(name);
-            $('#edit_username').val(username);
-            $('#edit_email').val(email);
-            $('#edit_password').val('');
-            $('#edit_select_role').val(role).trigger('change');
-
-            $('#modalEditUser').modal('show');
-        });
-
-        // Handle Update User Submit
-        $('#formEditUser').on('submit', function(e) {
-            e.preventDefault();
-            var id = $('#edit_user_id').val();
-            var btn = $('#btnUpdateUser');
-            btn.addClass('spinner spinner-white spinner-right').attr('disabled', true);
-
-            $.ajax({
-                url: "{{ route('user.update', ':id') }}".replace(':id', id),
-                method: "POST",
-                dataType: 'json',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                data: $(this).serialize(),
-                success: function(res) {
-                    $('#modalEditUser').modal('hide');
-                    if (typeof showToast === 'function') {
-                        showToast('success', 'Berhasil', res.message || 'Data user telah diperbarui.');
-                    }
-                    if ($.fn.DataTable.isDataTable('#kt_datatable')) {
-                        $('#kt_datatable').DataTable().ajax.reload();
-                    }
-                },
-                error: function(err) {
-                    var msg = "Terjadi kesalahan saat memperbarui user.";
-                    if (err.responseJSON && err.responseJSON.errors) {
-                        var errs = err.responseJSON.errors;
-                        var firstKey = Object.keys(errs)[0];
-                        msg = errs[firstKey][0];
-                    } else if (err.responseJSON && err.responseJSON.message) {
-                        msg = err.responseJSON.message;
-                    }
-                    if (typeof showToast === 'function') {
-                        showToast('error', 'Gagal', msg);
-                    }
-                },
-                complete: function() {
-                    btn.removeClass('spinner spinner-white spinner-right').removeAttr('disabled');
+            // Toggle view password
+            $(document).on('click', '#btnToggleEditPassword', function() {
+                var input = $('#edit_password');
+                var icon = $('#iconToggleEditPassword');
+                if (input.attr('type') === 'password') {
+                    input.attr('type', 'text');
+                    icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                    $(this).attr('title', 'Sembunyikan Password');
+                } else {
+                    input.attr('type', 'password');
+                    icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                    $(this).attr('title', 'Lihat Password');
                 }
             });
+
+            // Open Edit Modal
+            $(document).on('click', '.btn-edit-user', function() {
+                var id = $(this).data('id');
+                var name = $(this).data('name');
+                var username = $(this).data('username');
+                var email = $(this).data('email');
+                var role = $(this).data('role');
+
+                $('#edit_user_id').val(id);
+                $('#edit_name').val(name);
+                $('#edit_username').val(username);
+                $('#edit_email').val(email);
+                $('#edit_password').val('').attr('type', 'password');
+                $('#iconToggleEditPassword').removeClass('fa-eye-slash').addClass('fa-eye');
+                $('#btnToggleEditPassword').attr('title', 'Lihat Password');
+                $('#edit_select_role').val(role).trigger('change');
+
+                $('#modalEditUser').modal('show');
+            });
+
+            $('#modalEditUser').on('hidden.bs.modal', function() {
+                $('#edit_password').attr('type', 'password');
+                $('#iconToggleEditPassword').removeClass('fa-eye-slash').addClass('fa-eye');
+                $('#btnToggleEditPassword').attr('title', 'Lihat Password');
+            });
+
+            // Handle Update User Submit
+            $('#formEditUser').on('submit', function(e) {
+                e.preventDefault();
+                var id = $('#edit_user_id').val();
+                var btn = $('#btnUpdateUser');
+                btn.addClass('spinner spinner-white spinner-right').attr('disabled', true);
+
+                $.ajax({
+                    url: "{{ route('user.update', ':id') }}".replace(':id', id).replace('%3Aid',
+                        id),
+                    method: "POST",
+                    dataType: 'json',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    data: $(this).serialize(),
+                    success: function(res) {
+                        $('#modalEditUser').modal('hide');
+                        if (typeof showToast === 'function') {
+                            showToast('success', 'Berhasil', res.message ||
+                                'Data user telah diperbarui.');
+                        }
+                        if ($.fn.DataTable.isDataTable('#kt_datatable')) {
+                            $('#kt_datatable').DataTable().ajax.reload();
+                        }
+                    },
+                    error: function(err) {
+                        var msg = "Terjadi kesalahan saat memperbarui user.";
+                        if (err.responseJSON && err.responseJSON.errors) {
+                            var errs = err.responseJSON.errors;
+                            var firstKey = Object.keys(errs)[0];
+                            msg = errs[firstKey][0];
+                        } else if (err.responseJSON && err.responseJSON.message) {
+                            msg = err.responseJSON.message;
+                        }
+                        if (typeof showToast === 'function') {
+                            showToast('error', 'Gagal', msg);
+                        }
+                    },
+                    complete: function() {
+                        btn.removeClass('spinner spinner-white spinner-right').removeAttr(
+                            'disabled');
+                    }
+                });
+            });
         });
-    });
-</script>
+    </script>
 @endpush

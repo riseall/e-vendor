@@ -222,33 +222,54 @@
 
             // Handle Delete User
             $(document).on('click', '.btn-delete-user', function() {
-                var id = $(this).data('id');
-                var name = $(this).data('name');
+                var btn = $(this);
+                var id = btn.data('id') || btn.attr('data-id');
+                var name = btn.data('name') || btn.attr('data-name');
 
                 Swal.fire({
                     title: 'Hapus User?',
                     text: 'Apakah Anda yakin ingin menghapus user "' + name + '"?',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
                     confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal'
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    buttonsStyling: false,
+                    customClass: {
+                        confirmButton: 'btn btn-danger font-weight-bold mr-2',
+                        cancelButton: 'btn btn-secondary font-weight-bold'
+                    }
                 }).then((result) => {
-                    if (result.isConfirmed) {
+                    if (result.value || result.isConfirmed) {
+                        var deleteUrl = "{{ route('user.destroy', ':id') }}".replace(':id', id).replace('%3Aid', id);
                         $.ajax({
-                            url: "{{ route('user.destroy', ':id') }}".replace(':id', id),
-                            type: 'DELETE',
+                            url: deleteUrl,
+                            type: 'POST',
                             dataType: 'json',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                                'X-HTTP-Method-Override': 'DELETE'
+                            },
                             data: {
-                                _token: "{{ csrf_token() }}"
+                                _token: "{{ csrf_token() }}",
+                                _method: 'DELETE'
                             },
                             success: function(res) {
-                                showToast('success', 'Terhapus', res.message || 'User berhasil dihapus.');
-                                table.ajax.reload();
+                                if (res && res.success) {
+                                    showToast('success', 'Terhapus', res.message || 'User berhasil dihapus.');
+                                    table.ajax.reload(null, false);
+                                } else {
+                                    showToast('error', 'Gagal', (res && res.message) ? res.message : 'Gagal menghapus user.');
+                                }
                             },
-                            error: function() {
-                                showToast('error', 'Gagal', 'Gagal menghapus user.');
+                            error: function(err) {
+                                var msg = 'Gagal menghapus user.';
+                                if (err.responseJSON && err.responseJSON.message) {
+                                    msg = err.responseJSON.message;
+                                }
+                                showToast('error', 'Gagal', msg);
                             }
                         });
                     }
