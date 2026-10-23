@@ -287,4 +287,19 @@
             }
         }
     </script>
+    @if (session('status') || session('success'))
+        <script>
+            $(document).ready(function() {
+                swal.fire({
+                    text: @json(session('status') ?? session('success')),
+                    icon: "success",
+                    buttonsStyling: false,
+                    confirmButtonText: "Ok, mengerti!",
+                    customClass: {
+                        confirmButton: "btn font-weight-bold btn-light-primary"
+                    }
+                });
+            });
+        </script>
+    @endif
 @endpush

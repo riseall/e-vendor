@@ -7,7 +7,7 @@
             <div class="login-form text-center p-7 position-relative overflow-hidden">
                 <div class="d-flex flex-center mb-15">
                     <a href="javascript:void(0);">
-                        <img src="{{ asset('images/vendor.png') }}" class="max-h-150px" alt="" />
+                        <img src="{{ asset('images/evendor.png') }}" class="max-h-150px" alt="" />
                     </a>
                 </div>
                 <div class="mb-20">
@@ -23,7 +23,7 @@
                         <input id="email" type="email"
                             class="form-control h-auto form-control-solid py-4 px-8 @error('email') is-invalid @enderror"
                             name="email" value="{{ $request->email ?? old('email') }}" required autocomplete="email"
-                            autofocus placeholder="Email" disabled>
+                            placeholder="Email" {{ ($request->email || old('email')) ? 'readonly style="cursor: not-allowed;"' : 'autofocus' }}>
                         @error('email')
                             <div class="invalid-feedback text-left">{{ $message }}</div>
                         @enderror
@@ -34,7 +34,7 @@
                             <input
                                 class="form-control h-auto form-control-solid py-4 px-8 @error('password') is-invalid @enderror"
                                 type="password" id="password" placeholder="Password" name="password"
-                                style="border-right: none;" />
+                                style="border-right: none;" {{ ($request->email || old('email')) ? 'autofocus' : '' }} />
                             <div class="input-group-append rounded-right">
                                 <span id="togglePassword" onclick="togglePassword('password', 'eyeIcon')"
                                     class="input-group-text cursor-pointer">
@@ -49,7 +49,7 @@
 
                     <div class="form-group">
                         <div class="input-group">
-                            <input class="form-control h-auto form-control-solid py-4 px-8" type="password"
+                            <input class="form-control h-auto form-control-solid py-4 px-8 @error('password_confirmation') is-invalid @enderror" type="password"
                                 id="password_confirmation" placeholder="Password Confirmation" name="password_confirmation"
                                 style="border-right: none;" />
                             <div class="input-group-append rounded-right">
@@ -59,6 +59,9 @@
                                 </span>
                             </div>
                         </div>
+                        @error('password_confirmation')
+                            <div class="invalid-feedback d-block text-left">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div>
