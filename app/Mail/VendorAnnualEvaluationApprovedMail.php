@@ -22,9 +22,8 @@ class VendorAnnualEvaluationApprovedMail extends Mailable implements ShouldQueue
     public function build()
     {
         $year = $this->annual->year;
-        $vendorName = optional($this->annual->vendor)->name ?: 'Vendor';
 
-        return $this->subject("Laporan Evaluasi Kinerja Vendor Tahun {$year} - PT Phapros Tbk")
+        return $this->subject(__('email_subject_annual_evaluation', ['year' => $year]))
             ->view('emails.vendor-annual-evaluation-approved');
     }
 }

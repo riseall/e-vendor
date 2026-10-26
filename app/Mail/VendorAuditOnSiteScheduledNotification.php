@@ -29,7 +29,8 @@ class VendorAuditOnSiteScheduledNotification extends Mailable implements ShouldQ
 
     public function build()
     {
-        return $this->subject('Penjadwalan Audit On-Site Vendor - ' . ($this->application->general->nama_perusahaan ?? ''))
+        $companyName = optional($this->application->general)->nama_perusahaan ?? '';
+        return $this->subject(__('email_subject_audit_onsite_scheduled') . ($companyName ? ' - ' . $companyName : ''))
             ->view('emails.vendor-audit-onsite-scheduled-notification');
     }
 }

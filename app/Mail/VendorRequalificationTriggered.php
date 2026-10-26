@@ -25,7 +25,7 @@ class VendorRequalificationTriggered extends Mailable implements ShouldQueue
 
     public function build()
     {
-        return $this->subject('Permintaan Rekualifikasi Vendor: ' . $this->applicationNumber)
+        return $this->subject(__('email_subject_requalification_triggered') . ': ' . $this->applicationNumber)
             ->view('emails.vendor-requalification-triggered');
     }
 }

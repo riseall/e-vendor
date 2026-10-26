@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Penjadwalan Audit On-Site Vendor</title>
+    <title>{{ __('email_subject_audit_onsite_scheduled') }}</title>
 </head>
 
 <body style="margin:0; padding:0; background:#ffffff; font-family:Arial, Helvetica, sans-serif; color:#1f2933;">
@@ -22,14 +22,16 @@
                     </tr>
                     <tr>
                         <td align="center" style="font-size:20px; color:#0284c7; padding-bottom:14px;">
-                            Jadwal Audit On-Site
+                            {{ __('email_audit_onsite_title') }}
                         </td>
                     </tr>
                     <tr>
                         <td align="center"
                             style="font-size:15px; line-height:22px; color:#4b5563; padding-bottom:20px;">
-                            Pemberitahuan pelaksanaan Audit On-Site untuk permohonan <strong>{{ $applicationNumber }}</strong> milik
-                            <strong>{{ optional($application->general)->nama_perusahaan ?? '-' }}</strong>.
+                            {{ __('email_audit_onsite_notice', [
+                                'number' => $applicationNumber,
+                                'company' => optional($application->general)->nama_perusahaan ?? '-'
+                            ]) }}
                         </td>
                     </tr>
                     <tr>
@@ -38,16 +40,16 @@
                                 style="background:#f3f4f6; border-radius:6px; padding:16px;">
                                 <tr>
                                     <td style="font-size:13px; color:#374151;">
-                                        <strong>Detail Jadwal & Lokasi Audit:</strong>
+                                        <strong>{{ __('email_audit_schedule_and_location') }}:</strong>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="font-size:12px; color:#6b7280; padding-top:8px;">
-                                        Tanggal Audit: <strong>{{ \Carbon\Carbon::parse($audit->confirmed_schedule_at)->translatedFormat('d F Y H:i') }} WIB</strong><br />
-                                        Lokasi Audit: <strong>{{ $audit->audit_location }}</strong><br />
-                                        Agenda Audit: <strong>{{ $audit->audit_agenda }}</strong><br />
+                                    <td style="font-size:12px; color:#6b7280; padding-top:8px; line-height:20px;">
+                                        {{ __('email_audit_date') }}: <strong>{{ \Carbon\Carbon::parse($audit->confirmed_schedule_at)->translatedFormat('d F Y H:i') }} WIB</strong><br />
+                                        {{ __('email_audit_location') }}: <strong>{{ $audit->audit_location }}</strong><br />
+                                        {{ __('email_audit_agenda') }}: <strong>{{ $audit->audit_agenda }}</strong><br />
                                         @if(!empty($audit->auditor_team))
-                                            <br /><strong>Tim Auditor:</strong>
+                                            <br /><strong>{{ __('email_auditor_team') }}:</strong>
                                             <ul style="margin-top:4px; padding-left:20px;">
                                                 @foreach((array)$audit->auditor_team as $member)
                                                     <li>{{ $member['name'] ?? '' }} ({{ $member['role'] ?? '' }})</li>
@@ -63,13 +65,13 @@
                         <td align="center" style="padding:4px 0 34px;">
                             <a href="{{ url('/login') }}"
                                 style="display:inline-block; background:#0284c7; color:#ffffff; text-decoration:none; font-size:13px; padding:9px 18px; border-radius:3px;">
-                                BUKA E-VENDOR
+                                {{ __('email_open_evendor_btn') }}
                             </a>
                         </td>
                     </tr>
                     <tr>
                         <td align="center" style="font-size:12px; color:#6b7280;">
-                            E-Vendor &copy;{{ date('Y') }} PT. Phapros, Tbk. - All rights reserved.
+                            {{ __('email_footer_rights', ['year' => date('Y')]) }}
                         </td>
                     </tr>
                 </table>

@@ -24,9 +24,11 @@ class VendorApplicationSubmittedToVendor extends Mailable implements ShouldQueue
     public function build()
     {
         $isRekualifikasi = $this->application->isRekualifikasi();
-        $subject = ($isRekualifikasi ? 'Konfirmasi Permohonan Rekualifikasi Vendor: ' : 'Konfirmasi Permohonan Vendor: ') . $this->applicationNumber;
+        $subjectPrefix = $isRekualifikasi 
+            ? __('email_subject_requalification_submitted') 
+            : __('email_subject_vendor_submitted');
 
-        return $this->subject($subject)
+        return $this->subject($subjectPrefix . ': ' . $this->applicationNumber)
             ->view('emails.vendor-application-submitted-vendor');
     }
 }

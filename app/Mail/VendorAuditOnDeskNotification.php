@@ -29,14 +29,14 @@ class VendorAuditOnDeskNotification extends Mailable implements ShouldQueue
 
     public function build()
     {
-        $statusText = 'Direvisi';
+        $statusText = __('status_need_revision');
         if ($this->audit->status === VendorAudit::STATUS_COMPLETED) {
-            $statusText = 'Disetujui';
+            $statusText = __('status_approved');
         } elseif ($this->audit->status === VendorAudit::STATUS_REJECTED) {
-            $statusText = 'Ditolak';
+            $statusText = __('status_rejected');
         }
 
-        return $this->subject("Hasil Verifikasi Kuesioner Vendor: {$statusText}")
+        return $this->subject(__('email_subject_audit_ondesk') . ': ' . $statusText)
             ->view('emails.vendor-audit-ondesk-notification');
     }
 }

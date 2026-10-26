@@ -29,7 +29,7 @@ class VendorRiskAssessmentHighRisk extends Mailable implements ShouldQueue
 
     public function build()
     {
-        return $this->subject('Hasil Risk Assessment - Audit On-Site: ' . $this->applicationNumber)
+        return $this->subject(__('email_subject_risk_high') . ': ' . $this->applicationNumber)
             ->view('emails.vendor-risk-assessment-high-risk');
     }
 }

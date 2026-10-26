@@ -23,7 +23,7 @@ class VendorApplicationNeedsRevision extends Mailable implements ShouldQueue
 
     public function build()
     {
-        return $this->subject('Revisi Permohonan Vendor: ' . $this->applicationNumber)
+        return $this->subject(__('email_subject_needs_revision') . ': ' . $this->applicationNumber)
             ->view('emails.vendor-application-needs-revision');
     }
 }

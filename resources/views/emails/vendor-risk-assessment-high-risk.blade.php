@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Hasil Risk Assessment - Audit On-Site</title>
+    <title>{{ __('email_risk_result_audit') }}</title>
 </head>
 
 <body style="margin:0; padding:0; background:#ffffff; font-family:Arial, Helvetica, sans-serif; color:#1f2933;">
@@ -22,23 +22,22 @@
                     </tr>
                     <tr>
                         <td align="center" style="font-size:20px; color:#dc2626; padding-bottom:14px;">
-                            Risk Assessment - Audit On-Site
+                            {{ __('email_risk_result_audit') }}
                         </td>
                     </tr>
                     <tr>
                         <td align="center"
                             style="font-size:15px; line-height:22px; color:#4b5563; padding-bottom:20px;">
-                            Permohonan <strong>{{ $applicationNumber }}</strong> milik
-                            <strong>{{ optional($application->general)->nama_perusahaan ?? '-' }}</strong>
-                            telah melalui proses Risk Assessment dengan hasil: <strong>HIGH RISK</strong>.
+                            {{ __('email_risk_high_body', [
+                                'number' => $applicationNumber,
+                                'company' => optional($application->general)->nama_perusahaan ?? '-'
+                            ]) }}
                         </td>
                     </tr>
                     <tr>
                         <td align="center"
                             style="font-size:14px; line-height:20px; color:#4b5563; padding-bottom:16px;">
-                            Berdasarkan penilaian risiko yang komprehensif, permohonan Anda memerlukan audit
-                            on-site. Tim audit kami akan segera menghubungi Anda untuk menjadwalkan kunjungan audit
-                            ke lokasi fasilitas Anda. Harap siapkan semua dokumentasi dan informasi yang diperlukan.
+                            {{ __('email_risk_high_desc') }}
                         </td>
                     </tr>
                     <tr>
@@ -47,15 +46,15 @@
                                 style="background:#f3f4f6; border-radius:6px; padding:16px;">
                                 <tr>
                                     <td style="font-size:13px; color:#374151;">
-                                        <strong>Detail Assessment:</strong>
+                                        <strong>{{ __('email_assessment_details') }}:</strong>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="font-size:12px; color:#6b7280; padding-top:8px;">
-                                        Total Score: <strong>{{ $qualification->total_score ?? '-' }}</strong><br />
-                                        Risk Level: <strong>HIGH</strong><br />
-                                        Audit Type: <strong>On-Site Audit</strong><br />
-                                        Assessment Date: <strong>{{ now()->format('d M Y') }}</strong>
+                                    <td style="font-size:12px; color:#6b7280; padding-top:8px; line-height:20px;">
+                                        {{ __('email_total_score') }}: <strong>{{ $qualification->total_score ?? '-' }}</strong><br />
+                                        {{ __('email_risk_level') }}: <strong>HIGH</strong><br />
+                                        {{ __('email_audit_type') }}: <strong>{{ __('audit_type_onsite') }}</strong><br />
+                                        {{ __('email_assessment_date') }}: <strong>{{ now()->format('d M Y') }}</strong>
                                     </td>
                                 </tr>
                             </table>
@@ -65,13 +64,13 @@
                         <td align="center" style="padding:4px 0 34px;">
                             <a href="{{ route('registrasi.tracking', $applicationNumber) }}"
                                 style="display:inline-block; background:#dc2626; color:#ffffff; text-decoration:none; font-size:13px; padding:9px 18px; border-radius:3px;">
-                                LIHAT STATUS
+                                {{ __('email_view_status') }}
                             </a>
                         </td>
                     </tr>
                     <tr>
                         <td align="center" style="font-size:12px; color:#6b7280;">
-                            E-Vendor &copy;{{ date('Y') }} PT. Phapros, Tbk. - All rights reserved.
+                            {{ __('email_footer_rights', ['year' => date('Y')]) }}
                         </td>
                     </tr>
                 </table>

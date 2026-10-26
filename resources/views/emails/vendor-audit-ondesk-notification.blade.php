@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Hasil Verifikasi Kuesioner Audit</title>
+    <title>{{ __('email_audit_ondesk_title') }}</title>
 </head>
 
 <body style="margin:0; padding:0; background:#ffffff; font-family:Arial, Helvetica, sans-serif; color:#1f2933;">
@@ -25,19 +25,21 @@
                         $isApproved = $audit->status === \App\Models\VendorAudit::STATUS_COMPLETED;
                         $isRejected = $audit->status === \App\Models\VendorAudit::STATUS_REJECTED;
                         $color = $isApproved ? '#15803d' : ($isRejected ? '#b91c1c' : '#b45309');
-                        $statusText = $isApproved ? 'Disetujui' : ($isRejected ? 'Ditolak' : 'Perlu Revisi');
+                        $statusText = $isApproved ? __('status_approved') : ($isRejected ? __('status_rejected') : __('status_need_revision'));
                     @endphp
 
                     <tr>
                         <td align="center" style="font-size:20px; color:{{ $color }}; padding-bottom:14px;">
-                            Verifikasi Kuesioner - {{ $statusText }}
+                            {{ __('email_audit_ondesk_title') }} - {{ $statusText }}
                         </td>
                     </tr>
                     <tr>
                         <td align="center"
                             style="font-size:15px; line-height:22px; color:#4b5563; padding-bottom:20px;">
-                            Halo, <strong>{{ $application->general->nama_perusahaan ?? 'Vendor' }}</strong>.<br>
-                            Berikut adalah hasil verifikasi kuesioner Anda untuk nomor permohonan <strong>{{ $applicationNumber }}</strong>.
+                            {{ __('email_audit_ondesk_body', [
+                                'name' => optional($application->general)->nama_perusahaan ?? 'Vendor',
+                                'number' => $applicationNumber
+                            ]) }}
                         </td>
                     </tr>
                     
@@ -48,20 +50,20 @@
                                 style="background:#f3f4f6; border-radius:6px; padding:16px;">
                                 <tr>
                                     <td style="font-size:13px; color:#374151;">
-                                        <strong>Detail Verifikasi:</strong>
+                                        <strong>{{ __('email_verification_details') }}:</strong>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="font-size:12px; color:#6b7280; padding-top:8px;">
-                                        Status: <strong style="color:{{ $color }};">{{ $statusText }}</strong>
+                                        {{ __('status') }}: <strong style="color:{{ $color }};">{{ $statusText }}</strong>
                                         
                                         @if($audit->summary)
-                                            <br><br><strong>Catatan QA:</strong><br>
+                                            <br><br><strong>{{ __('email_qa_notes') }}:</strong><br>
                                             {!! nl2br(e($audit->summary)) !!}
                                         @endif
 
                                         @if($audit->questionnaire_revision_notes && is_array($audit->questionnaire_revision_notes))
-                                            <br><br><strong>Poin Revisi:</strong>
+                                            <br><br><strong>{{ __('email_revision_points') }}:</strong>
                                             <ul style="margin-top: 4px; padding-left: 20px;">
                                                 @foreach($audit->questionnaire_revision_notes as $note)
                                                     <li>{{ $note }}</li>
@@ -78,7 +80,7 @@
                     <tr>
                         <td align="center"
                             style="font-size:14px; line-height:20px; color:#4b5563; padding-bottom:16px;">
-                            Silakan login ke sistem e-Vendor untuk melihat detail lebih lanjut dan merespons.
+                            {{ __('email_login_prompt') }}
                         </td>
                     </tr>
                     
@@ -86,13 +88,13 @@
                         <td align="center" style="padding:4px 0 34px;">
                             <a href="{{ url('/login') }}"
                                 style="display:inline-block; background:#0284c7; color:#ffffff; text-decoration:none; font-size:13px; padding:9px 18px; border-radius:3px;">
-                                LOGIN E-VENDOR
+                                {{ __('email_login_btn') }}
                             </a>
                         </td>
                     </tr>
                     <tr>
                         <td align="center" style="font-size:12px; color:#6b7280;">
-                            E-Vendor &copy;{{ date('Y') }} PT. Phapros, Tbk. - All rights reserved.
+                            {{ __('email_footer_rights', ['year' => date('Y')]) }}
                         </td>
                     </tr>
                 </table>

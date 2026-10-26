@@ -29,14 +29,14 @@ class VendorAuditResultNotification extends Mailable implements ShouldQueue
 
     public function build()
     {
-        $statusText = 'Terekomendasi';
+        $statusText = __('recommended');
         if ($this->audit->audit_result_category === 'tdk_rekomendasi') {
-            $statusText = 'Tidak Rekomendasi';
+            $statusText = __('not_recommended');
         } elseif ($this->audit->audit_result_category === 'on_hold') {
-            $statusText = 'On Hold';
+            $statusText = __('on_hold');
         }
 
-        return $this->subject('Hasil Evaluasi Audit On-Site Vendor: ' . $statusText)
+        return $this->subject(__('email_subject_audit_result') . ': ' . $statusText)
             ->view('emails.vendor-audit-result-notification');
     }
 }

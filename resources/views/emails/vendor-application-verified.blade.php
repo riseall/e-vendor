@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Permohonan Vendor Terverifikasi</title>
+    <title>{{ __('email_verified_title') }}</title>
 </head>
 
 <body style="margin:0; padding:0; background:#ffffff; font-family:Arial, Helvetica, sans-serif; color:#1f2933;">
@@ -22,28 +22,29 @@
                     </tr>
                     <tr>
                         <td align="center" style="font-size:20px; color:#166534; padding-bottom:14px;">
-                            Permohonan Terverifikasi
+                            {{ __('email_verified_title') }}
                         </td>
                     </tr>
                     <tr>
                         <td align="center"
                             style="font-size:15px; line-height:22px; color:#4b5563; padding-bottom:20px;">
-                            Permohonan <strong>{{ $applicationNumber }}</strong> milik
-                            <strong>{{ optional($application->general)->nama_perusahaan ?? '-' }}</strong>
-                            telah selesai diverifikasi oleh tim pengadaan dan akan dilanjutkan ke proses QA.
+                            {{ __('email_verified_body', [
+                                'number' => $applicationNumber,
+                                'company' => optional($application->general)->nama_perusahaan ?? '-'
+                            ]) }}
                         </td>
                     </tr>
                     <tr>
                         <td align="center" style="padding:4px 0 34px;">
                             <a href="{{ route('registrasi.tracking', $applicationNumber) }}"
                                 style="display:inline-block; background:#15803d; color:#ffffff; text-decoration:none; font-size:13px; padding:9px 18px; border-radius:3px;">
-                                LIHAT STATUS
+                                {{ __('email_view_status') }}
                             </a>
                         </td>
                     </tr>
                     <tr>
                         <td align="center" style="font-size:12px; color:#6b7280;">
-                            E-Vendor &copy;{{ date('Y') }} PT. Phapros, Tbk. - All rights reserved.
+                            {{ __('email_footer_rights', ['year' => date('Y')]) }}
                         </td>
                     </tr>
                 </table>

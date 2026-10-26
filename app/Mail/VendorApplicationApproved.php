@@ -29,7 +29,7 @@ class VendorApplicationApproved extends Mailable implements ShouldQueue
 
     public function build()
     {
-        return $this->subject('Permohonan Vendor Disetujui: ' . $this->applicationNumber)
+        return $this->subject(__('email_subject_approved') . ': ' . $this->applicationNumber)
             ->view('emails.vendor-application-approved');
     }
 }

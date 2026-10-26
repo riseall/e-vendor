@@ -301,6 +301,14 @@ class RegistrasiController extends Controller
             'products',
         ]);
 
+        if (auth()->check()) {
+            $currentLocale = app()->getLocale();
+            if ($currentLocale && auth()->user()->locale !== $currentLocale) {
+                auth()->user()->update(['locale' => $currentLocale]);
+                $application->user->locale = $currentLocale;
+            }
+        }
+
         $notificationService->submitted($application, $isRevisionSubmit);
 
         return response()->json([

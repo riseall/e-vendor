@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Hasil Evaluasi Audit On-Site Vendor</title>
+    <title>{{ __('email_subject_audit_result') }}</title>
 </head>
 
 <body style="margin:0; padding:0; background:#ffffff; font-family:Arial, Helvetica, sans-serif; color:#1f2933;">
@@ -22,15 +22,16 @@
                     </tr>
                     <tr>
                         <td align="center" style="font-size:20px; color:#2b6cb0; padding-bottom:14px;">
-                            Hasil Evaluasi Audit On-Site
+                            {{ __('email_audit_result_title') }}
                         </td>
                     </tr>
                     <tr>
                         <td align="center"
                             style="font-size:15px; line-height:22px; color:#4b5563; padding-bottom:20px;">
-                            Proses audit on-site untuk permohonan <strong>{{ $applicationNumber }}</strong> milik
-                            <strong>{{ optional($application->general)->nama_perusahaan ?? '-' }}</strong>
-                            telah selesai dievaluasi oleh tim Quality Assurance.
+                            {{ __('email_audit_result_desc', [
+                                'number' => $applicationNumber,
+                                'company' => optional($application->general)->nama_perusahaan ?? '-'
+                            ]) }}
                         </td>
                     </tr>
                     <tr>
@@ -39,24 +40,24 @@
                                 style="background:#f3f4f6; border-radius:6px; padding:16px;">
                                 <tr>
                                     <td style="font-size:13px; color:#374151;">
-                                        <strong>Hasil Audit:</strong>
+                                        <strong>{{ __('email_audit_details') }}:</strong>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="font-size:12px; color:#6b7280; padding-top:8px;">
-                                        Rekomendasi QA: <strong>
+                                    <td style="font-size:12px; color:#6b7280; padding-top:8px; line-height:20px;">
+                                        {{ __('email_qa_recommendation') }}: <strong>
                                             @if($audit->audit_result_category === 'terekomendasi')
-                                                TEREKOMENDASI (APPROVED)
+                                                {{ strtoupper(__('recommended')) }} (APPROVED)
                                             @elseif($audit->audit_result_category === 'tdk_rekomendasi')
-                                                TIDAK REKOMENDASI (REJECTED)
+                                                {{ strtoupper(__('not_recommended')) }} (REJECTED)
                                             @elseif($audit->audit_result_category === 'on_hold')
-                                                ON HOLD
+                                                {{ strtoupper(__('on_hold')) }}
                                             @else
                                                 {{ strtoupper($audit->audit_result_category) }}
                                             @endif
                                         </strong><br />
-                                        Tanggal Evaluasi: <strong>{{ now()->format('d M Y') }}</strong><br />
-                                        Catatan / Keterangan:<br />
+                                        {{ __('email_evaluation_date') }}: <strong>{{ now()->format('d M Y') }}</strong><br />
+                                        {{ __('email_notes_remarks') }}:<br />
                                         <div style="margin-top:6px; padding:8px; background:#ffffff; border-radius:4px; color:#374151; font-weight:bold;">
                                             {!! nl2br(e($audit->summary)) !!}
                                         </div>
@@ -69,13 +70,13 @@
                         <td align="center" style="padding:4px 0 34px;">
                             <a href="{{ route('registrasi.tracking', $applicationNumber) }}"
                                 style="display:inline-block; background:#2b6cb0; color:#ffffff; text-decoration:none; font-size:13px; padding:9px 18px; border-radius:3px;">
-                                LIHAT DETAIL DI DASHBOARD
+                                {{ __('email_view_dashboard_detail') }}
                             </a>
                         </td>
                     </tr>
                     <tr>
                         <td align="center" style="font-size:12px; color:#6b7280;">
-                            E-Vendor &copy;{{ date('Y') }} PT. Phapros, Tbk. - All rights reserved.
+                            {{ __('email_footer_rights', ['year' => date('Y')]) }}
                         </td>
                     </tr>
                 </table>

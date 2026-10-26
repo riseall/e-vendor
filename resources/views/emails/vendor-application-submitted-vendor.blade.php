@@ -1,13 +1,11 @@
 @php
     $isRekualifikasi = $application->isRekualifikasi();
-    $title = $isRekualifikasi ? 'Permohonan Rekualifikasi Diterima' : 'Permohonan Vendor Diterima';
-    $subtitle = $isRekualifikasi
-        ? 'Yth. ' .
-            (optional($application->user)->name ?? 'Vendor') .
-            ', permohonan pembaruan data profil Anda telah berhasil dikirim dan sedang dalam proses verifikasi.'
-        : 'Yth. ' .
-            (optional($application->user)->name ?? 'Vendor') .
-            ', permohonan registrasi vendor Anda telah berhasil dikirim dan menunggu verifikasi tim pengadaan.';
+    $title = $isRekualifikasi ? __('email_requalification_received_title') : __('email_application_received_title');
+    $greeting = __('email_greeting', ['name' => optional($application->user)->name ?? 'Vendor']);
+    $subtitleBody = $isRekualifikasi
+        ? __('email_submitted_subtitle_requalification')
+        : __('email_submitted_subtitle_application');
+    $subtitle = $greeting . ', ' . $subtitleBody;
 @endphp
 <!DOCTYPE html>
 <html>
@@ -49,28 +47,28 @@
                             <table role="presentation" cellpadding="0" cellspacing="0"
                                 style="margin:0 auto; font-size:14px; color:#384150; text-align:left;">
                                 <tr>
-                                    <td style="padding:4px 10px; color:#6b7280;">Nomor</td>
+                                    <td style="padding:4px 10px; color:#6b7280;">{{ __('number') }}</td>
                                     <td style="padding:4px 10px; font-weight:700;">{{ $applicationNumber }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:4px 10px; color:#6b7280;">Perusahaan</td>
+                                    <td style="padding:4px 10px; color:#6b7280;">{{ __('company') }}</td>
                                     <td style="padding:4px 10px; font-weight:700;">
                                         {{ optional($application->general)->nama_perusahaan ?? '-' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:4px 10px; color:#6b7280;">Status</td>
+                                    <td style="padding:4px 10px; color:#6b7280;">{{ __('status') }}</td>
                                     <td style="padding:4px 10px; font-weight:700;">Submitted</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:4px 10px; color:#6b7280;">Tanggal</td>
+                                    <td style="padding:4px 10px; color:#6b7280;">{{ __('date') }}</td>
                                     <td style="padding:4px 10px; font-weight:700;">
                                         {{ optional($application->submitted_at)->format('d/m/Y H:i') ?? '-' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:4px 10px; color:#6b7280;">Estimasi</td>
-                                    <td style="padding:4px 10px; font-weight:700;">Maksimal 10 hari kalender</td>
+                                    <td style="padding:4px 10px; color:#6b7280;">{{ __('estimation') }}</td>
+                                    <td style="padding:4px 10px; font-weight:700;">{{ __('email_max_10_calendar_days') }}</td>
                                 </tr>
                             </table>
                         </td>
@@ -79,13 +77,13 @@
                         <td align="center" style="padding:4px 0 34px;">
                             <a href="{{ route('registrasi.tracking', $applicationNumber) }}"
                                 style="display:inline-block; background:#5d9cec; color:#ffffff; text-decoration:none; font-size:13px; line-height:18px; padding:6px 14px; border-radius:3px;">
-                                TRACKING
+                                {{ __('tracking') }}
                             </a>
                         </td>
                     </tr>
                     <tr>
                         <td align="center" style="font-size:12px; color:#4b5563;">
-                            E-Vendor &copy;{{ date('Y') }} PT. Phapros, Tbk. - All rights reserved.
+                            {{ __('email_footer_rights', ['year' => date('Y')]) }}
                         </td>
                     </tr>
                 </table>

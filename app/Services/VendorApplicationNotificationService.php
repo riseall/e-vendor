@@ -319,7 +319,8 @@ class VendorApplicationNotificationService
         array $recipients,
         Mailable $mail,
         VendorApplication $application,
-        string $trigger
+        string $trigger,
+        ?string $locale = null
     ): void {
         $recipients = collect($recipients)->filter()->unique()->values()->all();
 
@@ -331,6 +332,15 @@ class VendorApplicationNotificationService
             return;
         }
 
+        // Tentukan target locale:
+        // Untuk vendor: ambil dari user->locale ?: 'en' (default fallback vendor: en)
+        // Untuk internal staff: default 'id'
+        $targetLocale = $locale ?: ($this->isVendorTrigger($trigger)
+            ? (optional($application->user)->locale ?: 'en')
+            : 'id');
+
+        $mail->locale($targetLocale);
+
         try {
             Mail::to($recipients)->queue($mail);
         } catch (\Throwable $e) {
@@ -340,6 +350,12 @@ class VendorApplicationNotificationService
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    private function isVendorTrigger(string $trigger): bool
+    {
+        return strpos($trigger, '_vendor') !== false
+            || in_array($trigger, ['need_revision', 'verified_manual', 'requalification_triggered'], true);
     }
 
     private function applicationNumber(VendorApplication $application): string

@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Notifikasi Pengiriman Kuesioner Vendor</title>
 </head>
+
 <body style="margin:0; padding:0; background:#ffffff; font-family:Arial, Helvetica, sans-serif; color:#1f2933;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
@@ -26,13 +28,13 @@
                     <tr>
                         <td align="center"
                             style="font-size:15px; line-height:22px; color:#4b5563; padding-bottom:20px;">
-                            Halo Tim QA & Super Admin,<br><br>
-                            Vendor <strong>{{ $application->general->nama_perusahaan ?? '-' }}</strong> 
-                            telah mengirimkan {{ $isRevision ? 'revisi kuesioner' : 'jawaban kuesioner' }} 
+                            Halo Tim QA,<br><br>
+                            Vendor <strong>{{ $application->general->nama_perusahaan ?? '-' }}</strong>
+                            telah mengirimkan {{ $isRevision ? 'revisi kuesioner' : 'jawaban kuesioner' }}
                             untuk nomor permohonan <strong>{{ $applicationNumber }}</strong>.
                         </td>
                     </tr>
-                    
+
                     <tr>
                         <td align="center" style="padding:4px 0 34px;">
                             <a href="{{ url('/qa/audit/' . $audit->id) }}"
@@ -51,4 +53,5 @@
         </tr>
     </table>
 </body>
+
 </html>

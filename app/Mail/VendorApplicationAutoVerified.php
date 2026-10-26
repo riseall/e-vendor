@@ -23,7 +23,7 @@ class VendorApplicationAutoVerified extends Mailable implements ShouldQueue
 
     public function build()
     {
-        return $this->subject('Permohonan Vendor Otomatis Terverifikasi: ' . $this->applicationNumber)
+        return $this->subject(__('email_subject_auto_verified') . ': ' . $this->applicationNumber)
             ->view('emails.vendor-application-auto-verified');
     }
 }

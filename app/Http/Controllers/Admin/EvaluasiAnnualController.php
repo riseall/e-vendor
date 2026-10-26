@@ -178,7 +178,10 @@ class EvaluasiAnnualController extends Controller
         // 1. Kirim laporan evaluasi otomatis ke vendor via Email
         try {
             if ($annual->vendor && !empty($annual->vendor->email)) {
-                Mail::to($annual->vendor->email)->queue(new VendorAnnualEvaluationApprovedMail($annual));
+                $vendorLocale = optional($annual->vendor)->locale ?: 'en';
+                Mail::to($annual->vendor->email)->queue(
+                    (new VendorAnnualEvaluationApprovedMail($annual))->locale($vendorLocale)
+                );
             }
         } catch (\Exception $e) {
             Log::error("Gagal mengirim email laporan evaluasi tahunan ke vendor ID {$annual->vendor_id}: " . $e->getMessage());
