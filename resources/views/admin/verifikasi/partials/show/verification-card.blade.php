@@ -318,7 +318,7 @@
                                                                                     data-title="{{ $doc['title'] }} - {{ $product['product'] ?? 'Produk' }}"
                                                                                     title="Lihat {{ $doc['title'] }}">
                                                                                     <i
-                                                                                        class="{{ $doc['icon'] }}"></i>{{ $doc['label'] }}
+                                                                                        class="{{ $doc['icon'] }} mr-1" style="font-size: 0.72rem;"></i>{{ $doc['label'] }}
                                                                                 </button>
                                                                             @else
                                                                                 <button type="button"
@@ -326,7 +326,7 @@
                                                                                     disabled
                                                                                     title="{{ $doc['title'] }} (Belum dilampirkan)">
                                                                                     <i
-                                                                                        class="{{ $doc['icon'] }}"></i>{{ $doc['label'] }}
+                                                                                        class="{{ $doc['icon'] }} mr-1" style="font-size: 0.72rem;"></i>{{ $doc['label'] }}
                                                                                 </button>
                                                                             @endif
                                                                         @endforeach

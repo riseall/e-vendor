@@ -774,6 +774,36 @@
             align-items: center;
         }
 
+        .verif-doc-grid .btn {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.72rem;
+            padding: 0.22rem 0.55rem;
+            border-radius: 0.35rem;
+            line-height: 1.25;
+            transition: all 0.15s ease-in-out;
+        }
+
+        .verif-doc-grid .btn i {
+            font-size: 0.72rem !important;
+            margin-right: 4px;
+            vertical-align: middle;
+            transition: color 0.15s ease-in-out;
+        }
+
+        .verif-doc-grid .btn:hover,
+        .verif-doc-grid .btn:focus {
+            color: #ffffff !important;
+        }
+
+        .verif-doc-grid .btn:hover i,
+        .verif-doc-grid .btn:focus i,
+        .verif-doc-grid .btn:hover [class*="text-"],
+        .verif-doc-grid .btn:focus [class*="text-"] {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+        }
+
         .verif-doc-grid .btn.disabled,
         .verif-doc-grid .btn:disabled {
             opacity: 0.35 !important;

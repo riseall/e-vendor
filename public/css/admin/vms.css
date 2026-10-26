@@ -33,6 +33,10 @@
     --vnd-amber-lt: #fff8e7;
     --vnd-amber-bd: #fcd97a;
 
+    --vnd-yellow: #ffc107;
+    --vnd-yellow-lt: #ffebee;
+    --vnd-yellow-bd: #ffcc80;
+
     /* Red - Danger (Rejection, High Risk) */
     --vnd-red: #c62828;
     --vnd-red-lt: #fdecea;
@@ -876,35 +880,177 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
 
 /* Metronic Light Button Hover Styles */
 .btn.btn-light-primary:hover,
-.btn-light-primary:hover {
+.btn-light-primary:hover,
+.btn.btn-light-primary:focus,
+.btn-light-primary:focus,
+.btn.btn-light-primary:active,
+.btn-light-primary:active,
+.btn.btn-light-primary.active,
+.btn-light-primary.active {
     color: #ffffff !important;
     background-color: var(--vnd-blue) !important;
     border-color: var(--vnd-blue) !important;
     box-shadow: 0 4px 12px rgba(0, 93, 182, 0.3) !important;
 }
-.btn-light-success:hover {
+.btn.btn-light-primary:hover i,
+.btn-light-primary:hover i,
+.btn.btn-light-primary:focus i,
+.btn-light-primary:focus i,
+.btn.btn-light-primary:active i,
+.btn-light-primary:active i,
+.btn.btn-light-primary:hover [class*="fa-"],
+.btn-light-primary:hover [class*="fa-"],
+.btn.btn-light-primary:hover [class*="flaticon-"],
+.btn-light-primary:hover [class*="flaticon-"],
+.btn.btn-light-primary:hover [class*="text-"],
+.btn-light-primary:hover [class*="text-"] {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+.btn.btn-light-success:hover,
+.btn-light-success:hover,
+.btn.btn-light-success:focus,
+.btn-light-success:focus,
+.btn.btn-light-success:active,
+.btn-light-success:active,
+.btn.btn-light-success.active,
+.btn-light-success.active {
     color: #ffffff !important;
     background-color: var(--vnd-green) !important;
     border-color: var(--vnd-green) !important;
     box-shadow: 0 4px 10px rgba(46, 125, 50, 0.25) !important;
 }
-.btn-light-warning:hover {
+.btn.btn-light-success:hover i,
+.btn-light-success:hover i,
+.btn.btn-light-success:focus i,
+.btn-light-success:focus i,
+.btn.btn-light-success:active i,
+.btn-light-success:active i,
+.btn.btn-light-success:hover [class*="fa-"],
+.btn-light-success:hover [class*="fa-"],
+.btn.btn-light-success:hover [class*="flaticon-"],
+.btn-light-success:hover [class*="flaticon-"],
+.btn.btn-light-success:hover [class*="text-"],
+.btn-light-success:hover [class*="text-"] {
     color: #ffffff !important;
-    background-color: var(--vnd-amber) !important;
-    border-color: var(--vnd-amber) !important;
-    box-shadow: 0 4px 10px rgba(180, 83, 9, 0.25) !important;
+    fill: #ffffff !important;
 }
-.btn-light-danger:hover {
+
+.btn.btn-light-warning:hover,
+.btn-light-warning:hover,
+.btn.btn-light-warning:focus,
+.btn-light-warning:focus,
+.btn.btn-light-warning:active,
+.btn-light-warning:active,
+.btn.btn-light-warning.active,
+.btn-light-warning.active {
+    color: #ffffff !important;
+    background-color: #ffa800 !important;
+    border-color: #ffa800 !important;
+    box-shadow: 0 4px 10px rgba(255, 168, 0, 0.28) !important;
+}
+.btn.btn-light-warning:hover i,
+.btn-light-warning:hover i,
+.btn.btn-light-warning:focus i,
+.btn-light-warning:focus i,
+.btn.btn-light-warning:active i,
+.btn-light-warning:active i,
+.btn.btn-light-warning:hover [class*="fa-"],
+.btn-light-warning:hover [class*="fa-"],
+.btn.btn-light-warning:hover [class*="flaticon-"],
+.btn-light-warning:hover [class*="flaticon-"],
+.btn.btn-light-warning:hover [class*="text-"],
+.btn-light-warning:hover [class*="text-"] {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+.btn.btn-light-danger:hover,
+.btn-light-danger:hover,
+.btn.btn-light-danger:focus,
+.btn-light-danger:focus,
+.btn.btn-light-danger:active,
+.btn-light-danger:active,
+.btn.btn-light-danger.active,
+.btn-light-danger.active {
     color: #ffffff !important;
     background-color: var(--vnd-red) !important;
     border-color: var(--vnd-red) !important;
     box-shadow: 0 4px 10px rgba(198, 40, 40, 0.25) !important;
 }
-.btn-light-info:hover {
+.btn.btn-light-danger:hover i,
+.btn-light-danger:hover i,
+.btn.btn-light-danger:focus i,
+.btn-light-danger:focus i,
+.btn.btn-light-danger:active i,
+.btn-light-danger:active i,
+.btn.btn-light-danger:hover [class*="fa-"],
+.btn-light-danger:hover [class*="fa-"],
+.btn.btn-light-danger:hover [class*="flaticon-"],
+.btn-light-danger:hover [class*="flaticon-"],
+.btn.btn-light-danger:hover [class*="text-"],
+.btn-light-danger:hover [class*="text-"] {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+.btn.btn-light-info:hover,
+.btn-light-info:hover,
+.btn.btn-light-info:focus,
+.btn-light-info:focus,
+.btn.btn-light-info:active,
+.btn-light-info:active,
+.btn.btn-light-info.active,
+.btn-light-info.active {
     color: #ffffff !important;
     background-color: var(--vnd-purple) !important;
     border-color: var(--vnd-purple) !important;
     box-shadow: 0 4px 10px rgba(8, 145, 178, 0.25) !important;
+}
+.btn.btn-light-info:hover i,
+.btn-light-info:hover i,
+.btn.btn-light-info:focus i,
+.btn-light-info:focus i,
+.btn.btn-light-info:active i,
+.btn-light-info:active i,
+.btn.btn-light-info:hover [class*="fa-"],
+.btn-light-info:hover [class*="fa-"],
+.btn.btn-light-info:hover [class*="flaticon-"],
+.btn-light-info:hover [class*="flaticon-"],
+.btn.btn-light-info:hover [class*="text-"],
+.btn-light-info:hover [class*="text-"] {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+.btn.btn-light-dark:hover,
+.btn-light-dark:hover,
+.btn.btn-light-dark:focus,
+.btn-light-dark:focus,
+.btn.btn-light-dark:active,
+.btn-light-dark:active,
+.btn.btn-light-dark.active,
+.btn-light-dark.active {
+    color: #ffffff !important;
+    background-color: #181C32 !important;
+    border-color: #181C32 !important;
+    box-shadow: 0 4px 10px rgba(24, 28, 50, 0.25) !important;
+}
+.btn.btn-light-dark:hover i,
+.btn-light-dark:hover i,
+.btn.btn-light-dark:focus i,
+.btn-light-dark:focus i,
+.btn.btn-light-dark:active i,
+.btn-light-dark:active i,
+.btn.btn-light-dark:hover [class*="fa-"],
+.btn-light-dark:hover [class*="fa-"],
+.btn.btn-light-dark:hover [class*="flaticon-"],
+.btn-light-dark:hover [class*="flaticon-"],
+.btn.btn-light-dark:hover [class*="text-"],
+.btn-light-dark:hover [class*="text-"] {
+    color: #ffffff !important;
+    fill: #ffffff !important;
 }
 
 /* Action Detail Buttons */
@@ -1013,10 +1159,10 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     border: 1.5px solid var(--vnd-amber-bd) !important;
 }
 .vnd-btn-detail--warning:hover {
-    background: var(--vnd-amber) !important;
-    border-color: var(--vnd-amber) !important;
+    background: var(--vnd-yellow) !important;
+    border-color: var(--vnd-yellow) !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 10px rgba(180, 83, 9, 0.25) !important;
+    box-shadow: 0 4px 10px rgba(255, 168, 0, 0.25) !important;
     text-decoration: none !important;
 }
 .vnd-btn-detail--danger {
