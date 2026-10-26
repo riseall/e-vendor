@@ -163,18 +163,21 @@
         {{-- Kolom 4: Dokumen & Sertifikasi --}}
         <td class="align-middle">
             @php
+                $isBahanKemas = strpos($id, 'KEMAS-') === 0 || (($data['product_type'] ?? '') === 'kemas');
                 $summaryDocs = array_filter([
-                    !empty($data['file_surat_path']) ? [__('agency_letter'), 'primary'] : null,
-                    !empty($data['gmp_file_path']) ? ['GMP', 'info'] : null,
-                    (($data['has_tkdn'] ?? '') === 'yes' && !empty($data['tkdn_file_path'])) ? ['TKDN', 'dark'] : null,
-                    (($data['has_sni'] ?? '') === 'yes' && !empty($data['sni_file_path'])) ? ['SNI', 'warning'] : null,
-                    (($data['has_halal'] ?? '') === 'yes' && !empty($data['halal_file_path'])) ? ['Halal', 'success'] : null,
-                    (($data['has_bse_tse'] ?? '') === 'yes' && !empty($data['bse_tse_file_path'])) ? ['BSE/TSE', 'danger'] : null,
+                    !empty($data['file_surat_path']) ? [__('agency_letter'), 'primary', 'fas fa-file-alt text-primary'] : null,
+                    (!$isBahanKemas && !empty($data['gmp_file_path'])) ? ['GMP', 'info', 'fas fa-microscope text-info'] : null,
+                    (($data['has_tkdn'] ?? '') === 'yes' && !empty($data['tkdn_file_path'])) ? ['TKDN', 'dark', 'fas fa-cogs text-dark'] : null,
+                    (($data['has_sni'] ?? '') === 'yes' && !empty($data['sni_file_path'])) ? ['SNI', 'warning', 'fas fa-award text-warning'] : null,
+                    (($data['has_halal'] ?? '') === 'yes' && !empty($data['halal_file_path'])) ? ['Halal', 'success', 'fas fa-leaf text-success'] : null,
+                    (($data['has_bse_tse'] ?? '') === 'yes' && !empty($data['bse_tse_file_path'])) ? ['BSE/TSE', 'danger', 'fas fa-heartbeat text-danger'] : null,
                 ]);
             @endphp
             <div class="d-flex align-items-center flex-wrap prod-summary-docs" style="gap: 4px;">
                 @forelse ($summaryDocs as $doc)
-                    <span class="label label-light-{{ $doc[1] }} label-inline font-size-xs font-weight-bolder">{{ $doc[0] }}</span>
+                    <span class="label label-light-{{ $doc[1] }} label-inline font-size-xs font-weight-bolder mr-1 mb-1">
+                        @if (!empty($doc[2])) <i class="{{ $doc[2] }} mr-1"></i> @endif{{ $doc[0] }}
+                    </span>
                 @empty
                     <span class="label label-light-warning label-inline font-size-xs font-weight-bold">{{ __('not_filled') }}</span>
                 @endforelse

@@ -732,6 +732,7 @@
     "halal_status_required": "必须选择清真状态。",
     "bse_tse_status_required": "必须选择BSE/TSE状态。",
     "product_letter_doc_required": "必须上传产品信函文件。",
+    "product_gmp_doc_required": "必须上传产品GMP证书文件。",
     "tkdn_file_required": "TKDN证书文件必须上传。",
     "sni_file_required": "SNI证书文件必须上传。",
     "halal_file_required": "清真证书文件必须上传。",

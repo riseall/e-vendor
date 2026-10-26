@@ -732,6 +732,7 @@
     "halal_status_required": "Halal status must be selected.",
     "bse_tse_status_required": "BSE/TSE status must be selected.",
     "product_letter_doc_required": "Product agency letter document must be uploaded.",
+    "product_gmp_doc_required": "Product GMP certificate document must be uploaded.",
     "tkdn_file_required": "TKDN certificate document must be uploaded.",
     "sni_file_required": "SNI certificate document must be uploaded.",
     "halal_file_required": "Halal certificate document must be uploaded.",

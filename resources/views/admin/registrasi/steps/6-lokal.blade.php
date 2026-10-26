@@ -4,9 +4,7 @@
     <div class="col-md-4">
         <div class="question-wrapper">
             {{-- Status Perusahaan --}}
-            <label class="question-label">{{ __('company_status') }} @if (!$isReadOnly)
-                @endif
-            </label>
+            <label class="question-label">{{ __('company_status') }}</label>
             <x-vendor-radio name="status_perusahaan" label="" :options="[
                 ['value' => 'perorangan', 'label' => __('individual')],
                 ['value' => 'badan', 'label' => __('corporate_entity')],
@@ -17,9 +15,7 @@
     <div class="col-md-4">
         <div class="question-wrapper">
             {{-- Status Pajak --}}
-            <label class="question-label">{{ __('tax_status') }} @if (!$isReadOnly)
-                @endif
-            </label>
+            <label class="question-label">{{ __('tax_status') }}</label>
             <x-vendor-radio name="status_pajak" label="" :options="[
                 ['value' => 'pkp', 'label' => __('taxable_enterprise')],
                 ['value' => 'non_pkp', 'label' => __('non_taxable_enterprise')],
@@ -29,9 +25,7 @@
     <div class="col-md-4">
         <div class="question-wrapper">
             {{-- Jenis Penanaman Modal --}}
-            <label class="question-label">{{ __('investment_type') }} @if (!$isReadOnly)
-                @endif
-            </label>
+            <label class="question-label">{{ __('investment_type') }}</label>
             <x-vendor-radio name="jenis_modal" label="" :options="[
                 ['value' => 'pmdn', 'label' => __('domestic_investment')],
                 ['value' => 'pma', 'label' => __('foreign_investment')],
@@ -44,9 +38,7 @@
     <div class="col-md-6">
         <div class="question-wrapper">
             {{-- Skala Perusahaan menggunakan Select Component --}}
-            <label class="question-label">{{ __('company_scale_nib') }} @if (!$isReadOnly)
-                @endif
-            </label>
+            <label class="question-label">{{ __('company_scale_nib') }}</label>
             <x-vendor-select name="skala_perusahaan" label="" :options="[
                 'mikro' => __('micro_business'),
                 'kecil' => __('small_business'),
@@ -60,10 +52,8 @@
     <div class="col-md-6">
         <div class="question-wrapper">
             {{-- KBLI --}}
-            <label class="question-label">{{ __('kbli_owned') }} @if (!$isReadOnly)
-                @endif
-            </label>
-            <x-vendor-input name="kbli" label="" required :placeholder="__('kbli_placeholder')" :value="$draft['general']->kbli ?? ''"
+            <label class="question-label">{{ __('kbli_owned') }}</label>
+            <x-vendor-input name="kbli" label="" :placeholder="__('kbli_placeholder')" :value="$draft['general']->kbli ?? ''"
                 :readonly="$isReadOnly" />
         </div>
     </div>

@@ -410,11 +410,6 @@ class RegistrasiController extends Controller
                 'komitmen_kualitas' => 'Komitmen kualitas',
                 'lead_time' => 'Jangka waktu pengiriman',
                 'customer_list' => 'Daftar pelanggan',
-                'status_perusahaan' => 'Status perusahaan',
-                'status_pajak' => 'Status pajak',
-                'skala_perusahaan' => 'Skala perusahaan',
-                'jenis_modal' => 'Jenis modal',
-                'kbli' => 'KBLI',
             ]);
 
             if ($application->general->has_other_company === 'yes' && empty($application->general->other_companies)) {
@@ -445,6 +440,11 @@ class RegistrasiController extends Controller
                 'has_halal' => 'Status halal produk #' . ($index + 1),
                 'file_surat_path' => 'Dokumen surat produk #' . ($index + 1),
             ], 'products.' . $index . '.');
+
+            $isBahanKemas = strpos($product->erp_product_id, 'KEMAS-') === 0;
+            if (!$isBahanKemas && empty($product->gmp_file_path)) {
+                $errors['products.' . $index . '.gmp_file'] = 'Dokumen sertifikat GMP produk #' . ($index + 1) . ' wajib diunggah.';
+            }
 
             foreach (
                 [

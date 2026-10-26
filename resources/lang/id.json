@@ -732,6 +732,7 @@
     "halal_status_required": "Status halal harus dipilih.",
     "bse_tse_status_required": "Status BSE/TSE harus dipilih.",
     "product_letter_doc_required": "Dokumen surat produk wajib diunggah.",
+    "product_gmp_doc_required": "Dokumen sertifikat GMP produk wajib diunggah.",
     "tkdn_file_required": "Dokumen sertifikat TKDN wajib diunggah.",
     "sni_file_required": "Dokumen sertifikat SNI wajib diunggah.",
     "halal_file_required": "Dokumen sertifikat halal wajib diunggah.",

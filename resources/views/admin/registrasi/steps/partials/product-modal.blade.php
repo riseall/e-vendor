@@ -26,14 +26,6 @@
             </div>
 
             <div class="modal-body py-4 px-6">
-                {{-- 1. Informasi Pabrik & Asal --}}
-                <div class="d-flex align-items-center justify-content-between border-bottom pb-1 mb-3">
-                    <span class="font-weight-bolder text-dark font-size-sm">
-                        1. {{ __('origin_and_supply_chain') }}
-                    </span>
-                    <span class="text-danger font-size-xs font-weight-bold">* {{ __('required') }}</span>
-                </div>
-
                 <div class="row">
                     {{-- Kategori Produk (Bahan Baku vs Bahan Kemas) --}}
                     <div class="col-md-4 mb-2">
@@ -59,7 +51,6 @@
                                 <span></span>
                                 <div class="d-inline-block font-size-xs">
                                     <strong class="text-dark">{{ __('packaging_material_or_other') }}</strong>
-                                    <small class="text-muted ml-1">({{ __('gmp_optional') }})</small>
                                 </div>
                             </label>
                         </div>
@@ -80,17 +71,9 @@
                     </div>
                 </div>
 
-                {{-- 2. Dokumen & Rantai Pasok --}}
-                <div class="d-flex align-items-center justify-content-between border-bottom pb-1 mb-3 mt-3">
-                    <span class="font-weight-bolder text-dark font-size-sm">
-                        2. {{ __('product_documents') }}
-                    </span>
-                    <span class="font-size-xs text-muted">{{ __('agency_required_gmp_rule_notice') }}</span>
-                </div>
-
-                <div class="row">
+                <div class="row mt-3">
                     {{-- Rantai Pasok --}}
-                    <div class="col-md-4 mb-2">
+                    <div class="supply-col-{{ $id }} {{ $isBaku ? 'col-md-4' : 'col-md-6' }}">
                         <x-vendor-select name="products[{{ $id }}][rantai_pasok]" :label="__('supply_chain')"
                             labelClass="font-size-xs font-weight-bold text-dark d-block mb-1" :options="[
                                 'Manufaktur' => __('manufacturer'),
@@ -103,15 +86,15 @@
                     </div>
 
                     {{-- Surat Keagenan --}}
-                    <div class="col-md-4 mb-2">
+                    <div class="agency-col-{{ $id }} {{ $isBaku ? 'col-md-4' : 'col-md-6' }}">
                         <x-vendor-input type="file" name="products[{{ $id }}][file_surat]"
                             :label="__('agency_letter')" labelClass="font-size-xs font-weight-bold text-dark d-block mb-1"
                             existingName="products[{{ $id }}][existing_file_surat]" :value="$data['file_surat_path'] ?? null"
                             :application="$application" :readonly="false" required />
                     </div>
 
-                    {{-- Sertifikat GMP (Wajib untuk Bahan Baku, Opsional untuk Bahan Kemas) --}}
-                    <div class="col-md-4 mb-2 gmp-col-{{ $id }}">
+                    {{-- Sertifikat GMP (Wajib untuk Bahan Baku, disembunyikan untuk Bahan Kemas) --}}
+                    <div class="col-md-4 gmp-col-{{ $id }}" style="{{ $isBaku ? '' : 'display: none;' }}">
                         <x-vendor-input type="file" name="products[{{ $id }}][gmp_file]"
                             label="{{ __('gmp_certificate') }}"
                             labelClass="font-size-xs font-weight-bold text-dark d-block mb-1"
@@ -121,9 +104,9 @@
                 </div>
 
                 {{-- 3. Sertifikasi Tambahan (Opsional) --}}
-                <div class="d-flex align-items-center justify-content-between border-bottom pb-1 mb-3 mt-3">
+                <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3 mt-3">
                     <span class="font-weight-bolder text-dark font-size-sm">
-                        3. {{ __('optional_certifications') }}
+                        <i class="fas fa-certificate text-primary mr-2"></i>{{ __('optional_certifications') }}
                     </span>
                     <span class="text-muted font-size-xs">{{ __('optional') }}</span>
                 </div>

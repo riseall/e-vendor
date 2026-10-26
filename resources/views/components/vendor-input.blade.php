@@ -125,6 +125,7 @@
                     <span class="input-group-text"><i class="{{ $rightIcon }}"></i></span>
                 </div>
             @endif
+            {{ $slot ?? '' }}
         </div>
     @endif
 

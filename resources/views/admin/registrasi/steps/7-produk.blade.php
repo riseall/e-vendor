@@ -46,6 +46,22 @@
             white-space: nowrap;
             max-width: 100%;
         }
+
+        #selectedProductsTable .prod-summary-docs .label {
+            display: inline-flex;
+            align-items: center;
+            height: auto;
+            padding: 0.22rem 0.55rem;
+            font-size: 0.72rem;
+            line-height: 1.25;
+            border-radius: 0.35rem;
+        }
+
+        #selectedProductsTable .prod-summary-docs .label i {
+            font-size: 0.72rem !important;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
     </style>
 @endpush
 
@@ -383,28 +399,37 @@
                     }
                 });
 
-                // Toggle dinamis kewajiban GMP berdasarkan kategori produk (Bahan Baku vs Kemas)
+                // Toggle dinamis kewajiban & tampilan GMP berdasarkan kategori produk (Bahan Baku vs Kemas)
                 $(document).on('change', '.product-type-radio', function() {
                     const id = $(this).data('id');
                     const isBaku = $(this).val() === 'baku';
                     const $modal = $('#modal-product-' + id);
                     const $gmpCol = $modal.find('.gmp-col-' + id);
+                    const $supplyCol = $modal.find('.supply-col-' + id);
+                    const $agencyCol = $modal.find('.agency-col-' + id);
                     const $fileInput = $gmpCol.find('input[type="file"]');
                     const hasExisting = Boolean($gmpCol.find('input[name*="existing_gmp_file"]').val());
 
                     let $label = $gmpCol.find('label').first();
-                    $label.find('.text-danger, .gmp-opt-note').remove();
+                    $label.find('.text-danger').remove();
 
                     if (isBaku) {
+                        $supplyCol.removeClass('col-md-6').addClass('col-md-4');
+                        $agencyCol.removeClass('col-md-6').addClass('col-md-4');
+                        $gmpCol.stop(true, true).fadeIn(150);
+
                         $label.append(' <span class="text-danger font-weight-bold">*</span>');
                         if (!hasExisting) {
                             $fileInput.prop('required', true);
                         }
                     } else {
-                        $label.append(
-                            ' <span class="text-muted font-size-xs gmp-opt-note">({{ __('optional') }})</span>'
-                            );
+                        $gmpCol.hide();
+                        $supplyCol.removeClass('col-md-4').addClass('col-md-6');
+                        $agencyCol.removeClass('col-md-4').addClass('col-md-6');
+
                         $fileInput.prop('required', false);
+                        $gmpCol.find('.is-invalid').removeClass('is-invalid');
+                        $gmpCol.find('.invalid-feedback.dynamic-error').remove();
                     }
                 });
 
@@ -418,10 +443,25 @@
                     const negara = $modal.find('select[name="products[' + id + '][negara]"]').val() || '';
                     const rantai = $modal.find('select[name="products[' + id + '][rantai_pasok]"]').val() || '-';
 
-                    const hasSurat = Boolean($modal.find('input[name="products[' + id + '][existing_file_surat]"]')
-                        .val() || $modal.find('input[data-field="products[' + id + '][file_surat]"]').val());
-                    const hasGmp = Boolean($modal.find('input[name="products[' + id + '][existing_gmp_file]"]')
-                    .val() || $modal.find('input[data-field="products[' + id + '][gmp_file]"]').val());
+                    // Cek kelengkapan dokumen surat & GMP
+                    const hasSurat = Boolean(
+                        $modal.find('input[name="products[' + id + '][existing_file_surat]"]').val() ||
+                        $modal.find('input[type="hidden"][name="products[' + id + '][file_surat]"]').val() ||
+                        $modal.find('input[data-field="products[' + id + '][file_surat]"]').val() ||
+                        ($modal.find('input[data-field="products[' + id + '][file_surat]"]')[0] &&
+                         $modal.find('input[data-field="products[' + id + '][file_surat]"]')[0].files &&
+                         $modal.find('input[data-field="products[' + id + '][file_surat]"]')[0].files.length > 0)
+                    );
+
+                    const isBaku = $modal.find('.product-type-radio:checked').val() === 'baku';
+                    const hasGmp = isBaku && Boolean(
+                        $modal.find('input[name="products[' + id + '][existing_gmp_file]"]').val() ||
+                        $modal.find('input[type="hidden"][name="products[' + id + '][gmp_file]"]').val() ||
+                        $modal.find('input[data-field="products[' + id + '][gmp_file]"]').val() ||
+                        ($modal.find('input[data-field="products[' + id + '][gmp_file]"]')[0] &&
+                         $modal.find('input[data-field="products[' + id + '][gmp_file]"]')[0].files &&
+                         $modal.find('input[data-field="products[' + id + '][gmp_file]"]')[0].files.length > 0)
+                    );
 
                     $row.find('.prod-summary-manufaktur').text(manufaktur);
                     $row.find('.prod-summary-negara').html(negara ?
@@ -431,9 +471,9 @@
 
                     let badges = '';
                     if (hasSurat) badges +=
-                        '<span class="label label-light-primary label-inline font-size-xs font-weight-bolder mr-1 mb-1">{{ __('agency_letter') }}</span>';
+                        '<span class="label label-light-primary label-inline font-size-xs font-weight-bolder mr-1 mb-1"><i class="fas fa-file-alt text-primary mr-1" style="font-size: 0.72rem;"></i>{{ __('agency_letter') }}</span>';
                     if (hasGmp) badges +=
-                        '<span class="label label-light-info label-inline font-size-xs font-weight-bolder mr-1 mb-1"><i class="fas fa-microscope mr-1"></i>GMP</span>';
+                        '<span class="label label-light-info label-inline font-size-xs font-weight-bolder mr-1 mb-1"><i class="fas fa-microscope text-info mr-1" style="font-size: 0.72rem;"></i>GMP</span>';
 
                     const certKeys = ['tkdn', 'sni', 'halal', 'bse_tse'];
                     const certLabels = {
@@ -449,18 +489,28 @@
                         bse_tse: 'danger'
                     };
                     const certIcons = {
-                        tkdn: 'fas fa-cogs',
-                        sni: 'fas fa-award',
-                        halal: 'fas fa-leaf',
-                        bse_tse: 'fas fa-heartbeat'
+                        tkdn: 'fas fa-cogs text-dark',
+                        sni: 'fas fa-award text-warning',
+                        halal: 'fas fa-leaf text-success',
+                        bse_tse: 'fas fa-heartbeat text-danger'
                     };
 
                     certKeys.forEach(function(cert) {
-                        if ($modal.find('select[name="products[' + id + '][has_' + cert + ']"]').val() ===
-                            'yes') {
+                        const isYes = $modal.find('select[name="products[' + id + '][has_' + cert + ']"]').val() === 'yes';
+                        const hasCertFile = Boolean(
+                            $modal.find('input[name="products[' + id + '][existing_' + cert + '_file]"]').val() ||
+                            $modal.find('input[type="hidden"][name="products[' + id + '][' + cert + '_file]"]').val() ||
+                            $modal.find('input[data-field="products[' + id + '][' + cert + '_file]"]').val() ||
+                            ($modal.find('input[data-field="products[' + id + '][' + cert + '_file]"]')[0] &&
+                             $modal.find('input[data-field="products[' + id + '][' + cert + '_file]"]')[0].files &&
+                             $modal.find('input[data-field="products[' + id + '][' + cert + '_file]"]')[0].files.length > 0)
+                        );
+
+                        // Hanya tampilkan badge jika user memilih 'yes' DAN dokumen file sudah diisi/diupload
+                        if (isYes && hasCertFile) {
                             badges += '<span class="label label-light-' + certStyles[cert] +
                                 ' label-inline font-size-xs font-weight-bolder mr-1 mb-1"><i class="' +
-                                certIcons[cert] + '"></i>' + certLabels[cert] + '</span>';
+                                certIcons[cert] + ' mr-1" style="font-size: 0.72rem;"></i>' + certLabels[cert] + '</span>';
                         }
                     });
 

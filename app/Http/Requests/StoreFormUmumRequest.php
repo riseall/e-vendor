@@ -123,6 +123,7 @@ class StoreFormUmumRequest extends FormRequest
                     $rules["products.{$index}.has_sni"] = 'required|in:yes,no';
                     $rules["products.{$index}.has_halal"] = 'required|in:yes,no';
                     $rules["products.{$index}.has_bse_tse"] = 'required|in:yes,no';
+                    $rules["products.{$index}.product_type"] = 'nullable|string|in:baku,kemas';
                 } else {
                     $rules["products.{$index}.erp_product_id"] = 'nullable|string|max:255';
                     $rules["products.{$index}.product_name"] = 'nullable|string|max:255';
@@ -133,6 +134,7 @@ class StoreFormUmumRequest extends FormRequest
                     $rules["products.{$index}.has_sni"] = 'nullable|in:yes,no';
                     $rules["products.{$index}.has_halal"] = 'nullable|in:yes,no';
                     $rules["products.{$index}.has_bse_tse"] = 'nullable|in:yes,no';
+                    $rules["products.{$index}.product_type"] = 'nullable|string|in:baku,kemas';
                 }
 
                 // Dynamically evaluate each file field index for AJAX string or physical file
@@ -283,6 +285,28 @@ class StoreFormUmumRequest extends FormRequest
                         __('product_letter_doc_required')
                     );
                 }
+
+                // Check GMP certificate: Wajib untuk Raw Material (baku), Opsional untuk Packaging (kemas)
+                $productType = $product['product_type'] ?? (strpos((string) $index, 'KEMAS-') === 0 ? 'kemas' : 'baku');
+                if ($productType === 'baku') {
+                    $hasGmpUpload = $this->hasFile("products.{$index}.gmp_file") || !empty($product['gmp_file']);
+                    $hasGmpExisting = !empty($product['existing_gmp_file']);
+
+                    if (!$hasGmpExisting && !empty($product['erp_product_id'])) {
+                        $hasGmpExisting = VendorApplicationProduct::query()
+                            ->where('application_id', $this->input('application_id'))
+                            ->where('erp_product_id', $product['erp_product_id'])
+                            ->whereNotNull('gmp_file_path')
+                            ->exists();
+                    }
+
+                    if (!$hasGmpUpload && !$hasGmpExisting) {
+                        $validator->errors()->add(
+                            "products.{$index}.gmp_file",
+                            __('product_gmp_doc_required')
+                        );
+                    }
+                }
             }
         });
     }
@@ -316,6 +340,7 @@ class StoreFormUmumRequest extends FormRequest
             'products.*.has_halal.required'        => __('halal_status_required'),
             'products.*.has_bse_tse.required'      => __('bse_tse_status_required'),
             'products.*.file_surat.required'       => __('product_letter_doc_required'),
+            'products.*.gmp_file.required'         => __('product_gmp_doc_required'),
             'website.url'                          => __('website_url_invalid'),
             'payment_term_other.required_if'       => __('other_payment_term_required'),
             'komitmen_kualitas_detail.required_if' => __('quality_commitment_detail_required'),
@@ -365,6 +390,7 @@ class StoreFormUmumRequest extends FormRequest
             'products.*.has_halal'     => __('halal'),
             'products.*.has_bse_tse'   => 'BSE/TSE',
             'products.*.file_surat'    => __('agency_letter'),
+            'products.*.gmp_file'      => __('gmp_certificate'),
             'products.*.tkdn_file'     => __('tkdn_certificate_doc'),
             'products.*.sni_file'      => __('sni_certificate_doc'),
             'products.*.halal_file'    => __('halal_certificate_doc'),

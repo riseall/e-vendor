@@ -275,13 +275,13 @@
                         }
                     }
 
-                    // Cari berdasarkan dot notation atau bracket notation
-                    var $inputs = $('[name="' + key + '"], [name="' + arrayName + '"]');
+                    // Cari berdasarkan dot notation atau bracket notation (termasuk array name="field[]")
+                    var $inputs = $('[name="' + key + '"], [name="' + arrayName + '"], [name="' + key + '[]"], [name="' + arrayName + '[]"]');
 
                     // Khusus untuk ajax-file-upload dan summernote atau custom component
                     // terkadang kita harus menarget fieldnya saja jika input aslinya dihidden
                     if ($inputs.length === 0) {
-                        $inputs = $('[data-field="' + key + '"], [data-field="' + arrayName + '"]');
+                        $inputs = $('[data-field="' + key + '"], [data-field="' + arrayName + '"], [data-field-name="' + key + '"] input');
                     }
 
                     if ($inputs.length === 0) return;
@@ -294,11 +294,18 @@
                     $inputs.closest('.bootstrap-select').addClass('is-invalid');
 
                     if (isGroup) {
-                        // Cari container pembungkus group (.radio-inline / .radio-list / .checkbox-inline / .checkbox-list)
-                        // lalu sisipkan pesan di BAWAH seluruh group, BUKAN di sela / di dalam label radio pertama
+                        // Cari container form-group atau container pembungkus group (.radio-inline / .checkbox-inline)
+                        // lalu sisipkan pesan di BAWAH seluruh group
+                        var $formGroup = $inputs.first().closest('.form-group[data-field-name], .form-group');
                         var $groupContainer = $inputs.first().closest(
                             '.radio-inline, .radio-list, .checkbox-inline, .checkbox-list');
-                        if ($groupContainer.length) {
+
+                        if ($formGroup.length) {
+                            $formGroup.append(
+                                '<div class="invalid-feedback dynamic-error d-block w-100 mt-1 mb-2">' +
+                                value[0] + '</div>'
+                            );
+                        } else if ($groupContainer.length) {
                             $groupContainer.after(
                                 '<div class="invalid-feedback dynamic-error d-block w-100 mt-1 mb-2">' +
                                 value[0] + '</div>'
