@@ -70,6 +70,12 @@ class PermissionSeeder extends Seeder
             'supplier-list',
             'supplier-edit-qad',
             'supplier-detail',
+
+            // Notifikasi Email
+            'notify-procurement-verification',
+            'notify-qa-risk-assessment',
+            'notify-qa-audit',
+            'notify-evaluasi-alert',
         ];
 
         foreach ($permissions as $perm) {
@@ -79,15 +85,15 @@ class PermissionSeeder extends Seeder
             ]);
         }
 
-        // Assign all permissions to Super Admin and Admin IT
+        // Assign operational permissions to Super Admin and Admin IT (excluding notify-* by default to prevent inbox spamming)
         $superAdmin = Role::where('name', 'Super Admin')->first();
         if ($superAdmin) {
-            $superAdmin->syncPermissions(Permission::all());
+            $superAdmin->syncPermissions(Permission::where('name', 'not like', 'notify-%')->get());
         }
 
         $adminIT = Role::where('name', 'Admin IT')->first();
         if ($adminIT) {
-            $adminIT->syncPermissions(Permission::all());
+            $adminIT->syncPermissions(Permission::where('name', 'not like', 'notify-%')->get());
         }
 
         // Assign module permissions to specific roles
@@ -98,6 +104,7 @@ class PermissionSeeder extends Seeder
                 'verifikasi-detail',
                 'verifikasi-approve',
                 'verifikasi-reject',
+                'notify-procurement-verification',
             ]);
         }
 
@@ -115,6 +122,9 @@ class PermissionSeeder extends Seeder
             'supplier-list',
             'supplier-edit-qad',
             'supplier-detail',
+            'notify-qa-risk-assessment',
+            'notify-qa-audit',
+            'notify-evaluasi-alert',
         ];
 
         $qa = Role::where('name', 'Quality Assurance')->first();
@@ -147,6 +157,8 @@ class PermissionSeeder extends Seeder
                 'supplier-list',
                 'supplier-edit-qad',
                 'supplier-detail',
+                'notify-procurement-verification',
+                'notify-evaluasi-alert',
             ]);
         }
     }

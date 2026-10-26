@@ -187,7 +187,8 @@ class EvaluasiAnnualController extends Controller
         // 2. Jika kategori KURANG 2 tahun berturut-turut, kirim notifikasi khusus ke Pengadaan & QA
         if ($annual->has_consecutive_low_alert) {
             try {
-                $officers = User::permission('evaluasi-approve')
+                $officers = User::permission('notify-evaluasi-alert')
+                    ->where('is_active', true)
                     ->whereNotNull('email')
                     ->get();
                 $emails = $officers->pluck('email')->unique()->filter()->values()->all();

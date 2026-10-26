@@ -195,15 +195,37 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        $user->delete();
-
-        if (request()->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'User berhasil dihapus.'
-            ]);
+        if (auth()->id() === $user->id) {
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif digunakan.'
+                ], 422);
+            }
+            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif digunakan.');
         }
 
-        return redirect()->back()->with('success', 'User berhasil dihapus.');
+        try {
+            $user->syncRoles([]);
+            $user->delete();
+
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'User berhasil dihapus.'
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'User berhasil dihapus.');
+        } catch (\Throwable $e) {
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menghapus user: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Gagal menghapus user: ' . $e->getMessage());
+        }
     }
 }

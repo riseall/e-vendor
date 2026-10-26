@@ -136,7 +136,7 @@ class FortifyServiceProvider extends ServiceProvider
                 if ($localUser->roles()->count() === 0) {
                     if ($kode_divisi === 'DV00014') {
                         $localUser->assignRole('Procurement');
-                    } elseif ($kode_departemen === 'DP00048') {
+                    } elseif ($kode_departemen === 'DP00048' || $kode_divisi === 'DV00018') {
                         $localUser->assignRole('Quality Assurance');
                     } elseif ($kode_departemen === 'DP00009') {
                         $localUser->assignRole('Admin IT');

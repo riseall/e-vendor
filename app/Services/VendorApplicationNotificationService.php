@@ -72,15 +72,8 @@ class VendorApplicationNotificationService
 
     private function submissionReviewerEmails(): array
     {
-        return collect($this->roleEmails([
-            'Super Admin',
-            'Admin IT',
-            'Procurement',
-            'Verifikator',
-            'Quality Assurance',
-        ]))
+        return collect($this->permissionEmails('notify-procurement-verification'))
             ->merge(config('mail.procurement_recipients', []))
-            ->merge(config('mail.qa_recipients', []))
             ->filter()
             ->unique()
             ->values()
@@ -113,14 +106,15 @@ class VendorApplicationNotificationService
 
         if ($application->auto_verified) {
             $mail = new VendorApplicationAutoVerified($application, $this->applicationNumber($application));
-            $recipients = collect($this->procurementEmails())
-                ->merge($application->user ? [$application->user->email] : [])
-                ->filter()
-                ->unique()
-                ->values()
-                ->all();
-
-            $this->queue($recipients, $mail, $application, 'verified_auto');
+            // Kirim ke tim pengadaan yang berwenang
+            $this->queue($this->procurementEmails(), $mail, $application, 'verified_auto_procurement');
+            // Kirim ke vendor
+            $this->queue(
+                $application->user ? [$application->user->email] : [],
+                $mail,
+                $application,
+                'verified_auto_vendor'
+            );
             return;
         }
 
@@ -184,8 +178,8 @@ class VendorApplicationNotificationService
 
     private function riskAssessmentNotificationEmails(): array
     {
-        return collect($this->roleEmails(['Super Admin', 'Admin IT', 'Procurement', 'Quality Assurance']))
-            // ->merge(config('mail.akuntansi', []))
+        return collect($this->permissionEmails('notify-qa-risk-assessment'))
+            ->merge(config('mail.qa_recipients', []))
             ->filter()
             ->unique()
             ->values()
@@ -213,20 +207,13 @@ class VendorApplicationNotificationService
         $number = $this->applicationNumber($application);
 
         $vendorRecipients = $application->user ? [$application->user->email] : [];
-        $qaRecipients = $this->qaNotificationEmails();
 
+        // Email hasil verifikasi kuesioner murni ditujukan untuk vendor
         $this->queue(
             $vendorRecipients,
             new \App\Mail\VendorAuditOnDeskNotification($application, $audit, $number),
             $application,
             'audit_questionnaire_verified_vendor'
-        );
-
-        $this->queue(
-            $qaRecipients,
-            new \App\Mail\VendorAuditOnDeskNotification($application, $audit, $number),
-            $application,
-            'audit_questionnaire_verified_qa'
         );
     }
 
@@ -300,7 +287,8 @@ class VendorApplicationNotificationService
 
     private function qaNotificationEmails(): array
     {
-        return collect($this->roleEmails(['Super Admin', 'Admin IT', 'Quality Assurance']))
+        return collect($this->permissionEmails('notify-qa-audit'))
+            ->merge(config('mail.qa_recipients', []))
             ->filter()
             ->unique()
             ->values()
@@ -309,7 +297,7 @@ class VendorApplicationNotificationService
 
     private function procurementEmails(): array
     {
-        return collect($this->roleEmails(['Super Admin', 'Admin IT', 'Procurement', 'Verifikator']))
+        return collect($this->permissionEmails('notify-procurement-verification'))
             ->merge(config('mail.procurement_recipients', []))
             ->filter()
             ->unique()
@@ -317,12 +305,11 @@ class VendorApplicationNotificationService
             ->all();
     }
 
-    private function roleEmails(array $roles): array
+    private function permissionEmails(string $permission): array
     {
-        return User::whereHas('roles', function ($query) use ($roles) {
-            $query->whereIn('name', $roles);
-        })
+        return User::permission($permission)
             ->where('is_active', true)
+            ->whereNotNull('email')
             ->pluck('email')
             ->filter()
             ->all();

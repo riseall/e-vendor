@@ -26,6 +26,7 @@ class RoleController extends Controller
             'Master Questionnaire' => [],
             'Evaluasi Vendor' => [],
             'Supplier Terekomendasi' => [],
+            'Notifikasi Email' => [],
             'Lainnya' => []
         ];
 
@@ -49,6 +50,8 @@ class RoleController extends Controller
                 $grouped['Evaluasi Vendor'][] = $permission;
             } elseif (strpos($name, 'supplier-') === 0) {
                 $grouped['Supplier Terekomendasi'][] = $permission;
+            } elseif (strpos($name, 'notify-') === 0) {
+                $grouped['Notifikasi Email'][] = $permission;
             } else {
                 $grouped['Lainnya'][] = $permission;
             }
