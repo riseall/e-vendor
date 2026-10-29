@@ -899,5 +899,10 @@
     "tax_finance": "Tax & Finance",
     "legal_data": "Legal Data",
     "special_requirements": "Special Requirements",
-    "goods_and_services": "Goods & Services"
+    "goods_and_services": "Goods & Services",
+    "email_subject_awaiting_manager_approval": "Awaiting Manager Approval: Vendor Application :number",
+    "email_awaiting_manager_title": "Procurement Manager Verification Approval",
+    "email_awaiting_manager_subtitle": "All vendor application data has been verified by the Procurement Verifier and requires Procurement Manager approval.",
+    "email_verified_by_admin": "Verified By (Admin)",
+    "email_btn_review_and_approve": "REVIEW & VERIFY APPLICATION"
 }

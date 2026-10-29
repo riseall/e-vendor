@@ -899,5 +899,10 @@
     "tax_finance": "Pajak & Keuangan",
     "legal_data": "Data Legalitas",
     "special_requirements": "Persyaratan Khusus",
-    "goods_and_services": "Barang / Jasa"
+    "goods_and_services": "Barang / Jasa",
+    "email_subject_awaiting_manager_approval": "Menunggu Persetujuan Manajer: Permohonan Vendor :number",
+    "email_awaiting_manager_title": "Persetujuan Verifikasi Manajer Pengadaan",
+    "email_awaiting_manager_subtitle": "Seluruh data permohonan vendor telah selesai diverifikasi oleh Verifikator Pengadaan dan memerlukan persetujuan Manajer Pengadaan.",
+    "email_verified_by_admin": "Diverifikasi Oleh (Admin)",
+    "email_btn_review_and_approve": "LIHAT & VERIFIKASI PERMOHONAN"
 }

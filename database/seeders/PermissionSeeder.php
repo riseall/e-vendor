@@ -74,6 +74,7 @@ class PermissionSeeder extends Seeder
 
             // Notifikasi Email
             'notify-procurement-verification',
+            'notify-procurement-manager',
             'notify-qa-risk-assessment',
             'notify-qa-audit',
             'notify-evaluasi-alert',

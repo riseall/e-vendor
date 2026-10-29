@@ -899,5 +899,10 @@
     "tax_finance": "税务与财务",
     "legal_data": "资质数据",
     "special_requirements": "专项要求",
-    "goods_and_services": "商品与服务"
+    "goods_and_services": "商品与服务",
+    "email_subject_awaiting_manager_approval": "等待经理审批：供应商申请 :number",
+    "email_awaiting_manager_title": "采购经理验证审批",
+    "email_awaiting_manager_subtitle": "所有供应商申请数据均已由采购验证员验证，需要采购经理批准。",
+    "email_verified_by_admin": "验证人 (管理员)",
+    "email_btn_review_and_approve": "查看并验证申请"
 }

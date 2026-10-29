@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Mail\VendorApplicationApproved;
+use App\Mail\VendorApplicationAwaitingManagerApproval;
 use App\Mail\VendorApplicationAutoVerified;
 use App\Mail\VendorApplicationNeedsRevision;
 use App\Mail\VendorApplicationRevisionSubmittedToProcurement;
@@ -96,6 +97,27 @@ class VendorApplicationNotificationService
                 new VendorApplicationNeedsRevision($application, $this->applicationNumber($application)),
                 $application,
                 'need_revision'
+            );
+            return;
+        }
+
+        if ($application->status === VendorApplication::STATUS_VERIFIED_ADMIN) {
+            $application->loadMissing('verifier');
+            $deadline = app(ProcurementVerificationService::class)->verificationDeadline($application);
+            $verifierName = optional($application->verifier)->name;
+
+            $mail = new VendorApplicationAwaitingManagerApproval(
+                $application,
+                $this->applicationNumber($application),
+                $deadline,
+                $verifierName
+            );
+
+            $this->queue(
+                $this->procurementManagerEmails(),
+                $mail,
+                $application,
+                'verified_admin_manager'
             );
             return;
         }
@@ -289,6 +311,17 @@ class VendorApplicationNotificationService
     {
         return collect($this->permissionEmails('notify-qa-audit'))
             ->merge(config('mail.qa_recipients', []))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function procurementManagerEmails(): array
+    {
+        return collect($this->permissionEmails('notify-procurement-manager'))
+            ->merge($this->permissionEmails('verifikasi-verify-manager'))
+            ->merge(config('mail.procurement_manager_recipients', []))
             ->filter()
             ->unique()
             ->values()
