@@ -5,7 +5,7 @@
         const isRevisionMode = @json($isRevisionMode);
 
         function revisionContainer(marker) {
-            return marker.closest('.doc-item, tr, .list-container') || marker;
+            return marker.closest('.doc-item, tr, .list-container, .form-group, .question-wrapper') || marker;
         }
 
         function scrollToRevision(target) {

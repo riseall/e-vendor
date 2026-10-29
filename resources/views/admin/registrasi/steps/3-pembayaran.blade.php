@@ -1,4 +1,5 @@
 <div class="form-section-title">{{ __('payment_info') }}</div>
+<x-revision-note name="tax_finance" :notes="$revisionNotes ?? []" />
 
 {{-- 1. Termin Pembayaran --}}
 <div class="question-wrapper">

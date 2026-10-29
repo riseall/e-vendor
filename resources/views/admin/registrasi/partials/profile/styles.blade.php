@@ -137,7 +137,7 @@
 
     .has-revision.form-group,
     .has-revision.doc-item,
-    .revision-field-highlight {
+    .revision-field-highlight:not(.question-wrapper) {
         position: relative;
         padding: 12px;
         background: #fffbea;
@@ -145,8 +145,16 @@
         border-radius: 5px;
     }
 
+    .has-revision.question-wrapper,
+    .question-wrapper.revision-field-highlight {
+        position: relative;
+        background: #fffbea !important;
+        border: 1px solid #dc3545 !important;
+    }
+
     .has-revision.form-group::before,
     .has-revision.doc-item::before,
+    .has-revision.question-wrapper::before,
     .revision-field-highlight::before {
         position: absolute;
         top: 0;

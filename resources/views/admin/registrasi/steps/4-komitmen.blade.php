@@ -2,6 +2,8 @@
     {{ __('commitment_to_standards') }}
 </div>
 
+<x-revision-note name="certificates" :notes="$revisionNotes ?? []" />
+
 {{-- 1. Sertifikat ISO (Menggunakan Komponen Checkbox & Slot) --}}
 <div class="question-wrapper">
     @php
@@ -63,13 +65,17 @@
     @endif
 
     {{-- Upload Dokumen Sertifikat ISO (multi-file) --}}
-    <div class="mt-5">
+    @php
+        $hasIsoFilesRevision = !empty($revisionNotes['iso_files']);
+    @endphp
+    <div class="mt-5 {{ $hasIsoFilesRevision ? 'has-revision' : '' }}" data-field-name="iso_files">
         <label class="question-label">
             {{ __('iso_certificate_document') }}
             @if (!$isReadOnly)
                 <span class="text-muted font-weight-normal">({{ __('multiple_files_allowed') }})</span>
             @endif
         </label>
+        <x-revision-note name="iso_files" :notes="$revisionNotes ?? []" />
 
         @php $uploadedIso = $uploadedIsoCertificates ?? []; @endphp
 

@@ -9,8 +9,9 @@
     {{ __('company_general_info') }}
 </div>
 
-<div class="question-wrapper">
+<div class="question-wrapper {{ !empty($revisionNotes['profile_company']) ? 'has-revision' : '' }}" data-field-name="profile_company">
     <label class="question-label">{{ __('company_info') }}</label>
+    <x-revision-note name="profile_company" :notes="$revisionNotes ?? []" />
     <div class="row">
         <div class="col-md-6">
             <x-vendor-input name="nama_perusahaan"
@@ -53,8 +54,9 @@
 </div>
 
 {{-- Contact Person --}}
-<div class="question-wrapper mt-8">
+<div class="question-wrapper mt-8 {{ !empty($revisionNotes['profile_pic']) ? 'has-revision' : '' }}" data-field-name="profile_pic">
     <label class="question-label">{{ __('contact_person_pic') }}</label>
+    <x-revision-note name="profile_pic" :notes="$revisionNotes ?? []" />
 
     <x-vendor-input name="pic_nama" :label="__('name')" :placeholder="__('pic_name_placeholder')" :value="$draft['general']->pic_nama ?? ''"
         :readonly="$isReadOnly" required />
@@ -72,8 +74,13 @@
 </div>
 
 {{-- Perusahaan Lain (Repeater) --}}
-<div class="question-wrapper mt-8">
+@php
+    $hasOtherCompaniesRevision = !empty($revisionNotes['other_companies']) || !empty($revisionNotes['has_other_company']);
+@endphp
+<div class="question-wrapper mt-8 {{ $hasOtherCompaniesRevision ? 'has-revision' : '' }}" data-field-name="other_companies">
     <label class="question-label">{{ __('other_companies_owned') }}</label>
+
+    <x-revision-note name="other_companies" :notes="$revisionNotes ?? []" />
 
     <x-vendor-radio name="has_other_company" :options="[['value' => 'yes', 'label' => __('yes_have')], ['value' => 'no', 'label' => __('no_dont_have')]]" :selected="$draft['general']->has_other_company ?? 'no'" class="toggle-input"
         data-target="#otherCompanyTable" :readonly="$isReadOnly" />
