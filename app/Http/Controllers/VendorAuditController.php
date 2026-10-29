@@ -24,13 +24,13 @@ class VendorAuditController extends Controller
 {
 
     private const STATUS_OPTIONS = [
+        'all'           => 'Semua Status',
         'active'        => 'Perlu Tindakan (Audit Aktif)',
         'scheduled'     => 'Baru Terjadwal',
         'in_progress'   => 'Berjalan',
         'need_revision' => 'Perlu Revisi',
         'completed'     => 'Selesai',
         'rejected'      => 'Ditolak',
-        'all'           => 'Semua Riwayat',
     ];
 
     /* ──────────────────────────────────────────────────────────────────
@@ -40,9 +40,9 @@ class VendorAuditController extends Controller
     {
         $this->authorizeQaAccess();
 
-        $status = $request->input('status', 'active');
+        $status = $request->input('status', 'all');
         if (!array_key_exists($status, self::STATUS_OPTIONS)) {
-            $status = 'active';
+            $status = 'all';
         }
 
         $type   = $request->input('type', 'all');

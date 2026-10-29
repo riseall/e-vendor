@@ -139,7 +139,7 @@
                             <td class="vnd-cell-muted">{{ optional($audit->updated_at)->diffForHumans() ?? '—' }}</td>
                             <td class="text-right">
                                 <a href="{{ route('qa.audit.show', $audit->id) }}" class="vnd-btn-detail">
-                                    <i class="flaticon-eye icon-sm text-primary"></i> Detail
+                                    <i class="fas fa-eye text-primary mr-1"></i> Detail
                                 </a>
                             </td>
                         </tr>
@@ -147,12 +147,12 @@
                         <tr>
                             <td colspan="8">
                                 <div class="vnd-empty">
-                                    <i class="flaticon2-search-1"></i>
+                                    <i class="fas fa-search" style="font-size: 2.2rem; color: #b5b5c3; margin-bottom: 12px; display: inline-block;"></i>
                                     <div class="vnd-empty-title">
-                                        {{ $status === 'active' ? 'Tidak ada antrean audit aktif' : 'Tidak ada audit' }}
+                                        {{ $status === 'active' ? 'Tidak ada antrean audit aktif' : 'Tidak ada data audit' }}
                                     </div>
                                     <div class="vnd-empty-sub">
-                                        {{ $status === 'active' ? 'Semua audit telah selesai diproses atau coba ubah filter status.' : 'Audit akan muncul setelah risk assessment menghasilkan Medium/High.' }}
+                                        {{ $status === 'active' ? 'Semua audit telah selesai diproses atau coba ubah filter status.' : 'Data audit akan muncul setelah penilaian risiko menghasilkan Medium atau High.' }}
                                     </div>
                                 </div>
                             </td>
