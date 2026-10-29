@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use App\Services\VendorRegistrationViewService;
 
 class DashboardController extends Controller
 {
@@ -464,18 +465,36 @@ class DashboardController extends Controller
         // 3. Catatan Revisi (jika status need_revision)
         $revisionNotes = [];
         if ($application && $status === VendorApplication::STATUS_NEED_REVISION) {
+            $defaultAdminNote = 'Terdapat data yang tidak disetujui oleh pengadaan.';
             if (!empty($application->admin_note)) {
+                $noteText = ($application->admin_note === $defaultAdminNote)
+                    ? __('default_revision_admin_note')
+                    : $application->admin_note;
+
                 $revisionNotes[] = [
                     'field' => __('verifier_note'),
-                    'note'  => $application->admin_note,
+                    'note'  => $noteText,
                 ];
             }
             if (!empty($application->revision_notes) && is_array($application->revision_notes)) {
                 foreach ($application->revision_notes as $f => $n) {
-                    $revisionNotes[] = [
-                        'field' => ucwords(str_replace('_', ' ', (string) $f)),
-                        'note'  => is_array($n) ? implode(', ', $n) : (string) $n,
-                    ];
+                    if (is_array($n)) {
+                        $fieldKey = $n['field'] ?? (is_string($f) ? $f : '');
+                        $rawLabel = $n['label'] ?? ($n['item'] ?? $fieldKey);
+                        $noteText = $n['note'] ?? '-';
+                        $displayLabel = VendorRegistrationViewService::translateRevisionLabel($fieldKey, $rawLabel, $n['item'] ?? null);
+
+                        $revisionNotes[] = [
+                            'field' => $displayLabel,
+                            'note'  => $noteText,
+                        ];
+                    } else {
+                        $displayLabel = VendorRegistrationViewService::translateRevisionLabel((string) $f, (string) $f);
+                        $revisionNotes[] = [
+                            'field' => $displayLabel,
+                            'note'  => (string) $n,
+                        ];
+                    }
                 }
             }
         }

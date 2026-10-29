@@ -35,7 +35,7 @@
     @if ($hasRevision)
         <div class="revision-note-message text-danger mt-2 font-size-sm font-weight-bold"
             data-revision-field="{{ $name }}">
-            <i class="fas fa-exclamation-circle text-danger mr-1"></i> Revisi: {{ $revisionNotes[$name] }}
+            <i class="fas fa-exclamation-circle text-danger mr-1"></i> {{ __('revision') }}: {{ $revisionNotes[$name] }}
         </div>
     @endif
 </div>

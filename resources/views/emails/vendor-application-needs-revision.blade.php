@@ -34,14 +34,25 @@
                             <strong>{{ __('email_revision_parts_required') }}:</strong>
                             <ul style="margin:10px 0 0; padding-left:20px;">
                                 @forelse ((array) $application->revision_notes as $revision)
+                                    @php
+                                        $fieldKey = $revision['field'] ?? '';
+                                        $rawLabel = $revision['label'] ?? ($fieldKey ?: __('email_vendor_data'));
+                                        $translatedLabel = \App\Services\VendorRegistrationViewService::translateRevisionLabel($fieldKey, $rawLabel, $revision['item'] ?? null);
+                                    @endphp
                                     <li style="margin-bottom:6px;">
-                                        <strong>{{ $revision['label'] ?? ($revision['field'] ?? __('email_vendor_data')) }}</strong>
+                                        <strong>{{ $translatedLabel }}</strong>
                                         @if (!empty($revision['note']))
                                             : {{ $revision['note'] }}
                                         @endif
                                     </li>
                                 @empty
-                                    <li>{{ $application->admin_note ?: __('email_check_revision_note') }}
+                                    @php
+                                        $defaultAdminNote = 'Terdapat data yang tidak disetujui oleh pengadaan.';
+                                        $adminNoteDisplay = ($application->admin_note === $defaultAdminNote)
+                                            ? __('default_revision_admin_note')
+                                            : $application->admin_note;
+                                    @endphp
+                                    <li>{{ $adminNoteDisplay ?: __('email_check_revision_note') }}
                                     </li>
                                 @endforelse
                             </ul>

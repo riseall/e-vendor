@@ -38,9 +38,13 @@
                 @if (!empty($draft['revision_notes'] ?? null))
                     <div class="mt-2 text-dark-75">
                         @foreach ($draft['revision_notes'] as $revision)
+                            @php
+                                $fieldKey = $revision['field'] ?? '';
+                                $rawLabel = $revision['label'] ?? ($fieldKey ?: __('general'));
+                                $translatedLabel = \App\Services\VendorRegistrationViewService::translateRevisionLabel($fieldKey, $rawLabel, $revision['item'] ?? null);
+                            @endphp
                             <div>
-                                <span
-                                    class="font-weight-bold">{{ $revision['label'] ?? ($revision['field'] ?? __('general')) }}:</span>
+                                <span class="font-weight-bold">{{ $translatedLabel }}:</span>
                                 {{ $revision['note'] ?? '-' }}
                             </div>
                         @endforeach

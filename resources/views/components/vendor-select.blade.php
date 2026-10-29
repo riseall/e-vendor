@@ -5,22 +5,15 @@
     'selected' => '',
     'readonly' => false,
     'required' => false,
-    'placeholder' => null,
-    'wrapperClass' => 'mb-4',
-    'isSimple' => false,
-    'plainText' => false,
-    'labelClass' => 'question-label d-block mb-2',
-    'id' => null,
-    'container' => 'body',
+    'placeholder' => __('select') . '...',
+    'labelClass' => 'font-size-sm font-weight-bold text-muted',
 ])
 
 @php
-    $placeholder = $placeholder ?? __('select_placeholder');
     $hasRevision = isset($revisionNotes) && isset($revisionNotes[$name]);
 @endphp
 
-<div class="form-group {{ $wrapperClass }} {{ $hasRevision ? 'has-revision' : '' }}"
-    data-field-name="{{ $name }}">
+<div class="form-group mb-2 {{ $hasRevision ? 'has-revision' : '' }}" data-field-name="{{ $name }}">
     @if ($label)
         <label class="{{ $labelClass }} d-block">
             {!! $label !!}
@@ -32,31 +25,24 @@
 
     @if ($readonly)
         @php
-            $selectedText = '';
-            foreach ($options as $val => $txt) {
-                if (old($name, $selected) == $val) {
-                    $selectedText = $txt;
-                    break;
+            $displayVal = $selected;
+            if (isset($options[$selected])) {
+                $displayVal = $options[$selected];
+            } else {
+                foreach ($options as $opt) {
+                    if (is_array($opt) && isset($opt['value']) && $opt['value'] == $selected) {
+                        $displayVal = $opt['label'] ?? $opt['value'];
+                        break;
+                    }
                 }
             }
-            if (!$selectedText && $isSimple) $selectedText = $placeholder;
-            if (!$selectedText) $selectedText = '-';
         @endphp
-        @if ($plainText)
-            <div class="font-weight-bolder text-dark mb-1 font-size-sm">{{ $selectedText }}</div>
-            <input type="hidden" name="{{ $name }}" value="{{ old($name, $selected) }}">
-        @else
-            <input type="text" class="form-control form-control-solid" value="{{ $selectedText }}" readonly disabled>
-            <input type="hidden" name="{{ $name }}" value="{{ old($name, $selected) }}">
-        @endif
+        <input type="text" class="form-control form-control-solid" value="{{ $displayVal ?: '-' }}" readonly disabled>
     @else
-        <select name="{{ $name }}" id="{{ $id ?? ($name . '_select') }}"
-            {{ $attributes->merge(['class' => 'form-control ' . ($isSimple ? 'custom-select w-100' : 'selectpicker')]) }}
-            {{ $required ? 'required' : '' }} data-size="7" data-dropup-auto="false" data-display="static"
-            @if(!empty($container) && $container !== 'false') data-container="{{ $container }}" @endif
-            data-width="100%" title="{{ $placeholder }}">
+        <select name="{{ $name }}" {{ $attributes->merge(['class' => 'form-control selectpicker ' . ($errors->has($name) ? 'is-invalid' : '')]) }}
+            data-size="7" data-live-search="true" {{ $required ? 'required' : '' }}>
 
-            @if ($isSimple && !empty($placeholder))
+            @if ($placeholder)
                 <option value="">{{ $placeholder }}</option>
             @endif
 
@@ -71,7 +57,7 @@
     @if ($hasRevision)
         <div class="revision-note-message text-danger mt-1 font-size-sm font-weight-bold"
             data-revision-field="{{ $name }}">
-            <i class="fas fa-exclamation-circle text-danger mr-1"></i> Revisi: {{ $revisionNotes[$name] }}
+            <i class="fas fa-exclamation-circle text-danger mr-1"></i> {{ __('revision') }}: {{ $revisionNotes[$name] }}
         </div>
     @endif
 </div>

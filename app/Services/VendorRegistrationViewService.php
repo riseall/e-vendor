@@ -211,10 +211,15 @@ class VendorRegistrationViewService
             return [];
         }
 
+        $defaultAdminNote = 'Terdapat data yang tidak disetujui oleh pengadaan.';
+        $adminNote = ($application->admin_note === $defaultAdminNote)
+            ? __('default_revision_admin_note')
+            : $application->admin_note;
+
         $draft = [
             'categories' => $application->getCategoryIds(),
             'general' => $application->general,
-            'admin_note' => $application->admin_note,
+            'admin_note' => $adminNote,
             'revision_notes' => $application->revision_notes,
             'products' => $application->products
                 ->mapWithKeys(function ($item) {
@@ -280,5 +285,122 @@ class VendorRegistrationViewService
                 return $field ? [$field => $revision['note'] ?? '-'] : [];
             })
             ->toArray();
+    }
+
+    public static function translateRevisionLabel(string $fieldKey, string $rawLabel, ?string $itemLabel = null): string
+    {
+        $fieldMap = [
+            'other_companies' => 'other_companies_owned',
+            'has_other_company' => 'other_companies_owned',
+            'nama_perusahaan' => 'company_name',
+            'website' => 'official_website',
+            'alamat_perusahaan' => 'full_company_address',
+            'email_perusahaan' => 'company_email',
+            'telepon_perusahaan' => 'company_phone_number',
+            'pic_nama' => 'name',
+            'pic_email' => 'email',
+            'pic_telepon' => 'mobile_phone_number',
+            'nib' => 'nib_number',
+            'dok_nib' => 'doc_nib',
+            'npwp' => 'npwp_number',
+            'dok_npwp' => 'doc_npwp',
+            'dok_akte_pendirian' => 'doc_akte_pendirian',
+            'dok_akte_direksi' => 'doc_akte_direksi',
+            'dok_ktp_pj' => 'doc_ktp_pj',
+            'dok_pernyataan_keaslian' => 'doc_pernyataan_keaslian',
+            'dok_pakta_integritas' => 'doc_pakta_integritas',
+            'dok_bebas_perkara' => 'doc_bebas_perkara',
+            'dok_struktur_org' => 'doc_struktur_org',
+            'dok_company_profile' => 'doc_company_profile',
+            'iso_files' => 'iso_certificate_document',
+            'iso_certificates' => 'iso_certificate_owned',
+            'komitmen_kualitas' => 'company_commitment_qeohs',
+            'komitmen_kualitas_detail' => 'mention_documents',
+            'dok_sertifikat_halal' => 'doc_sertifikat_halal',
+            'payment_term' => 'preferred_payment_term',
+            'pemegang_rekening' => 'account_holder',
+            'nomor_rekening' => 'account_number',
+            'nama_bank' => 'bank_name',
+            'swift_code' => 'swift_code',
+            'alamat_bank' => 'bank_address',
+            'status_perusahaan' => 'company_status',
+            'status_pajak' => 'tax_status',
+            'dok_sppkp' => 'doc_sppkp',
+            'jenis_modal' => 'investment_type',
+            'skala_perusahaan' => 'business_scale',
+            'kbli' => 'kbli_code',
+        ];
+
+        // Specific / product field check
+        if (strpos($fieldKey, 'products.') === 0) {
+            $prefix = __('product_list');
+            return $prefix . ' - ' . $rawLabel;
+        }
+
+        $translatedField = null;
+        if (isset($fieldMap[$fieldKey])) {
+            $key = $fieldMap[$fieldKey];
+            $trans = __($key);
+            if ($trans !== $key) {
+                $translatedField = $trans;
+            }
+        }
+
+        $itemPrefix = null;
+        if ($itemLabel) {
+            $itemPrefix = self::translateSectionItem($itemLabel);
+        }
+
+        if ($translatedField) {
+            if ($itemPrefix && $itemPrefix !== $translatedField) {
+                return $itemPrefix . ' - ' . $translatedField;
+            }
+            return $translatedField;
+        }
+
+        // Check if rawLabel is a known translation key
+        $transRaw = __($rawLabel);
+        if ($transRaw !== $rawLabel) {
+            if ($itemPrefix && $itemPrefix !== $transRaw) {
+                return $itemPrefix . ' - ' . $transRaw;
+            }
+            return $transRaw;
+        }
+
+        if ($itemPrefix) {
+            return $itemPrefix . ($rawLabel ? ' - ' . $rawLabel : '');
+        }
+
+        return $rawLabel ?: $fieldKey;
+    }
+
+    public static function translateSectionItem(string $itemLabel): string
+    {
+        $itemMap = [
+            'Profil Perusahaan' => 'company_profile',
+            'Data Umum Perusahaan' => 'company_general_info',
+            'Narahubung / PIC' => 'contact_person_pic',
+            'Struktur Perusahaan' => 'doc_struktur_org',
+            'Struktur Organisasi' => 'doc_struktur_org',
+            'Data Legalitas' => 'legal_data',
+            'TDP/NIB & NPWP' => 'nib_number',
+            'Barang / Jasa' => 'product_list',
+            'Daftar Barang/Jasa' => 'product_list',
+            'Sertifikat' => 'certificates',
+            'Sertifikat & Komitmen Mutu' => 'commitment_and_certification',
+            'Pajak & Keuangan' => 'tax_finance',
+            'Pajak dan Rekening Bank' => 'payment_info',
+            'Persyaratan Khusus' => 'special_requirements',
+        ];
+
+        if (isset($itemMap[$itemLabel])) {
+            $key = $itemMap[$itemLabel];
+            $trans = __($key);
+            if ($trans !== $key) {
+                return $trans;
+            }
+        }
+
+        return $itemLabel;
     }
 }

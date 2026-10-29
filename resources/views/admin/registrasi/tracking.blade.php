@@ -507,12 +507,23 @@
                 <div class="trk-revision">
                     <div class="trk-revision-title"><i class="fas fa-exclamation-triangle"></i> {{ __('revision_notes') }}</div>
                     @if ($application->admin_note)
-                        <div class="trk-revision-note">{{ $application->admin_note }}</div>
+                        @php
+                            $defaultAdminNote = 'Terdapat data yang tidak disetujui oleh pengadaan.';
+                            $adminNoteDisplay = ($application->admin_note === $defaultAdminNote)
+                                ? __('default_revision_admin_note')
+                                : $application->admin_note;
+                        @endphp
+                        <div class="trk-revision-note">{{ $adminNoteDisplay }}</div>
                     @endif
                     @if (!empty($application->revision_notes))
                         @foreach ($application->revision_notes as $revision)
+                            @php
+                                $fieldKey = $revision['field'] ?? '';
+                                $rawLabel = $revision['label'] ?? ($fieldKey ?: __('general'));
+                                $translatedLabel = \App\Services\VendorRegistrationViewService::translateRevisionLabel($fieldKey, $rawLabel, $revision['item'] ?? null);
+                            @endphp
                             <div class="trk-revision-item">
-                                <span class="trk-revision-field">{{ $revision['field'] ?? __('general') }}:</span>
+                                <span class="trk-revision-field">{{ $translatedLabel }}:</span>
                                 {{ $revision['note'] ?? '-' }}
                             </div>
                         @endforeach
