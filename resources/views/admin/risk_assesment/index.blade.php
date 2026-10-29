@@ -38,20 +38,18 @@
         data-warning="{{ session('warning') }}" data-info="{{ session('info') }}" hidden></div>
 
     {{-- ══════ Sub-Tab Navigasi (Metronic) ══════ --}}
-    <ul class="nav nav-tabs nav-tabs-line nav-bold nav-tabs-line-2x nav-tabs-primary mb-6" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link {{ $activeTab === 'new' ? 'active' : '' }}"
-                href="{{ route('qa.risk-assessment.index', ['tab' => 'new']) }}">
-                <i class="fas fa-user-plus mr-2"></i> Vendor Baru
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {{ $activeTab === 'existing' ? 'active' : '' }}"
-                href="{{ route('qa.risk-assessment.index', ['tab' => 'existing']) }}">
-                <i class="fas fa-boxes mr-2"></i> Vendor Eksisting
-            </a>
-        </li>
-    </ul>
+    <div class="d-inline-flex p-1 bg-white border rounded-lg shadow-xs mb-6">
+        <a href="{{ route('qa.risk-assessment.index', ['tab' => 'new']) }}"
+            class="btn btn-sm px-5 py-2 font-weight-bolder {{ $activeTab === 'new' ? 'btn-primary shadow-sm' : 'btn-text-dark-75 btn-hover-light-primary' }}"
+            style="border-radius: 6px;">
+            <i class="fas fa-user-plus mr-2"></i> Vendor Baru
+        </a>
+        <a href="{{ route('qa.risk-assessment.index', ['tab' => 'existing']) }}"
+            class="btn btn-sm px-5 py-2 font-weight-bolder {{ $activeTab === 'existing' ? 'btn-primary shadow-sm' : 'btn-text-dark-75 btn-hover-light-primary' }}"
+            style="border-radius: 6px;">
+            <i class="fas fa-boxes mr-2"></i> Vendor Eksisting
+        </a>
+    </div>
 
     {{-- ══════ Stat Cards ══════ --}}
     @if ($activeTab === 'existing')
