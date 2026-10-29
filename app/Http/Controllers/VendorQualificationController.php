@@ -330,8 +330,12 @@ class VendorQualificationController extends Controller
 
         $notificationService->riskAssessmentResult($application, $qualification);
 
+        $targetStatus = $qualification->risk_level === 'low'
+            ? VendorApplication::STATUS_APPROVED
+            : VendorApplication::STATUS_AUDIT_REQUIRED;
+
         return redirect()
-            ->route('qa.risk-assessment.index')
+            ->route('qa.risk-assessment.index', ['status' => $targetStatus])
             ->with('success', 'Risk assessment berhasil disimpan dan status vendor diperbarui.');
     }
 
@@ -485,7 +489,10 @@ class VendorQualificationController extends Controller
         });
 
         return redirect()
-            ->route('qa.risk-assessment.index', ['tab' => 'existing'])
+            ->route('qa.risk-assessment.index', [
+                'tab'    => 'existing',
+                'status' => VendorApplication::STATUS_AUDIT_REQUIRED,
+            ])
             ->with(
                 'success',
                 'Risk assessment vendor eksisting berhasil disimpan (Skor: ' . $qualification->total_score . ', ' . strtoupper(str_replace('_', ' ', $qualification->risk_level)) . '). Silakan klik tombol "Buat Audit" untuk mengatur kuesioner atau jadwal audit.'

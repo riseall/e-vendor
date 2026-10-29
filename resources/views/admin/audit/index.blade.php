@@ -23,6 +23,25 @@
     <div id="vnd-flash" data-success="{{ session('success') }}" data-error="{{ session('error') }}"
         data-warning="{{ session('warning') }}" data-info="{{ session('info') }}" hidden></div>
 
+    @if (isset($pendingApplications) && $pendingApplications->isNotEmpty())
+        <div class="alert alert-custom alert-light-primary fade show mb-6 p-4 d-flex align-items-center justify-content-between flex-wrap"
+            role="alert" style="border-radius: 10px; border: 1px solid rgba(0, 93, 182, 0.2);">
+            <div class="d-flex align-items-center">
+                <div class="alert-icon mr-3"><i class="flaticon2-hourglass text-primary" style="font-size: 1.5rem;"></i></div>
+                <div class="alert-text">
+                    <span class="font-weight-bolder text-dark" style="font-size: 1rem;">Antrean Penjadwalan Audit ({{ $pendingApplications->count() }})</span>
+                    <div class="text-muted font-size-sm">Terdapat vendor yang telah selesai penilaian risiko dan siap dibuatkan jadwal audit.</div>
+                </div>
+            </div>
+            <div class="mt-2 mt-md-0">
+                <a href="{{ route('qa.risk-assessment.index', ['status' => 'audit_required']) }}"
+                    class="btn btn-primary btn-sm font-weight-bolder px-4">
+                    <i class="flaticon2-add-1 mr-1" style="font-size: 0.75rem;"></i> Lihat Antrean &amp; Buat Audit
+                </a>
+            </div>
+        </div>
+    @endif
+
     {{-- Stat Cards --}}
     <div class="row mb-6">
         <x-dash-card :value="$countByStatus['scheduled'] ?? 0" label="Baru Terjadwal" icon="flaticon2-hourglass" type="primary" />

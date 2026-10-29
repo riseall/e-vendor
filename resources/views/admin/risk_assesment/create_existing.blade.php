@@ -290,38 +290,12 @@
 
                         {{-- Submit button --}}
                         <div class="ra-sidebar-actions">
-                            @php
-                                $activeAudit = $application->audits
-                                    ->whereNotIn('status', [
-                                        \App\Models\VendorAudit::STATUS_COMPLETED,
-                                        \App\Models\VendorAudit::STATUS_REJECTED,
-                                    ])
-                                    ->first();
-                                $hasActiveAudit = !is_null($activeAudit);
-                            @endphp
-
-                            @if (optional($qualification)->assessment_type === 'existing' || optional($qualification)->total_score > 0)
-                                @if (!$hasActiveAudit)
-                                    @canany(['audit-create', 'qa-risk-create', 'qa-risk-store'])
-                                        <a href="{{ route('qa.audit.create', $application->id) }}"
-                                            class="ra-btn-submit mb-3" style="background:#0bb783; text-decoration:none;" id="btn-create-audit">
-                                            <i class="flaticon2-add-1 text-white" style="font-size:.75rem;"></i>
-                                            Buat Audit
-                                        </a>
-                                    @endcanany
-                                @else
-                                    <a href="{{ route('qa.audit.show', $activeAudit->id) }}"
-                                        class="ra-btn-submit mb-3" style="background:#3699ff; text-decoration:none;">
-                                        <i class="flaticon-eye text-white" style="font-size:.75rem;"></i>
-                                        Buka Audit
-                                    </a>
-                                @endif
-                            @endif
+                            
 
                             @can('qa-risk-store')
                                 <button type="submit" class="ra-btn-submit" id="btn-submit" disabled>
                                     <i class="flaticon2-check-mark text-white" style="font-size:.75rem;"></i>
-                                    Simpan
+                                    Simpan Penilaian
                                 </button>
                             @endcan
                             <a href="{{ route('qa.risk-assessment.index', ['tab' => 'existing']) }}"

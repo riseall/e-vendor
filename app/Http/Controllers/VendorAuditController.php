@@ -97,14 +97,23 @@ class VendorAuditController extends Controller
             'completed' => VendorAudit::where('status', VendorAudit::STATUS_COMPLETED)->count(),
         ];
 
+        $pendingApplications = VendorApplication::query()
+            ->whereIn('status', [VendorApplication::STATUS_AUDIT_REQUIRED, VendorApplication::STATUS_RISK_ASSESSED])
+            ->whereDoesntHave('audits', function ($q) {
+                $q->whereNotIn('status', [VendorAudit::STATUS_COMPLETED, VendorAudit::STATUS_REJECTED]);
+            })
+            ->with(['general', 'user', 'qualification'])
+            ->get();
+
         return view('admin.audit.index', [
-            'audits'        => $audits,
-            'status'        => $status,
-            'type'          => $type,
-            'search'        => $search,
-            'statusOptions' => self::STATUS_OPTIONS,
-            'countByType'   => $countByType,
-            'countByStatus' => $countByStatus,
+            'audits'              => $audits,
+            'status'              => $status,
+            'type'                => $type,
+            'search'              => $search,
+            'statusOptions'       => self::STATUS_OPTIONS,
+            'countByType'         => $countByType,
+            'countByStatus'       => $countByStatus,
+            'pendingApplications' => $pendingApplications,
         ]);
     }
 
