@@ -14,6 +14,7 @@ class ProcurementVerificationService
 {
     private const TRACKED_STATUSES = [
         VendorApplication::STATUS_SUBMITTED,
+        VendorApplication::STATUS_VERIFIED_ADMIN,
         VendorApplication::STATUS_NEED_REVISION,
         VendorApplication::STATUS_VERIFIED,
     ];
@@ -30,6 +31,85 @@ class ProcurementVerificationService
         $this->deadlineService = $deadlineService;
         $this->workflowService = $workflowService;
         $this->fileService = $fileService;
+    }
+
+    public function managerVerifyApplication(VendorApplication $application, ?string $managerNote): void
+    {
+        if ($application->status !== VendorApplication::STATUS_VERIFIED_ADMIN) {
+            throw ValidationException::withMessages([
+                'application_id' => 'Hanya permohonan dengan status Menunggu Verifikasi Manajer yang dapat disetujui.',
+            ]);
+        }
+
+        $this->workflowService->transition(
+            $application,
+            VendorApplication::STATUS_VERIFIED,
+            'manager_verified',
+            [
+                'manager_verified_at' => now(),
+                'manager_verified_by' => Auth::id(),
+                'manager_note' => $managerNote,
+            ],
+            Auth::user()
+        );
+    }
+
+    public function managerRequestRevision(
+        VendorApplication $application,
+        string $managerNote,
+        array $revisionFields = []
+    ): void {
+        if ($application->status !== VendorApplication::STATUS_VERIFIED_ADMIN) {
+            throw ValidationException::withMessages([
+                'application_id' => 'Permohonan ini tidak dapat diminta revisi dari status saat ini.',
+            ]);
+        }
+
+        $revisionNotes = [[
+            'field' => 'manager_note',
+            'label' => 'Catatan Manajer Pengadaan',
+            'item' => 'Verifikasi Manajer',
+            'note' => $managerNote,
+        ]];
+
+        if (!empty($revisionFields)) {
+            $items = $application->verificationItems()->whereIn('item_key', $revisionFields)->get();
+            foreach ($items as $item) {
+                $item->update([
+                    'status' => VendorApplicationVerificationItem::STATUS_REJECTED,
+                    'note' => $managerNote,
+                    'verified_by' => Auth::id(),
+                    'verified_at' => now(),
+                ]);
+                $revisionNotes[] = [
+                    'field' => $item->item_key,
+                    'label' => $item->item_label,
+                    'item' => $item->item_label,
+                    'note' => $managerNote,
+                ];
+            }
+        } else {
+            $application->verificationItems()->update([
+                'status' => VendorApplicationVerificationItem::STATUS_REJECTED,
+                'note' => $managerNote,
+                'verified_by' => Auth::id(),
+                'verified_at' => now(),
+            ]);
+        }
+
+        $this->workflowService->transition(
+            $application,
+            VendorApplication::STATUS_NEED_REVISION,
+            'manager_revision_requested',
+            [
+                'manager_verified_at' => null,
+                'manager_verified_by' => Auth::id(),
+                'manager_note' => $managerNote,
+                'revision_notes' => $revisionNotes,
+            ],
+            Auth::user(),
+            ['revision_notes' => $revisionNotes]
+        );
     }
 
     public function verifyApplication(VendorApplication $application, ?string $adminNote): void
@@ -235,7 +315,9 @@ class ProcurementVerificationService
             'pic_email' => $picEmail,
             'pic_phone' => $picPhone,
             'pic_initials' => strtoupper(substr($picName ?: 'P', 0, 1)),
-            'action_label' => $isVerificationInProgress || $isRevisionResubmitted ? 'Lanjutkan' : 'Detail',
+            'action_label' => $application->status === VendorApplication::STATUS_VERIFIED_ADMIN
+                ? 'Review Manajer'
+                : ($isVerificationInProgress || $isRevisionResubmitted ? 'Lanjutkan' : 'Detail'),
         ];
     }
 
@@ -270,6 +352,11 @@ class ProcurementVerificationService
                 'class' => 'vnd-status--revision',
                 'label' => 'Need Revision',
                 'icon' => 'flaticon-warning icon-sm text-warning',
+            ],
+            VendorApplication::STATUS_VERIFIED_ADMIN => [
+                'class' => 'vnd-status--manager',
+                'label' => 'Menunggu Verif Manajer',
+                'icon' => 'flaticon2-user-1 icon-sm text-info',
             ],
             VendorApplication::STATUS_VERIFIED => [
                 'class' => 'vnd-status--verified',
@@ -325,6 +412,11 @@ class ProcurementVerificationService
                 'class' => 'label-light-warning',
                 'state_class' => 'is-rejected',
             ],
+            VendorApplication::STATUS_VERIFIED_ADMIN => [
+                'label' => 'Menunggu Verifikasi Manajer',
+                'class' => 'label-light-info',
+                'state_class' => 'is-pending',
+            ],
             VendorApplication::STATUS_VERIFIED => [
                 'label' => 'Verified',
                 'class' => 'label-light-success',
@@ -350,6 +442,13 @@ class ProcurementVerificationService
         if ($application->status === VendorApplication::STATUS_VERIFIED) {
             $meta['deadline_text'] = 'Selesai';
             $meta['deadline_class'] = 'approved';
+
+            return $meta;
+        }
+
+        if ($application->status === VendorApplication::STATUS_VERIFIED_ADMIN) {
+            $meta['deadline_text'] = 'Menunggu Manajer';
+            $meta['deadline_class'] = 'pending';
 
             return $meta;
         }
@@ -422,6 +521,7 @@ class ProcurementVerificationService
     {
         if (!in_array($application->status, [
             VendorApplication::STATUS_SUBMITTED,
+            VendorApplication::STATUS_VERIFIED_ADMIN,
             VendorApplication::STATUS_NEED_REVISION,
         ])) {
             throw ValidationException::withMessages([
@@ -1066,12 +1166,12 @@ class ProcurementVerificationService
         if ($allItemsApproved) {
             $this->workflowService->transition(
                 $application,
-                VendorApplication::STATUS_VERIFIED,
-                'application_verified',
+                VendorApplication::STATUS_VERIFIED_ADMIN,
+                'admin_verification_completed',
                 [
                     'verified_at' => now(),
                     'verified_by' => Auth::id(),
-                    'admin_note' => 'Seluruh data permohonan sudah disetujui oleh pengadaan.',
+                    'admin_note' => 'Seluruh data permohonan sudah disetujui oleh verifikator pengadaan. Menunggu verifikasi tingkat 2 oleh Manajer Pengadaan.',
                     'revision_notes' => null,
                     'auto_verified' => false,
                 ],

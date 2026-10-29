@@ -1,9 +1,16 @@
 @extends('layouts.app', ['title' => 'Detail Verifikasi'])
 
+@php
+    $isManagerStage = in_array($application->status, [
+        \App\Models\VendorApplication::STATUS_VERIFIED_ADMIN,
+        \App\Models\VendorApplication::STATUS_VERIFIED,
+    ], true);
+@endphp
+
 @section('breadcrumb', 'Pengadaan')
 @section('step', 'Verifikasi')
 @section('page_title', 'Verifikasi Data Calon Penyedia')
-@section('page_desc', 'Verifikasi setiap bagian data vendor melalui tab berikut sebelum permohonan diteruskan.')
+@section('page_desc', $isManagerStage ? 'Review resume data calon penyedia dan berikan persetujuan akhir sebelum permohonan diteruskan ke QA Risk Assessment.' : 'Verifikasi setiap bagian data vendor melalui tab dan card berkas berikut sebelum diteruskan ke Manajer Pengadaan.')
 
 @push('style')
     @include('admin.verifikasi.partials.show.styles')
@@ -11,10 +18,20 @@
 
 @section('content')
 
-
     @include('admin.verifikasi.partials.show.header')
 
-    @include('admin.verifikasi.partials.show.verification-card')
+    {{-- Pemisahan Tampilan: Verifikasi Per Card (Level 1) vs Verifikasi Manajer (Level 2) --}}
+    @if ($isManagerStage)
+        {{-- Tampilan Verifikasi Manajer: Aktif setelah verifikasi per card selesai --}}
+        <div class="mb-6">
+            @include('admin.verifikasi.partials.show.resume')
+        </div>
+    @else
+        {{-- Tampilan Verifikasi Per Card: Aktif saat masih proses verifikasi berkas per bagian --}}
+        <div class="mb-6">
+            @include('admin.verifikasi.partials.show.verification-card')
+        </div>
+    @endif
 
     @include('admin.verifikasi.partials.show.history')
 

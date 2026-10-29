@@ -48,14 +48,14 @@ class AutoVerifyVendorApplications extends Command
 
             $this->workflowService->transition(
                 $application,
-                VendorApplication::STATUS_VERIFIED,
-                'application_auto_verified',
+                VendorApplication::STATUS_VERIFIED_ADMIN,
+                'application_auto_verified_admin',
                 [
-                'verified_at' => now(),
-                'verified_by' => null,
-                'auto_verified' => true,
-                'admin_note' => 'Permohonan otomatis terverifikasi setelah melewati 10 hari kalender.',
-                'revision_notes' => null,
+                    'verified_at' => now(),
+                    'verified_by' => null,
+                    'auto_verified' => true,
+                    'admin_note' => 'Permohonan otomatis menyelesaikan verifikasi berkas admin setelah melewati 10 hari kalender. Menunggu persetujuan Manajer Pengadaan.',
+                    'revision_notes' => null,
                 ]
             );
             $this->notificationService->statusChanged($application, $previousStatus);

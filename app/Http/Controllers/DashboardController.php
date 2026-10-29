@@ -68,6 +68,7 @@ class DashboardController extends Controller
         $approvedSupplier = VendorApplication::where('status', VendorApplication::STATUS_APPROVED)->count();
         $underQualification = VendorApplication::whereIn('status', [
             VendorApplication::STATUS_SUBMITTED,
+            VendorApplication::STATUS_VERIFIED_ADMIN,
             VendorApplication::STATUS_NEED_REVISION,
             VendorApplication::STATUS_VERIFIED,
             VendorApplication::STATUS_RISK_ASSESSED,
@@ -313,6 +314,14 @@ class DashboardController extends Controller
                 'color'       => 'danger',
                 'desc'        => __('status_desc_need_revision'),
             ],
+            VendorApplication::STATUS_VERIFIED_ADMIN => [
+                'label'       => __('status_short_verified_admin'),
+                'short_label' => __('status_short_verified_admin'),
+                'badge_class' => 'label-light-info',
+                'stat_type'   => 'info',
+                'color'       => 'info',
+                'desc'        => __('status_desc_verified_admin'),
+            ],
             VendorApplication::STATUS_VERIFIED => [
                 'label'       => __('status_procurement_verified'),
                 'short_label' => __('status_short_verified'),
@@ -420,7 +429,7 @@ class DashboardController extends Controller
 
         if (!$application || $status === VendorApplication::STATUS_DRAFT) {
             $pipelineSteps[0]['status'] = 'current';
-        } elseif ($status === VendorApplication::STATUS_SUBMITTED) {
+        } elseif ($status === VendorApplication::STATUS_SUBMITTED || $status === VendorApplication::STATUS_VERIFIED_ADMIN) {
             $pipelineSteps[0]['status'] = 'completed';
             $pipelineSteps[1]['status'] = 'current';
         } elseif ($status === VendorApplication::STATUS_NEED_REVISION) {

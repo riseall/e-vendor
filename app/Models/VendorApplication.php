@@ -23,6 +23,9 @@ class VendorApplication extends Model
         'revision_count',
         'verified_at',
         'verified_by',
+        'manager_verified_by',
+        'manager_verified_at',
+        'manager_note',
         'admin_note',
         'revision_notes',
         'auto_verified',
@@ -39,6 +42,7 @@ class VendorApplication extends Model
         'revision_submitted_at' => 'datetime',
         'revision_count' => 'integer',
         'verified_at' => 'datetime',
+        'manager_verified_at' => 'datetime',
         'revision_notes' => 'array',
         'auto_verified' => 'boolean',
         'approved_at' => 'datetime',
@@ -71,6 +75,7 @@ class VendorApplication extends Model
     const STATUS_DRAFT     = 'draft';
     const STATUS_SUBMITTED = 'submitted';
     const STATUS_NEED_REVISION = 'need_revision';
+    const STATUS_VERIFIED_ADMIN = 'verified_admin';
     const STATUS_VERIFIED  = 'verified';
     const STATUS_RISK_ASSESSED = 'risk_assessed';
     const STATUS_AUDIT_REQUIRED = 'audit_required';
@@ -109,6 +114,11 @@ class VendorApplication extends Model
     public function verifier()
     {
         return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function managerVerifier()
+    {
+        return $this->belongsTo(User::class, 'manager_verified_by');
     }
 
     public function categories()
@@ -228,7 +238,7 @@ class VendorApplication extends Model
      */
     public function getRiskLevelAttribute()
     {
-        if (in_array($this->status, [self::STATUS_DRAFT, self::STATUS_SUBMITTED, self::STATUS_NEED_REVISION, self::STATUS_VERIFIED], true)) {
+        if (in_array($this->status, [self::STATUS_DRAFT, self::STATUS_SUBMITTED, self::STATUS_NEED_REVISION, self::STATUS_VERIFIED_ADMIN, self::STATUS_VERIFIED], true)) {
             return null;
         }
 
@@ -240,7 +250,7 @@ class VendorApplication extends Model
      */
     public function getTotalScoreAttribute()
     {
-        if (in_array($this->status, [self::STATUS_DRAFT, self::STATUS_SUBMITTED, self::STATUS_NEED_REVISION, self::STATUS_VERIFIED], true)) {
+        if (in_array($this->status, [self::STATUS_DRAFT, self::STATUS_SUBMITTED, self::STATUS_NEED_REVISION, self::STATUS_VERIFIED_ADMIN, self::STATUS_VERIFIED], true)) {
             return null;
         }
 

@@ -37,6 +37,7 @@ class PermissionSeeder extends Seeder
             'verifikasi-detail',
             'verifikasi-approve',
             'verifikasi-reject',
+            'verifikasi-verify-manager',
 
             // QA Risk Assessment
             'qa-risk-list',
@@ -147,6 +148,7 @@ class PermissionSeeder extends Seeder
             $procurement->syncPermissions([
                 'verifikasi-list',
                 'verifikasi-detail',
+                'verifikasi-verify-manager',
                 'rekualifikasi-list',
                 'rekualifikasi-initiate',
                 'evaluasi-list',
@@ -159,6 +161,36 @@ class PermissionSeeder extends Seeder
                 'supplier-detail',
                 'notify-procurement-verification',
                 'notify-evaluasi-alert',
+            ]);
+        }
+
+        $manager = Role::where('name', 'Manager')->first();
+        if ($manager) {
+            $manager->syncPermissions([
+                'verifikasi-list',
+                'verifikasi-detail',
+                'verifikasi-verify-manager',
+                'evaluasi-list',
+                'evaluasi-verify-manager',
+                'supplier-list',
+                'supplier-detail',
+                'rekualifikasi-list',
+                'rekualifikasi-initiate',
+                'notify-procurement-verification',
+                'notify-evaluasi-alert',
+            ]);
+        }
+
+        $gm = Role::where('name', 'General Manager')->first();
+        if ($gm) {
+            $gm->syncPermissions([
+                'verifikasi-list',
+                'verifikasi-detail',
+                'evaluasi-list',
+                'evaluasi-approve-gm',
+                'supplier-list',
+                'supplier-detail',
+                'rekualifikasi-list',
             ]);
         }
     }

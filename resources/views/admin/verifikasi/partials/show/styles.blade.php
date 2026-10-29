@@ -426,6 +426,12 @@
             color: #991b1b;
         }
 
+        .verif-status-badge.is-manager-pending {
+            background: #ede9fe;
+            color: #6d28d9;
+            border: 1px solid #c4b5fd;
+        }
+
         /* ── Action Buttons ──────────────────────────────────────── */
         .btn-approve {
             display: inline-flex;
@@ -837,5 +843,67 @@
                 border-bottom: 1px solid #f1f5f9;
                 padding-bottom: .4rem;
             }
+        /* ── Main Verification Mode Tabs & Detail Tables ──────────── */
+        .supplier-tabs {
+            border-bottom: none !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .supplier-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .supplier-tabs .nav-link {
+            font-size: 0.925rem;
+            font-weight: 600;
+            color: #7e8299;
+            padding: 1rem 1.4rem;
+            border: none !important;
+            border-bottom: 3px solid transparent !important;
+            background: transparent !important;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .supplier-tabs .nav-link:hover {
+            color: var(--brand-primary, #4f46e5);
+        }
+
+        .supplier-tabs .nav-link.active {
+            color: var(--brand-primary, #4f46e5) !important;
+            border-bottom-color: var(--brand-primary, #4f46e5) !important;
+            font-weight: 700;
+        }
+
+        .table-detail-keyval td {
+            padding: 0.65rem 0.6rem;
+            border-top: none;
+            border-bottom: 1px dashed #eef2f7;
+            vertical-align: middle;
+        }
+
+        .table-detail-keyval tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-custom-clean th {
+            background-color: #f8fafc !important;
+            color: #64748b !important;
+            font-size: 0.75rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.5px !important;
+            text-transform: uppercase !important;
+            border-top: none !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            padding: 0.85rem 1rem !important;
+        }
+
+        .table-custom-clean td {
+            padding: 0.85rem 1rem !important;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
         }
     </style>

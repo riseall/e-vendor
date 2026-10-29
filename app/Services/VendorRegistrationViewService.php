@@ -58,6 +58,7 @@ class VendorRegistrationViewService
             ->whereIn('status', [
                 VendorApplication::STATUS_DRAFT,
                 VendorApplication::STATUS_SUBMITTED,
+                VendorApplication::STATUS_VERIFIED_ADMIN,
                 VendorApplication::STATUS_NEED_REVISION,
                 VendorApplication::STATUS_VERIFIED,
                 VendorApplication::STATUS_RISK_ASSESSED,
@@ -89,6 +90,7 @@ class VendorRegistrationViewService
             'isEditMode' => $isEditMode,
             'isReadOnly' => in_array($status, [
                 VendorApplication::STATUS_SUBMITTED,
+                VendorApplication::STATUS_VERIFIED_ADMIN,
                 VendorApplication::STATUS_VERIFIED,
                 VendorApplication::STATUS_RISK_ASSESSED,
                 VendorApplication::STATUS_AUDIT_REQUIRED,
@@ -144,6 +146,12 @@ class VendorRegistrationViewService
                     'label' => __('status_short_need_revision'),
                     'class' => 'warning',
                     'description' => __('status_desc_need_revision'),
+                ];
+            case VendorApplication::STATUS_VERIFIED_ADMIN:
+                return [
+                    'label' => __('status_short_verified_admin'),
+                    'class' => 'info',
+                    'description' => __('status_desc_verified_admin'),
                 ];
             case VendorApplication::STATUS_VERIFIED:
                 return [

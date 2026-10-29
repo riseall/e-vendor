@@ -139,6 +139,12 @@ Route::group(
                 Route::post('/{application}/items/{item}/reject', [ProcurementVerificationController::class, 'rejectItem'])
                     ->name('items.reject')
                     ->middleware('can:verifikasi-reject');
+                Route::post('/{application}/manager-approve', [ProcurementVerificationController::class, 'managerApprove'])
+                    ->name('manager.approve')
+                    ->middleware('can:verifikasi-verify-manager');
+                Route::post('/{application}/manager-revisi', [ProcurementVerificationController::class, 'managerRequestRevision'])
+                    ->name('manager.revisi')
+                    ->middleware('can:verifikasi-verify-manager');
             });
 
             // Supplier Terekomendasi

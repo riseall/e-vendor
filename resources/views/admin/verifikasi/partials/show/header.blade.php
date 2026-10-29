@@ -122,6 +122,15 @@
             @endif
         </div>
 
+        @if ($application->status === \App\Models\VendorApplication::STATUS_VERIFIED_ADMIN)
+            <div class="alert alert-custom alert-light-primary mb-0 mt-4 py-3 px-4" role="alert" style="background:#f5f3ff; border:1px solid #ddd6fe;">
+                <div class="alert-icon"><i class="fas fa-user-check" style="color:#7c3aed;"></i></div>
+                <div class="alert-text font-size-sm text-dark">
+                    <strong>Verifikasi Tingkat 1 Selesai:</strong> Seluruh berkas telah disetujui oleh Verifikator Admin ({{ optional($application->verifier)->name ?: 'Admin' }}). Permohonan kini berada pada tahap <strong>Verifikasi Tingkat 2</strong> untuk review resume dan keputusan persetujuan/revisi oleh <strong>Manajer Pengadaan</strong>.
+                </div>
+            </div>
+        @endif
+
         @if ($application->isRekualifikasi())
             @if ($application->status === \App\Models\VendorApplication::STATUS_APPROVED)
                 <div class="alert alert-custom alert-light-success mb-0 mt-4 py-3 px-4" role="alert">

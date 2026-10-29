@@ -235,4 +235,57 @@
                 passive: false
             });
         }
+
+        // ── Handler Aksi Manajer Pengadaan (Level 2 Approval) ──
+        $('#btnManagerApprove').on('click', function(e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Setujui Verifikasi Vendor?',
+                text: 'Permohonan akan berstatus Terverifikasi (Verified) dan otomatis diteruskan ke antrean QA Risk Assessment.',
+                icon: 'question',
+                input: 'textarea',
+                inputPlaceholder: 'Tuliskan catatan persetujuan manajer (opsional)...',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-check-circle mr-1"></i> Ya, Setujui Permohonan',
+                cancelButtonText: 'Batal'
+            }).then(function(result) {
+                if (result.value || result.isConfirmed) {
+                    var note = (typeof result.value === 'string') ? result.value : '';
+                    $('#inputManagerApproveNote').val(note);
+
+                    Swal.fire({
+                        title: '',
+                        html: '<div class="swal-verif-loading">' +
+                            '<div class="swal-verif-loader" aria-hidden="true"></div>' +
+                            '<div class="swal-verif-loading-text">Memproses Persetujuan Manajer' +
+                            '<span class="swal-verif-loading-dots"><span></span><span></span><span></span></span>' +
+                            '</div>' +
+                            '</div>',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false
+                    });
+
+                    document.getElementById('formManagerApprove').submit();
+                }
+            });
+        });
+
+        $('#formManagerRevision').on('submit', function() {
+            Swal.fire({
+                title: '',
+                html: '<div class="swal-verif-loading">' +
+                    '<div class="swal-verif-loader" aria-hidden="true"></div>' +
+                    '<div class="swal-verif-loading-text">Mengirim Revisi ke Vendor' +
+                    '<span class="swal-verif-loading-dots"><span></span><span></span><span></span></span>' +
+                    '</div>' +
+                    '</div>',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false
+            });
+        });
     </script>

@@ -15,7 +15,8 @@ class ProcurementVerificationController extends Controller
 {
     private const STATUS_OPTIONS = [
         'active' => 'Perlu Tindakan (Antrean Aktif)',
-        VendorApplication::STATUS_SUBMITTED => 'Submitted',
+        VendorApplication::STATUS_SUBMITTED => 'Menunggu Verifikasi Admin',
+        VendorApplication::STATUS_VERIFIED_ADMIN => 'Menunggu Verifikasi Manajer',
         VendorApplication::STATUS_NEED_REVISION => 'Need Revision',
         VendorApplication::STATUS_VERIFIED => 'Verified',
         'all' => 'Semua Riwayat',
@@ -28,6 +29,7 @@ class ProcurementVerificationController extends Controller
         'documents',
         'categories',
         'verifier',
+        'managerVerifier',
         'specBaku',
         'specVaria',
         'specTrans',
@@ -65,6 +67,7 @@ class ProcurementVerificationController extends Controller
         if ($status === 'active') {
             $query->whereIn('status', [
                 VendorApplication::STATUS_SUBMITTED,
+                VendorApplication::STATUS_VERIFIED_ADMIN,
                 VendorApplication::STATUS_NEED_REVISION,
             ]);
         } elseif ($status !== 'all') {
@@ -86,6 +89,7 @@ class ProcurementVerificationController extends Controller
             'statusOptions' => self::STATUS_OPTIONS,
             'totalApplicationsAll' => (int) $summaryCounts->sum(),
             'totalSubmittedAll' => (int) ($summaryCounts[VendorApplication::STATUS_SUBMITTED] ?? 0),
+            'totalVerifiedAdminAll' => (int) ($summaryCounts[VendorApplication::STATUS_VERIFIED_ADMIN] ?? 0),
             'totalNeedRevisionAll' => (int) ($summaryCounts[VendorApplication::STATUS_NEED_REVISION] ?? 0),
             'totalVerifiedAll' => (int) ($summaryCounts[VendorApplication::STATUS_VERIFIED] ?? 0),
         ]);
@@ -174,6 +178,63 @@ class ProcurementVerificationController extends Controller
         return redirect()
             ->route('verifikasi.show', $application)
             ->with('success', 'Permohonan dikembalikan ke vendor untuk revisi.');
+    }
+
+    public function managerApprove(Request $request, VendorApplication $application)
+    {
+        abort_unless(Auth::user() && Auth::user()->can('verifikasi-verify-manager'), 403);
+        $previousStatus = $application->status;
+
+        $this->verificationService->managerVerifyApplication(
+            $application,
+            $request->input('manager_note')
+        );
+        $this->notificationService->statusChanged($application, $previousStatus);
+
+        $message = 'Permohonan berhasil disetujui oleh Manajer Pengadaan dan diteruskan ke QA Risk Assessment.';
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $message,
+            ]);
+        }
+
+        return redirect()
+            ->route('verifikasi.show', $application)
+            ->with('success', $message);
+    }
+
+    public function managerRequestRevision(Request $request, VendorApplication $application)
+    {
+        abort_unless(Auth::user() && Auth::user()->can('verifikasi-verify-manager'), 403);
+        $previousStatus = $application->status;
+
+        $data = $request->validate([
+            'manager_note' => 'required|string|max:2000',
+            'revision_fields' => 'nullable|array',
+            'revision_fields.*' => 'nullable|string|max:255',
+        ]);
+
+        $this->verificationService->managerRequestRevision(
+            $application,
+            $data['manager_note'],
+            $request->input('revision_fields', [])
+        );
+        $this->notificationService->statusChanged($application, $previousStatus);
+
+        $message = 'Permohonan dikembalikan ke vendor untuk revisi sesuai catatan Manajer Pengadaan.';
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $message,
+            ]);
+        }
+
+        return redirect()
+            ->route('verifikasi.show', $application)
+            ->with('success', $message);
     }
 
     public function approveItem(

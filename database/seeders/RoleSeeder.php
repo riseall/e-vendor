@@ -20,6 +20,8 @@ class RoleSeeder extends Seeder
             'Admin IT',
             'Verifikator',
             'Procurement',
+            'Manager',
+            'General Manager',
             'Quality Assurance',
             'Apoteker',
             'Specialist',

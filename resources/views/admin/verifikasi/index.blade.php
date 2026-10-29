@@ -9,7 +9,8 @@
     {{-- Stat Cards --}}
     <div class="row mb-6">
         <x-dash-card :value="$totalApplicationsAll" label="Total Permohonan" icon="flaticon2-layers-1" type="primary" />
-        <x-dash-card :value="$totalSubmittedAll ?? '—'" label="Menunggu Verifikasi" icon="flaticon2-hourglass" type="info" />
+        <x-dash-card :value="$totalSubmittedAll ?? '—'" label="Verif Admin" icon="flaticon2-hourglass" type="info" />
+        <x-dash-card :value="$totalVerifiedAdminAll ?? '—'" label="Verif Manajer" icon="flaticon2-user-1" type="primary" />
         <x-dash-card :value="$totalNeedRevisionAll" label="Perlu Revisi" icon="flaticon-warning" type="warning" />
         <x-dash-card :value="$totalVerifiedAll ?? '—'" label="Terverifikasi" icon="flaticon2-check-mark" type="success" />
     </div>
@@ -70,7 +71,7 @@
                         @include('admin.verifikasi.partials.index.application-row')
                     @empty
                         <tr>
-                            <td colspan="7">
+                            <td colspan="8">
                                 <div class="vnd-empty">
                                     <div class="vnd-empty-icon">
                                         <i class="flaticon2-search-1"></i>
