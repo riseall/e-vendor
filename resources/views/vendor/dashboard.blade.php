@@ -38,6 +38,55 @@
         font-size: 1rem;
         transition: all 0.25s ease;
         box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        position: relative;
+    }
+    @keyframes step-radar-danger {
+        0% {
+            transform: scale(0.9);
+            opacity: 0.95;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        }
+        70% {
+            opacity: 0.35;
+            box-shadow: 0 0 12px 4px rgba(239, 68, 68, 0.4);
+        }
+        100% {
+            transform: scale(1.65);
+            opacity: 0;
+            box-shadow: 0 0 16px 8px rgba(239, 68, 68, 0);
+        }
+    }
+    @keyframes step-radar-primary {
+        0% {
+            transform: scale(0.9);
+            opacity: 0.95;
+            box-shadow: 0 0 0 0 rgba(0, 93, 182, 0.7);
+        }
+        70% {
+            opacity: 0.35;
+            box-shadow: 0 0 12px 4px rgba(0, 93, 182, 0.4);
+        }
+        100% {
+            transform: scale(1.65);
+            opacity: 0;
+            box-shadow: 0 0 16px 8px rgba(0, 93, 182, 0);
+        }
+    }
+    @keyframes step-heartbeat {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.08);
+        }
+    }
+    @keyframes pulse-icon {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.22);
+        }
     }
     .vnd-step-circle--completed {
         background: #10b981;
@@ -48,13 +97,42 @@
         background: #005db6;
         color: #ffffff;
         border: 3px solid #c2d9f5;
-        box-shadow: 0 0 0 4px rgba(0, 93, 182, 0.15);
+        animation: step-heartbeat 2s infinite ease-in-out;
+    }
+    .vnd-step-circle--current::after {
+        content: "";
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+        border-radius: 50%;
+        border: 2px solid #005db6;
+        animation: step-radar-primary 2s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+        pointer-events: none;
     }
     .vnd-step-circle--danger {
         background: #ef4444;
         color: #ffffff;
         border: 3px solid #fee2e2;
-        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+        animation: step-heartbeat 1.8s infinite ease-in-out;
+    }
+    .vnd-step-circle--danger::after {
+        content: "";
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+        border-radius: 50%;
+        border: 2px solid #ef4444;
+        animation: step-radar-danger 1.8s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+        pointer-events: none;
+    }
+    .vnd-step-circle--danger i,
+    .vnd-step-circle--current i {
+        display: inline-block;
+        animation: pulse-icon 1.8s infinite ease-in-out;
     }
     .vnd-step-circle--pending {
         background: #f1f5f9;
