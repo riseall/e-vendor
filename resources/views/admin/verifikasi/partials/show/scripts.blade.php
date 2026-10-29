@@ -238,7 +238,7 @@
         }
 
         // ── Handler Aksi Manager Pengadaan (Level 2 Approval) ──
-        $('#btnManagerApprove').on('click', function(e) {
+        $(document).on('click', '#btnManagerApprove', function(e) {
             e.preventDefault();
 
             Swal.fire({
@@ -250,10 +250,13 @@
                 showCancelButton: true,
                 confirmButtonColor: '#10b981',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: '<i class="fas fa-check-circle mr-1"></i> Ya, Setujui Permohonan',
+                confirmButtonText: 'Ya, Setujui Permohonan',
                 cancelButtonText: 'Batal'
             }).then(function(result) {
-                if (result.value || result.isConfirmed) {
+                var isConfirmed = Boolean(result.isConfirmed) || (typeof result.value !== 'undefined' &&
+                    result.value !== false && !result.dismiss);
+
+                if (isConfirmed) {
                     var note = (typeof result.value === 'string') ? result.value : '';
                     $('#inputManagerApproveNote').val(note);
 
@@ -270,12 +273,15 @@
                         showConfirmButton: false
                     });
 
-                    document.getElementById('formManagerApprove').submit();
+                    var form = document.getElementById('formManagerApprove');
+                    if (form) {
+                        form.submit();
+                    }
                 }
             });
         });
 
-        $('#formManagerRevision').on('submit', function() {
+        $(document).on('submit', '#formManagerRevision', function() {
             Swal.fire({
                 title: '',
                 html: '<div class="swal-verif-loading">' +
