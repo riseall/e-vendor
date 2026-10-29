@@ -45,7 +45,8 @@
                         $('#verificationMainCard').replaceWith(newMainCardEl);
 
                         if (activeTabId) {
-                            var tabBtn = document.querySelector('#verificationMainCard .nav-link[href="' + activeTabId + '"]');
+                            var tabBtn = document.querySelector('#verificationMainCard .nav-link[href="' +
+                                activeTabId + '"]');
                             if (tabBtn) {
                                 $(tabBtn).tab('show');
                                 var navWrap = document.querySelector('.tab-nav-wrap .nav');
@@ -236,7 +237,7 @@
             });
         }
 
-        // ── Handler Aksi Manajer Pengadaan (Level 2 Approval) ──
+        // ── Handler Aksi Manager Pengadaan (Level 2 Approval) ──
         $('#btnManagerApprove').on('click', function(e) {
             e.preventDefault();
 
@@ -245,7 +246,7 @@
                 text: 'Permohonan akan berstatus Terverifikasi (Verified) dan otomatis diteruskan ke antrean QA Risk Assessment.',
                 icon: 'question',
                 input: 'textarea',
-                inputPlaceholder: 'Tuliskan catatan persetujuan manajer (opsional)...',
+                inputPlaceholder: 'Tuliskan catatan persetujuan Manager (opsional)...',
                 showCancelButton: true,
                 confirmButtonColor: '#10b981',
                 cancelButtonColor: '#6b7280',
@@ -260,7 +261,7 @@
                         title: '',
                         html: '<div class="swal-verif-loading">' +
                             '<div class="swal-verif-loader" aria-hidden="true"></div>' +
-                            '<div class="swal-verif-loading-text">Memproses Persetujuan Manajer' +
+                            '<div class="swal-verif-loading-text">Memproses Persetujuan Manager' +
                             '<span class="swal-verif-loading-dots"><span></span><span></span><span></span></span>' +
                             '</div>' +
                             '</div>',

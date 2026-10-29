@@ -22,8 +22,7 @@ class AutoVerifyVendorApplications extends Command
         VendorApplicationNotificationService $notificationService,
         VendorApplicationDeadlineService $deadlineService,
         VendorApplicationWorkflowService $workflowService
-    )
-    {
+    ) {
         parent::__construct();
 
         $this->notificationService = $notificationService;
@@ -54,7 +53,7 @@ class AutoVerifyVendorApplications extends Command
                     'verified_at' => now(),
                     'verified_by' => null,
                     'auto_verified' => true,
-                    'admin_note' => 'Permohonan otomatis menyelesaikan verifikasi berkas admin setelah melewati 10 hari kalender. Menunggu persetujuan Manajer Pengadaan.',
+                    'admin_note' => 'Permohonan otomatis menyelesaikan verifikasi berkas admin setelah melewati 10 hari kalender. Menunggu persetujuan Manager Pengadaan.',
                     'revision_notes' => null,
                 ]
             );

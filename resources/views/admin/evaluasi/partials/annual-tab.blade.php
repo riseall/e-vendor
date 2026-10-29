@@ -4,7 +4,7 @@
             <i class="fas fa-award text-warning mr-2"></i>Pengesahan Evaluasi Tahunan (Tahun {{ $year }})
         </h5>
         <span class="text-muted font-size-sm">
-            Alur Pengesahan 2 Tingkat: <strong>Verifikasi Manajer Pengadaan</strong> &rarr; <strong>Pengesahan GM
+            Alur Pengesahan 2 Tingkat: <strong>Verifikasi Manager Pengadaan</strong> &rarr; <strong>Pengesahan GM
                 Pengadaan</strong>. Laporan evaluasi otomatis terkirim ke vendor setelah disahkan GM.
         </span>
     </div>
@@ -109,7 +109,7 @@
                             </div>
                         @elseif ($ann->status == 'verified_manager')
                             <span class="badge badge-light-primary font-weight-bolder px-2 py-1"
-                                title="Diverifikasi Manajer Pengadaan - Menunggu GM">
+                                title="Diverifikasi Manager Pengadaan - Menunggu GM">
                                 <i class="fas fa-check text-primary mr-1"></i>VERIFIED (MGR)
                             </span>
                             @if ($ann->managerApprover)
@@ -182,13 +182,13 @@
                                     class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-xs btn-light-primary font-weight-bold mb-1"
-                                        onclick="return confirm('Verifikasi evaluasi tahunan vendor {{ $vName }} sebagai Manajer Pengadaan?')">
+                                        onclick="return confirm('Verifikasi evaluasi tahunan vendor {{ $vName }} sebagai Manager Pengadaan?')">
                                         <i class="fas fa-check mr-1"></i>Verifikasi (Mgr)
                                     </button>
                                 </form>
                             @else
                                 <span class="badge badge-light-secondary font-weight-bold mb-1"
-                                    title="Menunggu verifikasi Manajer Pengadaan">
+                                    title="Menunggu verifikasi Manager Pengadaan">
                                     <i class="fas fa-user-clock text-muted mr-1"></i>Menunggu Mgr
                                 </span>
                             @endcan

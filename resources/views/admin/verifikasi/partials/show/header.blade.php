@@ -3,13 +3,14 @@
         <div class="d-flex flex-wrap justify-content-between align-items-start">
             <div class="d-flex align-items-start">
                 @php
-                    $backUrl = url()->previous() && url()->previous() !== url()->current()
-                        ? url()->previous()
-                        : (auth()->user() && auth()->user()->can('verifikasi-list')
-                            ? route('verifikasi.index')
-                            : (auth()->user() && auth()->user()->can('supplier-list')
-                                ? route('supplier.index')
-                                : route('home')));
+                    $backUrl =
+                        url()->previous() && url()->previous() !== url()->current()
+                            ? url()->previous()
+                            : (auth()->user() && auth()->user()->can('verifikasi-list')
+                                ? route('verifikasi.index')
+                                : (auth()->user() && auth()->user()->can('supplier-list')
+                                    ? route('supplier.index')
+                                    : route('home')));
                 @endphp
                 <a href="{{ $backUrl }}" class="btn btn-icon btn-sm btn-light-primary mr-5 mt-1"
                     title="Kembali ke daftar">
@@ -123,10 +124,14 @@
         </div>
 
         @if ($application->status === \App\Models\VendorApplication::STATUS_VERIFIED_ADMIN)
-            <div class="alert alert-custom alert-light-primary mb-0 mt-4 py-3 px-4" role="alert" style="background:#f5f3ff; border:1px solid #ddd6fe;">
+            <div class="alert alert-custom alert-light-primary mb-0 mt-4 py-3 px-4" role="alert"
+                style="background:#f5f3ff; border:1px solid #ddd6fe;">
                 <div class="alert-icon"><i class="fas fa-user-check" style="color:#7c3aed;"></i></div>
                 <div class="alert-text font-size-sm text-dark">
-                    <strong>Verifikasi Tingkat 1 Selesai:</strong> Seluruh berkas telah disetujui oleh Verifikator Admin ({{ optional($application->verifier)->name ?: 'Admin' }}). Permohonan kini berada pada tahap <strong>Verifikasi Tingkat 2</strong> untuk review resume dan keputusan persetujuan/revisi oleh <strong>Manajer Pengadaan</strong>.
+                    <strong>Verifikasi Tingkat 1 Selesai:</strong> Seluruh berkas telah disetujui oleh Verifikator Admin
+                    ({{ optional($application->verifier)->name ?: 'Admin' }}). Permohonan kini berada pada tahap
+                    <strong>Verifikasi Tingkat 2</strong> untuk review resume dan keputusan persetujuan/revisi oleh
+                    <strong>Manager Pengadaan</strong>.
                 </div>
             </div>
         @endif
@@ -136,7 +141,8 @@
                 <div class="alert alert-custom alert-light-success mb-0 mt-4 py-3 px-4" role="alert">
                     <div class="alert-icon"><i class="fas fa-check-circle text-success"></i></div>
                     <div class="alert-text font-size-sm">
-                        <strong class="text-dark">Rekualifikasi Selesai:</strong> Seluruh bagian data pembaruan profil vendor telah diverifikasi dan disetujui (Approved).
+                        <strong class="text-dark">Rekualifikasi Selesai:</strong> Seluruh bagian data pembaruan profil
+                        vendor telah diverifikasi dan disetujui (Approved).
                     </div>
                 </div>
             @else
@@ -144,7 +150,8 @@
                     <div class="alert-icon"><i class="fas fa-sync-alt text-warning"></i></div>
                     <div class="alert-text font-size-sm">
                         <strong class="text-dark">Permohonan Rekualifikasi (Pembaruan Profil):</strong> Vendor telah
-                        memperbarui data profilnya. Seluruh bagian verifikasi telah dikembalikan ke status <strong>Menunggu
+                        memperbarui data profilnya. Seluruh bagian verifikasi telah dikembalikan ke status
+                        <strong>Menunggu
                             Verifikasi Ulang</strong> agar dapat Anda periksa kembali.
                     </div>
                 </div>

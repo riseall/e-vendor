@@ -16,7 +16,7 @@ class ProcurementVerificationController extends Controller
     private const STATUS_OPTIONS = [
         'active' => 'Perlu Tindakan (Antrean Aktif)',
         VendorApplication::STATUS_SUBMITTED => 'Menunggu Verifikasi Admin',
-        VendorApplication::STATUS_VERIFIED_ADMIN => 'Menunggu Verifikasi Manajer',
+        VendorApplication::STATUS_VERIFIED_ADMIN => 'Menunggu Verifikasi Manager',
         VendorApplication::STATUS_NEED_REVISION => 'Need Revision',
         VendorApplication::STATUS_VERIFIED => 'Verified',
         'all' => 'Semua Riwayat',
@@ -98,8 +98,7 @@ class ProcurementVerificationController extends Controller
     public function show(
         VendorApplication $application,
         VendorFileService $fileService
-    ): View
-    {
+    ): View {
         $this->authorizeViewAccess();
 
         $application->load(self::SHOW_RELATIONS);
@@ -191,7 +190,7 @@ class ProcurementVerificationController extends Controller
         );
         $this->notificationService->statusChanged($application, $previousStatus);
 
-        $message = 'Permohonan berhasil disetujui oleh Manajer Pengadaan dan diteruskan ke QA Risk Assessment.';
+        $message = 'Permohonan berhasil disetujui oleh Manager Pengadaan dan diteruskan ke QA Risk Assessment.';
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
@@ -223,7 +222,7 @@ class ProcurementVerificationController extends Controller
         );
         $this->notificationService->statusChanged($application, $previousStatus);
 
-        $message = 'Permohonan dikembalikan ke vendor untuk revisi sesuai catatan Manajer Pengadaan.';
+        $message = 'Permohonan dikembalikan ke vendor untuk revisi sesuai catatan Manager Pengadaan.';
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([

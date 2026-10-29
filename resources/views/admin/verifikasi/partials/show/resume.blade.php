@@ -30,7 +30,7 @@
                 @else
                     <span class="badge badge-primary font-weight-bold px-4 py-2 font-size-sm"
                         style="background:#5b21b6; color:#fff;">
-                        <i class="fas fa-user-clock mr-1 text-white"></i> Menunggu Verifikasi Manajer
+                        <i class="fas fa-user-clock mr-1 text-white"></i> Menunggu Verifikasi Manager
                     </span>
                 @endif
             </div>
@@ -62,28 +62,28 @@
                 </div>
             </div>
 
-            {{-- Step 2: Manajer Pengadaan --}}
+            {{-- Step 2: Manager Pengadaan --}}
             <div class="col-md-6">
                 <div class="p-4 rounded"
                     style="border: 1px solid {{ $isFullyVerified ? '#bbf7d0' : '#ddd6fe' }}; background: {{ $isFullyVerified ? '#f0fdf4' : '#f5f3ff' }};">
                     <div class="d-flex align-items-center mb-2">
                         <span class="badge badge-circle {{ $isFullyVerified ? 'badge-success' : 'badge-warning' }} mr-2"
                             style="width:24px;height:24px;font-size:0.75rem;">2</span>
-                        <strong class="text-dark font-size-sm">Verifikasi Tingkat 2: Manajer Pengadaan</strong>
+                        <strong class="text-dark font-size-sm">Verifikasi Tingkat 2: Manager Pengadaan</strong>
                     </div>
                     @if ($isFullyVerified)
                         <div class="text-success font-size-xs font-weight-bolder mb-1">
-                            <i class="fas fa-check-double text-success mr-1"></i> Disetujui oleh Manajer Pengadaan.
+                            <i class="fas fa-check-double text-success mr-1"></i> Disetujui oleh Manager Pengadaan.
                         </div>
                         <div class="text-muted font-size-xs">
-                            Manajer:
-                            <strong>{{ optional($application->managerVerifier)->name ?: 'Manajer Pengadaan' }}</strong>
+                            Manager:
+                            <strong>{{ optional($application->managerVerifier)->name ?: 'Manager Pengadaan' }}</strong>
                             &middot; {{ optional($application->manager_verified_at)->format('d/m/Y H:i') }}
                         </div>
                         @if ($application->manager_note)
                             <div class="mt-2 p-2 rounded bg-white font-size-xs text-dark"
                                 style="border:1px dashed #86efac;">
-                                <strong>Catatan Manajer:</strong> {{ $application->manager_note }}
+                                <strong>Catatan Manager:</strong> {{ $application->manager_note }}
                             </div>
                         @endif
                     @else
@@ -92,7 +92,7 @@
                             resume atau pengembalian revisi.
                         </div>
                         <div class="text-muted font-size-xs">
-                            Manajer dapat menyetujui langsung untuk melanjutkan ke QA Risk Assessment atau meminta
+                            Manager dapat menyetujui langsung untuk melanjutkan ke QA Risk Assessment atau meminta
                             revisi ke vendor.
                         </div>
                     @endif
@@ -154,14 +154,14 @@
             </div>
         </div>
 
-        {{-- Action Bar untuk Manajer Pengadaan --}}
+        {{-- Action Bar untuk Manager Pengadaan --}}
         @if ($isVerifiedAdmin)
             <div class="mt-5 p-4 rounded d-flex flex-wrap align-items-center justify-content-between"
                 style="background:#faf5ff; border: 1.5px solid #c4b5fd;">
                 <div class="mb-3 mb-lg-0 pr-lg-4" style="max-width:650px;">
                     <div class="font-weight-bolder font-size-sm text-dark mb-1 d-flex align-items-center">
                         <i class="fas fa-user-shield mr-2" style="color:#7c3aed;"></i>
-                        Panel Aksi Manajer Pengadaan (1-Klik Approval)
+                        Panel Aksi Manager Pengadaan (1-Klik Approval)
                     </div>
                     <div class="text-muted font-size-xs">
                         Silakan periksa resume data calon penyedia di bawah. Anda dapat langsung
@@ -190,7 +190,7 @@
                         </button>
                     @else
                         <div class="text-muted font-size-xs font-italic">
-                            <i class="fas fa-lock mr-1"></i> Hanya akun dengan wewenang Manajer yang dapat melakukan
+                            <i class="fas fa-lock mr-1"></i> Hanya akun dengan wewenang Manager yang dapat melakukan
                             persetujuan tingkat 2.
                         </div>
                     @endcan

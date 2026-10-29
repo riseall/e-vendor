@@ -37,7 +37,7 @@ class ProcurementVerificationService
     {
         if ($application->status !== VendorApplication::STATUS_VERIFIED_ADMIN) {
             throw ValidationException::withMessages([
-                'application_id' => 'Hanya permohonan dengan status Menunggu Verifikasi Manajer yang dapat disetujui.',
+                'application_id' => 'Hanya permohonan dengan status Menunggu Verifikasi Manager yang dapat disetujui.',
             ]);
         }
 
@@ -67,8 +67,8 @@ class ProcurementVerificationService
 
         $revisionNotes = [[
             'field' => 'manager_note',
-            'label' => 'Catatan Manajer Pengadaan',
-            'item' => 'Verifikasi Manajer',
+            'label' => 'Catatan Manager Pengadaan',
+            'item' => 'Verifikasi Manager',
             'note' => $managerNote,
         ]];
 
@@ -316,7 +316,7 @@ class ProcurementVerificationService
             'pic_phone' => $picPhone,
             'pic_initials' => strtoupper(substr($picName ?: 'P', 0, 1)),
             'action_label' => $application->status === VendorApplication::STATUS_VERIFIED_ADMIN
-                ? 'Review Manajer'
+                ? 'Review Manager'
                 : ($isVerificationInProgress || $isRevisionResubmitted ? 'Lanjutkan' : 'Detail'),
         ];
     }
@@ -355,7 +355,7 @@ class ProcurementVerificationService
             ],
             VendorApplication::STATUS_VERIFIED_ADMIN => [
                 'class' => 'vnd-status--manager',
-                'label' => 'Menunggu Verif Manajer',
+                'label' => 'Menunggu Verif Manager',
                 'icon' => 'flaticon2-user-1 icon-sm text-info',
             ],
             VendorApplication::STATUS_VERIFIED => [
@@ -413,7 +413,7 @@ class ProcurementVerificationService
                 'state_class' => 'is-rejected',
             ],
             VendorApplication::STATUS_VERIFIED_ADMIN => [
-                'label' => 'Menunggu Verifikasi Manajer',
+                'label' => 'Menunggu Verifikasi Manager',
                 'class' => 'label-light-info',
                 'state_class' => 'is-pending',
             ],
@@ -447,7 +447,7 @@ class ProcurementVerificationService
         }
 
         if ($application->status === VendorApplication::STATUS_VERIFIED_ADMIN) {
-            $meta['deadline_text'] = 'Menunggu Manajer';
+            $meta['deadline_text'] = 'Menunggu Manager';
             $meta['deadline_class'] = 'pending';
 
             return $meta;
@@ -1171,7 +1171,7 @@ class ProcurementVerificationService
                 [
                     'verified_at' => now(),
                     'verified_by' => Auth::id(),
-                    'admin_note' => 'Seluruh data permohonan sudah disetujui oleh verifikator pengadaan. Menunggu verifikasi tingkat 2 oleh Manajer Pengadaan.',
+                    'admin_note' => 'Seluruh data permohonan sudah disetujui oleh verifikator pengadaan. Menunggu verifikasi tingkat 2 oleh Manager Pengadaan.',
                     'revision_notes' => null,
                     'auto_verified' => false,
                 ],

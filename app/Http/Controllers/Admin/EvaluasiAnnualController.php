@@ -60,11 +60,11 @@ class EvaluasiAnnualController extends Controller
 
             // Kalkulasi final score terbobot sesuai pengaturan
             $finalScore = ($avgDelivery * ($settings->weight_delivery / 100))
-                        + ($avgQuality * ($settings->weight_quality / 100))
-                        + ($avgQuantity * ($settings->weight_quantity / 100))
-                        + ($avgComplain * ($settings->weight_complain / 100))
-                        + ($avgIncoming * ($settings->weight_incoming_material / 100))
-                        + ($avgSafety * ($settings->weight_safety_environment / 100));
+                + ($avgQuality * ($settings->weight_quality / 100))
+                + ($avgQuantity * ($settings->weight_quantity / 100))
+                + ($avgComplain * ($settings->weight_complain / 100))
+                + ($avgIncoming * ($settings->weight_incoming_material / 100))
+                + ($avgSafety * ($settings->weight_safety_environment / 100));
 
             $finalScore = round($finalScore, 2);
 
@@ -137,7 +137,7 @@ class EvaluasiAnnualController extends Controller
     }
 
     /**
-     * Tahap 1 Approval: Verifikasi Evaluasi Tahunan oleh Manajer Pengadaan
+     * Tahap 1 Approval: Verifikasi Evaluasi Tahunan oleh Manager Pengadaan
      */
     public function verifyManager(Request $request, $id)
     {
@@ -151,7 +151,7 @@ class EvaluasiAnnualController extends Controller
 
         $vendorName = optional($annual->vendor)->name ?: 'Vendor';
 
-        return redirect()->back()->with('success', "Evaluasi Tahunan Vendor {$vendorName} berhasil diverifikasi oleh Manajer Pengadaan. Menunggu pengesahan GM.");
+        return redirect()->back()->with('success', "Evaluasi Tahunan Vendor {$vendorName} berhasil diverifikasi oleh Manager Pengadaan. Menunggu pengesahan GM.");
     }
 
     /**

@@ -10,7 +10,7 @@
     <div class="row mb-6">
         <x-dash-card :value="$totalApplicationsAll" label="Total Permohonan" icon="flaticon2-layers-1" type="primary" />
         <x-dash-card :value="$totalSubmittedAll ?? '—'" label="Verif Admin" icon="flaticon2-hourglass" type="info" />
-        <x-dash-card :value="$totalVerifiedAdminAll ?? '—'" label="Verif Manajer" icon="flaticon2-user-1" type="primary" />
+        <x-dash-card :value="$totalVerifiedAdminAll ?? '—'" label="Verif Manager" icon="flaticon2-user-1" type="primary" />
         <x-dash-card :value="$totalNeedRevisionAll" label="Perlu Revisi" icon="flaticon-warning" type="warning" />
         <x-dash-card :value="$totalVerifiedAll ?? '—'" label="Terverifikasi" icon="flaticon2-check-mark" type="success" />
     </div>
