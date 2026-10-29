@@ -201,6 +201,30 @@
             });
         });
 
+        function keepNavInView(link) {
+            const nav = link.closest('.vendor-profile-nav');
+            if (!nav) return;
+            if (window.innerWidth < 768) {
+                const navRect = nav.getBoundingClientRect();
+                const linkRect = link.getBoundingClientRect();
+                const currentScrollLeft = nav.scrollLeft;
+                const targetLeft = currentScrollLeft + (linkRect.left - navRect.left) - (nav.clientWidth / 2) + (link.clientWidth / 2);
+                nav.scrollTo({
+                    left: Math.max(0, targetLeft),
+                    behavior: 'smooth'
+                });
+            } else {
+                const navTop = nav.scrollTop;
+                const linkTop = link.offsetTop;
+                if (linkTop < navTop || linkTop > (navTop + nav.clientHeight - 40)) {
+                    nav.scrollTo({
+                        top: Math.max(0, linkTop - 50),
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }
+
         // Initialize Scrollspy for Sidebar Navigation
         const sections = document.querySelectorAll('.vendor-profile-section');
         const navLinks = document.querySelectorAll('.vendor-profile-nav a');
@@ -208,7 +232,7 @@
         if (sections.length > 0 && "IntersectionObserver" in window) {
             const observerOptions = {
                 root: null,
-                rootMargin: '-20% 0px -70% 0px',
+                rootMargin: '-15% 0px -65% 0px',
                 threshold: 0
             };
             
@@ -217,9 +241,12 @@
                     if (entry.isIntersecting) {
                         const id = entry.target.getAttribute('id');
                         navLinks.forEach(link => {
-                            link.classList.remove('active');
                             if (link.getAttribute('href') === '#' + id) {
-                                link.classList.add('active');
+                                if (!link.classList.contains('active')) {
+                                    navLinks.forEach(l => l.classList.remove('active'));
+                                    link.classList.add('active');
+                                    keepNavInView(link);
+                                }
                             }
                         });
                     }
@@ -229,6 +256,25 @@
             sections.forEach(section => observer.observe(section));
         }
 
-
+        // Smooth scroll and active state on nav link click
+        $('.vendor-profile-nav a').on('click', function(e) {
+            const targetId = $(this).attr('href');
+            if (targetId && targetId.startsWith('#')) {
+                const target = document.querySelector(targetId);
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    keepNavInView(this);
+                    if (history.pushState) {
+                        history.pushState(null, null, targetId);
+                    }
+                }
+            }
+        });
     });
 </script>

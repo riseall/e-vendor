@@ -1646,14 +1646,16 @@ div.bootstrap-select.form-control {
         padding: 1px 6px !important;
     }
 
-    /* 10. Sub-Navigasi Profil Vendor */
-    .vendor-profile-layout {
-        grid-template-columns: minmax(190px, 220px) minmax(0, 1fr) !important;
-        gap: 16px !important;
-    }
-    .vendor-profile-nav a {
-        font-size: 12px !important;
-        padding: 7px 14px !important;
+    /* 10. Sub-Navigasi Profil Vendor (Layar Tablet & Desktop / >= 768px) */
+    @media (min-width: 768px) {
+        .vendor-profile-layout {
+            grid-template-columns: minmax(190px, 220px) minmax(0, 1fr) !important;
+            gap: 16px !important;
+        }
+        .vendor-profile-nav a {
+            font-size: 12px !important;
+            padding: 7px 14px !important;
+        }
     }
 
     /* 11. Form Wizard Nav Bar (Universal seluruh step) */

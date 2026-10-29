@@ -1,7 +1,6 @@
 @extends('layouts.app', ['title' => __('vendor_registration_profile')])
 
 @push('style')
-    <link href="{{ asset('css/wizard-4.css') }}" rel="stylesheet" type="text/css" />
     @include('admin.registrasi.partials.profile.styles')
 @endpush
 
@@ -28,18 +27,18 @@
             <div class="d-flex align-items-center justify-content-end flex-wrap mt-3" style="gap: 8px;">
                 <a href="{{ route('registrasi.tracking', $application->application_number) }}"
                     class="btn btn-primary btn-sm font-weight-bold">
-                    <i class="flaticon2-search-1"></i> {{ __('view_tracking') }}
+                    <i class="fas fa-search mr-1"></i> {{ __('view_tracking') }}
                 </a>
 
                 @if ($application->status === \App\Models\VendorApplication::STATUS_APPROVED)
                     @if (!empty($isEditMode))
                         <a href="{{ route('registrasi.index') }}" class="btn btn-danger btn-sm font-weight-bold">
-                            <i class="fas fa-angle-left"></i> {{ __('back') }}
+                            <i class="fas fa-angle-left mr-1"></i> {{ __('back') }}
                         </a>
                     @else
                         <a href="{{ route('registrasi.index', ['edit' => 1]) }}"
                             class="btn btn-warning btn-sm font-weight-bold">
-                            <i class="fas fa-edit"></i> {{ __('edit_data') }}
+                            <i class="fas fa-edit mr-1"></i> {{ __('edit_data') }}
                         </a>
                     @endif
                 @endif
@@ -92,7 +91,7 @@
 
     @if ($isRevisionMode)
         <div class="alert alert-custom alert-light-warning mb-6" role="alert">
-            <div class="alert-icon"><i class="flaticon-warning text-warning"></i></div>
+            <div class="alert-icon"><i class="fas fa-exclamation-triangle text-warning"></i></div>
             <div class="alert-text">
                 <div class="font-weight-bold text-dark mb-1">{{ __('application_needs_correction') }}</div>
                 {!! __('revision_notes_count_desc', ['count' => count($revisionNotes)]) !!}
@@ -100,7 +99,7 @@
                     <div class="mt-2"><strong>{{ __('general_note_colon') }}</strong> {{ $draft['admin_note'] }}</div>
                 @endif
                 <button type="button" id="btn-first-revision" class="btn btn-sm btn-warning font-weight-bold mt-3">
-                    <i class="flaticon2-arrow-down"></i> {{ __('view_first_revision') }}
+                    <i class="fas fa-arrow-down mr-1"></i> {{ __('view_first_revision') }}
                 </button>
             </div>
         </div>
@@ -108,26 +107,52 @@
 
     <div class="vendor-profile-layout">
         <aside class="vendor-profile-nav">
-            <div class="vendor-profile-nav-title">{{ __('registration_data') }}</div>
-            <a href="#profil-perusahaan">{{ __('company_profile') }}</a>
-            <a href="#pembayaran">{{ __('payment') }}</a>
-            <a href="#komitmen">{{ __('commitment_and_certification') }}</a>
-            <a href="#informasi-lain">{{ __('other_info') }}</a>
-            <a href="#vendor-lokal">{{ __('local_vendor_data') }}</a>
-            <a href="#produk">{{ __('product_list') }}</a>
-            <a href="#dokumen">{{ __('document') }}</a>
+            <div class="vendor-profile-nav-title">
+                <i class="fas fa-list-ul mr-1 text-primary"></i> {{ __('registration_data') }}
+            </div>
+            <a href="#profil-perusahaan" class="active">
+                <i class="fas fa-building nav-icon"></i>
+                <span class="nav-text">{{ __('company_profile') }}</span>
+            </a>
+            <a href="#pembayaran">
+                <i class="fas fa-credit-card nav-icon"></i>
+                <span class="nav-text">{{ __('payment') }}</span>
+            </a>
+            <a href="#komitmen">
+                <i class="fas fa-certificate nav-icon"></i>
+                <span class="nav-text">{{ __('commitment_and_certification') }}</span>
+            </a>
+            <a href="#informasi-lain">
+                <i class="fas fa-info-circle nav-icon"></i>
+                <span class="nav-text">{{ __('other_info') }}</span>
+            </a>
+            <a href="#vendor-lokal">
+                <i class="fas fa-map-marker-alt nav-icon"></i>
+                <span class="nav-text">{{ __('local_vendor_data') }}</span>
+            </a>
+            <a href="#produk">
+                <i class="fas fa-boxes nav-icon"></i>
+                <span class="nav-text">{{ __('product_list') }}</span>
+            </a>
+            <a href="#dokumen">
+                <i class="fas fa-file-alt nav-icon"></i>
+                <span class="nav-text">{{ __('document') }}</span>
+            </a>
             @foreach ($selectedCategorySections as $categorySection)
                 <a href="#kategori-{{ $categorySection['id'] }}" title="{{ $categorySection['label'] }}">
-                    {{ $categorySection['label'] }}
+                    <i class="fas fa-tag nav-icon"></i>
+                    <span class="nav-text">{{ $categorySection['label'] }}</span>
                 </a>
             @endforeach
         </aside>
 
         <main class="vendor-profile-content">
             <div class="vendor-profile-categories">
-                <span class="font-weight-bold text-dark mr-2">{{ __('registered_categories_colon') }}</span>
+                <span class="font-weight-bold text-dark mr-2">
+                    <i class="fas fa-tags text-primary mr-1"></i> {{ __('registered_categories_colon') }}
+                </span>
                 @foreach ($selectedCategoryLabels as $categoryLabel)
-                    <span class="label label-light-primary label-inline mb-1">{{ $categoryLabel }}</span>
+                    <span class="label label-light-primary label-inline font-weight-bold mb-1">{{ $categoryLabel }}</span>
                 @endforeach
             </div>
 
@@ -177,7 +202,7 @@
                             <div class="text-muted font-size-sm">{{ __('ensure_all_revisions_addressed') }}</div>
                         </div>
                         <button type="button" id="btn-submit-revision" class="btn btn-primary font-weight-bold">
-                            <i class="flaticon2-paper-plane"></i> {{ __('resubmit_revision') }}
+                            <i class="fas fa-paper-plane mr-1"></i> {{ __('resubmit_revision') }}
                         </button>
                     </div>
                 @elseif (!empty($isEditMode))
@@ -188,11 +213,11 @@
                         </div>
                         <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
                             <a href="{{ route('registrasi.index') }}" class="btn btn-sm btn-danger font-weight-bold">
-                                <i class="fas fa-angle-left"></i> {{ __('back') }}
+                                <i class="fas fa-angle-left mr-1"></i> {{ __('back') }}
                             </a>
                             <button type="button" id="btn-submit-rekualifikasi"
                                 class="btn btn-sm btn-primary font-weight-bold">
-                                <i class="flaticon2-paper-plane"></i> {{ __('save_changes') }}
+                                <i class="fas fa-paper-plane mr-1"></i> {{ __('save_changes') }}
                             </button>
                         </div>
                     </div>
