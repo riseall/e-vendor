@@ -125,7 +125,7 @@
                                 @if ($item->note)
                                     <div class="rejection-note">
                                         <div class="rejection-note-icon">
-                                            <i class="flaticon2-delete"></i>
+                                            <i class="flaticon2-delete icon-sm"></i>
                                         </div>
                                         <div class="rejection-note-text">
                                             <span style="font-weight:700;">
@@ -317,16 +317,16 @@
                                                                                     data-url="{{ $url }}"
                                                                                     data-title="{{ $doc['title'] }} - {{ $product['product'] ?? 'Produk' }}"
                                                                                     title="Lihat {{ $doc['title'] }}">
-                                                                                    <i
-                                                                                        class="{{ $doc['icon'] }} mr-1" style="font-size: 0.72rem;"></i>{{ $doc['label'] }}
+                                                                                    <i class="{{ $doc['icon'] }} mr-1"
+                                                                                        style="font-size: 0.72rem;"></i>{{ $doc['label'] }}
                                                                                 </button>
                                                                             @else
                                                                                 <button type="button"
                                                                                     class="btn btn-xs {{ $doc['class'] }} font-weight-bold btn-preview-doc disabled"
                                                                                     disabled
                                                                                     title="{{ $doc['title'] }} (Belum dilampirkan)">
-                                                                                    <i
-                                                                                        class="{{ $doc['icon'] }} mr-1" style="font-size: 0.72rem;"></i>{{ $doc['label'] }}
+                                                                                    <i class="{{ $doc['icon'] }} mr-1"
+                                                                                        style="font-size: 0.72rem;"></i>{{ $doc['label'] }}
                                                                                 </button>
                                                                             @endif
                                                                         @endforeach

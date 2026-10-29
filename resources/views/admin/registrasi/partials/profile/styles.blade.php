@@ -137,7 +137,7 @@
 
     .has-revision.form-group,
     .has-revision.doc-item,
-    .revision-field-highlight:not(.question-wrapper) {
+    .revision-field-highlight:not(.question-wrapper):not(tr) {
         position: relative;
         padding: 12px;
         background: #fffbea;
@@ -152,10 +152,29 @@
         border: 1px solid #dc3545 !important;
     }
 
+    /* Table row revision styling (Avoid ::before on tr to prevent browser creating an anonymous table cell) */
+    tr.has-revision td,
+    tr.revision-field-highlight td {
+        background-color: #fffbea !important;
+        border-top: 1px solid #dc3545 !important;
+        border-bottom: 1px solid #dc3545 !important;
+    }
+
+    tr.has-revision td:first-child,
+    tr.revision-field-highlight td:first-child {
+        border-left: 4px solid #dc3545 !important;
+    }
+
+    tr.has-revision td:last-child,
+    tr.revision-field-highlight td:last-child {
+        border-right: 1px solid #dc3545 !important;
+    }
+
     .has-revision.form-group::before,
     .has-revision.doc-item::before,
     .has-revision.question-wrapper::before,
-    .revision-field-highlight::before {
+    .has-revision:not(tr)::before,
+    .revision-field-highlight:not(tr)::before {
         position: absolute;
         top: 0;
         left: 0;
@@ -166,8 +185,8 @@
         border-radius: 4px 0 0 4px;
     }
 
-    .has-revision,
-    .revision-field-highlight,
+    .has-revision:not(tr),
+    .revision-field-highlight:not(tr),
     .revision-field-highlight .custom-file-label,
     .revision-field-highlight .bootstrap-select>.dropdown-toggle {
         border-color: #dc3545 !important;
