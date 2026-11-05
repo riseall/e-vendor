@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\VendorApplication;
 use App\Models\VendorApplicationActivityLog;
 use App\Services\VendorApplicationNotificationService;
+use App\Services\VendorRequalificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,13 +14,13 @@ class VendorRekualifikasiController extends Controller
     /**
      * Initiate Vendor Requalification via Edit Profile / Data button (Vendor Trigger).
      */
-    public function initiate(Request $request)
+    public function initiate(Request $request, VendorRequalificationService $requalificationService)
     {
         $user = Auth::user();
 
         $latestApproved = VendorApplication::where('user_id', $user->id)
             ->where('status', VendorApplication::STATUS_APPROVED)
-            ->latest()
+            ->latest('approved_at')
             ->first();
 
         if (!$latestApproved) {
@@ -27,19 +28,21 @@ class VendorRekualifikasiController extends Controller
                 ->with('error', __('Pembaruan profil/rekualifikasi hanya dapat dilakukan jika Anda sudah memiliki permohonan yang disetujui (Approved).'));
         }
 
-        $latestApproved->update([
-            'type'                   => VendorApplication::TYPE_REKUALIFIKASI,
-            'requalification_reason' => VendorApplication::REASON_VENDOR_INITIATIVE,
-        ]);
+        $requalificationService->createRequalificationDraft(
+            $latestApproved,
+            VendorApplication::REASON_VENDOR_INITIATIVE,
+            'Inisiatif Vendor (Edit Profil)',
+            $user->id
+        );
 
-        return redirect()->route('registrasi.index', ['edit' => 1])
-            ->with('info', __('Anda memasuki mode Edit Profil (Rekualifikasi). Silakan ubah data yang diperlukan lalu klik Kirim Rekualifikasi, atau klik Batal jika tidak ada perubahan.'));
+        return redirect()->route('registrasi.index')
+            ->with('info', __('Anda memasuki mode Pembaruan Profil (Rekualifikasi). Silakan ubah data yang diperlukan lalu klik Kirim Rekualifikasi, atau klik Batal jika tidak ada perubahan.'));
     }
 
     /**
      * Trigger Requalification by Admin/QA for an approved application.
      */
-    public function triggerByAdmin(Request $request, $applicationId)
+    public function triggerByAdmin(Request $request, $applicationId, VendorRequalificationService $requalificationService)
     {
         $application = VendorApplication::findOrFail($applicationId);
 
@@ -48,31 +51,24 @@ class VendorRekualifikasiController extends Controller
                 ->with('error', __('Rekualifikasi hanya dapat dipicu untuk permohonan berstatus Approved.'));
         }
 
+        $request->validate([
+            'note' => 'required|string|max:1000',
+        ], [
+            'note.required' => 'Catatan / alasan pemicuan rekualifikasi manual wajib diisi.',
+        ]);
+
         $reason = $request->input('reason', VendorApplication::REASON_QA_TRIGGER);
-        $application->update([
-            'type'                   => VendorApplication::TYPE_REKUALIFIKASI,
-            'requalification_reason' => $reason,
-        ]);
-        if ($application->qualification) {
-            $application->qualification()->delete();
-        }
+        $adminNote = $request->input('note');
 
-        VendorApplicationActivityLog::create([
-            'application_id' => $application->id,
-            'user_id'        => Auth::id(),
-            'action'         => 'REQUEST_REKUALIFIKASI_ADMIN',
-            'status_before'  => VendorApplication::STATUS_APPROVED,
-            'status_after'   => VendorApplication::STATUS_APPROVED,
-            'ip_address'     => $request->ip(),
-            'metadata'       => [
-                'reason' => $reason,
-            ],
-        ]);
-
-        app(VendorApplicationNotificationService::class)->requalificationTriggered($application, $reason);
+        $requalificationService->createRequalificationDraft(
+            $application,
+            $reason,
+            $adminNote,
+            Auth::id()
+        );
 
         return redirect()->back()
-            ->with('success', __('Permintaan Rekualifikasi berhasil dikirimkan ke Vendor. Vendor dapat mengubah profil melalui halaman Registrasi/Profil.'));
+            ->with('success', __('Permintaan Rekualifikasi berhasil dibuat dan notifikasi telah dikirimkan ke Vendor.'));
     }
 
     /**

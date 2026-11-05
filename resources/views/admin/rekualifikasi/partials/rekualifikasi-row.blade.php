@@ -17,9 +17,9 @@
 
     $statusMap = [
         'draft' => [
-            'label' => 'Draft',
+            'label' => 'Draf (Belum Dikirim)',
             'class' => 'vnd-status--warning',
-            'icon' => 'fas fa-hourglass-half text-warning',
+            'icon' => 'fas fa-pencil-alt text-warning',
         ],
         'submitted' => [
             'label' => 'Menunggu Verifikasi',

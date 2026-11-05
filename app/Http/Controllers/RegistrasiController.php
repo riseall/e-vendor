@@ -230,7 +230,7 @@ class RegistrasiController extends Controller
 
         $this->validateFinalSubmission($application);
         $isRevisionSubmit = $application->status === VendorApplication::STATUS_NEED_REVISION;
-        $isRequalificationSubmit = $application->status === VendorApplication::STATUS_APPROVED;
+        $isRequalificationSubmit = $application->isRekualifikasi() || $application->status === VendorApplication::STATUS_APPROVED;
         $revisionNotesSnapshot = $application->revision_notes;
 
         DB::transaction(function () use (
@@ -259,7 +259,7 @@ class RegistrasiController extends Controller
                 $updatePayload['type'] = VendorApplication::TYPE_REKUALIFIKASI;
                 $updatePayload['requalification_reason'] = $application->requalification_reason ?: VendorApplication::REASON_VENDOR_INITIATIVE;
                 if ($application->qualification) {
-                    $application->qualification()->delete();
+                    // Retained for audit trail
                 }
             }
 

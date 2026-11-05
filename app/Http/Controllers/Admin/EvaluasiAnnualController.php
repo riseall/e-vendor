@@ -256,21 +256,25 @@ class EvaluasiAnnualController extends Controller
         $action = $request->input('action_type'); // rekualifikasi, terminated, suspended, qualified_with_notes
 
         if ($action === 'rekualifikasi') {
-            // Buat draft rekualifikasi di vendor_applications
             $latestApp = VendorApplication::where('user_id', $annual->vendor_id)
-                ->orderBy('id', 'desc')
+                ->where('status', VendorApplication::STATUS_APPROVED)
+                ->latest('approved_at')
                 ->first();
 
-            $newApp = new VendorApplication();
-            $newApp->user_id = $annual->vendor_id;
-            $newApp->type = VendorApplication::TYPE_REKUALIFIKASI;
-            $newApp->parent_id = $latestApp ? $latestApp->id : null;
-            $newApp->requalification_reason = VendorApplication::REASON_EVALUATION_DROP;
-            $newApp->application_number = 'REK-' . date('Ym') . '-' . sprintf('%04d', mt_rand(1, 9999));
-            $newApp->status = VendorApplication::STATUS_DRAFT;
-            $newApp->current_step = 1;
-            $newApp->admin_note = "Triggered dari Evaluasi Tahunan {$annual->year} (Skor: {$annual->final_score})";
-            $newApp->save();
+            if (!$latestApp) {
+                $latestApp = VendorApplication::where('user_id', $annual->vendor_id)
+                    ->orderBy('id', 'desc')
+                    ->first();
+            }
+
+            if ($latestApp) {
+                app(\App\Services\VendorRequalificationService::class)->createRequalificationDraft(
+                    $latestApp,
+                    VendorApplication::REASON_EVALUATION_DROP,
+                    "Triggered dari Evaluasi Tahunan {$annual->year} (Skor: {$annual->final_score})",
+                    Auth::id()
+                );
+            }
 
             $annual->decision_status = 'rekualifikasi_triggered';
             $annual->save();

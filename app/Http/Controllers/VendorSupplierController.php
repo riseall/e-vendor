@@ -18,7 +18,10 @@ class VendorSupplierController extends Controller
         $search = trim((string) $request->input('q', ''));
 
         $query = VendorApplication::where('status', VendorApplication::STATUS_APPROVED)
-            ->with(['user', 'general', 'categories', 'qualification']);
+            ->whereDoesntHave('rekualifikasiChildren', function ($q) {
+                $q->where('status', VendorApplication::STATUS_APPROVED);
+            })
+            ->with(['user', 'general', 'categories', 'qualification', 'rekualifikasiChildren']);
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {

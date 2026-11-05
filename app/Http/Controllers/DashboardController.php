@@ -66,7 +66,7 @@ class DashboardController extends Controller
     {
         // ── 1. SUPPLIER OVERVIEW KPI ────────────────────────────────────
         $totalSupplier = VendorApplication::whereNotNull('application_number')->count();
-        $approvedSupplier = VendorApplication::where('status', VendorApplication::STATUS_APPROVED)->count();
+        $approvedSupplier = VendorApplication::where('status', VendorApplication::STATUS_APPROVED)->distinct('user_id')->count('user_id');
         $underQualification = VendorApplication::whereIn('status', [
             VendorApplication::STATUS_SUBMITTED,
             VendorApplication::STATUS_VERIFIED_ADMIN,
@@ -504,8 +504,20 @@ class DashboardController extends Controller
         $validityStatus = 'none';
         $validUntilDisplay = '-';
 
-        if ($application && $application->valid_until) {
-            $validUntil = Carbon::parse($application->valid_until);
+        $validUntilDate = ($application && $application->valid_until) ? $application->valid_until : null;
+        if (!$validUntilDate && $user) {
+            $latestApproved = VendorApplication::where('user_id', $user->id)
+                ->where('status', VendorApplication::STATUS_APPROVED)
+                ->whereNotNull('valid_until')
+                ->latest('approved_at')
+                ->first();
+            if ($latestApproved) {
+                $validUntilDate = $latestApproved->valid_until;
+            }
+        }
+
+        if ($validUntilDate) {
+            $validUntil = Carbon::parse($validUntilDate);
             $validUntilDisplay = $validUntil->format('d M Y');
             $daysUntilExpiry = (int) $today->diffInDays($validUntil, false);
 

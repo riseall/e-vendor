@@ -79,7 +79,7 @@
                     @csrf
                     <div class="modal-header border-bottom py-4 px-6">
                         <h5 class="modal-title font-weight-bolder text-dark" id="modalTriggerRekualifikasiTitle">
-                            <i class="fas fa-redo text-warning mr-2" style="font-size:1rem;"></i> Picu Rekualifikasi Vendor
+                            <i class="fas fa-redo text-warning mr-2" style="font-size:1rem;"></i> Picu Rekualifikasi Manual
                         </h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <i aria-hidden="true" class="ki ki-close"></i>
@@ -91,19 +91,20 @@
                             <div class="alert-text font-size-sm">
                                 Anda akan memicu permohonan rekualifikasi manual untuk <strong
                                     id="modalVendorNameTarget">-</strong>.
+                                <div class="text-muted mt-1 font-size-xs">
+                                    Catatan: Rekualifikasi berkala karena masa berlaku habis (&le; 60 hari) atau sertifikat CDOB kedaluwarsa sudah diproses otomatis oleh sistem. Form ini khusus untuk diskresi darurat / temuan investigasi mutu.
+                                </div>
                             </div>
                         </div>
 
+                        <input type="hidden" name="reason" value="qa_trigger">
+
                         <div class="form-group mb-0">
-                            <label class="font-weight-bolder text-dark">Alasan / Pemicu Rekualifikasi: <span
+                            <label class="font-weight-bolder text-dark">Alasan / Catatan Penjelasan: <span
                                     class="text-danger">*</span></label>
-                            <select name="reason" id="select_rekualifikasi_reason" class="form-control selectpicker"
-                                required>
-                                <option value="qa_trigger">Permintaan Tim Pengadaan / QA (QA Trigger)</option>
-                                <option value="expired_period">Masa Berlaku Kadaluarsa (&le; 60 Hari)</option>
-                                <option value="cdob_expiry">Masa Berlaku Sertifikat CDOB Kadaluarsa</option>
-                                <option value="eval_score_drop">Penurunan Skor Evaluasi Kinerja</option>
-                            </select>
+                            <textarea name="note" id="input_rekualifikasi_note" class="form-control" rows="3"
+                                placeholder="Contoh: Permintaan audit ulang akibat temuan deviasi kritis pada batch produk atau investigasi mutu BPOM..." required></textarea>
+                            <span class="form-text text-muted font-size-xs">Catatan ini akan dikirimkan langsung ke email vendor dan tampil pada draf profil mereka.</span>
                         </div>
                     </div>
                     <div class="modal-footer border-top py-3 px-6">
@@ -259,6 +260,7 @@
                 var vendorName = $btn.data('vendor-name') || 'vendor ini';
 
                 $('#modalVendorNameTarget').text(vendorName);
+                $('#input_rekualifikasi_note').val('');
                 $('#formTriggerRekualifikasi').attr('action', actionUrl);
                 $('#modalTriggerRekualifikasi').modal('show');
             });

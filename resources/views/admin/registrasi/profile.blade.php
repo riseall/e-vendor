@@ -46,11 +46,7 @@
         </div>
     </div>
 
-    @if (
-        $application->status === \App\Models\VendorApplication::STATUS_APPROVED &&
-            $application->requalification_reason &&
-            !$application->qualification &&
-            empty($isEditMode))
+    @if ($application->isRekualifikasi() && $application->requalification_reason)
         @php
             $reasonKey = 'reason_' . $application->requalification_reason . '_label';
             $reasonTrans = __($reasonKey);
@@ -62,19 +58,15 @@
         @endphp
         <div class="alert alert-custom alert-light-warning mb-6 shadow-sm" role="alert"
             style="border-left: 4px solid #f59e0b;">
-            <div class="alert-icon"><i class="fas fa-exclamation-triangle text-warning" style="font-size:1.5rem;"></i></div>
+            <div class="alert-icon"><i class="fas fa-redo text-warning" style="font-size:1.5rem;"></i></div>
             <div class="alert-text">
                 <div class="font-weight-bolder text-dark font-size-h6 mb-1">
-                    <i class="fas fa-redo text-warning mr-1"></i> {{ __('data_update_request') }}
+                    {{ __('data_update_request') }} (Rekualifikasi)
                 </div>
-                <div class="text-dark-75 mb-2">
+                <div class="text-dark-75">
                     {{ __('data_update_request_desc') }}
                     <strong class="text-warning font-weight-bold">{{ $reasonText }}</strong>.
                 </div>
-                <a href="{{ route('registrasi.index', ['edit' => 1]) }}"
-                    class="btn btn-warning font-weight-bold btn-sm px-4">
-                    <i class="fas fa-edit mr-1"></i> {{ __('start_update_data') }}
-                </a>
             </div>
         </div>
     @endif

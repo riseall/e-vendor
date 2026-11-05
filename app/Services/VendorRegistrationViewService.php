@@ -53,7 +53,8 @@ class VendorRegistrationViewService
 
     public function currentApplication(User $user): ?VendorApplication
     {
-        return VendorApplication::query()
+        // 1. Prioritaskan permohonan yang sedang aktif/berjalan (misal draft/submitted rekualifikasi)
+        $activeApp = VendorApplication::query()
             ->where('user_id', $user->id)
             ->whereIn('status', [
                 VendorApplication::STATUS_DRAFT,
@@ -64,11 +65,20 @@ class VendorRegistrationViewService
                 VendorApplication::STATUS_RISK_ASSESSED,
                 VendorApplication::STATUS_AUDIT_REQUIRED,
                 VendorApplication::STATUS_ON_HOLD,
-                VendorApplication::STATUS_APPROVED,
-                VendorApplication::STATUS_REJECTED,
             ])
             ->with(self::RELATIONS)
-            ->latest()
+            ->latest('id')
+            ->first();
+
+        if ($activeApp) {
+            return $activeApp;
+        }
+
+        // 2. Fallback: permohonan terkini (approved/rejected)
+        return VendorApplication::query()
+            ->where('user_id', $user->id)
+            ->with(self::RELATIONS)
+            ->latest('id')
             ->first();
     }
 
@@ -78,7 +88,13 @@ class VendorRegistrationViewService
         $revisionNotes = $this->revisionNotes($application);
         $selectedCategories = $application ? $application->getCategoryIds() : [];
 
-        $isEditMode = request()->boolean('edit') && $status === VendorApplication::STATUS_APPROVED;
+        $isRekualifikasiDraft = $application && $application->isRekualifikasi() && in_array($status, [
+            VendorApplication::STATUS_DRAFT,
+            VendorApplication::STATUS_NEED_REVISION,
+        ], true);
+
+        $isEditMode = (request()->boolean('edit') && $status === VendorApplication::STATUS_APPROVED) || $isRekualifikasiDraft;
+        $isProfileMode = ($application && $status !== VendorApplication::STATUS_DRAFT) || $isRekualifikasiDraft;
 
         return [
             'application' => $application,
@@ -86,7 +102,7 @@ class VendorRegistrationViewService
             'draftStep' => optional($application)->current_step ?: 1,
             'applicationId' => optional($application)->id,
             'applicationStatus' => $status,
-            'isProfileMode' => $application && $status !== VendorApplication::STATUS_DRAFT,
+            'isProfileMode' => $isProfileMode,
             'isEditMode' => $isEditMode,
             'isReadOnly' => in_array($status, [
                 VendorApplication::STATUS_SUBMITTED,
