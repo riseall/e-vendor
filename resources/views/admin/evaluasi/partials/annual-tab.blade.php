@@ -1,27 +1,26 @@
 <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap">
     <div>
         <h5 class="font-weight-bolder text-dark mb-1">
-            <i class="fas fa-award text-warning mr-2"></i>Pengesahan Evaluasi Tahunan (Tahun {{ $year }})
+            <i class="fas fa-award text-primary mr-2"></i>Pengesahan Evaluasi Tahunan (Tahun {{ $year }})
         </h5>
         <span class="text-muted font-size-sm">
-            Alur Pengesahan 2 Tingkat: <strong>Verifikasi Manager Pengadaan</strong> &rarr; <strong>Pengesahan GM
-                Pengadaan</strong>. Laporan evaluasi otomatis terkirim ke vendor setelah disahkan GM.
+            Laporan evaluasi otomatis terkirim ke vendor setelah disahkan GM.
         </span>
     </div>
 </div>
 
 <div class="table-responsive">
-    <table class="table tbl-vendor table-bordered table-hover w-100" id="tableAnnual">
+    <table class="table tbl-vendor table-borderless table-hover w-100" id="tableAnnual">
         <thead>
             <tr>
-                <th width="50" class="text-center" style="min-width: 45px;">No</th>
+                <th width="45" class="text-center" style="min-width: 40px;">No</th>
                 <th style="min-width: 220px;">Nama Vendor</th>
-                <th class="text-center" style="min-width: 200px;">Rata-rata QAD</th>
-                <th width="100" class="text-center" style="min-width: 90px;">Skor Akhir</th>
-                <th width="110" class="text-center" style="min-width: 100px;">Kategori</th>
-                <th width="140" class="text-center" style="min-width: 130px;">Status Approval</th>
-                <th width="140" class="text-center" style="min-width: 130px;">Alert Peringatan</th>
-                <th width="150" class="text-center" style="min-width: 140px;">Aksi Management</th>
+                <th class="text-center" style="min-width: 260px;">Rincian Aspek (QAD & QA)</th>
+                <th width="95" class="text-center" style="min-width: 85px;">Skor Akhir</th>
+                <th width="105" class="text-center" style="min-width: 95px;">Kategori</th>
+                <th width="150" class="text-center" style="min-width: 140px;">Status Approval</th>
+                <th width="130" class="text-center" style="min-width: 120px;">Alert Peringatan</th>
+                <th width="145" class="text-center" style="min-width: 135px;">Aksi Management</th>
             </tr>
         </thead>
         <tbody>
@@ -57,26 +56,29 @@
                         </div>
                     </td>
                     <td class="text-center align-middle">
+                        <div class="d-flex align-items-center justify-content-center flex-wrap mb-1" style="gap: 4px;">
+                            <span class="vnd-chip-score" title="Ketepatan Pengiriman (Delivery)">
+                                <span class="vnd-chip-lbl">Del</span>{{ number_format($ann->delivery_score_avg, 2) }}
+                            </span>
+                            <span class="vnd-chip-score" title="Kualitas Mutu (Quality)">
+                                <span class="vnd-chip-lbl">Qual</span>{{ number_format($ann->quality_score_avg, 2) }}
+                            </span>
+                            <span class="vnd-chip-score" title="Kesesuaian Jumlah (Quantity)">
+                                <span class="vnd-chip-lbl">Qty</span>{{ number_format($ann->quantity_score_avg, 2) }}
+                            </span>
+                        </div>
                         <div class="d-flex align-items-center justify-content-center flex-wrap" style="gap: 4px;">
-                            <span class="badge badge-light-primary font-weight-bold px-2 py-1"
-                                title="Ketepatan Pengiriman">Del:
-                                {{ number_format($ann->delivery_score_avg, 2) }}</span>
-                            <span class="badge badge-light-primary font-weight-bold px-2 py-1"
-                                title="Kualitas Mutu">Qual: {{ number_format($ann->quality_score_avg, 2) }}</span>
-                            <span class="badge badge-light-primary font-weight-bold px-2 py-1"
-                                title="Kesesuaian Jumlah">Qty: {{ number_format($ann->quantity_score_avg, 2) }}</span>
-                            {{-- </div>
-                    </td>
-                    <td class="text-center align-middle">
-                        <div class="d-flex align-items-center justify-content-center flex-wrap" style="gap: 4px;"> --}}
-                            <span class="badge badge-light-warning font-weight-bold px-2 py-1"
-                                title="Komplain Mutu">Comp: {{ number_format($ann->complain_score_avg, 2) }}</span>
-                            <span class="badge badge-light-warning font-weight-bold px-2 py-1"
-                                title="Material Masuk">Inc:
-                                {{ number_format($ann->incoming_material_score_avg, 2) }}</span>
-                            <span class="badge badge-light-warning font-weight-bold px-2 py-1"
-                                title="K3 & Lingkungan">Safe:
-                                {{ number_format($ann->safety_environment_score_avg, 2) }}</span>
+                            <span class="vnd-chip-score vnd-chip-score--qa" title="Komplain Mutu (Complain)">
+                                <span class="vnd-chip-lbl">Comp</span>{{ number_format($ann->complain_score_avg, 2) }}
+                            </span>
+                            <span class="vnd-chip-score vnd-chip-score--qa" title="Material Masuk (Incoming)">
+                                <span
+                                    class="vnd-chip-lbl">Inc</span>{{ number_format($ann->incoming_material_score_avg, 2) }}
+                            </span>
+                            <span class="vnd-chip-score vnd-chip-score--qa" title="K3 & Lingkungan (Safety/Env)">
+                                <span
+                                    class="vnd-chip-lbl">Safe</span>{{ number_format($ann->safety_environment_score_avg, 2) }}
+                            </span>
                         </div>
                     </td>
                     <td class="text-center align-middle font-weight-bolder text-primary vnd-score font-size-h6">
@@ -93,7 +95,7 @@
                     </td>
                     <td class="text-center align-middle">
                         @if ($ann->status == 'approved')
-                            <span class="badge badge-light-success font-weight-bolder px-2 py-1"
+                            <span class="badge badge-light-success font-weight-bolder px-2.5 py-1"
                                 title="Disahkan oleh GM Pengadaan">
                                 <i class="fas fa-check-double text-success mr-1"></i>DISAHKAN (GM)
                             </span>
@@ -104,11 +106,11 @@
                                         class="fas fa-user-check text-muted mr-1"></i>{{ \Illuminate\Support\Str::limit(optional($ann->gmApprover)->name ?: optional($ann->approver)->name, 16) }}
                                 </div>
                             @endif
-                            <div class="text-muted font-size-xs mt-1">
+                            <div class="text-muted font-size-xs mt-0.5">
                                 {{ ($ann->gm_approved_at ?: $ann->approved_at) ? ($ann->gm_approved_at ?: $ann->approved_at)->format('d/m/Y H:i') : '' }}
                             </div>
                         @elseif ($ann->status == 'verified_manager')
-                            <span class="badge badge-light-primary font-weight-bolder px-2 py-1"
+                            <span class="badge badge-light-primary font-weight-bolder px-2.5 py-1"
                                 title="Diverifikasi Manager Pengadaan - Menunggu GM">
                                 <i class="fas fa-check text-primary mr-1"></i>VERIFIED (MGR)
                             </span>
@@ -122,7 +124,7 @@
                                 <i class="fas fa-hourglass-half text-warning mr-1"></i>Menunggu GM
                             </div>
                         @else
-                            <span class="badge badge-light-warning font-weight-bolder px-2 py-1">
+                            <span class="badge badge-light-warning font-weight-bolder px-2.5 py-1">
                                 <i class="fas fa-clock text-warning mr-1"></i>MENUNGGU MGR
                             </span>
                             <div class="text-muted font-size-xs mt-1">Belum diverifikasi</div>
@@ -130,20 +132,20 @@
                     </td>
                     <td class="text-center align-middle">
                         @if ($ann->has_score_drop_alert)
-                            <span class="badge badge-danger font-weight-bold mb-1 d-inline-block px-2 py-1"
+                            <span class="badge badge-light-danger font-weight-bold mb-1 d-inline-block px-2.5 py-1"
                                 title="Skor turun >= 20% dari tahun lalu">
-                                <i class="fas fa-arrow-down mr-1"></i>DROP SKOR &ge; 20%
+                                <i class="fas fa-arrow-down text-danger mr-1"></i>DROP SKOR &ge; 20%
                             </span>
                         @endif
                         @if ($ann->has_consecutive_low_alert)
-                            <span class="badge badge-dark font-weight-bold d-inline-block px-2 py-1 mb-1"
+                            <span class="badge badge-light-dark font-weight-bold d-inline-block px-2.5 py-1 mb-1"
                                 title="Predikat KURANG 2 tahun berturut-turut">
                                 <i class="fas fa-exclamation-triangle text-warning mr-1"></i>2 THN KURANG
                             </span>
                         @endif
                         @if (!$ann->has_score_drop_alert && !$ann->has_consecutive_low_alert)
-                            <span class="badge badge-light-success font-weight-bold px-2 py-1">
-                                <i class="fas fa-check text-success mr-1"></i>Normal
+                            <span class="text-muted font-size-sm">
+                                <i class="fas fa-minus-circle text-muted mr-1"></i>Normal
                             </span>
                         @endif
 
@@ -157,7 +159,7 @@
                     </td>
                     <td class="text-center align-middle">
                         @if ($ann->status == 'approved')
-                            <span class="badge badge-light-success font-weight-bold mb-1">
+                            <span class="badge badge-light-success font-weight-bold mb-1 px-2.5 py-1">
                                 <i class="fas fa-check-double text-success mr-1"></i>Disahkan
                             </span>
                         @elseif ($ann->status == 'verified_manager')
@@ -165,29 +167,31 @@
                                 <form action="{{ route('admin.evaluasi.annual.approve-gm', $ann->id) }}" method="POST"
                                     class="d-inline">
                                     @csrf
-                                    <button type="submit" class="btn btn-xs btn-success font-weight-bold mb-1"
+                                    <button type="submit"
+                                        class="btn btn-xs btn-light-success font-weight-bolder mb-1 px-3"
                                         onclick="return confirm('Sahkan (Final Approve) evaluasi tahunan vendor {{ $vName }} sebagai GM Pengadaan? Laporan akan otomatis terkirim ke vendor.')">
-                                        <i class="fas fa-file-signature mr-1"></i>Sahkan (GM)
+                                        <i class="fas fa-file-signature text-success mr-1"></i>Sahkan (GM)
                                     </button>
                                 </form>
                             @else
-                                <span class="badge badge-light-warning font-weight-bold mb-1"
+                                <span class="badge badge-light-warning font-weight-bold mb-1 px-2.5 py-1"
                                     title="Menunggu persetujuan GM Pengadaan">
                                     <i class="fas fa-user-clock text-warning mr-1"></i>Menunggu GM
                                 </span>
                             @endcan
                         @else
                             @can('evaluasi-verify-manager')
-                                <form action="{{ route('admin.evaluasi.annual.verify-manager', $ann->id) }}" method="POST"
-                                    class="d-inline">
+                                <form action="{{ route('admin.evaluasi.annual.verify-manager', $ann->id) }}"
+                                    method="POST" class="d-inline">
                                     @csrf
-                                    <button type="submit" class="btn btn-xs btn-light-primary font-weight-bold mb-1"
+                                    <button type="submit"
+                                        class="btn btn-xs btn-light-primary font-weight-bolder mb-1 px-3"
                                         onclick="return confirm('Verifikasi evaluasi tahunan vendor {{ $vName }} sebagai Manager Pengadaan?')">
-                                        <i class="fas fa-check mr-1"></i>Verifikasi (Mgr)
+                                        <i class="fas fa-check text-primary mr-1"></i>Verifikasi (Mgr)
                                     </button>
                                 </form>
                             @else
-                                <span class="badge badge-light-secondary font-weight-bold mb-1"
+                                <span class="badge badge-light-secondary font-weight-bold mb-1 px-2.5 py-1"
                                     title="Menunggu verifikasi Manager Pengadaan">
                                     <i class="fas fa-user-clock text-muted mr-1"></i>Menunggu Mgr
                                 </span>
@@ -196,7 +200,7 @@
 
                         @if ($ann->has_score_drop_alert || $ann->has_consecutive_low_alert)
                             <button type="button"
-                                class="btn btn-xs btn-light-danger font-weight-bold mb-1 ml-1 btn-open-action-modal"
+                                class="btn btn-xs btn-light-danger font-weight-bold mb-1 ml-1 btn-open-action-modal px-2.5"
                                 data-id="{{ $ann->id }}" data-name="{{ $vName }}"
                                 data-score="{{ number_format($ann->final_score, 2) }}"
                                 data-action-url="{{ route('admin.evaluasi.annual.trigger-action', $ann->id) }}">
@@ -254,7 +258,12 @@
             }
 
             setTimeout(function() {
-                if (dtAnnual) dtAnnual.columns.adjust();
+                if (dtAnnual) {
+                    dtAnnual.columns.adjust();
+                }
+                $('#tableAnnual_filter input').addClass('form-control form-control-sm');
+                $('#tableAnnual_length select').addClass(
+                    'custom-select custom-select-sm form-control form-control-sm');
             }, 100);
         });
     </script>

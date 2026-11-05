@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\VendorAnnualEvaluationApprovedMail;
+use App\Mail\VendorAnnualEvaluationAwaitingGmApprovalMail;
+use App\Mail\VendorAnnualEvaluationAwaitingVerificationMail;
 use App\Mail\VendorConsecutiveLowAlertMail;
 use App\Models\EvaluationSetting;
 use App\Models\User;
@@ -132,6 +134,21 @@ class EvaluasiAnnualController extends Controller
             return redirect()->back()->with('warning', $result['message']);
         }
 
+        // Kirim email notifikasi ke Manager Pengadaan bahwa evaluasi tahunan siap diverifikasi
+        try {
+            $managers = User::permission('evaluasi-verify-manager')
+                ->where('is_active', true)
+                ->whereNotNull('email')
+                ->get();
+            $managerEmails = $managers->pluck('email')->unique()->filter()->values()->all();
+
+            if (!empty($managerEmails) && ($result['count'] ?? 0) > 0) {
+                Mail::to($managerEmails)->queue(new VendorAnnualEvaluationAwaitingVerificationMail($year, (int) $result['count']));
+            }
+        } catch (\Exception $e) {
+            Log::error("Gagal mengirim email notifikasi verifikasi evaluasi tahunan ke Manager: " . $e->getMessage());
+        }
+
         return redirect()->route('admin.evaluasi.index', ['year' => $year, 'tab' => 'annual'])
             ->with('success', $result['message']);
     }
@@ -150,6 +167,21 @@ class EvaluasiAnnualController extends Controller
         $annual->save();
 
         $vendorName = optional($annual->vendor)->name ?: 'Vendor';
+
+        // Kirim email notifikasi ke GM Pengadaan bahwa evaluasi tahunan siap disahkan
+        try {
+            $gms = User::permission('evaluasi-approve-gm')
+                ->where('is_active', true)
+                ->whereNotNull('email')
+                ->get();
+            $gmEmails = $gms->pluck('email')->unique()->filter()->values()->all();
+
+            if (!empty($gmEmails)) {
+                Mail::to($gmEmails)->queue(new VendorAnnualEvaluationAwaitingGmApprovalMail($annual));
+            }
+        } catch (\Exception $e) {
+            Log::error("Gagal mengirim email notifikasi pengesahan evaluasi tahunan ke GM: " . $e->getMessage());
+        }
 
         return redirect()->back()->with('success', "Evaluasi Tahunan Vendor {$vendorName} berhasil diverifikasi oleh Manager Pengadaan. Menunggu pengesahan GM.");
     }

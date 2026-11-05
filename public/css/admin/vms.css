@@ -539,6 +539,32 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
     color: var(--vnd-blue) !important;
 }
 
+div.dataTables_wrapper div.dataTables_filter input {
+    margin-left: 0.5rem;
+    display: inline-block;
+    width: auto;
+    border: 1px solid var(--vnd-border);
+    border-radius: 8px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.82rem;
+    outline: none;
+    background: #fff;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+div.dataTables_wrapper div.dataTables_filter input:focus {
+    border-color: var(--vnd-blue);
+    box-shadow: 0 0 0 3px rgba(0, 93, 182, 0.15);
+}
+div.dataTables_wrapper div.dataTables_length select {
+    border: 1px solid var(--vnd-border);
+    border-radius: 8px;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.82rem;
+    background: #fff;
+    outline: none;
+    margin: 0 0.25rem;
+}
+
 /* Table */
 .tbl-vendor {
     width: 100% !important;
@@ -729,6 +755,36 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
 }
 
 /* ── Unified Status Badge & Tags ──────────────── */
+/* Aspect Score Micro-Chips (Annual & Multi-Metric Views) */
+.vnd-chip-score {
+    display: inline-flex;
+    align-items: center;
+    background: #f1f5f9;
+    color: #334155;
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    border: 1px solid #e2e8f0;
+    line-height: 1.2;
+}
+.vnd-chip-score .vnd-chip-lbl {
+    color: #64748b;
+    font-size: 0.68rem;
+    font-weight: 600;
+    margin-right: 4px;
+    text-transform: uppercase;
+}
+.vnd-chip-score--qa {
+    background: #fffbeb;
+    border-color: #fef3c7;
+    color: #92400e;
+}
+.vnd-chip-score--qa .vnd-chip-lbl {
+    color: #b45309;
+}
+
 .vnd-status {
     display: inline-flex;
     align-items: center;

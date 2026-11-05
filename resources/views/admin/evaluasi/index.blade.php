@@ -94,46 +94,48 @@
 
                 <div class="d-flex align-items-center pl-2 border-left" style="gap: 0.5rem; height: 36px;">
                     @can('evaluasi-settings')
-                        <a href="{{ route('admin.evaluasi.settings') }}" class="btn btn-sm btn-icon btn-facebook"
+                        <a href="{{ route('admin.evaluasi.settings') }}" class="btn btn-sm btn-icon btn-light-secondary border"
                             style="width: 36px; height: 36px; border-radius: 8px;" title="Pengaturan Bobot & Threshold">
-                            <i class="fas fa-cog fa-spin" style="animation-duration: 6s;"></i>
+                            <i class="fas fa-cog text-muted fa-spin" style="animation-duration: 6s;"></i>
                         </a>
                     @endcan
 
                     @if ($activeTab == 'annual')
                         @can('evaluasi-create')
-                        <form action="{{ route('admin.evaluasi.annual.generate') }}" method="POST" class="d-inline mb-0">
-                            @csrf
-                            <input type="hidden" name="year" value="{{ $year }}">
-                            <button type="submit"
-                                class="btn btn-sm btn-light-success font-weight-bold d-flex align-items-center"
-                                style="height: 36px; border-radius: 8px;"
-                                onclick="return confirm('Generate / kalkulasi evaluasi tahunan {{ $year }} untuk semua vendor?')">
-                                <i class="fas fa-sync-alt mr-2"></i> Generate Evaluasi {{ $year }}
-                            </button>
-                        </form>
+                            <form action="{{ route('admin.evaluasi.annual.generate') }}" method="POST" class="d-inline mb-0">
+                                @csrf
+                                <input type="hidden" name="year" value="{{ $year }}">
+                                <button type="submit"
+                                    class="btn btn-sm btn-light-success font-weight-bold d-flex align-items-center"
+                                    style="height: 36px; border-radius: 8px;"
+                                    onclick="return confirm('Generate / kalkulasi evaluasi tahunan {{ $year }} untuk semua vendor?')">
+                                    <i class="fas fa-sync-alt mr-2"></i> Generate Evaluasi {{ $year }}
+                                </button>
+                            </form>
                         @endcan
                     @endif
                 </div>
             </div>
         </div>
 
-        {{-- Informational Banner: Threshold & Aspect Weight Info Bar --}}
-        <div class="px-6 py-4 bg-light d-flex align-items-center justify-content-between flex-wrap"
-            style="border-top: 1px dashed #e4e6ef; border-bottom: 1px dashed #e4e6ef;">
-            {{-- <div class="d-flex align-items-center flex-wrap mr-4">
-                <span class="font-weight-bolder text-dark-75 mr-3"><i class="fas fa-balance-scale text-primary mr-2"></i>Bobot Aspek:</span>
-                <span class="label label-light-primary label-inline font-weight-bold mr-2 px-3 py-1">QAD ({{ number_format($settings->weight_delivery + $settings->weight_quality + $settings->weight_quantity, 0) }}%)</span>
-                <span class="label label-light-warning label-inline font-weight-bold px-3 py-1">QA Manual ({{ number_format($settings->weight_complain + $settings->weight_incoming_material + $settings->weight_safety_environment, 0) }}%)</span>
-            </div> --}}
-            <div class="d-flex align-items-center flex-wrap mt-2 mt-md-0">
-                <span class="font-weight-bolder text-dark-75 mr-3">Threshold Kategori:</span>
-                <span class="label label-success label-inline font-weight-bold mr-2 px-3 py-1">BAIK &ge;
-                    {{ number_format($settings->threshold_baik, 0) }}</span>
-                <span class="label label-warning label-inline font-weight-bold mr-2 px-3 py-1 text-white">CUKUP &ge;
-                    {{ number_format($settings->threshold_cukup, 0) }}</span>
-                <span class="label label-danger label-inline font-weight-bold px-3 py-1">KURANG &lt;
-                    {{ number_format($settings->threshold_cukup, 0) }}</span>
+        {{-- Informational Banner: Threshold Kategori --}}
+        <div class="px-6 py-3 d-flex align-items-center justify-content-between flex-wrap">
+            <div class="d-flex align-items-center flex-wrap">
+                <span class="text-muted font-weight-bold font-size-sm mr-3">
+                    <i class="fas fa-layer-group text-muted mr-1"></i> Threshold Kategori:
+                </span>
+                <span class="vnd-status vnd-status--success mr-2 font-weight-bolder font-size-xs">
+                    <i class="fas fa-check-circle mr-1 text-success"></i> BAIK &ge;
+                    {{ number_format($settings->threshold_baik, 0) }}
+                </span>
+                <span class="vnd-status vnd-status--warning mr-2 font-weight-bolder font-size-xs">
+                    <i class="fas fa-minus-circle mr-1 text-warning"></i> CUKUP &ge;
+                    {{ number_format($settings->threshold_cukup, 0) }}
+                </span>
+                <span class="vnd-status vnd-status--danger font-weight-bolder font-size-xs">
+                    <i class="fas fa-exclamation-circle mr-1 text-danger"></i> KURANG &lt;
+                    {{ number_format($settings->threshold_cukup, 0) }}
+                </span>
             </div>
         </div>
 

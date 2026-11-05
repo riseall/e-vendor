@@ -41,7 +41,7 @@
     </div>
 
     <div class="table-responsive">
-        <table class="table tbl-vendor table-bordered table-hover" id="tableMonthly"
+        <table class="table tbl-vendor table-borderless table-hover" id="tableMonthly"
             data-w-del="{{ $settings->weight_delivery }}" data-w-qual="{{ $settings->weight_quality }}"
             data-w-qty="{{ $settings->weight_quantity }}" data-w-comp="{{ $settings->weight_complain }}"
             data-w-inc="{{ $settings->weight_incoming_material }}"
@@ -227,7 +227,11 @@
 
             // Adjust columns on load
             setTimeout(function() {
-                if (dtMonthly) dtMonthly.columns.adjust();
+                if (dtMonthly) {
+                    dtMonthly.columns.adjust();
+                }
+                $('#tableMonthly_filter input').addClass('form-control form-control-sm');
+                $('#tableMonthly_length select').addClass('custom-select custom-select-sm form-control form-control-sm');
             }, 100);
 
             /* 2. Realtime score recalculation */
