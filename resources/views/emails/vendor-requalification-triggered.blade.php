@@ -28,7 +28,11 @@
                     <tr>
                         <td style="font-size:15px; line-height:22px; color:#4b5563; padding-bottom:18px;">
                             {{ __('email_greeting', ['name' => optional($application->general)->nama_perusahaan ?: (optional($application->user)->name ?: 'Vendor')]) }},<br><br>
-                            {{ __('email_requalification_notice', ['number' => $applicationNumber]) }}
+                            @if ($application->requalification_reason === \App\Models\VendorApplication::REASON_QA_TRIGGER)
+                                {{ __('email_requalification_notice', ['number' => $applicationNumber]) }}
+                            @else
+                                {{ __('email_requalification_notice_auto', ['number' => $applicationNumber]) }}
+                            @endif
                         </td>
                     </tr>
                     <tr>
@@ -37,6 +41,14 @@
                             <div style="font-size:15px; font-weight:600; color:#78350f; margin-top:6px;">
                                 {{ $reasonLabel }}
                             </div>
+                            @if (!empty($application->admin_note) && $application->requalification_reason === \App\Models\VendorApplication::REASON_QA_TRIGGER)
+                                <div style="margin-top:12px; padding-top:12px; border-top:1px dashed #fcd34d;">
+                                    <strong style="color:#92400e; font-size:13px;">{{ __('email_requalification_additional_notes') }}:</strong>
+                                    <div style="font-size:14px; color:#451a03; margin-top:4px; line-height:20px; font-style:italic;">
+                                        &ldquo;{{ $application->admin_note }}&rdquo;
+                                    </div>
+                                </div>
+                            @endif
                         </td>
                     </tr>
                     <tr>
@@ -46,7 +58,7 @@
                     </tr>
                     <tr>
                         <td align="center" style="padding:28px 0 34px;">
-                            <a href="{{ route('registrasi.index', ['edit' => 1]) }}"
+                            <a href="{{ route('registrasi.index') }}"
                                 style="display:inline-block; background:#b45309; color:#ffffff; text-decoration:none; font-size:14px; font-weight:700; padding:12px 24px; border-radius:6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                 {{ __('email_start_requalification_btn') }}
                             </a>
