@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\VendorApplication;
-use App\Models\VendorApplicationActivityLog;
 use App\Models\VendorApplicationDocument;
+use App\Services\VendorRequalificationService;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CheckCDOBExpiryCommand extends Command
@@ -21,62 +22,58 @@ class CheckCDOBExpiryCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Check CDOB certificate expiry within 30 days and trigger automatic requalification';
+    protected $description = 'Check CDOB certificate expiry within 30 days and trigger automatic requalification draft';
 
     /**
      * Execute the console command.
      *
+     * @param VendorRequalificationService $requalificationService
      * @return int
      */
-    public function handle()
+    public function handle(VendorRequalificationService $requalificationService)
     {
         $this->info('Memulai pengecekan kadaluarsa sertifikat CDOB...');
 
-        // Query approved applications that have CDOB document or general CDOB field expiring
-        $approvedApps = VendorApplication::where('status', VendorApplication::STATUS_APPROVED)->get();
+        // Query approved applications
+        $approvedApps = VendorApplication::where('status', VendorApplication::STATUS_APPROVED)
+            ->with(['specBaku', 'documents'])
+            ->get();
 
         $triggeredCount = 0;
 
         foreach ($approvedApps as $parentApp) {
-            // Check if CDOB document exists and is expiring
-            $cdobDoc = VendorApplicationDocument::where('application_id', $parentApp->id)
-                ->where(function ($q) {
-                    $q->where('field_name', 'like', '%cdob%')
-                        ->orWhere('document_type', 'like', '%cdob%');
-                })
-                ->first();
+            // Guard clause: jika sudah ada rekualifikasi aktif, lewati
+            if ($requalificationService->getActiveRequalification($parentApp->user_id)) {
+                continue;
+            }
 
-            // Also check specBaku / general CDOB expiry if present
-            $specBaku = $parentApp->specBaku;
             $isCdobExpiring = false;
+            $specBaku = $parentApp->specBaku;
 
-            if ($specBaku && !empty($specBaku->cdob_valid_until)) {
-                $expiryDate = \Carbon\Carbon::parse($specBaku->cdob_valid_until);
-                if ($expiryDate->diffInDays(now(), false) >= -30) {
+            // 1. Cek tanggal q5_valid_until (CDOB di specBaku) atau cdob_valid_until
+            $expiryString = null;
+            if ($specBaku) {
+                $expiryString = $specBaku->q5_valid_until ?: ($specBaku->cdob_valid_until ?? null);
+            }
+
+            if (!empty($expiryString)) {
+                $expiryDate = Carbon::parse($expiryString);
+                $daysRemaining = (int) now()->diffInDays($expiryDate, false);
+                // Jika masa berlaku tinggal 30 hari atau sudah lewat
+                if ($daysRemaining <= 30) {
                     $isCdobExpiring = true;
                 }
             }
 
             if ($isCdobExpiring) {
-                $parentApp->update([
-                    'type'                   => VendorApplication::TYPE_REKUALIFIKASI,
-                    'requalification_reason' => VendorApplication::REASON_CDOB_EXPIRY,
-                ]);
-
-                VendorApplicationActivityLog::create([
-                    'application_id' => $parentApp->id,
-                    'user_id'        => null,
-                    'action'         => 'AUTO_TRIGGER_REKUALIFIKASI_CDOB',
-                    'status_before'  => VendorApplication::STATUS_APPROVED,
-                    'status_after'   => VendorApplication::STATUS_APPROVED,
-                    'ip_address'     => '127.0.0.1',
-                    'metadata'       => [
-                        'reason' => 'cdob_expiry',
-                    ],
-                ]);
+                $newDraft = $requalificationService->createRequalificationDraft(
+                    $parentApp,
+                    VendorApplication::REASON_CDOB_EXPIRY,
+                    'Pemicuan otomatis karena masa berlaku sertifikat CDOB mendekati kedaluwarsa (<= 30 hari)'
+                );
 
                 $triggeredCount++;
-                $this->info("Rekualifikasi CDOB dipicu untuk App ID: {$parentApp->id}");
+                $this->info("Rekualifikasi CDOB dipicu untuk Vendor ID: {$parentApp->user_id} (Draf baru App ID: {$newDraft->id})");
             }
         }
 

@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\VendorApplication;
-use App\Models\VendorApplicationActivityLog;
+use App\Services\VendorRequalificationService;
 use Illuminate\Console\Command;
 
 class TriggerRekualifikasiCommand extends Command
@@ -25,9 +25,10 @@ class TriggerRekualifikasiCommand extends Command
     /**
      * Execute the console command.
      *
+     * @param VendorRequalificationService $requalificationService
      * @return int
      */
-    public function handle()
+    public function handle(VendorRequalificationService $requalificationService)
     {
         $this->info('Memulai pengecekan pemicuan Rekualifikasi otomatis...');
 
@@ -42,29 +43,19 @@ class TriggerRekualifikasiCommand extends Command
         $triggeredCount = 0;
 
         foreach ($expiringApplications as $app) {
-            $app->update([
-                'type'                   => VendorApplication::TYPE_REKUALIFIKASI,
-                'requalification_reason' => VendorApplication::REASON_EXPIRED_PERIOD,
-            ]);
-            if ($app->qualification) {
-                $app->qualification()->delete();
+            // Guard clause: jangan trigger jika vendor sudah punya rekualifikasi aktif
+            if ($requalificationService->getActiveRequalification($app->user_id)) {
+                continue;
             }
 
-            // Log activity
-            VendorApplicationActivityLog::create([
-                'application_id' => $app->id,
-                'user_id'        => null,
-                'action'         => 'AUTO_TRIGGER_REKUALIFIKASI_EXPIRED',
-                'status_before'  => VendorApplication::STATUS_APPROVED,
-                'status_after'   => VendorApplication::STATUS_APPROVED,
-                'ip_address'     => '127.0.0.1',
-                'metadata'       => [
-                    'valid_until' => $app->valid_until ? $app->valid_until->toDateString() : null,
-                ],
-            ]);
+            $newDraft = $requalificationService->createRequalificationDraft(
+                $app,
+                VendorApplication::REASON_EXPIRED_PERIOD,
+                'Pemicuan otomatis karena masa berlaku kualifikasi berakhir dalam 60 hari'
+            );
 
             $triggeredCount++;
-            $this->info("Rekualifikasi otomatis dipicu untuk vendor: ID {$app->user_id} (App ID: {$app->id})");
+            $this->info("Rekualifikasi otomatis dipicu untuk vendor ID: {$app->user_id} (Draf baru App ID: {$newDraft->id})");
         }
 
         $this->info("Pengecekan selesai. Total Rekualifikasi baru dipicu: {$triggeredCount}");
